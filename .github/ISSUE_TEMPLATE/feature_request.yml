@@ -1,0 +1,135 @@
+name: "✨ 기능 추가 요청 (Feature Request)"
+description: 새 기능/개선 아이디어를 제안합니다.
+title: "feat: [모듈/화면] 무엇을 추가/개선할지 한 줄 요약"
+labels:
+  - enhancement
+  - feature
+assignees: []
+projects: [] # 예: ["org/1"] 또는 ["user/1"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        감사합니다! 아래 항목을 가능한 한 구체적으로 작성해 주세요. 체크리스트는 PR의 수용 기준(acceptance criteria)으로도 사용됩니다.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: 요약
+      description: 문제 배경과 제안하는 기능을 한두 문장으로 요약해 주세요.
+      placeholder: 예) 즐겨찾기 목록을 폴더로 묶어 관리할 수 있게 한다.
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 문제/니즈
+      description: 사용자가 겪는 문제, 불편, 비즈니스 니즈를 적어 주세요. (가능하면 데이터/사례 첨부)
+      placeholder: 예) 즐겨찾기 개수가 많아지면 스크롤이 길어져 원하는 항목을 찾기 어렵다.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 제안하는 해결책(기능 설명)
+      description: 화면 흐름, 주요 동작, 상태 변화 등을 구체적으로 설명해 주세요.
+      placeholder: 예) 폴더 생성/이름변경/삭제, 드래그로 즐겨찾기 이동, 폴더별 정렬/검색 제공 등
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: 범위(Scope) / 비범위(Out of Scope)
+      description: 이번 이슈에서 포함/제외되는 항목을 명확히 적어 주세요.
+      value: |
+        포함:
+        - 
+        제외:
+        - 
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 수용 기준 (Acceptance Criteria)
+      description: 완료 판단을 위한 명확한 체크리스트를 작성해 주세요.
+      value: |
+        - [ ] 사용자는 새 폴더를 생성할 수 있다.
+        - [ ] 폴더로 즐겨찾기를 드래그 앤 드롭으로 이동할 수 있다.
+        - [ ] 폴더 삭제 시 포함 항목 처리 규칙을 따른다(옵션 안내 후 수행).
+        - [ ] 단위/통합 테스트 통과 및 문서화 완료.
+    validations:
+      required: true
+
+  - type: textarea
+    id: ux
+    attributes:
+      label: UX/UI 산출물
+      description: 와이어프레임/디자인 링크, 인터랙션 메모, 접근성 요구사항 등을 첨부해 주세요.
+      placeholder: 예) Figma 링크, 접근성 기준(WAI-ARIA 역할/라벨) 등
+    validations:
+      required: false
+
+  - type: textarea
+    id: tech
+    attributes:
+      label: 기술 메모(Tech Notes)
+      description: 데이터 모델 변경, API 스펙, 마이그레이션, 성능/보안 고려사항 등을 적어 주세요.
+      placeholder: 예) DB에 folders 테이블 추가, POST /favorites/folders, 낙관적 업데이트 적용 등
+    validations:
+      required: false
+
+  - type: input
+    id: metrics
+    attributes:
+      label: 성공 지표(Metrics)
+      description: 기능 성공을 측정할 핵심 지표를 정의해 주세요.
+      placeholder: 예) 폴더 기능 2주 내 활성 사용자 비율 30% 이상
+    validations:
+      required: false
+
+  - type: textarea
+    id: deps
+    attributes:
+      label: 의존성/연관 이슈
+      description: 선행 작업, 외부 팀/시스템 의존성, 관련 이슈/PR을 연결해 주세요.
+      placeholder: 예) #123, 백엔드 배포 완료 필요 등
+    validations:
+      required: false
+
+  - type: textarea
+    id: risks
+    attributes:
+      label: 리스크 & 완화책
+      description: 예상되는 리스크와 대응 방안을 적어 주세요.
+      placeholder: 예) 데이터 마이그레이션 중 다운타임 → 배치/점진 이관 전략
+    validations:
+      required: false
+
+  - type: textarea
+    id: rollout
+    attributes:
+      label: 릴리즈/롤아웃 계획
+      description: 플래그, 점진적 배포, 모니터링/롤백 계획을 적어 주세요.
+      placeholder: 예) feature flag로 가리고 10% → 50% → 100% 순으로 확대
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: 기본 체크리스트
+      options:
+        - label: 관련 문서/디자인 링크 첨부
+        - label: 추정 공수 산정 및 담당자 협의
+        - label: 테스트 전략 수립(단위/통합/E2E)
+        - label: 접근성/성능/보안 고려
+        - label: 분석 이벤트/로그 설계
+        - label: 릴리즈 노트 항목 마련
+    validations:
+      required: false
