@@ -29,44 +29,44 @@ const STATUS_TARGETS = {
 async function getProjectStatusMeta(owner, number) {
   const q = `
     query ($owner: String!, $number: Int!) {
-      user(login: $owner) {
-        projectV2(number: $number) {
-          id
-          fields(first: 50) {
-            nodes {
-              ... on ProjectV2SingleSelectField {
-                id
-                name
-                options { id name }
+      repositoryOwner(login: $owner) {
+        __typename
+        ... on User {
+          projectV2(number: $number) {
+            id
+            fields(first: 50) {
+              nodes {
+                ... on ProjectV2SingleSelectField {
+                  id
+                  name
+                  options { id name }
+                }
               }
             }
           }
         }
-      }
-      organization(login: $owner) {
-        projectV2(number: $number) {
-          id
-          fields(first: 50) {
-            nodes {
-              ... on ProjectV2SingleSelectField {
-                id
-                name
-                options { id name }
+        ... on Organization {
+          projectV2(number: $number) {
+            id
+            fields(first: 50) {
+              nodes {
+                ... on ProjectV2SingleSelectField {
+                  id
+                  name
+                  options { id name }
+                }
               }
             }
           }
         }
       }
     }`;
-  const data = await gql(q, { owner, number });
-  const proj = data.user?.projectV2 ?? data.organization?.projectV2;
-  if (!proj) throw new Error("Project not found (check owner/number)");
+  const data = await gql(q, { owner, number: Number(number) });
+  const proj = data.repositoryOwner?.projectV2;
+  if (!proj) throw new Error("Project not found for owner/number (check that # is a Projects v2 board and token has access)");
   const statusField = proj.fields.nodes.find(f => f && f.name === "Status");
-  if (!statusField) throw new Error("Status field not found in project");
-
-  // 옵션 이름 로깅(디버그)
+  if (!statusField) throw new Error("Status field not found in project (ensure a single-select field named 'Status')");
   console.log("Status options:", statusField.options.map(o => o.name));
-
   return { projectId: proj.id, statusFieldId: statusField.id };
 }
 
