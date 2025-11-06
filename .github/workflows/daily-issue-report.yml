@@ -1,7 +1,4 @@
-name: Daily Project Board → Notion (Todo/In Progress/Done)
-
-env:
-  REPORT_OFFSET_DAYS: 0
+name: Daily Project Roadmap → Notion (Yesterday Done / Today In Progress & Todo)
 
 "on":
   schedule:
@@ -18,22 +15,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Debug: show files
+        run: |
+          pwd
+          ls -la
+          echo "--- scripts ---"
+          ls -la scripts || true
+
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
 
       - run: npm install --no-audit --no-fund
 
-      - name: Build daily report from Project Board and export to Notion
+      - name: Build Roadmap report & export to Notion
         run: npm start
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          # === 필수 ===
           PROJECT_OWNER: jeonglee22
           PROJECT_NUMBER: 7
-          # === 선택 ===
-          INCLUDE_PRS: "false"          # PR도 포함하려면 "true"
           TIMEZONE: Asia/Seoul
-          # Notion (선택) — 페이지 생성하려면 세팅
+          # 오프셋: 보고 기준 일(기본 오늘). 0=오늘 스냅샷, 1=어제 스냅샷 등
+          REPORT_OFFSET_DAYS: "0"
+          # Notion (선택)
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
           NOTION_DB_ID: ${{ secrets.NOTION_DB_ID }}
