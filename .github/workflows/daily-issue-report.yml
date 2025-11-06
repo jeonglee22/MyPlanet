@@ -1,13 +1,12 @@
-name: Daily Issue Report (Done / InProgress / Todo)
+name: Daily Project Board → Notion (Todo/In Progress/Done)
 
 env:
   REPORT_OFFSET_DAYS: 0
 
-on:
+"on":
   schedule:
-    - cron: '0 0 * * *' # 00:00 UTC = 09:00 KST
-  workflow_dispatch: {}
-
+    - cron: "0 0 * * *"   # 00:00 UTC == 09:00 KST
+  workflow_dispatch:
 
 jobs:
   run:
@@ -15,20 +14,26 @@ jobs:
     permissions:
       contents: read
       issues: read
+      pull-requests: read
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
+
       - run: npm install --no-audit --no-fund
-      - name: Classify issues & (optionally) export to Notion
+
+      - name: Build daily report from Project Board and export to Notion
         run: npm start
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          TARGET_REPOS: ${{ vars.TARGET_REPOS }} # e.g. your-org/repo-a,your-org/repo-b
+          # === 필수 ===
+          PROJECT_OWNER: jeonglee22
+          PROJECT_NUMBER: 7
+          # === 선택 ===
+          INCLUDE_PRS: "false"          # PR도 포함하려면 "true"
           TIMEZONE: Asia/Seoul
-          PLAN_TODAY_LABEL: plan:today
-          EXCLUDE_ACTORS: github-actions[bot],some-ci-bot # optional, comma sep
-          # Notion export (optional)
+          # Notion (선택) — 페이지 생성하려면 세팅
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
           NOTION_DB_ID: ${{ secrets.NOTION_DB_ID }}

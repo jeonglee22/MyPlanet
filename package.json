@@ -1,13 +1,14 @@
 {
-"name": "gh-daily-issue-classifier",
+"name": "gh-project-status-report",
 "version": "1.0.0",
-"type": "module",
 "private": true,
+"type": "module",
 "scripts": {
-"start": "node scripts/classify-issues.js"
+"start": "node scripts/project-status-report.js"
 },
 "dependencies": {
 "@notionhq/client": "^2.2.15",
+"@octokit/graphql": "^7.0.1",
 "luxon": "^3.5.0",
 "octokit": "^4.0.2"
 }

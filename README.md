@@ -1,24 +1,12 @@
-# Daily Issue Classifier (GitHub → Notion)
+# Daily Project Board → Notion (Exact Status Mapping)
 
+- **Source of truth**: GitHub Projects (v2) 보드의 **Status** 필드 값
+- **정확 매핑**: `Todo` / `In Progress` / `Done` (대소문자 무시, 정확 일치)
+- **PR 포함 여부**: `INCLUDE_PRS` (기본 false)
 
-## Quick start
-1. Add this repo skeleton to your project.
-2. Set repository **Secrets** / **Variables**:
-- Secrets: `GH_TOKEN`, (`NOTION_TOKEN`, `NOTION_DB_ID` optional)
-- Variables: `TARGET_REPOS` = `org/repo-a,org/repo-b`
-3. (Optional) Adjust envs in workflow: `PLAN_TODAY_LABEL`, `EXCLUDE_ACTORS`, `TIMEZONE`.
-4. Push to default branch. A run occurs daily at 09:00 KST (00:00 UTC) and also supports manual dispatch.
+## Secrets / Variables
+- Secrets: `GH_TOKEN`, (`NOTION_TOKEN`, `NOTION_DB_ID`)
+- Env/Vars: `PROJECT_OWNER=jeonglee22`, `PROJECT_NUMBER=7`, (`INCLUDE_PRS=false`)
 
-
-## Classification rules
-- **Done**: issues closed within yesterday's KST window
-- **In Progress**: issues with any comments or non-closed events in that window
-- **Todo**: open issues labeled with `plan:today` that saw no changes yesterday
-
-
-> PRs are excluded by default; remove the checks if you want to include them.
-
-
-## Notes
-- Uses GitHub REST pagination generously; for very large orgs, consider narrowing repos or adding heuristics.
-- Notion export is optional; when enabled, the script creates/updates a page for the date, then appends section blocks in chunks to respect API limits.
+## Notion DB properties (권장)
+`Name`(Title), `Date`(Date), `Repos`(Multi-select), `Done`/`Progressed`/`NotDone`/`NewIssues`(Number)
