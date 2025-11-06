@@ -1,0 +1,47 @@
+name: "🐞 버그 신고 (Simple Bug Report)"
+description: 버그 요약, 재현 방법, 실제 작동, (선택) 에러 메시지만 작성하는 간단 템플릿
+title: "fix: [모듈/씬] 한 줄 요약"
+labels:
+  - bug
+assignees: []
+projects: []
+
+body:
+  - type: input
+    id: summary
+    attributes:
+      label: 버그 요약
+      description: 문제가 무엇인지 한 줄로 설명해 주세요.
+      placeholder: 예) 점프 후 착지 시 카메라 흔들림이 멈추지 않음
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: 재현 (Steps to Reproduce)
+      description: 같은 문제가 발생하도록 단계별로 적어 주세요.
+      placeholder: |
+        1) Main 씬 실행
+        2) Space 키로 점프 3회
+        3) 착지 후 카메라 흔들림 지속 확인
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: 실제 작동 (Actual Behavior)
+      description: 실제로 어떻게 동작했는지 적어 주세요.
+      placeholder: 예) 착지 후 5초 이상 화면 흔들림 지속
+    validations:
+      required: true
+
+  - type: textarea
+    id: error
+    attributes:
+      label: (선택) 에러 메시지
+      description: 콘솔/로그의 에러 메시지나 스택 트레이스를 붙여 주세요.
+      placeholder: 예) NullReferenceException: Object reference not set to an instance of an object
+    validations:
+      required: false

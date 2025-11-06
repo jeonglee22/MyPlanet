@@ -32,8 +32,6 @@ body:
         - UI/UX
         - Audio
         - VFX
-        - AI
-        - Network/Multiplayer
         - Tools/Editor
         - Optimization
       default: 0
@@ -48,25 +46,6 @@ body:
       placeholder: 예) Scenes/Main.unity, Prefabs/Player.prefab, Scripts/CameraShake.cs
     validations:
       required: false
-
-  - type: checkboxes
-    id: impl
-    attributes:
-      label: 구현 체크리스트
-      description: 필요 없는 항목은 지우고, 필요한 항목을 추가해 주세요.
-      options:
-        - label: 설계 확정 (상태/입력/이벤트 흐름)
-        - label: 데이터 구조/파라미터 정의 (ScriptableObject/Config)
-        - label: 핵심 로직 구현
-        - label: 애니메이션/사운드/VFX 연동
-        - label: UI 표시/피드백 연동
-        - label: 세이브/로드(해당 시) 반영
-        - label: 에디터 툴/디버그 토글(해당 시)
-        - label: 단위/통합 테스트 및 테스트 씬 준비
-        - label: 성능 점검(프레임/GC/할당)
-        - label: 코드/주석/간단 문서화
-    validations:
-      required: true
 
   - type: textarea
     id: tasks_detail
@@ -87,6 +66,5 @@ body:
         - label: 주요 플랫폼(해당 시)에서 문제 없음
         - label: 리그레션 없는지 핵심 플로우 수동 테스트
         - label: 로그/에러/경고 무분별 발생 없음
-        - label: 간단 릴리즈 노트 문구 작성
     validations:
       required: true
