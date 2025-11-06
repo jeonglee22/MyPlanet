@@ -62,11 +62,8 @@ async function getProjectMeta(owner, number) {
               nodes {
                 __typename
                 ... on ProjectV2SingleSelectField { id name }
-                ... on ProjectV2Field { id name }
-                ... on ProjectV2IterationField { id name }
-                ... on ProjectV2DateField { id name }
-                ... on ProjectV2TextField { id name }
-                ... on ProjectV2NumberField { id name }
+                ... on ProjectV2IterationField   { id name }
+                ... on ProjectV2Field            { id name }
               }
             }
           }
@@ -78,44 +75,55 @@ async function getProjectMeta(owner, number) {
               nodes {
                 __typename
                 ... on ProjectV2SingleSelectField { id name }
-                ... on ProjectV2Field { id name }
-                ... on ProjectV2IterationField { id name }
-                ... on ProjectV2DateField { id name }
-                ... on ProjectV2TextField { id name }
-                ... on ProjectV2NumberField { id name }
+                ... on ProjectV2IterationField   { id name }
+                ... on ProjectV2Field            { id name }
               }
             }
           }
         }
       }
     }`;
+
   const data = await gql(q, { owner, number });
   const proj = data.repositoryOwner?.projectV2;
   if (!proj) throw new Error("Project not found for owner/number");
 
-  const fields = proj.fields.nodes
+  const fields = (proj.fields.nodes || [])
     .filter(Boolean)
     .map(f => ({ name: (f?.name || "").trim(), typename: f?.__typename, id: f?.id }));
 
-  // Status must be a SingleSelect field named exactly 'Status'
-  const statusField = fields.find(f => f.typename === 'ProjectV2SingleSelectField' && f.name.toLowerCase() === 'status');
+  // Status = 단일선택 필드
+  const statusField = fields.find(
+    f => f.typename === "ProjectV2SingleSelectField" && f.name.toLowerCase() === "status"
+  );
   if (!statusField) throw new Error("Status single-select field named 'Status' not found");
 
-  // pick start/end by env or heuristic
-  let startName = START_FIELD_NAME;
-  let endName = END_FIELD_NAME;
-  const lname = s => (s || '').toLowerCase();
+  // 시작/마감 필드명: ENV 우선, 없으면 후보로 추론
+  const lname = s => (s || "").toLowerCase();
+  let startName = process.env.DATE_START_FIELD_NAME || null;   // "Start date"
+  let endName   = process.env.DATE_END_FIELD_NAME   || null;   // "Target date"
+
   if (!startName) {
-    const cand = ["Start date", "Start", "시작일"].map(lname);
+    const cand = ["start date", "start", "시작일"];
     startName = fields.find(f => cand.includes(lname(f.name)))?.name || null;
   }
   if (!endName) {
-    const cand = ["Target date", "Due date", "End date", "Target", "Due", "End", "마감일"].map(lname);
+    const cand = ["target date", "due date", "end date", "target", "due", "end", "마감일"];
     endName = fields.find(f => cand.includes(lname(f.name)))?.name || null;
   }
 
-  console.log("Detected fields:", { status: statusField?.name, start: startName || "(none)", end: endName || "(none)" });
-  return { projectId: proj.id, statusFieldName: statusField.name, startFieldName: startName, endFieldName: endName };
+  console.log("Detected fields:", {
+    status: statusField?.name,
+    start: startName || "(none)",
+    end: endName || "(none)",
+  });
+
+  return {
+    projectId: proj.id,
+    statusFieldName: statusField.name,
+    startFieldName: startName,
+    endFieldName: endName,
+  };
 }
 
 // Fetch all items with Status and optional Start/End dates
