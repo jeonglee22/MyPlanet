@@ -130,7 +130,7 @@ async function getProjectMeta(owner, number) {
 async function getAllProjectItemsWithStatus(projectId, statusFieldName, startFieldName, endFieldName) {
   // Note: $startName/$endName can be null; guard in query with @include directive
   const q = `
-    query ($projectId: ID!, $after: String, $statusName: String!, $withStart: Boolean!, $startName: String, $withEnd: Boolean!, $endName: String) {
+    query ($projectId: ID!, $after: String, $statusName: String!, $startName: String!, $endName: String!) {
       node(id: $projectId) {
         ... on ProjectV2 {
           items(first: 100, after: $after) {
@@ -140,8 +140,8 @@ async function getAllProjectItemsWithStatus(projectId, statusFieldName, startFie
               content { __typename ... on Issue { repository { nameWithOwner } number title url }
                                  ... on PullRequest { repository { nameWithOwner } number title url } }
               statusNow: fieldValueByName(name: $statusName) { ... on ProjectV2ItemFieldSingleSelectValue { name updatedAt } }
-              startVal: fieldValueByName(name: $startName) @include(if: $withStart) { ... on ProjectV2ItemFieldDateValue { date } }
-              endVal:   fieldValueByName(name: $endName)   @include(if: $withEnd)   { ... on ProjectV2ItemFieldDateValue { date } }
+              startVal: fieldValueByName(name: $startName) { ... on ProjectV2ItemFieldDateValue { date } }
+              endVal:   fieldValueByName(name: $endName)   { ... on ProjectV2ItemFieldDateValue { date } }
             }
           }
         }
