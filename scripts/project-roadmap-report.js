@@ -58,13 +58,33 @@ async function getProjectMeta(owner, number) {
         ... on User {
           projectV2(number: $number) {
             id
-            fields(first: 100) { nodes { __typename id name } }
+            fields(first: 100) {
+              nodes {
+                __typename
+                ... on ProjectV2SingleSelectField { id name }
+                ... on ProjectV2Field { id name }
+                ... on ProjectV2IterationField { id name }
+                ... on ProjectV2DateField { id name }
+                ... on ProjectV2TextField { id name }
+                ... on ProjectV2NumberField { id name }
+              }
+            }
           }
         }
         ... on Organization {
           projectV2(number: $number) {
             id
-            fields(first: 100) { nodes { __typename id name } }
+            fields(first: 100) {
+              nodes {
+                __typename
+                ... on ProjectV2SingleSelectField { id name }
+                ... on ProjectV2Field { id name }
+                ... on ProjectV2IterationField { id name }
+                ... on ProjectV2DateField { id name }
+                ... on ProjectV2TextField { id name }
+                ... on ProjectV2NumberField { id name }
+              }
+            }
           }
         }
       }
@@ -73,20 +93,25 @@ async function getProjectMeta(owner, number) {
   const proj = data.repositoryOwner?.projectV2;
   if (!proj) throw new Error("Project not found for owner/number");
 
-  const fields = proj.fields.nodes.map(f => ({ name: (f?.name || "").trim(), typename: f?.__typename, id: f?.id }));
-  const statusField = fields.find(f => f.name.toLowerCase() === "status");
-  if (!statusField) throw new Error("Status field not found (must be single-select named 'Status')");
+  const fields = proj.fields.nodes
+    .filter(Boolean)
+    .map(f => ({ name: (f?.name || "").trim(), typename: f?.__typename, id: f?.id }));
+
+  // Status must be a SingleSelect field named exactly 'Status'
+  const statusField = fields.find(f => f.typename === 'ProjectV2SingleSelectField' && f.name.toLowerCase() === 'status');
+  if (!statusField) throw new Error("Status single-select field named 'Status' not found");
 
   // pick start/end by env or heuristic
   let startName = START_FIELD_NAME;
   let endName = END_FIELD_NAME;
+  const lname = s => (s || '').toLowerCase();
   if (!startName) {
-    const cand = ["Start date", "Start", "시작일"];
-    startName = fields.find(f => cand.map(s=>s.toLowerCase()).includes(f.name.toLowerCase()))?.name || null;
+    const cand = ["Start date", "Start", "시작일"].map(lname);
+    startName = fields.find(f => cand.includes(lname(f.name)))?.name || null;
   }
   if (!endName) {
-    const cand = ["Target date", "Due date", "End date", "Target", "Due", "End", "마감일"];
-    endName = fields.find(f => cand.map(s=>s.toLowerCase()).includes(f.name.toLowerCase()))?.name || null;
+    const cand = ["Target date", "Due date", "End date", "Target", "Due", "End", "마감일"].map(lname);
+    endName = fields.find(f => cand.includes(lname(f.name)))?.name || null;
   }
 
   console.log("Detected fields:", { status: statusField?.name, start: startName || "(none)", end: endName || "(none)" });
