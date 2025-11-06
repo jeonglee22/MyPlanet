@@ -1,7 +1,14 @@
+// scripts/project-roadmap-report.js (fixed)
+// Roadmap timeline aware daily report
+// - Done: changed to Done yesterday (KST)
+// - In Progress: Status = In Progress today AND timeline intersects today
+// - Todo: Status = Todo today AND timeline intersects today
+
 import { graphql } from "@octokit/graphql";
 import { Client as Notion } from "@notionhq/client";
 import { DateTime } from "luxon";
 
+// ===== Env & clients =====
 const GH_TOKEN = process.env.GH_TOKEN;
 if (!GH_TOKEN) throw new Error("GH_TOKEN is required");
 const gql = graphql.defaults({ headers: { authorization: `token ${GH_TOKEN}` } });
@@ -13,32 +20,37 @@ const notion = NOTION_TOKEN ? new Notion({ auth: NOTION_TOKEN }) : null;
 const ZONE = process.env.TIMEZONE || "Asia/Seoul";
 const OWNER = process.env.PROJECT_OWNER;   // e.g. "jeonglee22"
 const NUMBER = Number(process.env.PROJECT_NUMBER); // e.g. 7
-const OFFSET = Number(process.env.REPORT_OFFSET_DAYS ?? 0); // 기준일 오프셋(0=오늘)
+const OFFSET = Number(process.env.REPORT_OFFSET_DAYS ?? 0); // 0=today, 1=yesterday, ...
+
+// explicit field names (recommended)
+const START_FIELD_NAME = process.env.DATE_START_FIELD_NAME || null;   // e.g. "Start date"
+const END_FIELD_NAME   = process.env.DATE_END_FIELD_NAME   || null;   // e.g. "Target date"
 
 if (!OWNER || !NUMBER) throw new Error("PROJECT_OWNER and PROJECT_NUMBER are required");
 
-// === 상태 이름 정확 매핑 ===
-const STATUS_TODO = "todo";
-const STATUS_INPROG = "in progress";
-const STATUS_DONE = "done";
-
-// === 시간창 계산 ===
-// 기준일(오늘 - OFFSET)의 00:00~24:00 KST 스냅샷을 '오늘'로 간주
-const todayStartKST = DateTime.now().setZone(ZONE).startOf('day').minus({ days: OFFSET });
+// ===== Time window (KST) =====
+const todayStartKST = DateTime.now().setZone(ZONE).startOf("day").minus({ days: OFFSET });
 const todayEndKST   = todayStartKST.plus({ days: 1 });
-// 전날 창: 어제 00:00~오늘 00:00 (Done 전환 감지용)
+
 const yStartKST = todayStartKST.minus({ days: 1 });
 const yEndKST   = todayStartKST;
 const yStartUTC = yStartKST.toUTC();
 const yEndUTC   = yEndKST.toUTC();
 
 function withinYesterdayUTC(tsISO) {
-  const t = DateTime.fromISO(tsISO, { zone: 'utc' });
+  if (!tsISO) return false;
+  const t = DateTime.fromISO(tsISO, { zone: "utc" });
   return t >= yStartUTC && t < yEndUTC;
 }
 
-// === GraphQL helpers ===
-async function getProjectStatusField(owner, number) {
+// ===== Status constants =====
+const STATUS_TODO = "todo";
+const STATUS_INPROG = "in progress";
+const STATUS_DONE = "done";
+
+// ===== GraphQL helpers =====
+// Discover fields; prefer explicit env names if provided
+async function getProjectMeta(owner, number) {
   const q = `
     query ($owner: String!, $number: Int!) {
       repositoryOwner(login: $owner) {
@@ -46,17 +58,13 @@ async function getProjectStatusField(owner, number) {
         ... on User {
           projectV2(number: $number) {
             id
-            fields(first: 50) {
-              nodes { ... on ProjectV2SingleSelectField { id name options { id name } } }
-            }
+            fields(first: 100) { nodes { __typename id name } }
           }
         }
         ... on Organization {
           projectV2(number: $number) {
             id
-            fields(first: 50) {
-              nodes { ... on ProjectV2SingleSelectField { id name options { id name } } }
-            }
+            fields(first: 100) { nodes { __typename id name } }
           }
         }
       }
@@ -64,16 +72,32 @@ async function getProjectStatusField(owner, number) {
   const data = await gql(q, { owner, number });
   const proj = data.repositoryOwner?.projectV2;
   if (!proj) throw new Error("Project not found for owner/number");
-  const statusField = proj.fields.nodes.find(f => f && f.name === "Status");
-  if (!statusField) throw new Error("Status field not found (must be a single-select named 'Status')");
-  console.log("Status options:", statusField.options.map(o => o.name));
-  return { projectId: proj.id, statusFieldId: statusField.id };
+
+  const fields = proj.fields.nodes.map(f => ({ name: (f?.name || "").trim(), typename: f?.__typename, id: f?.id }));
+  const statusField = fields.find(f => f.name.toLowerCase() === "status");
+  if (!statusField) throw new Error("Status field not found (must be single-select named 'Status')");
+
+  // pick start/end by env or heuristic
+  let startName = START_FIELD_NAME;
+  let endName = END_FIELD_NAME;
+  if (!startName) {
+    const cand = ["Start date", "Start", "시작일"];
+    startName = fields.find(f => cand.map(s=>s.toLowerCase()).includes(f.name.toLowerCase()))?.name || null;
+  }
+  if (!endName) {
+    const cand = ["Target date", "Due date", "End date", "Target", "Due", "End", "마감일"];
+    endName = fields.find(f => cand.map(s=>s.toLowerCase()).includes(f.name.toLowerCase()))?.name || null;
+  }
+
+  console.log("Detected fields:", { status: statusField?.name, start: startName || "(none)", end: endName || "(none)" });
+  return { projectId: proj.id, statusFieldName: statusField.name, startFieldName: startName, endFieldName: endName };
 }
 
-async function getAllProjectItemsWithStatus(projectId) {
-  // items + fieldValues(Status) + fieldValueByName(name:"Status").updatedAt
+// Fetch all items with Status and optional Start/End dates
+async function getAllProjectItemsWithStatus(projectId, statusFieldName, startFieldName, endFieldName) {
+  // Note: $startName/$endName can be null; guard in query with @include directive
   const q = `
-    query ($projectId: ID!, $after: String) {
+    query ($projectId: ID!, $after: String, $statusName: String!, $withStart: Boolean!, $startName: String, $withEnd: Boolean!, $endName: String) {
       node(id: $projectId) {
         ... on ProjectV2 {
           items(first: 100, after: $after) {
@@ -82,10 +106,9 @@ async function getAllProjectItemsWithStatus(projectId) {
               id
               content { __typename ... on Issue { repository { nameWithOwner } number title url }
                                  ... on PullRequest { repository { nameWithOwner } number title url } }
-              fieldValues(first: 20) {
-                nodes { __typename ... on ProjectV2ItemFieldSingleSelectValue { field { ... on ProjectV2SingleSelectField { id name } } name } }
-              }
-              statusNow: fieldValueByName(name: "Status") { ... on ProjectV2ItemFieldSingleSelectValue { name updatedAt } }
+              statusNow: fieldValueByName(name: $statusName) { ... on ProjectV2ItemFieldSingleSelectValue { name updatedAt } }
+              startVal: fieldValueByName(name: $startName) @include(if: $withStart) { ... on ProjectV2ItemFieldDateValue { date } }
+              endVal:   fieldValueByName(name: $endName)   @include(if: $withEnd)   { ... on ProjectV2ItemFieldDateValue { date } }
             }
           }
         }
@@ -94,15 +117,28 @@ async function getAllProjectItemsWithStatus(projectId) {
 
   const items = [];
   let after = null;
+  const vars = {
+    projectId,
+    statusName: statusFieldName,
+    withStart: Boolean(startFieldName),
+    startName: startFieldName,
+    withEnd: Boolean(endFieldName),
+    endName: endFieldName,
+    after
+  };
+
   do {
-    const d = await gql(q, { projectId, after });
+    vars.after = after;
+    const d = await gql(q, vars);
     const page = d.node.items;
     for (const it of page.nodes) {
       const c = it.content;
       if (!c) continue; // skip items without attached Issue/PR
-      const statusFV   = it.fieldValues.nodes.find(v => v?.field?.name === 'Status');
-      const statusName = (statusFV?.name || '').trim();
-      const statusNow  = it.statusNow ? { name: it.statusNow.name || '', updatedAt: it.statusNow.updatedAt || null } : { name: statusName, updatedAt: null };
+      const statusName = (it.statusNow?.name || "").trim();
+      const statusUpdatedAt = it.statusNow?.updatedAt || null;
+      const startDate = it.startVal?.date || null;
+      const endDate   = it.endVal?.date || null;
+
       items.push({
         id: it.id,
         type: c.__typename,
@@ -111,7 +147,9 @@ async function getAllProjectItemsWithStatus(projectId) {
         title: c.title,
         url: c.url,
         statusName,
-        statusUpdatedAt: statusNow.updatedAt // ISO or null
+        statusUpdatedAt,
+        startDate,
+        endDate
       });
     }
     after = page.pageInfo.hasNextPage ? page.pageInfo.endCursor : null;
@@ -119,45 +157,52 @@ async function getAllProjectItemsWithStatus(projectId) {
   return items;
 }
 
+// Decide buckets with timeline filtering
 function bucketize(items) {
   const done = [];
   const inProgress = [];
   const todo = [];
 
   for (const it of items) {
-    const s = (it.statusName || '').trim().toLowerCase();
-    // 1) 전날 Done으로 바뀐 항목 → Done
+    const s = (it.statusName || "").trim().toLowerCase();
+
+    // Timeline intersect check: if either date is missing, treat as open (no exclusion)
+    if (it.startDate) {
+      const sd = DateTime.fromISO(it.startDate, { zone: ZONE }).startOf("day");
+      if (sd > todayEndKST) continue; // future start → exclude today
+    }
+    if (it.endDate) {
+      const ed = DateTime.fromISO(it.endDate, { zone: ZONE }).endOf("day");
+      if (ed < todayStartKST) continue; // already ended → exclude today
+    }
+
+    // 1) Done if changed to Done yesterday
     if (s === STATUS_DONE) {
-      if (it.statusUpdatedAt && withinYesterdayUTC(it.statusUpdatedAt)) {
-        done.push(it);
-        continue;
-      }
-      // Done이지만 전날 전환이 아니면 오늘 완료 목록에는 포함하지 않음
+      if (withinYesterdayUTC(it.statusUpdatedAt)) done.push(it);
+      continue; // do not include Done elsewhere
     }
-    // 2) 오늘 스냅샷에서 In Progress → 진행 사항
-    if (s === STATUS_INPROG) {
-      inProgress.push(it);
-      continue;
-    }
-    // 3) 오늘 스냅샷에서 Todo → 오늘 할 일
-    if (s === STATUS_TODO) {
-      todo.push(it);
-      continue;
-    }
+
+    // 2) Today snapshot buckets
+    if (s === STATUS_INPROG) { inProgress.push(it); continue; }
+    if (s === STATUS_TODO)   { todo.push(it); continue; }
   }
   return { done, inProgress, todo };
 }
 
+// ===== MAIN =====
 (async () => {
-  const { projectId } = await getProjectStatusField(OWNER, NUMBER);
-  const items = await getAllProjectItemsWithStatus(projectId);
+  const { projectId, statusFieldName, startFieldName, endFieldName } = await getProjectMeta(OWNER, NUMBER);
+  const items = await getAllProjectItemsWithStatus(projectId, statusFieldName, startFieldName, endFieldName);
   const buckets = bucketize(items);
 
   const reportDate = todayStartKST.toISODate();
   const result = {
     reportDate,
     tz: ZONE,
-    prevWindowKST: { start: yStartKST.toISO(), end: yEndKST.toISO() },
+    windows: {
+      yesterdayKST: { start: yStartKST.toISO(), end: yEndKST.toISO() },
+      todayKST: { start: todayStartKST.toISO(), end: todayEndKST.toISO() }
+    },
     counts: { done: buckets.done.length, inProgress: buckets.inProgress.length, todo: buckets.todo.length },
     items: buckets
   };
@@ -165,9 +210,11 @@ function bucketize(items) {
   console.log("SUMMARY (Roadmap-based)");
   console.log(JSON.stringify(result, null, 2));
 
+  // ===== Notion export (optional) =====
   if (notion && NOTION_DB_ID) {
     const title = `Daily Report - ${reportDate}`;
 
+    // Upsert by Date
     const existing = await notion.databases.query({
       database_id: NOTION_DB_ID,
       filter: { property: "Date", date: { equals: reportDate } },
@@ -211,9 +258,11 @@ function bucketize(items) {
     children.push(h2("⏳ Todo (today snapshot)"));
     for (const i of buckets.todo) children.push(bullet(`[${i.repo} #${i.number}] ${i.title}`, i.url));
 
+    // append in chunks (Notion limit 100 blocks)
     for (let i = 0; i < children.length; i += 90) {
       await notion.blocks.children.append({ block_id: pageId, children: children.slice(i, i + 90) });
     }
+
     console.log("Notion page updated:", pageId);
   }
 })();

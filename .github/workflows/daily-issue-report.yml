@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Debug show files
+      - name: Debug: show files
         run: |
           pwd
           ls -la
@@ -37,6 +37,8 @@ jobs:
           TIMEZONE: Asia/Seoul
           # 오프셋: 보고 기준 일(기본 오늘). 0=오늘 스냅샷, 1=어제 스냅샷 등
           REPORT_OFFSET_DAYS: "0"
+          DATE_START_FIELD_NAME: "Start date"
+          DATE_END_FIELD_NAME: "Target date"
           # Notion (선택)
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
           NOTION_DB_ID: ${{ secrets.NOTION_DB_ID }}
