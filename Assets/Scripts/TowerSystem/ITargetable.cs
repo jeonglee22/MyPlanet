@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface ITargetable // consider targeting object
+public interface ITargetable // consider targeting object.
 {
     Vector3 position { get; }
     bool isAlive { get; }
