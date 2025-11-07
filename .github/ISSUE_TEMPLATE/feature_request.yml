@@ -34,22 +34,6 @@ body:
     validations:
       required: true
 
-  - type: textarea
-    id: tasklist
-    attributes:
-      label: 작업 체크리스트 (작성자가 직접 추가)
-      description: |
-        마크다운 체크박스를 자유롭게 작성하세요.
-        - 미완료: `- [ ] 작업 내용`
-        - 완료 표시: `- [x] 작업 내용`
-      render: markdown
-      value: |
-        - [ ] 첫 작업 항목
-        - [ ] 두 번째 항목
-        - [ ] ...
-    validations:
-      required: true
-
   - type: dropdown
     id: category
     attributes:
@@ -63,7 +47,7 @@ body:
         - Optimization
       default: 0
     validations:
-      required: false
+      required: true
 
   - type: input
     id: context
