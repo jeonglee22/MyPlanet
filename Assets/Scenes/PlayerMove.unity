@@ -179,7 +179,19 @@ MonoBehaviour:
       m_Calls: []
   m_ActionEvents:
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 30435105}
+        m_TargetAssemblyTypeName: PlayerMove, Assembly-CSharp
+        m_MethodName: OnPlayerMove
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: e4184bab-7d33-47da-b5cf-b7b998a185f0
     m_ActionName: Player/Move
   m_NeverAutoSwitchControlSchemes: 0
@@ -199,6 +211,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fcd1402cab258f44996c1b222b7f1451, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  moveSpeed: 5
 --- !u!1 &339775922
 GameObject:
   m_ObjectHideFlags: 0
@@ -473,46 +486,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!1 &801658730 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1704676443406559762, guid: 7d223d57ffa46af4987d0376789ab9c2, type: 3}
-  m_PrefabInstance: {fileID: 3302478844200738432}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &801658732
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 801658730}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e9d677f1681015749b15c436eec6d880, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_MovementRange: 40
-  m_DynamicOriginRange: 100
-  m_ControlPath: <Joystick>/stick
-  m_Behaviour: 0
-  m_UseIsolatedInputActions: 0
-  m_PointerDownAction:
-    m_Name: 
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: d601c13a-a7fe-4b13-b3ac-36a4149e0fc2
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
-  m_PointerMoveAction:
-    m_Name: 
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: ed4e5a64-e457-4fa5-868a-92e35c501182
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
 --- !u!1 &805841003
 GameObject:
   m_ObjectHideFlags: 0
@@ -1307,10 +1280,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 1704676443406559762, guid: 7d223d57ffa46af4987d0376789ab9c2, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 801658732}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7d223d57ffa46af4987d0376789ab9c2, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
