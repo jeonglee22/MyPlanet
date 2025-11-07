@@ -9,6 +9,10 @@ public class PlayerMove : MonoBehaviour
     [SerializeField] private float moveSpeed = 5.0f;
     [SerializeField] private float autoRotateSpeed = 1.0f;
 
+    private float selfRotateSpeed = 30f;
+
+    private float posOffset = 1.5f;
+
     private bool autoMoving;
 
     private Vector2 moveVector;
@@ -23,14 +27,13 @@ public class PlayerMove : MonoBehaviour
         currentAngle = -90f;
         var startPos = CalculatePosOnCircle(currentAngle);
 
-        transform.position = transform.parent.position + startPos * 1.5f;
+        transform.position = transform.parent.position + startPos * posOffset;
     }
 
     public void OnPlayerMove(InputAction.CallbackContext context)
     {
         moveVector = context.ReadValue<Vector2>();
         autoMoving = false;
-        // autoMoving = moveVector.magnitude <= 0.2f;
     }
 
     private void Update()
@@ -42,6 +45,13 @@ public class PlayerMove : MonoBehaviour
             AutoMove();
         else
             Move();
+
+        AutoRotate();
+    }
+
+    private void AutoRotate()
+    {
+        transform.Rotate(new Vector3(0f, 0f, selfRotateSpeed * Time.deltaTime), Space.World);
     }
 
     private void AutoMove()
@@ -49,7 +59,7 @@ public class PlayerMove : MonoBehaviour
         currentAngle += autoRotateSpeed * Time.deltaTime * (clockRotate ? -1f : 1f);
 
         var newPos = CalculatePosOnCircle(currentAngle);
-        transform.position = transform.parent.position + newPos * 1.5f;
+        transform.position = transform.parent.position + newPos * posOffset;
     }
 
     private void Move()
@@ -64,8 +74,6 @@ public class PlayerMove : MonoBehaviour
         float diffAngle = Vector3.Angle(contolPos, CalculatePosOnCircle(currentAngle));
         bool isOnRight = Vector3.Cross(contolPos, CalculatePosOnCircle(currentAngle)).z > 0;
 
-        Debug.Log(diffAngle);
-
         if (diffAngle >= 1f && diffAngle <= 170f)
         {
             clockRotate = isOnRight;
@@ -73,18 +81,12 @@ public class PlayerMove : MonoBehaviour
             currentAngle += moveSpeed * magnitude * Time.deltaTime * (clockRotate ? -1f : 1f);
 
             var newPos = CalculatePosOnCircle(currentAngle);
-            transform.position = transform.parent.position + newPos * 1.5f;
+            transform.position = transform.parent.position + newPos * posOffset;
         }
-        else
+        else if (diffAngle > 170f)
         {
-            
+            AutoMove();
         }
-        
-        // transform.position = transform.parent.position + contolPos * 1.5f;
-
-        // currentAngle = Vector3.Angle(Vector3.right, contolPos);
-        // if (contolPos.y < 0)
-        //     currentAngle *= -1f;
     }
     
     private Vector3 CalculatePosOnCircle(float angle)
