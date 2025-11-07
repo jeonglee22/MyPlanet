@@ -22,6 +22,33 @@ body:
       placeholder: 예) 점프 후 착지 시 카메라 흔들림과 먼지 VFX 추가
     validations:
       required: true
+  
+  - type: checkboxes
+    id: work_time
+    attributes:
+      label: 작업 시간대
+      description: 각 작업을 진행 하기 위한 선호 시간대를 선택해 주세요.
+      options:
+        - label: 오전 개발
+        - label: 오후 개발
+    validations:
+      required: true
+
+  - type: textarea
+    id: tasklist
+    attributes:
+      label: 작업 체크리스트 (작성자가 직접 추가)
+      description: |
+        마크다운 체크박스를 자유롭게 작성하세요.
+        - 미완료: `- [ ] 작업 내용`
+        - 완료 표시: `- [x] 작업 내용`
+      render: markdown
+      value: |
+        - [ ] 첫 작업 항목
+        - [ ] 두 번째 항목
+        - [ ] ...
+    validations:
+      required: true
 
   - type: dropdown
     id: category
@@ -57,17 +84,6 @@ body:
       required: false
 
   - type: checkboxes
-    id: work_time
-    attributes:
-      label: 작업 시간대
-      description: 각 작업을 진행 하기 위한 선호 시간대를 선택해 주세요.
-      options:
-        - label: 오전 개발
-        - label: 오후 개발
-    validations:
-      required: true
-
-  - type: checkboxes
     id: dod
     attributes:
       label: 완료 기준 (Definition of Done)
@@ -78,4 +94,4 @@ body:
         - label: 리그레션 없는지 핵심 플로우 수동 테스트
         - label: 로그/에러/경고 무분별 발생 없음
     validations:
-      required: true
+      required: false
