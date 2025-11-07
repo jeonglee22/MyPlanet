@@ -37,6 +37,17 @@ body:
     validations:
       required: true
 
+  - type: checkboxes
+    id: work_time
+    attributes:
+      label: 작업 시간대
+      description: 각 작업을 진행 하기 위한 선호 시간대를 선택해 주세요.
+      options:
+        - label: 오전 개발
+        - label: 오후 개발
+    validations:
+      required: true
+
   - type: textarea
     id: error
     attributes:
