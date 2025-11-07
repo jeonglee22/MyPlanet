@@ -9,16 +9,6 @@ public class PlanetAttack : MonoBehaviour
 
     [SerializeField] private Projectile projectilePrefab;
 
-    private void Update()
-    {
-        #if UNITY_EDITOR
-        if(Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            Shoot(ProjectileType.Normal, transform.forward, true);
-        }
-        #endif
-    }
-
     public void Shoot(ProjectileType projectileType, Vector3 direction, bool IsHit)
     {
         switch (projectileType)
