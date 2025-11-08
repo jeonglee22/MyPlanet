@@ -38,21 +38,7 @@ public class Projectile : MonoBehaviour
         switch (projectileData.projectileType)
         {
             case ProjectileType.Normal:
-            case ProjectileType.Piercing:
-            case ProjectileType.Explosive:
-            case ProjectileType.Chain:
                 transform.position += direction.normalized * totalSpeed * Time.deltaTime;
-                break;
-            case ProjectileType.Homing:
-                if (currentTarget != null)
-                {
-                    Vector3 targetDirection = (currentTarget.position - transform.position).normalized;
-                    transform.position += targetDirection * totalSpeed * Time.deltaTime;
-                }
-                else
-                {
-                    transform.position += direction.normalized * totalSpeed * Time.deltaTime;
-                }
                 break;
         }
     }
