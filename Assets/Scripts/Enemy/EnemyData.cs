@@ -5,6 +5,7 @@ public class EnemyData : ScriptableObject
 {
     public GameObject prefab;
     public MovementType movementType;
+    public AbilityType[] abilityTypes;
 
     public float maxHealth;
     public float speed;
@@ -14,6 +15,12 @@ public class EnemyData : ScriptableObject
 
 public enum MovementType
 {
-    Meteor,
-    Missile,
+    StraightDown,
+    TargetDirection,
+}
+
+public enum AbilityType
+{
+    None,
+    SplitOnDeath,
 }

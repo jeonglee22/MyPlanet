@@ -2,8 +2,8 @@ using UnityEngine;
 
 public abstract class EnemyMovement : MonoBehaviour
 {
-    [SerializeField] protected float moveSpeed = 5f;
-    private Vector3 moveDirection;
+    protected float moveSpeed = 5f;
+    protected Vector3 moveDirection;
 
     protected virtual void Update()
     {
@@ -11,4 +11,10 @@ public abstract class EnemyMovement : MonoBehaviour
     }
 
     protected abstract void Move();
+
+    public virtual void Initialize(float speed, Vector3 targetDirection)
+    {
+        moveSpeed = speed;
+        moveDirection = targetDirection.normalized;
+    }
 }
