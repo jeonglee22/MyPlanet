@@ -1,7 +1,19 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "E", menuName = "Scriptable Objects/E")]
-public class E : ScriptableObject
+[CreateAssetMenu(fileName = "EnemyData", menuName = "Enemy/Enemy Data")]
+public class EnemyData : ScriptableObject
 {
-    
+    public GameObject prefab;
+    public MovementType movementType;
+
+    public float maxHealth;
+    public float speed;
+    public float damage;
+
+}
+
+public enum MovementType
+{
+    Meteor,
+    Missile,
 }

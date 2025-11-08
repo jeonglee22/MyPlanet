@@ -20,8 +20,4 @@ public class ProjectileData : ScriptableObject
 public enum ProjectileType
 {
     Normal,
-    Piercing,
-    Explosive,
-    Chain,
-    Homing,
 }

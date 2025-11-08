@@ -16,18 +16,6 @@ public class PlanetAttack : MonoBehaviour
             case ProjectileType.Normal:
                 currentProjectileData = projectileDatas.Find(p => p.projectileType == ProjectileType.Normal);
                 break;
-            case ProjectileType.Piercing:
-                currentProjectileData = projectileDatas.Find(p => p.projectileType == ProjectileType.Piercing);
-                break;
-            case ProjectileType.Explosive:
-                currentProjectileData = projectileDatas.Find(p => p.projectileType == ProjectileType.Explosive);
-                break;
-            case ProjectileType.Chain:
-                currentProjectileData = projectileDatas.Find(p => p.projectileType == ProjectileType.Chain);
-                break;
-            case ProjectileType.Homing:
-                currentProjectileData = projectileDatas.Find(p => p.projectileType == ProjectileType.Homing);
-                break;
         }
 
         Projectile newProjectile = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
