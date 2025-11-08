@@ -16,6 +16,13 @@ public class LivingEntity : MonoBehaviour
     {
         Health = maxHealth;
         IsDead = false;
+
+        OnDeathEvent += SpawnManager.Instance.OnEnemyDied;
+    }
+
+    protected virtual void OnDestroy()
+    {
+        OnDeathEvent -= SpawnManager.Instance.OnEnemyDied;
     }
 
     protected virtual void OnDamage(float damage)
