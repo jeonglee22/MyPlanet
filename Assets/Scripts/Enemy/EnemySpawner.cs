@@ -6,8 +6,6 @@ public class EnemySpawner : MonoBehaviour
     private static EnemySpawner instance;
     public static EnemySpawner Instance { get { return instance; } }
 
-    [SerializeField] private EnemyData[] enemyDatas;
-
     [SerializeField] private Transform player;
 
     private void Awake()
@@ -19,19 +17,6 @@ public class EnemySpawner : MonoBehaviour
         else
         {
             Destroy(gameObject);
-        }
-    }
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Alpha1) && enemyDatas.Length > 0)
-        {
-            SpawnEnemy(enemyDatas[0], transform.position);
-        }
-        
-        if (Input.GetKeyDown(KeyCode.Alpha2) && enemyDatas.Length > 1)
-        {
-            SpawnEnemy(enemyDatas[1], transform.position);
         }
     }
 
