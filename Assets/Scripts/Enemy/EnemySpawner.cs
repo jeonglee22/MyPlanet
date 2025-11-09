@@ -53,7 +53,8 @@ public class EnemySpawner : MonoBehaviour
     
     private Enemy CreateEnemy(EnemyData data, Vector3 position, Vector3 direction)
     {
-        GameObject enemyObj = Instantiate(data.prefab, position, Quaternion.identity);
+        Quaternion rotation = Quaternion.LookRotation(Vector3.forward, direction);
+        GameObject enemyObj = Instantiate(data.prefab, position, rotation);
         Enemy enemy = enemyObj.GetComponent<Enemy>();
 
         if (enemy == null)

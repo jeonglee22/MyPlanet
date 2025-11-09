@@ -20,7 +20,7 @@ public class Planet : LivingEntity
 #endif
     }
 
-    protected override void OnDamage(float damage)
+    public override void OnDamage(float damage)
     {
         base.OnDamage(damage);
     }

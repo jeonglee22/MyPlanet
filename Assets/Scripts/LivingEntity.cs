@@ -3,7 +3,7 @@ using NUnit.Framework;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class LivingEntity : MonoBehaviour
+public class LivingEntity : MonoBehaviour, IDamagable
 {
     [SerializeField] protected float maxHealth = 100f;
 
@@ -16,16 +16,9 @@ public class LivingEntity : MonoBehaviour
     {
         Health = maxHealth;
         IsDead = false;
-
-        OnDeathEvent += SpawnManager.Instance.OnEnemyDied;
     }
 
-    protected virtual void OnDestroy()
-    {
-        OnDeathEvent -= SpawnManager.Instance.OnEnemyDied;
-    }
-
-    protected virtual void OnDamage(float damage)
+    public virtual void OnDamage(float damage)
     {
         if (IsDead)
             return;
