@@ -13,23 +13,30 @@ public class Enemy : LivingEntity
         base.OnEnable();
 
         movement = GetComponent<EnemyMovement>();
+
+        OnDeathEvent += SpawnManager.Instance.OnEnemyDied;
     }
 
-    private void OnCollisionEnter(Collision collision)
+    protected void Oestroy()
     {
-        if (collision.gameObject.CompareTag("Enemy"))
+        OnDeathEvent -= SpawnManager.Instance.OnEnemyDied;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("Enemy"))
         {
             return;
         }
-
-        IDamagable damagable = collision.gameObject.GetComponent<IDamagable>();
+        
+        IDamagable damagable = other.gameObject.GetComponent<IDamagable>();
         if (damagable != null)
         {
-            damagable.OnDamage(10f);
+            damagable.OnDamage(data.damage);
         }
     }
 
-    protected override void OnDamage(float damage)
+    public override void OnDamage(float damage)
     {
         base.OnDamage(damage);
     }
