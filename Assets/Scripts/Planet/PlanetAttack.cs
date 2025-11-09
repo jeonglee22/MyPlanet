@@ -12,7 +12,7 @@ public class PlanetAttack : MonoBehaviour
     private void Update()
     {
         #if UNITY_EDITOR
-        if(Input.GetKeyDown(KeyCode.Alpha1))
+        if(Input.GetKeyDown(KeyCode.Alpha1) || Input.touchCount != 0)
         {
             Shoot(ProjectileType.Normal, transform.forward, true);
         }
