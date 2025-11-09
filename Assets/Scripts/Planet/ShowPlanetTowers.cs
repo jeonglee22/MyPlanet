@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,6 +7,7 @@ public class ShowPlanetTowers : MonoBehaviour
 {
     [SerializeField] private int towerCount;
     [SerializeField] private GameObject towerBasePrefab;
+    [SerializeField] private GameObject towerInfoObj;
     [SerializeField] private RectTransform PlanetTransform;
 
     private List<GameObject> towers;
@@ -17,11 +19,13 @@ public class ShowPlanetTowers : MonoBehaviour
     private void Awake()
     {
         planetTowerUI = GetComponent<PlanetTowerUI>();
+        planetTowerUI.TowerCount = towerCount;
     }
 
     void Start()
     {
         ResetTowerSlot(towerCount);
+        towerInfoObj.SetActive(false);
     }
 
     private void Update()
@@ -43,7 +47,7 @@ public class ShowPlanetTowers : MonoBehaviour
 
             var button = tower.GetComponent<Button>();
             int index = i;
-            button.onClick.AddListener(() => Debug.Log($"Tower{index}"));
+            button.onClick.AddListener(() => OpenInfoUI(index));
 
             // test
 
@@ -57,6 +61,12 @@ public class ShowPlanetTowers : MonoBehaviour
 
         SettingTowerTransform(0f);
         currentAngle = 0f;
+    }
+
+    private void OpenInfoUI(int index)
+    {
+        towerInfoObj.SetActive(true);
+        towerInfoObj.GetComponent<TowerInfoUI>().SetInfo(index);
     }
 
     private void SettingTowerTransform(float baseAngle)

@@ -7,6 +7,7 @@ public class PlanetTowerUI : MonoBehaviour
     [SerializeField] private Button rightButton;
 
     public float Angle { get; private set; }
+    public int TowerCount { get; set; }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -19,11 +20,11 @@ public class PlanetTowerUI : MonoBehaviour
 
     private void OnLetfMoveClicked()
     {
-        Angle += 30f;
+        Angle += 360f / TowerCount;
     }
     
     private void OnRightMoveClicked()
     {
-        Angle -= 30f;   
+        Angle -= 360f / TowerCount;
     }
 }
