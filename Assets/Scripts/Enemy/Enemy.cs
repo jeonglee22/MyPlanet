@@ -14,7 +14,7 @@ public class Enemy : LivingEntity
     private EnemyData data;
     public EnemyData Data { get { return data; } }
 
-    [SerializeField] private float lifeTime = 0.5f;
+    private float lifeTime = 2f;
     private CancellationTokenSource lifeTimeCts;
 
     protected override void OnEnable()
@@ -24,6 +24,11 @@ public class Enemy : LivingEntity
         movement = GetComponent<EnemyMovement>();
 
         OnDeathEvent += SpawnManager.Instance.OnEnemyDied;
+    }
+
+    void OnDisable()
+    {
+        Debug.Log("비활성");
     }
 
     protected void OnDestroy()

@@ -79,17 +79,17 @@ public class EnemySpawner : MonoBehaviour
     private void CreatePool(GameObject prefab)
     {
         IObjectPool<Enemy> pool = new ObjectPool<Enemy>(
-            createFunc: () => CreateEnemyInstance(prefab),
-            actionOnGet: (enemy) => 
+            () => CreateEnemyInstance(prefab),
+            (enemy) => 
             {
                 enemy.SetPool(enemyPools[prefab]);
                 enemy.gameObject.SetActive(true);
             },
-            actionOnRelease: (enemy) => enemy.gameObject.SetActive(false),
-            actionOnDestroy: (enemy) => Destroy(enemy.gameObject),
-            collectionCheck: true,
-            defaultCapacity: defaultPoolCapacity,
-            maxSize: maxPoolSize
+            (enemy) => enemy.gameObject.SetActive(false),
+            (enemy) => Destroy(enemy.gameObject),
+            collectionCheck,
+            defaultPoolCapacity,
+            maxPoolSize
         );
 
         enemyPools.Add(prefab, pool);
