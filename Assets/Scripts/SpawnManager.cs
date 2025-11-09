@@ -49,8 +49,6 @@ public class SpawnManager : MonoBehaviour
         {
             SpawnRandomEnemy();
             spawnTimer = 0f;
-
-            Debug.Log($"{currentEnemyCount}");
         }
     }
 

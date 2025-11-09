@@ -1,12 +1,21 @@
 using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Pool;
 
 public class Enemy : LivingEntity
 {
+    private IObjectPool<Enemy> pool;
+
     private EnemyMovement movement;
     private List<EnemyAbility> abilities = new List<EnemyAbility>();
     private EnemyData data;
+    public EnemyData Data { get { return data; } }
+
+    [SerializeField] private float lifeTime = 0.5f;
+    private CancellationTokenSource lifeTimeCts;
 
     protected override void OnEnable()
     {
@@ -17,9 +26,10 @@ public class Enemy : LivingEntity
         OnDeathEvent += SpawnManager.Instance.OnEnemyDied;
     }
 
-    protected void Oestroy()
+    protected void OnDestroy()
     {
         OnDeathEvent -= SpawnManager.Instance.OnEnemyDied;
+        Cancel();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -45,7 +55,9 @@ public class Enemy : LivingEntity
     {
         base.Die();
 
-        Destroy(gameObject);
+        Cancel();
+
+        pool?.Release(this);
     }
 
     public void Initialize(EnemyData enemyData, Vector3 targetDirection)
@@ -56,18 +68,54 @@ public class Enemy : LivingEntity
 
         AddMovementComponent(data.movementType, data.speed, targetDirection);
         AddAbilityComponents(data.abilityTypes);
+
+        Cancel();
+
+        LifeTimeTask(lifeTimeCts.Token).Forget();
+
+    }
+
+    public void SetPool(IObjectPool<Enemy> pool)
+    {
+        this.pool = pool;
+    }
+
+    private void Cancel()
+    {
+        lifeTimeCts?.Cancel();
+        lifeTimeCts?.Dispose();
+        lifeTimeCts = new CancellationTokenSource();
+    }
+
+    private async UniTaskVoid LifeTimeTask(CancellationToken token)
+    {
+        try
+        {
+            await UniTask.Delay(System.TimeSpan.FromSeconds(lifeTime), cancellationToken: token);
+            if(!token.IsCancellationRequested)
+            {
+                pool?.Release(this);
+            }
+        }
+        catch (System.OperationCanceledException)
+        {
+            // Ignore cancellation
+        }
     }
 
     private void AddMovementComponent(MovementType type, float speed, Vector3 targetDirection)
     {
-        switch (type)
+        if(movement == null)
         {
-            case MovementType.StraightDown:
-                movement = gameObject.AddComponent<StraightDownMovement>();
-                break;
-            case MovementType.TargetDirection:
-                movement = gameObject.AddComponent<TargetDirectionMovement>();
-                break;
+            switch (type)
+            {
+                case MovementType.StraightDown:
+                    movement = gameObject.AddComponent<StraightDownMovement>();
+                    break;
+                case MovementType.TargetDirection:
+                    movement = gameObject.AddComponent<TargetDirectionMovement>();
+                    break;
+            }
         }
 
         movement.Initialize(speed, targetDirection);
