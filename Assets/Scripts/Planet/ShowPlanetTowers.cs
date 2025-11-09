@@ -11,25 +11,35 @@ public class ShowPlanetTowers : MonoBehaviour
     private List<GameObject> towers;
     private float towerRadius = 200f;
 
+    private PlanetTowerUI planetTowerUI;
+    private float currentAngle;
+
+    private void Awake()
+    {
+        planetTowerUI = GetComponent<PlanetTowerUI>();
+    }
+
     void Start()
     {
         ResetTowerSlot(towerCount);
+    }
+
+    private void Update()
+    {
+        if (planetTowerUI != null && currentAngle != planetTowerUI.Angle)
+        {
+            currentAngle = planetTowerUI.Angle;
+            SettingTowerTransform(currentAngle);
+        }     
     }
 
     private void ResetTowerSlot(int slotCount)
     {
         towers = new List<GameObject>();
 
-        float angle = 0;
         for (int i = 0; i < slotCount; i++)
         {
             var tower = Instantiate(towerBasePrefab, PlanetTransform);
-
-            var pos = new Vector2(Mathf.Cos((angle + 90f) * Mathf.Deg2Rad), Mathf.Sin((angle + 90f) * Mathf.Deg2Rad)) * towerRadius;
-            var rot = new Vector3(0, 0, angle);
-            var towerRect = tower.GetComponent<RectTransform>();
-            towerRect.localPosition = pos;
-            towerRect.rotation = Quaternion.Euler(rot);
 
             var button = tower.GetComponent<Button>();
             int index = i;
@@ -42,9 +52,24 @@ public class ShowPlanetTowers : MonoBehaviour
 
             //
 
-            angle += 360f / slotCount;
-
             towers.Add(tower);
+        }
+
+        SettingTowerTransform(0f);
+        currentAngle = 0f;
+    }
+
+    private void SettingTowerTransform(float baseAngle)
+    {
+        foreach (var tower in towers)
+        {
+            var pos = new Vector2(Mathf.Cos((baseAngle + 90f) * Mathf.Deg2Rad), Mathf.Sin((baseAngle + 90f) * Mathf.Deg2Rad)) * towerRadius;
+            var rot = new Vector3(0, 0, baseAngle);
+            var towerRect = tower.GetComponent<RectTransform>();
+            towerRect.localPosition = pos;
+            towerRect.rotation = Quaternion.Euler(rot);
+
+            baseAngle += 360f / towerCount;
         }
     }
 
