@@ -32,18 +32,14 @@ public class Planet : LivingEntity
     
     public void InitPlanet(int towerCount = 12)
     {
-        Debug.Log("Init");
         towers = new List<GameObject>();
         for (int i = 0; i < towerCount; i++)
             towers.Add(null);
         this.towerCount = towerCount;
-        Debug.Log(towers.Count);
     }
 
     public void SetTower(GameObject tower, int index)
     {
-        Debug.Log(index);
-        Debug.Log(towers.Count);
         towers[index] = Instantiate(towerPrefab, towerSlotTransform);
 
         planetAttacks.Add(towers[index].GetComponent<TowerAttack>());
