@@ -47,7 +47,7 @@ public class TowerInstallControl : MonoBehaviour
     {
         if (planetTowerUI != null && currentAngle != planetTowerUI.Angle)
         {
-            currentAngle += rotateSpeed * Time.deltaTime * (planetTowerUI.TowerRotateClock ? -1f : 1f);
+            currentAngle += rotateSpeed * Time.unscaledDeltaTime * (planetTowerUI.TowerRotateClock ? -1f : 1f);
 
             SettingTowerTransform(currentAngle);
             
@@ -95,7 +95,7 @@ public class TowerInstallControl : MonoBehaviour
             image.color = Color.Lerp(Color.red, Color.blue, (float)i / (slotCount - 1));
 
             towers.Add(tower);
-            planet.SetTower(tower, index);
+            planet?.SetTower(tower, index);
         }
 
         SettingTowerTransform(0f);
@@ -142,7 +142,7 @@ public class TowerInstallControl : MonoBehaviour
         assignedTowerDatas[index] = chosenData;
         TryAssignDataToTower(newTower, chosenData);
 
-        planet.SetTower(newTower, index);
+        planet?.SetTower(newTower, index);
         SettingTowerTransform(currentAngle);
     }
 

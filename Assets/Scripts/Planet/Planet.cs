@@ -12,6 +12,10 @@ public class Planet : LivingEntity
 
     private int towerCount;
 
+    //test
+    [SerializeField] private float shootInterval = 0.5f;
+    private float shootTime = 0f;
+
     private void Awake()
     {
         planetAttacks = new List<TowerAttack>();
@@ -22,14 +26,18 @@ public class Planet : LivingEntity
     private void Update()
     {
 #if UNITY_EDITOR
-        if (Input.touchCount != 0)
+        // if (Input.touchCount != 0)
+        // {
+        //     foreach (var attack in planetAttacks)
+        //         attack.Shoot(ProjectileType.Normal, transform.forward, true);
+        // }
+        if (shootTime > shootInterval)
         {
-            if(Input.GetTouch(0).phase == TouchPhase.Ended)
-            {
-                foreach (var attack in planetAttacks)
-                    attack.Shoot(ProjectileType.Normal, transform.forward, true);
-            }
+            foreach (var attack in planetAttacks)
+                attack.Shoot(ProjectileType.Normal, attack.gameObject.transform.forward, true);
+            shootTime = 0f;
         }
+        shootTime += Time.deltaTime;
 #endif
     }
     

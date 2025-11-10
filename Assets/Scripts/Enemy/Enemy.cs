@@ -14,7 +14,7 @@ public class Enemy : LivingEntity
     private EnemyData data;
     public EnemyData Data { get { return data; } }
 
-    private float lifeTime = 2f;
+    private float lifeTime = 5f;
     private CancellationTokenSource lifeTimeCts;
 
     protected override void OnEnable()
