@@ -14,7 +14,7 @@ public class Enemy : LivingEntity
     private EnemyData data;
     public EnemyData Data { get { return data; } }
 
-    private float lifeTime = 2f;
+    [SerializeField] private float lifeTime = 2f;
     private CancellationTokenSource lifeTimeCts;
 
     protected override void OnEnable()
