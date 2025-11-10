@@ -33,7 +33,7 @@ public class JoyStickAppear : MonoBehaviour
         }
 
         var touchPos = Input.GetTouch(0).position;
-        if (!RectTransformUtility.RectangleContainsScreenPoint(touchRect, touchPos))
+        if (!RectTransformUtility.RectangleContainsScreenPoint(touchRect, touchPos) || EventSystem.current.IsPointerOverGameObject())
         {
             return;
         }
