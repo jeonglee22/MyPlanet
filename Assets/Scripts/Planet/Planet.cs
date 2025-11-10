@@ -5,7 +5,7 @@ using UnityEngine.Timeline;
 
 public class Planet : LivingEntity
 {
-    private List<PlanetAttack> planetAttacks;
+    private List<TowerAttack> planetAttacks;
     private List<GameObject> towers;
     [SerializeField] private GameObject towerPrefab;
     [SerializeField] private Transform towerSlotTransform;
@@ -14,7 +14,7 @@ public class Planet : LivingEntity
 
     private void Awake()
     {
-        planetAttacks = new List<PlanetAttack>();
+        planetAttacks = new List<TowerAttack>();
 
         InitPlanet();
     }
@@ -46,7 +46,7 @@ public class Planet : LivingEntity
         Debug.Log(towers.Count);
         towers[index] = Instantiate(towerPrefab, towerSlotTransform);
 
-        planetAttacks.Add(towers[index].GetComponent<PlanetAttack>());
+        planetAttacks.Add(towers[index].GetComponent<TowerAttack>());
         var rot = new Vector3(0, 90, 0);
         rot.x = 360f * (index / (towers.Count - 1f));
 
