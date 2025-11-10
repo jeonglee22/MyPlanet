@@ -9,6 +9,9 @@ public class TowerTargetingSystem : MonoBehaviour
     [SerializeField] private TargetRangeSO rangeData;
     [SerializeField] private BaseTargetPriority targetStrategy;
 
+    private TowerDataSO assignedTowerData;
+    public TowerDataSO AssignedTowerData => assignedTowerData;
+
     private readonly string enemyTag = "Enemy";
     private ITargetable currentTarget;
 
@@ -54,5 +57,14 @@ public class TowerTargetingSystem : MonoBehaviour
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(towerFiringPoint.position, rangeData.GetRange());
         }
+    }
+
+    public void SetTowerData(TowerDataSO data)
+    {
+        assignedTowerData = data;
+        rangeData = data.rangeData;
+        targetStrategy = data.targetPriority;
+
+        Debug.Log($"{name}:");
     }
 }
