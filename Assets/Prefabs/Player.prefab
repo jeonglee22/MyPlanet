@@ -42,8 +42,8 @@ GameObject:
   - component: {fileID: 1258152885478618038}
   - component: {fileID: 4125763483679355783}
   - component: {fileID: 5254883627278191161}
-  - component: {fileID: 8636588879927801572}
   - component: {fileID: 4874251321268397199}
+  - component: {fileID: 9085323496336912260}
   m_Layer: 0
   m_Name: Player
   m_TagString: Planet
@@ -120,21 +120,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &8636588879927801572
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6681158376749995911}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 87b5009231da64f4a82d32ae9ec4400f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  projectileDatas:
-  - {fileID: 11400000, guid: e8a819a417d213b46b21a5c4c028b6fc, type: 2}
-  projectilePrefab: {fileID: -3598059064670241262, guid: dfbe68f6015eada4caaa8d9aafa6fd2c, type: 3}
 --- !u!114 &4874251321268397199
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -148,3 +133,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 100
+  towerPrefab: {fileID: 0}
+  towerSlotTransform: {fileID: 0}
+--- !u!114 &9085323496336912260
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6681158376749995911}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94dfd41efe9975e4293472c37519279d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  projectileDatas:
+  - {fileID: 11400000, guid: e8a819a417d213b46b21a5c4c028b6fc, type: 2}
+  projectilePrefab: {fileID: -3598059064670241262, guid: dfbe68f6015eada4caaa8d9aafa6fd2c, type: 3}
