@@ -9,17 +9,15 @@ public class ShowPlanetTowers : MonoBehaviour
     [SerializeField] private GameObject towerInfoObj;
     [SerializeField] private RectTransform PlanetTransform;
     [SerializeField] private float rotateSpeed = 300f;
-
+    [SerializeField] private GameObject emptySlotPrefab;
     private List<GameObject> towers;
     private float towerRadius = 100f;
 
     private PlanetTowerUI planetTowerUI;
     private float currentAngle;
 
-
     //
     private bool[] emptyTowerTest;
-    [SerializeField] private GameObject emptySlotPrefab;
 
     private void Awake()
     {
@@ -62,9 +60,13 @@ public class ShowPlanetTowers : MonoBehaviour
         for (int i = 0; i < slotCount; i++)
         {
             GameObject tower;
-            if (emptyTowerTest[i])
+            int index = i;
+
+            if (emptyTowerTest[index])
             {
                 tower = Instantiate(emptySlotPrefab, PlanetTransform);
+                var buttonEmpty = tower.GetComponent<Button>();
+                buttonEmpty.onClick.AddListener(() => OpenInstallUI(index));
                 towers.Add(tower);
                 continue;
             }
@@ -72,7 +74,7 @@ public class ShowPlanetTowers : MonoBehaviour
                 tower = Instantiate(towerBasePrefab, PlanetTransform);
 
             var button = tower.GetComponent<Button>();
-            int index = i;
+            
             button.onClick.AddListener(() => OpenInfoUI(index));
 
             // test
@@ -87,6 +89,22 @@ public class ShowPlanetTowers : MonoBehaviour
 
         SettingTowerTransform(0f);
         currentAngle = 0f;
+    }
+
+    private void OpenInstallUI(int index)
+    {
+        // test Install
+        var newTower = Instantiate(towerBasePrefab, PlanetTransform);
+
+        Destroy(towers[index]);
+        towers[index] = newTower;
+
+        var button = newTower.GetComponent<Button>();
+        button.onClick.AddListener(() => OpenInfoUI(index));
+
+        var image = newTower.GetComponentInChildren<Image>();
+        image.color = Color.Lerp(Color.red, Color.blue, (float)index / (towerCount - 1));
+        SettingTowerTransform(currentAngle);
     }
 
     private void OpenInfoUI(int index)
