@@ -6,15 +6,13 @@ public class Projectile : MonoBehaviour
     public Vector3 direction;
     public bool isHit;
 
-    private float currentPierceCount;
-
     private Transform currentTarget; //Type: Homing
 
     //Projectile Data
     public float damage = 10f;
     public float panetration = 0f;
     public float totalSpeed = 5f;
-    public int targetNumber = 1;
+    public int currentPierceCount = 1;
     private float currentLifeTime;
     public float hitRadius = 10f;
 
@@ -56,7 +54,7 @@ public class Projectile : MonoBehaviour
         this.isHit = isHit;
 
         totalSpeed = projectileData.speed;
-        targetNumber = projectileData.targetNumber;
+        currentPierceCount = projectileData.targetNumber;
     }
 
     void OnTriggerEnter(Collider other)
@@ -72,6 +70,11 @@ public class Projectile : MonoBehaviour
             damagable.OnDamage(damage);
         }
 
-        Destroy(gameObject);
+        currentPierceCount--;
+
+        if (currentPierceCount <= 0)
+        {
+            Destroy(gameObject);
+        }
     }
 }
