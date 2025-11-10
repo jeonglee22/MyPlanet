@@ -24,8 +24,11 @@ public class Planet : LivingEntity
 #if UNITY_EDITOR
         if (Input.touchCount != 0)
         {
-            foreach (var attack in planetAttacks)
-                attack.Shoot(ProjectileType.Normal, transform.forward, true);
+            if(Input.GetTouch(0).phase == TouchPhase.Ended)
+            {
+                foreach (var attack in planetAttacks)
+                    attack.Shoot(ProjectileType.Normal, transform.forward, true);
+            }
         }
 #endif
     }

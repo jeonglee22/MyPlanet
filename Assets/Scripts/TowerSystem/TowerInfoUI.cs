@@ -10,6 +10,23 @@ public class TowerInfoUI : MonoBehaviour
     {
         Debug.Log("Tower Info");
         nameText.text = $"Tower {index}";
+
+        var installControl = FindObjectOfType<TowerInstallControl>();
+        if (installControl == null)
+        {
+            Debug.LogWarning("TowerInfoUI: TowerInstallControl not found in scene.");
+            nameText.text = "No data";
+            return;
+        }
+
+        var data = installControl.GetTowerData(index);
+        if (data == null)
+        {
+            nameText.text = $"Empty Slot {index}";
+            return;
+        }
+
+        nameText.text = $"{data.towerId}";
     }
     
     public void OnCloseInfoClicked()

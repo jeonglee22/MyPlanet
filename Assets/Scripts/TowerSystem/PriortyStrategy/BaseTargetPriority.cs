@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class BaseTargetPriority : ITargetPrioriy
+public abstract class BaseTargetPriority : ScriptableObject,ITargetPrioriy
 {
     [SerializeField] private bool isDescending = true; //True:Max, False:Min
     //protected virtual int GetPriorityId(ITargetable target) => 0; //fixed data id value
