@@ -88,7 +88,7 @@ public class TowerInstallControl : MonoBehaviour
             //
 
             towers.Add(tower);
-            planet.SetTower(tower, index);
+            planet?.SetTower(tower, index);
         }
 
         SettingTowerTransform(0f);
@@ -109,7 +109,7 @@ public class TowerInstallControl : MonoBehaviour
         var image = newTower.GetComponentInChildren<Image>();
         image.color = Color.Lerp(Color.red, Color.blue, (float)index / (towerCount - 1));
 
-        planet.SetTower(newTower, index);
+        planet?.SetTower(newTower, index);
         SettingTowerTransform(currentAngle);
     }
 
