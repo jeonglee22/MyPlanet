@@ -1,4 +1,6 @@
+using System.Threading;
 using UnityEngine;
+using UnityEngine.Pool;
 
 public class Projectile : MonoBehaviour
 {
@@ -16,6 +18,10 @@ public class Projectile : MonoBehaviour
     private float currentLifeTime;
     public float hitRadius = 10f;
 
+    private IObjectPool<Projectile> pool;
+
+    private CancellationTokenSource lifeTimeCts;
+
     private void Update()
     {
         if (currentLifeTime < projectileData.lifeTime)
@@ -25,8 +31,26 @@ public class Projectile : MonoBehaviour
         }
         else
         {
-            Destroy(gameObject);
+            Cancel();
+            pool?.Release(this);
         }
+    }
+
+    private void OnDestroy()
+    {
+        Cancel();
+    }
+    
+    public void SetPool(IObjectPool<Projectile> pool)
+    {
+        this.pool = pool;
+    }
+
+    private void Cancel()
+    {
+        lifeTimeCts?.Cancel();
+        lifeTimeCts?.Dispose();
+        lifeTimeCts = new CancellationTokenSource();
     }
 
     private void MoveProjectile()
@@ -55,6 +79,9 @@ public class Projectile : MonoBehaviour
 
         totalSpeed = projectileData.speed;
         currentPierceCount = projectileData.targetNumber;
+
+        Cancel();
+        currentLifeTime = 0f;
     }
 
     void OnTriggerEnter(Collider other)
