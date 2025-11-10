@@ -1,53 +1,58 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
-
-public enum RangeType
-{
-    Short,
-    Mid,
-    Long
-}
 
 public class TowerTargetingSystem : MonoBehaviour
 {//updateTarget->GetEnemiesInRange(consider targetPriority) -> Return currentTarget -> driven atk sys
 
-    RangeType rangeType;
-    BaseTargetPriority targetPriority;
-    Transform randomTowerCenter; //assign tower object
-    ITargetable currentTarget; //current target cashing
-    float scanInterval; // Multiple Interval Scan System
+    [SerializeField] private Transform towerFiringPoint; //assign tower object
+    [SerializeField] private TargetRangeSO rangeData;
+    [SerializeField] private BaseTargetPriority targetStrategy;
 
-    private void Start()
+    private readonly string enemyTag = "Enemy";
+    private ITargetable currentTarget;
+
+    [SerializeField] private float scanInterval = 0.2f; // Multiple Interval Scan System
+    private float scanTimer = 0f;
+    private bool isAttacking { get; set; } = false;
+
+    private void Update()
     {
-        ScanEnemies();
+        scanTimer += Time.deltaTime;
+        if(scanTimer>= scanInterval)
+        {
+            scanTimer = 0f;
+            if(!isAttacking) ScanForTargets();
+        }
     }
 
-    private void ScanEnemies()
+    private void ScanForTargets()
     {
+        float radius = rangeData.GetRange();
+        Collider[] detects = Physics.OverlapSphere(towerFiringPoint.position, radius);
+        var validTargets = new List<ITargetable>();
+        foreach (var dt in detects)
+        {
+            if (!dt.CompareTag(enemyTag)) continue;
+
+            var targetComponent = dt.GetComponent<ITargetable>();
+            if (targetComponent != null && targetComponent.isAlive)
+            {
+                validTargets.Add(targetComponent);
+            }
+        }
+
+        currentTarget = targetStrategy != null 
+            ? targetStrategy.SelectTarget(validTargets) : null;
     }
+    public ITargetable GetCurrentTarget() => currentTarget;
 
-    private void UpdateTarget() //strategy -> target choice
-    { //callback in Tower Manager !
-
-        //ITargetable filtering -> ITargetable SelectPriority
-        
-        //매 프레임 호출 + 공격 중 탐색 중지
-
-    }
-    private void GetEnemyInRange() //enemy check -> collect enemy List
+    private void OnDrawGizmosSelected() //debug
     {
-        //currentTarget Cashing -> atk system driving !
-        //Refactor:ObjectPool (grid, quadTree)
+        if(towerFiringPoint!=null&&rangeData!=null)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(towerFiringPoint.position, rangeData.GetRange());
+        }
     }
-
-    private void HasValidTarget() // valid check
-    {
-
-    }
-
-    private void ReleaseTarget()
-    {
-
-    }
-
-
 }

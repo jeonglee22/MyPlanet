@@ -2,7 +2,7 @@ using UnityEngine;
 
 [CreateAssetMenu(menuName = "TargetPriority/HighestHP")]
 public class HighestHpPrioritySO : BaseTargetPriority
-{//ID 받아오는 것으로 변경 필요
+{
     protected override float GetPriorityValue(ITargetable target) => target.maxHp;
 }
 

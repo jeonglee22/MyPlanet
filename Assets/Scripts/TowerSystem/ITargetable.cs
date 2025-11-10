@@ -3,12 +3,12 @@ using UnityEngine;
 
 public interface ITargetable // consider targeting object.
 {
-    int dataId { get; } // compare priority
+    //int dataId { get; } // compare priority
     Vector3 position { get; }
     bool isAlive { get; }
 
     //ref attaking
-    float currentHp { get; }
+    //float currentHp { get; }
     float maxHp { get; }
     float atk { get; }
     float def { get; }
