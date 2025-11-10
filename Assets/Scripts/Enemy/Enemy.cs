@@ -26,11 +26,6 @@ public class Enemy : LivingEntity
         OnDeathEvent += SpawnManager.Instance.OnEnemyDied;
     }
 
-    void OnDisable()
-    {
-        Debug.Log("비활성");
-    }
-
     protected void OnDestroy()
     {
         OnDeathEvent -= SpawnManager.Instance.OnEnemyDied;

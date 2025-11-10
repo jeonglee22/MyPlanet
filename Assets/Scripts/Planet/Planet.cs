@@ -3,11 +3,11 @@ using UnityEngine;
 
 public class Planet : LivingEntity
 {
-    private PlanetAttack planetAttack;
+    [SerializeField] private TowerAttack planetAttack;
 
     private void Awake()
     {
-        planetAttack = GetComponent<PlanetAttack>();
+        planetAttack = GetComponent<TowerAttack>();
     }
 
     private void Update()
@@ -15,7 +15,11 @@ public class Planet : LivingEntity
 #if UNITY_EDITOR
         if (Input.touchCount != 0)
         {
-            planetAttack.Shoot(ProjectileType.Normal, transform.forward, true);
+            Touch touch = Input.GetTouch(0);
+            if(touch.phase == TouchPhase.Ended)
+            {
+                planetAttack.Shoot(ProjectileType.Normal, transform.forward, true);
+            }
         }
 #endif
     }
