@@ -9,9 +9,10 @@ public class ShowPlanetTowers : MonoBehaviour
     [SerializeField] private GameObject towerBasePrefab;
     [SerializeField] private GameObject towerInfoObj;
     [SerializeField] private RectTransform PlanetTransform;
+    [SerializeField] private float rotateSpeed = 300f;
 
     private List<GameObject> towers;
-    private float towerRadius = 200f;
+    private float towerRadius = 100f;
 
     private PlanetTowerUI planetTowerUI;
     private float currentAngle;
@@ -32,9 +33,16 @@ public class ShowPlanetTowers : MonoBehaviour
     {
         if (planetTowerUI != null && currentAngle != planetTowerUI.Angle)
         {
-            currentAngle = planetTowerUI.Angle;
+            currentAngle += rotateSpeed * Time.deltaTime * (planetTowerUI.TowerRotateClock ? -1f : 1f);
+
             SettingTowerTransform(currentAngle);
-        }     
+            
+            if(Mathf.Abs(currentAngle - planetTowerUI.Angle) < 10f)
+            {
+                currentAngle = planetTowerUI.Angle;
+                SettingTowerTransform(currentAngle);
+            }
+        }
     }
 
     private void ResetTowerSlot(int slotCount)

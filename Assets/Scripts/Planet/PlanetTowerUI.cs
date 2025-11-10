@@ -8,6 +8,7 @@ public class PlanetTowerUI : MonoBehaviour
 
     public float Angle { get; private set; }
     public int TowerCount { get; set; }
+    public bool TowerRotateClock { get; private set; }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -21,10 +22,12 @@ public class PlanetTowerUI : MonoBehaviour
     private void OnLetfMoveClicked()
     {
         Angle += 360f / TowerCount;
+        TowerRotateClock = false;
     }
     
     private void OnRightMoveClicked()
     {
         Angle -= 360f / TowerCount;
+        TowerRotateClock = true;
     }
 }
