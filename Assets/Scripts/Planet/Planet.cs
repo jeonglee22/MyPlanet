@@ -3,11 +3,11 @@ using UnityEngine;
 
 public class Planet : LivingEntity
 {
-    private PlanetAttack planetAttack;
+    [SerializeField] private TowerAttack planetAttack;
 
     private void Awake()
     {
-        planetAttack = GetComponent<PlanetAttack>();
+        planetAttack = GetComponent<TowerAttack>();
     }
 
     private void Update()

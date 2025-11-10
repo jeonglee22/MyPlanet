@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
 
-public class PlanetAttack : MonoBehaviour
+public class TowerAttack : MonoBehaviour
 {
     [SerializeField] private List<ProjectileData> projectileDatas;
     private ProjectileData currentProjectileData;
@@ -18,7 +18,17 @@ public class PlanetAttack : MonoBehaviour
                 break;
         }
 
-        Projectile newProjectile = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
-        newProjectile.Initialize(currentProjectileData, direction, IsHit);
+        Projectile projectile = ProjectilePoolManager.Instance.GetProjectile(currentProjectileData);
+        if (projectile == null)
+        {
+            return;
+        }
+
+        projectile.transform.position = transform.position;
+        projectile.transform.rotation = Quaternion.LookRotation(direction);
+
+        projectile.Initialize(currentProjectileData, direction, IsHit);
+        
+        
     }
 }
