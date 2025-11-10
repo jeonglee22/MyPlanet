@@ -44,7 +44,7 @@ public class TowerInstallControl : MonoBehaviour
     {
         if (planetTowerUI != null && currentAngle != planetTowerUI.Angle)
         {
-            currentAngle += rotateSpeed * Time.deltaTime * (planetTowerUI.TowerRotateClock ? -1f : 1f);
+            currentAngle += rotateSpeed * Time.unscaledDeltaTime * (planetTowerUI.TowerRotateClock ? -1f : 1f);
 
             SettingTowerTransform(currentAngle);
             
