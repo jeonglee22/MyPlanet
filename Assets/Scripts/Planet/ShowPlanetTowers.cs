@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,10 +16,21 @@ public class ShowPlanetTowers : MonoBehaviour
     private PlanetTowerUI planetTowerUI;
     private float currentAngle;
 
+
+    //
+    private bool[] emptyTowerTest;
+    [SerializeField] private GameObject emptySlotPrefab;
+
     private void Awake()
     {
         planetTowerUI = GetComponent<PlanetTowerUI>();
         planetTowerUI.TowerCount = towerCount;
+
+        emptyTowerTest = new bool[towerCount];
+        for (int i = 0; i < towerCount; i++)
+        {
+            emptyTowerTest[i] = Random.value < 0.5f;
+        }
     }
 
     void Start()
@@ -51,7 +61,15 @@ public class ShowPlanetTowers : MonoBehaviour
 
         for (int i = 0; i < slotCount; i++)
         {
-            var tower = Instantiate(towerBasePrefab, PlanetTransform);
+            GameObject tower;
+            if (emptyTowerTest[i])
+            {
+                tower = Instantiate(emptySlotPrefab, PlanetTransform);
+                towers.Add(tower);
+                continue;
+            }
+            else
+                tower = Instantiate(towerBasePrefab, PlanetTransform);
 
             var button = tower.GetComponent<Button>();
             int index = i;
