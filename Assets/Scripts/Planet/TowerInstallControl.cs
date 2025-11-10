@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ShowPlanetTowers : MonoBehaviour
+public class TowerInstallControl : MonoBehaviour
 {
     [SerializeField] private int towerCount;
     [SerializeField] private GameObject towerBasePrefab;
@@ -10,10 +10,12 @@ public class ShowPlanetTowers : MonoBehaviour
     [SerializeField] private RectTransform PlanetTransform;
     [SerializeField] private float rotateSpeed = 300f;
     [SerializeField] private GameObject emptySlotPrefab;
+    [SerializeField] private GameObject planetObj;
+    private Planet planet;
     private List<GameObject> towers;
     private float towerRadius = 100f;
 
-    private PlanetTowerUI planetTowerUI;
+    [SerializeField] private PlanetTowerUI planetTowerUI;
     private float currentAngle;
 
     //
@@ -21,7 +23,6 @@ public class ShowPlanetTowers : MonoBehaviour
 
     private void Awake()
     {
-        planetTowerUI = GetComponent<PlanetTowerUI>();
         planetTowerUI.TowerCount = towerCount;
 
         emptyTowerTest = new bool[towerCount];
@@ -33,6 +34,8 @@ public class ShowPlanetTowers : MonoBehaviour
 
     void Start()
     {
+        planet = planetObj.GetComponent<Planet>();
+
         ResetTowerSlot(towerCount);
         towerInfoObj.SetActive(false);
     }
@@ -85,10 +88,11 @@ public class ShowPlanetTowers : MonoBehaviour
             //
 
             towers.Add(tower);
+            planet.SetTower(tower, index);
         }
 
         SettingTowerTransform(0f);
-        currentAngle = 0f;
+        currentAngle = 0f;   
     }
 
     private void OpenInstallUI(int index)
@@ -104,6 +108,8 @@ public class ShowPlanetTowers : MonoBehaviour
 
         var image = newTower.GetComponentInChildren<Image>();
         image.color = Color.Lerp(Color.red, Color.blue, (float)index / (towerCount - 1));
+
+        planet.SetTower(newTower, index);
         SettingTowerTransform(currentAngle);
     }
 

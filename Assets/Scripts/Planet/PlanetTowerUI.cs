@@ -1,10 +1,12 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class PlanetTowerUI : MonoBehaviour
 {
     [SerializeField] private Button leftButton;
     [SerializeField] private Button rightButton;
+    [SerializeField] private Button battleButton;
 
     public float Angle { get; private set; }
     public int TowerCount { get; set; }
@@ -15,6 +17,7 @@ public class PlanetTowerUI : MonoBehaviour
     {
         leftButton.onClick.AddListener(OnLetfMoveClicked);
         rightButton.onClick.AddListener(OnRightMoveClicked);
+        battleButton.onClick.AddListener(OnStartBattelClicked);
 
         Angle = 0f;
     }
@@ -24,10 +27,16 @@ public class PlanetTowerUI : MonoBehaviour
         Angle += 360f / TowerCount;
         TowerRotateClock = false;
     }
-    
+
     private void OnRightMoveClicked()
     {
         Angle -= 360f / TowerCount;
         TowerRotateClock = true;
+    }
+    
+    private void OnStartBattelClicked()
+    {
+        gameObject.SetActive(false);
+        Time.timeScale = 1f;
     }
 }
