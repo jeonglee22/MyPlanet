@@ -26,6 +26,8 @@ public class Enemy : LivingEntity, ITargetable
     [SerializeField] private float lifeTime = 2f;
     private CancellationTokenSource lifeTimeCts;
 
+    [SerializeField] private List<DropItem> drops;
+
     protected override void OnEnable()
     {
         base.OnEnable();
@@ -66,6 +68,11 @@ public class Enemy : LivingEntity, ITargetable
 
         Cancel();
 
+        foreach (var drop in drops)
+        {
+            Instantiate(drop, transform.position, Quaternion.identity);
+        }
+
         pool?.Release(this);
     }
 
@@ -81,7 +88,6 @@ public class Enemy : LivingEntity, ITargetable
         Cancel();
 
         LifeTimeTask(lifeTimeCts.Token).Forget();
-
     }
 
     public void SetPool(IObjectPool<Enemy> pool)

@@ -1,10 +1,12 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class TowerInstallControl : MonoBehaviour
 {
     [SerializeField] private int towerCount;
+    public int TowerCount { get => towerCount; }
     [SerializeField] private GameObject towerBasePrefab;
     [SerializeField] private GameObject towerInfoObj;
     [SerializeField] private RectTransform PlanetTransform;
@@ -22,6 +24,10 @@ public class TowerInstallControl : MonoBehaviour
     private bool[] emptyTowerTest;
     [SerializeField] private List<TowerDataSO> availableTowerDatas;
     private TowerDataSO[] assignedTowerDatas;
+
+    public bool IsReadyInstall { get; set; }
+    public (Color color, string towerData) ChoosedData { get; set; }
+    // public (Color color, TowerDataSO towerData) ChoosedData { get; set; }
 
     private void Awake()
     {
@@ -72,8 +78,13 @@ public class TowerInstallControl : MonoBehaviour
             {
                 tower = Instantiate(emptySlotPrefab, PlanetTransform);
                 var buttonEmpty = tower.GetComponent<Button>();
-                buttonEmpty.onClick.AddListener(() => OpenInstallUI(index));
+                buttonEmpty.onClick.AddListener(() => IntallNewTower(index));
                 towers.Add(tower);
+
+                // test
+                var numtext = tower.GetComponentInChildren<TextMeshProUGUI>();
+                numtext.text = index.ToString();
+                //
 
                 assignedTowerDatas[index] = null;
                 continue;
@@ -94,12 +105,30 @@ public class TowerInstallControl : MonoBehaviour
             var image = tower.GetComponentInChildren<Image>();
             image.color = Color.Lerp(Color.red, Color.blue, (float)i / (slotCount - 1));
 
+            var text = tower.GetComponentInChildren<TextMeshProUGUI>();
+            text.text = index.ToString();
+            //
+
             towers.Add(tower);
             planet?.SetTower(tower, index);
         }
 
         SettingTowerTransform(0f);
         currentAngle = 0f;   
+    }
+
+    public bool IsUsedSlot(int index)
+    {
+        return !emptyTowerTest[index];
+    }
+
+    public void UpgradeTower(int index)
+    {
+        if (!IsReadyInstall)
+            return;
+
+        Debug.Log($"Tower Upgrade!!! {index}");
+        Debug.Log($"{ChoosedData.towerData}");
     }
 
     private void TryAssignDataToTower(GameObject towerObj, TowerDataSO data)
@@ -123,8 +152,11 @@ public class TowerInstallControl : MonoBehaviour
         return availableTowerDatas[idx];
     }
 
-    private void OpenInstallUI(int index)
+    private void IntallNewTower(int index)
     {
+        if (!IsReadyInstall)
+            return;
+
         // test Install
         var newTower = Instantiate(towerBasePrefab, PlanetTransform);
 
@@ -137,17 +169,30 @@ public class TowerInstallControl : MonoBehaviour
         button.onClick.AddListener(() => OpenInfoUI(index));
 
         var image = newTower.GetComponentInChildren<Image>();
-        image.color = Color.Lerp(Color.red, Color.blue, (float)index / (towerCount - 1));
+        image.color = ChoosedData.color;
+        Debug.Log(ChoosedData.towerData);
+        // image.color = Color.Lerp(Color.red, Color.blue, (float)index / (towerCount - 1));
 
         assignedTowerDatas[index] = chosenData;
         TryAssignDataToTower(newTower, chosenData);
 
+        // test index
+        var text = newTower.GetComponentInChildren<TextMeshProUGUI>();
+        text.text = index.ToString();
+        //
+
         planet?.SetTower(newTower, index);
         SettingTowerTransform(currentAngle);
+
+        emptyTowerTest[index] = false;
+
+        planetTowerUI.gameObject.SetActive(false);
     }
 
     private void OpenInfoUI(int index)
     {
+        if (IsReadyInstall) return;
+
         towerInfoObj.SetActive(true);
         towerInfoObj.GetComponent<TowerInfoUI>().SetInfo(index);
     }
