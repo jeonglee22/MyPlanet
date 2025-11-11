@@ -22,6 +22,9 @@ public class DropItem : MonoBehaviour
     {
         planet = GameObject.FindWithTag(TagName.Planet)?.GetComponent<Planet>();
         initPos = transform.position;
+        if (planet == null)
+            return;
+            
         movingTimeTotal = Vector3.Distance(initPos, planet.transform.position) / movingSpeed;
 
         // particle?.Play();

@@ -119,6 +119,9 @@ public class TowerInstallControl : MonoBehaviour
 
     public bool IsUsedSlot(int index)
     {
+        if (emptyTowerTest == null)
+            return false;
+
         return !emptyTowerTest[index];
     }
 

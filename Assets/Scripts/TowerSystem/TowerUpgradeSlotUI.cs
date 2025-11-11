@@ -44,6 +44,9 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
             numlist.Add(number);
 
+            if (installControl == null)
+                continue;
+            
             // test
             if (!installControl.IsUsedSlot(number))
             {
