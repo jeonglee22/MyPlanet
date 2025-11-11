@@ -11,7 +11,6 @@ public class EnemyData : ScriptableObject
     public float speed;
     public float damage;
     public float defense = 100f;
-
 }
 
 public enum MovementType

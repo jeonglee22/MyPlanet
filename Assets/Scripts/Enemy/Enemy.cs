@@ -71,7 +71,13 @@ public class Enemy : LivingEntity, ITargetable
 
     public void Initialize(EnemyData enemyData, Vector3 targetDirection)
     {
-        data = enemyData;
+        //tower system random dummy test
+        data = ScriptableObject.Instantiate(enemyData);
+        data.maxHealth = UnityEngine.Random.Range(50, 100);
+        data.damage = UnityEngine.Random.Range(5, 15);
+        data.defense = UnityEngine.Random.Range(1, 10);
+
+        //data = enemyData;
         maxHealth = data.maxHealth;
         Health = maxHealth;
 
@@ -81,7 +87,6 @@ public class Enemy : LivingEntity, ITargetable
         Cancel();
 
         LifeTimeTask(lifeTimeCts.Token).Forget();
-
     }
 
     public void SetPool(IObjectPool<Enemy> pool)
