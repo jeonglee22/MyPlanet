@@ -20,6 +20,7 @@ public class PlanetTowerUI : MonoBehaviour
         battleButton.onClick.AddListener(OnStartBattelClicked);
 
         Angle = 0f;
+        Time.timeScale = 0f;
     }
 
     private void OnLetfMoveClicked()
