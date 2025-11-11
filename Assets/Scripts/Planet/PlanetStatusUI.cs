@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -13,8 +14,8 @@ public class PlanetStatusUI : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        hpSlider.onValueChanged.AddListener(OnHpValueChanged);
-        planet.expUpEvent += OnExpValueChange;
+        planet.HpDecreseEvent += HpValueChanged;
+        planet.expUpEvent += ExpValueChange;
 
         Initialize();
         //test
@@ -28,23 +29,23 @@ public class PlanetStatusUI : MonoBehaviour
 
     private void OnDestroy()
     {
-        planet.expUpEvent -= OnExpValueChange;
+        planet.expUpEvent -= ExpValueChange;
+        planet.HpDecreseEvent -= HpValueChanged;
     }
 
     private void Initialize()
     {
-        hpSlider.value = planet.Health;
-        expSlider.value = 0f;
+        HpValueChanged(planet.Health);
+        ExpValueChange(planet.CurrentExp);
     }
 
-    private void OnHpValueChanged(float hpPercent)
+    private void HpValueChanged(float hp)
     {
-        hpSlider.value = hpPercent;
+        hpSlider.value = hp / planet.MaxHealth;
     }
 
-    private void OnExpValueChange(float exp)
+    private void ExpValueChange(float exp)
     {
-        Debug.Log(exp);
         expSlider.value = exp / planet.MaxExp;
     }
 

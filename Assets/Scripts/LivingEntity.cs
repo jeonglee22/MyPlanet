@@ -6,11 +6,13 @@ using UnityEngine;
 public class LivingEntity : MonoBehaviour, IDamagable
 {
     [SerializeField] protected float maxHealth = 100f;
+    public float MaxHealth { get => maxHealth; }
 
     public float Health { get; protected set; }
     public bool IsDead { get; protected set; }
 
     public event Action OnDeathEvent;
+    public event Action<float> HpDecreseEvent;
 
     protected virtual void OnEnable()
     {
@@ -24,6 +26,7 @@ public class LivingEntity : MonoBehaviour, IDamagable
             return;
 
         Health -= damage;
+        HpDecreseEvent?.Invoke(Health);
 
         if (Health <= 0)
         {
