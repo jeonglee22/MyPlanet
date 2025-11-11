@@ -10,12 +10,14 @@ public class PlanetStatusUI : MonoBehaviour
 
     [SerializeField] private Slider hpSlider;
     [SerializeField] private Slider expSlider;
+    [SerializeField] private GameObject towerSettingUi;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         planet.HpDecreseEvent += HpValueChanged;
         planet.expUpEvent += ExpValueChange;
+        planet.levelUpEvent += OpenTowerUpgradeUI;
 
         Initialize();
         //test
@@ -31,12 +33,19 @@ public class PlanetStatusUI : MonoBehaviour
     {
         planet.expUpEvent -= ExpValueChange;
         planet.HpDecreseEvent -= HpValueChanged;
+        planet.levelUpEvent -= OpenTowerUpgradeUI;
     }
 
     private void Initialize()
     {
         HpValueChanged(planet.Health);
         ExpValueChange(planet.CurrentExp);
+    }
+
+    private void OpenTowerUpgradeUI()
+    {
+        towerSettingUi.SetActive(true);
+            Time.timeScale = 0f;
     }
 
     private void HpValueChanged(float hp)
