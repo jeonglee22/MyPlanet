@@ -8,14 +8,34 @@ public static class DataTableManager
     private static readonly Dictionary<string, DataTable> tables = new Dictionary<string, DataTable>();
 
     private static bool isInitialized = false;
-    private static UniTask initializationTask;
+    public static bool IsInitialized => isInitialized;
 
-    private static async UniTask InitAsync()
+    public static async UniTask InitializeAsync()
     {
         if (isInitialized)
         {
             return;
         }
+
+        await InitializeTableAsync();
+        isInitialized = true;
+    }
+
+    private static async UniTask InitializeTableAsync()
+    {
+        var tasks = new List<UniTask>
+        {
+            LoadTableAsync<StringTable>(DataTableIds.String)
+        };
+
+        await UniTask.WhenAll(tasks);
+    }
+    
+    private static async UniTask LoadTableAsync<T>(string id) where T : DataTable, new()
+    {
+        var table = new T();
+        await table.LoadAsync(id);
+        tables.Add(id, table);
     }
 
     public static StringTable StringTable
