@@ -9,13 +9,15 @@ public class Planet : LivingEntity
 {
     private List<TowerAttack> planetAttacks;
     private List<GameObject> towers;
+
     [SerializeField] private GameObject towerPrefab;
     [SerializeField] private Transform towerSlotTransform;
+    [SerializeField] private List<TowerDataSO> towerDataList;
 
     private int towerCount;
-
     private float exp;
     private float level;
+
     public event Action levelUpEvent;
     public event Action<float> expUpEvent;
     public float CurrentExp
@@ -43,7 +45,6 @@ public class Planet : LivingEntity
     private void Awake()
     {
         planetAttacks = new List<TowerAttack>();
-
         InitPlanet();
         exp = 0f;
     }
@@ -95,5 +96,22 @@ public class Planet : LivingEntity
         base.Die();
         
         Destroy(gameObject);
+    }
+
+    internal int GetTowerSlotCount()
+    {
+        return towerCount;
+    }
+
+    internal void SetTowerInPlayerTowerMGR(int index, TowerDataSO randomData)
+    {
+        if(towers[index]!=null)
+        {
+            Destroy(towers[index]);
+            towers[index] = null;
+        }
+
+        var newTower = Instantiate(towerPrefab, towerSlotTransform);
+        towers[index] = newTower;
     }
 }

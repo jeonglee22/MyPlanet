@@ -26,9 +26,6 @@ public class TowerAttack : MonoBehaviour
 
         projectile.transform.position = transform.position;
         projectile.transform.rotation = Quaternion.LookRotation(direction);
-
         projectile.Initialize(currentProjectileData, direction, IsHit);
-        
-        
     }
 }

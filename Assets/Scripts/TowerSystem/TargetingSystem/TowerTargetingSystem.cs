@@ -22,6 +22,13 @@ public class TowerTargetingSystem : MonoBehaviour
     //debug
     private ITargetable previousTarget;
 
+    //My Planet Fire Point Transform
+    [SerializeField] private ClosestDistancePrioritySO closestDistancePrioritySO;
+    private void Start()
+    {
+        closestDistancePrioritySO.Initialize(transform);
+    }
+
     private void Update()
     {
         scanTimer += Time.deltaTime;
