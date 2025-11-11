@@ -19,6 +19,9 @@ public class TowerTargetingSystem : MonoBehaviour
     private float scanTimer = 0f;
     private bool isAttacking { get; set; } = false;
 
+    //debug
+    private ITargetable previousTarget;
+
     private void Update()
     {
         scanTimer += Time.deltaTime;
@@ -32,25 +35,46 @@ public class TowerTargetingSystem : MonoBehaviour
     private void ScanForTargets()
     {
         float radius = rangeData.GetRange();
-        Collider[] detects = Physics.OverlapSphere(towerFiringPoint.position, radius);
+        Collider[] detects = Physics.OverlapSphere(towerFiringPoint.position, radius, 
+            Physics.DefaultRaycastLayers, QueryTriggerInteraction.Collide);
+
+        Debug.Log($"collider count:{detects.Length}");
         var validTargets = new List<ITargetable>();
         foreach (var dt in detects)
         {
-            if (!dt.CompareTag(enemyTag)) continue;
+            Debug.Log($"[Scan] Detected: {dt.name} | Tag: {dt.tag} | IsTrigger: {dt.isTrigger} | Active: {dt.gameObject.activeInHierarchy}");
+            if (!dt.CompareTag(enemyTag))
+            {
+                Debug.Log($"[Scan] Skipped {dt.name}, wrong tag");
+                continue;
+            }
 
             var targetComponent = dt.GetComponent<ITargetable>();
-            if (targetComponent != null && targetComponent.isAlive)
+            if (targetComponent == null) Debug.Log($"No Target{dt.name}");
+            if (!targetComponent.isAlive)
             {
-                validTargets.Add(targetComponent);
+                Debug.Log($"[Scan] {dt.name} is dead");
+                continue;
             }
+
+            validTargets.Add(targetComponent);
+            Debug.Log($"[Scan] Valid Target: {dt.name} | HP:{targetComponent.maxHp} | ATK:{targetComponent.atk} | DEF:{targetComponent.def} | Pos:{targetComponent.position}");
+            //if (targetComponent != null && targetComponent.isAlive)
         }
 
         currentTarget = targetStrategy != null 
             ? targetStrategy.SelectTarget(validTargets) : null;
+
+        if (currentTarget !=previousTarget)
+        {
+            previousTarget = currentTarget;
+            if (currentTarget != null) Debug.Log($"[New Best Target] ATK:{currentTarget.atk} DEF:{currentTarget.def} HP:{currentTarget.maxHp}");
+            else Debug.Log("No Valid Target");
+        }
     }
     public ITargetable GetCurrentTarget() => currentTarget;
 
-    private void OnDrawGizmosSelected() //debug
+    private void OnDrawGizmosSelected() //debug method
     {
         if(towerFiringPoint!=null&&rangeData!=null)
         {

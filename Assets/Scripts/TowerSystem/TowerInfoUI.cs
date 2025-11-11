@@ -5,16 +5,15 @@ using UnityEngine;
 public class TowerInfoUI : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI nameText;
+    [SerializeField] private TowerInstallControl installControl;
 
     public void SetInfo(int index)
     {
         Debug.Log("Tower Info");
         nameText.text = $"Tower {index}";
 
-        var installControl = FindObjectOfType<TowerInstallControl>();
         if (installControl == null)
         {
-            Debug.LogWarning("TowerInfoUI: TowerInstallControl not found in scene.");
             nameText.text = "No data";
             return;
         }

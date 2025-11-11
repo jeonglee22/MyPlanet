@@ -14,7 +14,6 @@ public class ProjectileData : ScriptableObject
     public int targetNumber = 1;
     public float lifeTime = 10f;
     public float hitRadius = 10f;
-
 }
 
 public enum ProjectileType

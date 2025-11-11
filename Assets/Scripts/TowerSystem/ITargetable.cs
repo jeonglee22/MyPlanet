@@ -5,7 +5,7 @@ public interface ITargetable // consider targeting object.
 {
     //int dataId { get; } // compare priority
     Vector3 position { get; }
-    bool isAlive { get; }
+    bool isAlive { get; }  
 
     //ref attaking
     //float currentHp { get; }
