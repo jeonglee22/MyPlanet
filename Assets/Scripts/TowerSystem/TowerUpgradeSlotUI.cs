@@ -11,7 +11,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
     private void Start()
     {
-        towerColor = new Color[3] {Color.black, Color.green, Color.cyan};
+        towerColor = new Color[3] {Color.yellow, Color.green, Color.cyan};
     }
     
     public void OnClickUpgradeUIClicked(int index)

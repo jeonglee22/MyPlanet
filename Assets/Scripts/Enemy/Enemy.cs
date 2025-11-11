@@ -1,11 +1,10 @@
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Pool;
 
-public class Enemy : LivingEntity
+public class Enemy : LivingEntity, ITargetable
 {
     private IObjectPool<Enemy> pool;
 
@@ -13,6 +12,16 @@ public class Enemy : LivingEntity
     private List<EnemyAbility> abilities = new List<EnemyAbility>();
     private EnemyData data;
     public EnemyData Data { get { return data; } }
+
+    public Vector3 position => transform.position;
+
+    public bool isAlive => !IsDead;
+
+    public float maxHp => maxHealth;
+
+    public float atk => data.damage;
+
+    public float def => data.defense;
 
     [SerializeField] private float lifeTime = 2f;
     private CancellationTokenSource lifeTimeCts;

@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEditor.Purchasing;
 using UnityEngine;
 using UnityEngine.Timeline;
 
@@ -12,6 +14,28 @@ public class Planet : LivingEntity
 
     private int towerCount;
 
+    private float exp;
+    private float level;
+    public event Action levelUpEvent;
+    public event Action<float> expUpEvent;
+    public float CurrentExp
+    {
+        get => exp;
+        set
+        {
+            exp = value;
+            if (exp >= 100f)
+            {
+                level++;
+                levelUpEvent?.Invoke();
+                exp = 0f;
+            }
+            expUpEvent?.Invoke(exp);
+        }
+    }
+
+    public float MaxExp { get; internal set; } = 100f;
+
     //test
     [SerializeField] private float shootInterval = 0.5f;
     private float shootTime = 0f;
@@ -21,6 +45,7 @@ public class Planet : LivingEntity
         planetAttacks = new List<TowerAttack>();
 
         InitPlanet();
+        exp = 0f;
     }
 
     private void Update()
