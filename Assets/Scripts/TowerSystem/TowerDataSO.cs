@@ -7,4 +7,8 @@ public class TowerDataSO : ScriptableObject
     public BaseTargetPriority targetPriority;
 
     public string towerId;
+
+    [Header("Accuracy & Hit Settings")]
+    public float hitRate = 100f;
+    public float spreadAccuracy = 100f;
 }
