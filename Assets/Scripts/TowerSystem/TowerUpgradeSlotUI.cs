@@ -44,7 +44,16 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
             numlist.Add(number);
 
-            text.text = $"{number}";
+            // test
+            if (!installControl.IsUsedSlot(number))
+            {
+                text.text = $"new Tower";
+            }
+            else
+            {
+                text.text = $"Upgrade\n{number}";
+            }
+            //
         }
     }
 

@@ -34,7 +34,8 @@ public class DropItem : MonoBehaviour
 
     protected virtual void Update()
     {
-        AutoCollect();
+        if(planet != null)
+            AutoCollect();
     }
     
     protected virtual void AutoCollect()

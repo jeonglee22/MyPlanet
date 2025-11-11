@@ -171,16 +171,20 @@ public class TowerInstallControl : MonoBehaviour
         var image = newTower.GetComponentInChildren<Image>();
         image.color = ChoosedData.color;
         Debug.Log(ChoosedData.towerData);
-
-        var text = newTower.GetComponentInChildren<TextMeshProUGUI>();
-        text.text = index.ToString();
         // image.color = Color.Lerp(Color.red, Color.blue, (float)index / (towerCount - 1));
 
         assignedTowerDatas[index] = chosenData;
         TryAssignDataToTower(newTower, chosenData);
 
+        // test index
+        var text = newTower.GetComponentInChildren<TextMeshProUGUI>();
+        text.text = index.ToString();
+        //
+
         planet?.SetTower(newTower, index);
         SettingTowerTransform(currentAngle);
+
+        emptyTowerTest[index] = false;
 
         planetTowerUI.gameObject.SetActive(false);
     }
