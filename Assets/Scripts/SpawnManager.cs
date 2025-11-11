@@ -17,6 +17,12 @@ public class SpawnManager : MonoBehaviour
 
     public bool IsSpawning { get; set; } = true;
 
+    
+    Vector3 bottomLeft;
+    Vector3 bottomRight;
+    Vector3 topLeft;
+    Vector3 topRight;
+
     private void Awake()
     {
         if (instance == null)
@@ -27,6 +33,14 @@ public class SpawnManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        Camera mainCamera = Camera.main;
+        float zDistance = 10f; // 카메라에서의 거리
+
+        bottomLeft = mainCamera.ScreenToWorldPoint(new Vector3(0, 0, zDistance));
+        bottomRight = mainCamera.ScreenToWorldPoint(new Vector3(Screen.width, 0, zDistance));
+        topLeft = mainCamera.ScreenToWorldPoint(new Vector3(0, Screen.height, zDistance));
+        topRight = mainCamera.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, zDistance));
     }
 
     private void Start()
