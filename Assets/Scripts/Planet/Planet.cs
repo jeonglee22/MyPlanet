@@ -48,6 +48,8 @@ public class Planet : LivingEntity
         InitPlanet();
         exp = 0f;
         MaxExp = 100f;
+
+        if (towerSlotTransform == null) towerSlotTransform = transform;
     }
 
     private void Update()
@@ -61,7 +63,7 @@ public class Planet : LivingEntity
         if (shootTime > shootInterval)
         {
             foreach (var attack in planetAttacks)
-                attack.Shoot(ProjectileType.Normal, attack.gameObject.transform.forward, true);
+                attack.Shoot(attack.gameObject.transform.forward, true);
             shootTime = 0f;
         }
         shootTime += Time.deltaTime;
@@ -71,31 +73,27 @@ public class Planet : LivingEntity
     public void InitPlanet(int towerCount = 12)
     {
         towers = new List<GameObject>();
-        for (int i = 0; i < towerCount; i++)
-            towers.Add(null);
+        for (int i = 0; i < towerCount; i++) towers.Add(null);
         this.towerCount = towerCount;
     }
 
     public void SetTower(TowerDataSO towerData, int index)
     {
-        //Delete Tower
-        // if(towers[index]!=null)
-        // {
-        //     Destroy(towers[index]);
-        //     towers[index] = null;
-        // }
-
         //Install Tower
         GameObject installTower=Instantiate(towerPrefab, towerSlotTransform);
         towers[index] = installTower;
 
-        //Enroll Tower
+        //Enroll TowerAttack
         TowerAttack newTowerAttack = installTower.GetComponent<TowerAttack>();
         if(newTowerAttack!=null)
         {
             newTowerAttack.SetTowerData(towerData);
             planetAttacks.Add(newTowerAttack);
         }
+
+        //Enroll Targeting
+        var targeting = installTower.GetComponent<TowerTargetingSystem>();
+        if (targeting != null) targeting.SetTowerData(towerData);
         
         //Rotation System
         var rot = new Vector3(0, 90, 0);

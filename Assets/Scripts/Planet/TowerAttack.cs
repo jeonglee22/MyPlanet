@@ -12,18 +12,18 @@ public class TowerAttack : MonoBehaviour
         DoubleShoot,
     }
 
-    ProjectileData currentProjectileData;
-
+    private ProjectileData currentProjectileData;
     private TowerDataSO towerData;
+
+    [SerializeField] private AttackAbility ability = AttackAbility.Basic;
 
     public void SetTowerData(TowerDataSO data)
     {
         towerData = data;
+        currentProjectileData = data.projectileType;
     }
 
-    [SerializeField] private AttackAbility ability = AttackAbility.Basic;
-
-    public void Shoot(ProjectileType projectileType, Vector3 direction, bool IsHit)
+    public void Shoot(Vector3 direction, bool IsHit)
     {
         if(towerData==null||towerData.projectileType==null)
         {
@@ -57,7 +57,6 @@ public class TowerAttack : MonoBehaviour
 
         projectile.transform.position = transform.position;
         projectile.transform.rotation = Quaternion.LookRotation(direction);
-
         projectile.Initialize(currentProjectileData, direction, IsHit);
     }
 
@@ -69,8 +68,9 @@ public class TowerAttack : MonoBehaviour
             projectile = Instantiate(currentProjectileData.projectilePrefab, transform.position, Quaternion.LookRotation(direction)).GetComponent<Projectile>();
         }
 
+        projectile.transform.position = transform.position;
+        projectile.transform.rotation = Quaternion.LookRotation(direction);
         projectile.Initialize(currentProjectileData, direction, IsHit);
-
         projectile.GetComponent<Projectile>().totalSpeed += 20f;
     }
 

@@ -13,6 +13,7 @@ public class TowerInstallControl : MonoBehaviour
     [SerializeField] private float rotateSpeed = 300f;
     [SerializeField] private GameObject emptySlotPrefab;
     [SerializeField] private GameObject planetObj;
+
     private Planet planet;
     private List<GameObject> towers;
     private float towerRadius = 100f;
@@ -47,8 +48,6 @@ public class TowerInstallControl : MonoBehaviour
 
         ResetTowerSlot(towerCount);
         towerInfoObj.SetActive(false);
-
-        DebugTowerSetup(); //debug
     }
 
     private void Update()
@@ -97,13 +96,7 @@ public class TowerInstallControl : MonoBehaviour
                 var chosenData = PickRandomTowerData();
                 assignedTowerDatas[index] = chosenData;
 
-                //Init TargetingSystem 
-                var targeting = tower.GetComponentInChildren<TowerTargetingSystem>();
-                if (targeting != null) targeting.SetTowerData(chosenData);
-                
-                //Init TowerAttack
-                var attack = tower.GetComponentInChildren<TowerAttack>();
-                if (attack != null) attack.SetTowerData(chosenData);
+                TryAssignDataToTower(tower, chosenData);
             }
             
             var button = tower.GetComponent<Button>();
@@ -115,28 +108,24 @@ public class TowerInstallControl : MonoBehaviour
 
             var text = tower.GetComponentInChildren<TextMeshProUGUI>();
             text.text = index.ToString();
-            //
 
             towers.Add(tower);
             planet?.SetTower(assignedTowerDatas[index], index);
         }
-
         SettingTowerTransform(0f);
         currentAngle = 0f;   
     }
 
     public bool IsUsedSlot(int index)
     {
-        if (emptyTowerTest == null)
-            return false;
+        if (emptyTowerTest == null) return false;
 
         return !emptyTowerTest[index];
     }
 
     public void UpgradeTower(int index)
     {
-        if (!IsReadyInstall)
-            return;
+        if (!IsReadyInstall) return;
 
         Debug.Log($"Tower Upgrade!!! {index}");
         Debug.Log($"{ChoosedData.towerData}");
@@ -146,12 +135,7 @@ public class TowerInstallControl : MonoBehaviour
     {
         if (data == null || towerObj == null) return;
 
-        var targeting = towerObj.GetComponent<TowerTargetingSystem>();
-        if (targeting != null)
-        {
-            targeting.SetTowerData(data);
-        }
-
+        //UI
         var nameText = towerObj.GetComponentInChildren<TMPro.TextMeshProUGUI>();
         if (nameText != null)
             nameText.text = data.towerId;
@@ -165,12 +149,10 @@ public class TowerInstallControl : MonoBehaviour
 
     private void IntallNewTower(int index)
     {
-        if (!IsReadyInstall)
-            return;
+        if (!IsReadyInstall) return;
 
         // test Install
         var newTower = Instantiate(towerBasePrefab, PlanetTransform);
-
         var chosenData = PickRandomTowerData();
 
         Destroy(towers[index]);
@@ -190,20 +172,11 @@ public class TowerInstallControl : MonoBehaviour
         // test index
         var text = newTower.GetComponentInChildren<TextMeshProUGUI>();
         text.text = index.ToString();
-        //
-        //Init TargetingSystem 
-        // var targeting = newTower.GetComponentInChildren<TowerTargetingSystem>();
-        // if (targeting != null) targeting.SetTowerData(chosenData);
-
-        // //Init TowerAttack
-        // var attack = newTower.GetComponentInChildren<TowerAttack>();
-        // if (attack != null) attack.SetTowerData(chosenData);
 
         planet?.SetTower(assignedTowerDatas[index], index);
         SettingTowerTransform(currentAngle);
 
         emptyTowerTest[index] = false;
-
         planetTowerUI.gameObject.SetActive(false);
     }
 
@@ -231,28 +204,6 @@ public class TowerInstallControl : MonoBehaviour
             towerRect.rotation = Quaternion.Euler(rot);
 
             baseAngle += 360f / towerCount;
-        }
-    }
-
-    private void DebugTowerSetup() //debug 
-    {
-        for (int i = 0; i < towers.Count; i++)
-        {
-            var tower = towers[i];
-            if (tower == null) continue;
-
-            var data = assignedTowerDatas[i];
-            string dataName = data != null ? data.towerId : "null";
-
-            var targeting = tower.GetComponentInChildren<TowerTargetingSystem>();
-            string targetingStatus = targeting != null
-                ? $"Range:{targeting.AssignedTowerData?.rangeData?.GetRange() ?? 0} Target:{targeting.AssignedTowerData?.targetPriority}"
-                : "No TargetingSystem";
-
-            var attack = tower.GetComponentInChildren<TowerAttack>();
-            string attackStatus = attack != null ? "TowerAttack OK" : "No TowerAttack";
-
-            Debug.Log($"Tower[{i}] -> Data:{dataName} | {targetingStatus} | {attackStatus}");
         }
     }
 }
