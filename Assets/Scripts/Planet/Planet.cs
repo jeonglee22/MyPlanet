@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using NUnit.Framework.Constraints;
 using Unity.VisualScripting;
 using UnityEditor.Purchasing;
 using UnityEngine;
@@ -48,6 +49,10 @@ public class Planet : LivingEntity
         InitPlanet();
         exp = 0f;
         MaxExp = 100f;
+    }
+
+    private void Start()
+    {
     }
 
     private void Update()

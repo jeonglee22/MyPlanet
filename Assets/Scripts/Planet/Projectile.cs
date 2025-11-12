@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.Pool;
@@ -21,6 +22,8 @@ public class Projectile : MonoBehaviour
     private IObjectPool<Projectile> pool;
 
     private CancellationTokenSource lifeTimeCts;
+    public event Action<GameObject> abilityAction;
+    public event Action<GameObject> abilityRelease;
 
     private void Update()
     {
@@ -65,6 +68,12 @@ public class Projectile : MonoBehaviour
         }
     }
 
+    void OnDisable()
+    {
+        abilityRelease?.Invoke(gameObject);
+        abilityRelease = null;
+    }
+
     /// <summary>
     /// Initialize the projectile with data
     /// </summary>
@@ -95,7 +104,10 @@ public class Projectile : MonoBehaviour
         var damagable = other.gameObject.GetComponent<IDamagable>();
         if (damagable != null)
         {
+            abilityAction?.Invoke(gameObject);
             damagable.OnDamage(damage);
+            Debug.Log(damage);
+            abilityAction = null;
         }
 
         currentPierceCount--;
