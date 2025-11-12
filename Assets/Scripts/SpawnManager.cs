@@ -17,6 +17,9 @@ public class SpawnManager : MonoBehaviour
 
     public bool IsSpawning { get; set; } = true;
 
+    Rect screenBounds;
+    [SerializeField] private float offSet = 1f;
+
     private void Awake()
     {
         if (instance == null)
@@ -27,6 +30,8 @@ public class SpawnManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        SetScreenBounds();
     }
 
     private void Start()
@@ -66,7 +71,11 @@ public class SpawnManager : MonoBehaviour
     public Enemy SpawnRandomEnemy()
     {
         EnemyData data = GetRandomEnemyData();
-        Vector3 position = GetRandomSpawnPoint();
+        //Vector3 position = GetRandomSpawnPoint();
+        Vector3 position = new Vector3(
+            Random.Range(screenBounds.xMin, screenBounds.xMax),
+            Random.Range(screenBounds.yMin, screenBounds.yMax),
+            0f);
         
         Enemy enemy = EnemySpawner.Instance.SpawnEnemy(data, position);
         if (enemy != null)
@@ -80,7 +89,11 @@ public class SpawnManager : MonoBehaviour
     //Use split ability
     public Enemy SpawnEnemy(EnemyData data)
     {
-        Vector3 position = GetRandomSpawnPoint();
+        //Vector3 position = GetRandomSpawnPoint();
+        Vector3 position = new Vector3(
+            Random.Range(screenBounds.xMin, screenBounds.xMax),
+            Random.Range(screenBounds.yMin, screenBounds.yMax),
+            0f);
 
         Enemy enemy = EnemySpawner.Instance.SpawnEnemy(data, position);
         if (enemy != null)
@@ -110,15 +123,30 @@ public class SpawnManager : MonoBehaviour
         int randomIndex = Random.Range(0, spawnPoints.Length);
         return spawnPoints[randomIndex].position;
     }
-    
+
     private EnemyData GetRandomEnemyData()
     {
         if (enemyDatas == null || enemyDatas.Length == 0)
         {
             return null;
         }
-        
+
         int randomIndex = Random.Range(0, enemyDatas.Length);
         return enemyDatas[randomIndex];
+    }
+
+    /// <summary>
+    /// Screen bounds for enemy movement
+    /// </summary>
+    private void SetScreenBounds()
+    {
+        Camera mainCamera = Camera.main;
+        float zDistance = -mainCamera.transform.position.z; // 카메라에서의 거리
+        float minHeight = Screen.height * 0.75f;
+
+        var bottomLeft = mainCamera.ScreenToWorldPoint(new Vector3(0 + offSet, minHeight, zDistance));
+        var topRight = mainCamera.ScreenToWorldPoint(new Vector3(Screen.width + offSet, Screen.height + offSet, zDistance));
+
+        screenBounds = new Rect(bottomLeft.x, bottomLeft.y, topRight.x - bottomLeft.x, topRight.y - bottomLeft.y);
     }
 }

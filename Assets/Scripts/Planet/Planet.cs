@@ -25,11 +25,12 @@ public class Planet : LivingEntity
         set
         {
             exp = value;
-            if (exp >= 100f)
+            if (exp >= MaxExp)
             {
                 level++;
                 levelUpEvent?.Invoke();
                 exp = 0f;
+                MaxExp *= 1.2f;
             }
             expUpEvent?.Invoke(exp);
         }
@@ -46,6 +47,7 @@ public class Planet : LivingEntity
         planetAttacks = new List<TowerAttack>();
         InitPlanet();
         exp = 0f;
+        MaxExp = 100f;
     }
 
     private void Update()

@@ -1,4 +1,12 @@
+using Unity.VisualScripting;
 using UnityEngine;
+
+public static class TagName
+{
+    public static readonly string Planet = "Planet";
+    public static readonly string Projectile = "Projectile";
+    public static readonly string DropItem = "DropItem";
+}
 
 public enum Languages
 {
