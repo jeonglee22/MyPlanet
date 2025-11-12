@@ -63,17 +63,18 @@ public class SpawnManager : MonoBehaviour
         float minHeight = Screen.height * 0.75f;
 
         var bottomLeft = mainCamera.ScreenToWorldPoint(new Vector3(0, minHeight, zDistance));
+        var screenBottomLeft = mainCamera.ScreenToWorldPoint(new Vector3(0, 0f, zDistance));
         var topRight = mainCamera.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, zDistance));
 
-        screenBounds = new Rect(bottomLeft.x, bottomLeft.y, topRight.x - bottomLeft.x, topRight.y - bottomLeft.y);
+        screenBounds = new Rect(screenBottomLeft.x, screenBottomLeft.y, topRight.x - screenBottomLeft.x, topRight.y - screenBottomLeft.y);
         offSetBounds = new Rect(bottomLeft.x - offSet, bottomLeft.y, (topRight.x - bottomLeft.x) + (offSet * 2), (topRight.y - bottomLeft.y) + offSet);
     }
 
     public void GenerateSemicircleSpawnPoints()
     {
-        Vector3 center = new Vector3(screenBounds.center.x, screenBounds.yMin, 0f);
+        Vector3 center = new Vector3(offSetBounds.center.x, offSetBounds.yMin, 0f);
 
-        float radius = Mathf.Abs(center.x - screenBounds.xMin);
+        float radius = Mathf.Abs(center.x - offSetBounds.xMin);
 
         for (int i = 0; i < spawnPointCount; i++)
         {

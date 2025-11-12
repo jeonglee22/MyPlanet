@@ -51,7 +51,7 @@ public class EnemySpawner : MonoBehaviour
 
             spawnTimer = 0f;
             spawnInterval = Random.Range(1f, 3f);
-            enemyCount = Random.Range(1, 8);
+            enemyCount = Random.Range(1, 3);
         }
     }
     
