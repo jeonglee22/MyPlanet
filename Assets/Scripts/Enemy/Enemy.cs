@@ -82,7 +82,7 @@ public class Enemy : LivingEntity, ITargetable
         maxHealth = data.maxHealth;
         Health = maxHealth;
 
-        AddMovementComponent(data.movementType, data.speed, targetDirection);
+        // AddMovementComponent(data.movementType, data.speed, targetDirection);
         AddAbilityComponents(data.abilityTypes);
 
         Cancel();
