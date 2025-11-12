@@ -7,7 +7,6 @@ public class SpawnManager : MonoBehaviour
     private static SpawnManager instance;
     public static SpawnManager Instance { get { return instance; } }
 
-    [SerializeField] private EnemyData[] enemyDatas;
     private List<GameObject> spawnPoints = new List<GameObject>();
 
     [SerializeField] private GameObject spawnPointSample;
@@ -18,8 +17,10 @@ public class SpawnManager : MonoBehaviour
 
     public bool IsSpawning { get; set; } = false;
 
-    Rect screenBounds;
-    [SerializeField] private float offSet = 1f;
+    private Rect screenBounds;
+    private Rect offSetBounds;
+    public Rect ScreenBounds => screenBounds;
+    [SerializeField] private float offSet = 5f;
 
     private void Awake()
     {
@@ -61,10 +62,11 @@ public class SpawnManager : MonoBehaviour
         float zDistance = -mainCamera.transform.position.z; // 카메라에서의 거리
         float minHeight = Screen.height * 0.75f;
 
-        var bottomLeft = mainCamera.ScreenToWorldPoint(new Vector3(0 + offSet, minHeight, zDistance));
-        var topRight = mainCamera.ScreenToWorldPoint(new Vector3(Screen.width + offSet, Screen.height + offSet, zDistance));
+        var bottomLeft = mainCamera.ScreenToWorldPoint(new Vector3(0, minHeight, zDistance));
+        var topRight = mainCamera.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, zDistance));
 
         screenBounds = new Rect(bottomLeft.x, bottomLeft.y, topRight.x - bottomLeft.x, topRight.y - bottomLeft.y);
+        offSetBounds = new Rect(bottomLeft.x - offSet, bottomLeft.y, (topRight.x - bottomLeft.x) + (offSet * 2), (topRight.y - bottomLeft.y) + offSet);
     }
 
     public void GenerateSemicircleSpawnPoints()
