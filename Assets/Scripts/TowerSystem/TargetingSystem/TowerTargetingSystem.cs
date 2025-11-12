@@ -22,6 +22,13 @@ public class TowerTargetingSystem : MonoBehaviour
     //debug
     private ITargetable previousTarget;
 
+    //My Planet Fire Point Transform
+    [SerializeField] private ClosestDistancePrioritySO closestDistancePrioritySO;
+    private void Start()
+    {
+        closestDistancePrioritySO?.Initialize(transform);
+    }
+
     private void Update()
     {
         scanTimer += Time.deltaTime;
@@ -34,6 +41,9 @@ public class TowerTargetingSystem : MonoBehaviour
 
     private void ScanForTargets()
     {
+        if (rangeData == null)
+            return;
+
         float radius = rangeData.GetRange();
         Collider[] detects = Physics.OverlapSphere(towerFiringPoint.position, radius, 
             Physics.DefaultRaycastLayers, QueryTriggerInteraction.Collide);

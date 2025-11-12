@@ -5,6 +5,7 @@ public class TowerDataSO : ScriptableObject
 {
     public TargetRangeSO rangeData;
     public BaseTargetPriority targetPriority;
+    public ProjectileData projectileType;
 
     public string towerId;
 

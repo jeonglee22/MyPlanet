@@ -47,6 +47,8 @@ public class TowerInstallControl : MonoBehaviour
 
         ResetTowerSlot(towerCount);
         towerInfoObj.SetActive(false);
+
+        DebugTowerSetup(); //debug
     }
 
     private void Update()
@@ -92,10 +94,16 @@ public class TowerInstallControl : MonoBehaviour
             else
             {
                 tower = Instantiate(towerBasePrefab, PlanetTransform);
-
                 var chosenData = PickRandomTowerData();
-                TryAssignDataToTower(tower, chosenData);
                 assignedTowerDatas[index] = chosenData;
+
+                //Init TargetingSystem 
+                var targeting = tower.GetComponentInChildren<TowerTargetingSystem>();
+                if (targeting != null) targeting.SetTowerData(chosenData);
+                
+                //Init TowerAttack
+                var attack = tower.GetComponentInChildren<TowerAttack>();
+                if (attack != null) attack.SetTowerData(chosenData);
             }
             
             var button = tower.GetComponent<Button>();
@@ -110,7 +118,7 @@ public class TowerInstallControl : MonoBehaviour
             //
 
             towers.Add(tower);
-            planet?.SetTower(tower, index);
+            planet?.SetTower(assignedTowerDatas[index], index);
         }
 
         SettingTowerTransform(0f);
@@ -183,8 +191,15 @@ public class TowerInstallControl : MonoBehaviour
         var text = newTower.GetComponentInChildren<TextMeshProUGUI>();
         text.text = index.ToString();
         //
+        //Init TargetingSystem 
+        // var targeting = newTower.GetComponentInChildren<TowerTargetingSystem>();
+        // if (targeting != null) targeting.SetTowerData(chosenData);
 
-        planet?.SetTower(newTower, index);
+        // //Init TowerAttack
+        // var attack = newTower.GetComponentInChildren<TowerAttack>();
+        // if (attack != null) attack.SetTowerData(chosenData);
+
+        planet?.SetTower(assignedTowerDatas[index], index);
         SettingTowerTransform(currentAngle);
 
         emptyTowerTest[index] = false;
@@ -219,4 +234,25 @@ public class TowerInstallControl : MonoBehaviour
         }
     }
 
+    private void DebugTowerSetup() //debug 
+    {
+        for (int i = 0; i < towers.Count; i++)
+        {
+            var tower = towers[i];
+            if (tower == null) continue;
+
+            var data = assignedTowerDatas[i];
+            string dataName = data != null ? data.towerId : "null";
+
+            var targeting = tower.GetComponentInChildren<TowerTargetingSystem>();
+            string targetingStatus = targeting != null
+                ? $"Range:{targeting.AssignedTowerData?.rangeData?.GetRange() ?? 0} Target:{targeting.AssignedTowerData?.targetPriority}"
+                : "No TargetingSystem";
+
+            var attack = tower.GetComponentInChildren<TowerAttack>();
+            string attackStatus = attack != null ? "TowerAttack OK" : "No TowerAttack";
+
+            Debug.Log($"Tower[{i}] -> Data:{dataName} | {targetingStatus} | {attackStatus}");
+        }
+    }
 }
