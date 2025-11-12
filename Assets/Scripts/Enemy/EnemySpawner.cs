@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
@@ -14,7 +13,7 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private bool collectionCheck = true;
     [SerializeField] private int defaultPoolCapacity = 20;
     [SerializeField] private int maxPoolSize = 100;
-
+    
     private void Awake()
     {
         if (instance == null)
@@ -101,12 +100,12 @@ public class EnemySpawner : MonoBehaviour
 
         enemyPools.Add(prefab, pool);
     }
-    
+
     private Enemy CreateEnemyInstance(GameObject prefab)
     {
         GameObject enemyObj = Instantiate(prefab);
         Enemy enemy = enemyObj.GetComponent<Enemy>();
         return enemy;
     }
-    
+
 }
