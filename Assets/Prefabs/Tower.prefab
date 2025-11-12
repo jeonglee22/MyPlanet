@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1084196653700412800}
   - component: {fileID: 8399379353572575074}
   - component: {fileID: 3222642005423590301}
+  - component: {fileID: 785463498762377262}
   m_Layer: 0
   m_Name: Tower
   m_TagString: Planet
@@ -99,6 +100,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 94dfd41efe9975e4293472c37519279d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  projectileDatas:
-  - {fileID: 11400000, guid: e8a819a417d213b46b21a5c4c028b6fc, type: 2}
-  projectilePrefab: {fileID: -3598059064670241262, guid: dfbe68f6015eada4caaa8d9aafa6fd2c, type: 3}
+--- !u!114 &785463498762377262
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1023283278850307994}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56c08a1fa7665d847bd83aebb5d6eb60, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  towerFiringPoint: {fileID: 0}
+  rangeData: {fileID: 0}
+  targetStrategy: {fileID: 0}
+  scanInterval: 0.2
+  closestDistancePrioritySO: {fileID: 0}

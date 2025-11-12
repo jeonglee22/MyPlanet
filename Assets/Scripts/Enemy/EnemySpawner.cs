@@ -34,14 +34,7 @@ public class EnemySpawner : MonoBehaviour
 
     public Enemy SpawnEnemy(EnemyData data, Vector3 spawnPosition, Vector3 targetDirection)
     {
-        //tower system random dummy test
-        EnemyData enemyData = ScriptableObject.Instantiate(data);
-        enemyData.maxHealth = UnityEngine.Random.Range(50f, 100f);
-        enemyData.damage = UnityEngine.Random.Range(5f, 15f);
-        enemyData.defense = UnityEngine.Random.Range(1f, 10f);
-        return CreateEnemy(enemyData, spawnPosition, targetDirection);
-
-        //return CreateEnemy(data, spawnPosition, targetDirection);
+        return CreateEnemy(data, spawnPosition, targetDirection);
     }
 
     private Vector3 CalculateDirection(MovementType type, Vector3 spawnPos)

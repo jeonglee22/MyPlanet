@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
@@ -11,22 +12,26 @@ public class TowerAttack : MonoBehaviour
         DoubleShoot,
     }
 
+    ProjectileData currentProjectileData;
 
-    [SerializeField] private List<ProjectileData> projectileDatas;
-    private ProjectileData currentProjectileData;
+    private TowerDataSO towerData;
 
-    [SerializeField] private Projectile projectilePrefab;
+    public void SetTowerData(TowerDataSO data)
+    {
+        towerData = data;
+    }
 
     [SerializeField] private AttackAbility ability = AttackAbility.Basic;
 
     public void Shoot(ProjectileType projectileType, Vector3 direction, bool IsHit)
     {
-        switch (projectileType)
+        if(towerData==null||towerData.projectileType==null)
         {
-            case ProjectileType.Normal:
-                currentProjectileData = projectileDatas.Find(p => p.projectileType == ProjectileType.Normal);
-                break;
+            UnityEngine.Debug.Log($"Not Find TowerData ProjectileData{gameObject.name}");
+            return;
         }
+
+        currentProjectileData = towerData.projectileType;
 
         switch (ability)
         {
@@ -47,7 +52,7 @@ public class TowerAttack : MonoBehaviour
         Projectile projectile = ProjectilePoolManager.Instance.GetProjectile(currentProjectileData);
         if (projectile == null)
         {
-            return;
+            projectile = Instantiate(currentProjectileData.projectilePrefab, transform.position, Quaternion.LookRotation(direction)).GetComponent<Projectile>();
         }
 
         projectile.transform.position = transform.position;
@@ -61,11 +66,8 @@ public class TowerAttack : MonoBehaviour
         Projectile projectile = ProjectilePoolManager.Instance.GetProjectile(currentProjectileData);
         if (projectile == null)
         {
-            return;
+            projectile = Instantiate(currentProjectileData.projectilePrefab, transform.position, Quaternion.LookRotation(direction)).GetComponent<Projectile>();
         }
-
-        projectile.transform.position = transform.position;
-        projectile.transform.rotation = Quaternion.LookRotation(direction);
 
         projectile.Initialize(currentProjectileData, direction, IsHit);
 
@@ -79,7 +81,7 @@ public class TowerAttack : MonoBehaviour
             Projectile projectile = ProjectilePoolManager.Instance.GetProjectile(currentProjectileData);
             if (projectile == null)
             {
-                return;
+                projectile = Instantiate(currentProjectileData.projectilePrefab, transform.position, Quaternion.LookRotation(direction)).GetComponent<Projectile>();
             }
 
             projectile.transform.position = transform.position;
