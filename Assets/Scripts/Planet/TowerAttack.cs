@@ -47,15 +47,15 @@ public class TowerAttack : MonoBehaviour
         projectile.transform.position = transform.position;
         projectile.transform.rotation = Quaternion.LookRotation(direction);
 
+        projectile.Initialize(currentProjectileData, direction, IsHit);
+        
         foreach (var ability in abilities)
         {
             // ability.Setting(projectile.gameObject);
             // ability.ApplyAbility(projectile.gameObject);
-            projectile.abilityAction += ability.ApplyAbility;
+            ability.ApplyAbility(projectile.gameObject);
             projectile.abilityRelease += ability.RemoveAbility;
         }
-
-        projectile.Initialize(currentProjectileData, direction, IsHit);
 
         // switch (attackAbility)
         // {

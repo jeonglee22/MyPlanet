@@ -14,8 +14,8 @@ public class AttackUpgradeAbility : PassiveAbility
         var projectile = gameObject.GetComponent<Projectile>();
         if (projectile != null)
         {
-            projectile.damage += 10f;
-            Debug.Log("Apply");
+            projectile.totalSpeed += 100f;
+            Debug.Log(projectile.totalSpeed);
         }
     }
 
@@ -26,8 +26,8 @@ public class AttackUpgradeAbility : PassiveAbility
         var projectile = gameObject.GetComponent<Projectile>();
         if (projectile != null)
         {
-            projectile.damage -= 10f;
-            Debug.Log("Apply");
+            projectile.totalSpeed -= 100f;
+            Debug.Log(projectile.totalSpeed);
         }
     }
 
