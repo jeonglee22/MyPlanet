@@ -26,7 +26,7 @@ public class TowerTargetingSystem : MonoBehaviour
     [SerializeField] private ClosestDistancePrioritySO closestDistancePrioritySO;
     private void Start()
     {
-        closestDistancePrioritySO.Initialize(transform);
+        closestDistancePrioritySO?.Initialize(transform);
     }
 
     private void Update()
@@ -41,6 +41,9 @@ public class TowerTargetingSystem : MonoBehaviour
 
     private void ScanForTargets()
     {
+        if (rangeData == null)
+            return;
+
         float radius = rangeData.GetRange();
         Collider[] detects = Physics.OverlapSphere(towerFiringPoint.position, radius, 
             Physics.DefaultRaycastLayers, QueryTriggerInteraction.Collide);

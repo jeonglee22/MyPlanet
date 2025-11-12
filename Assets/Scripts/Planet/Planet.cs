@@ -79,11 +79,11 @@ public class Planet : LivingEntity
     public void SetTower(TowerDataSO towerData, int index)
     {
         //Delete Tower
-        if(towers[index]!=null)
-        {
-            Destroy(towers[index]);
-            towers[index] = null;
-        }
+        // if(towers[index]!=null)
+        // {
+        //     Destroy(towers[index]);
+        //     towers[index] = null;
+        // }
 
         //Install Tower
         GameObject installTower=Instantiate(towerPrefab, towerSlotTransform);
