@@ -118,6 +118,7 @@ public class TowerInstallControl : MonoBehaviour
             //
 
             towers.Add(tower);
+            planet?.SetTower(assignedTowerDatas[index], index);
         }
 
         SettingTowerTransform(0f);
