@@ -1,31 +1,33 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
 
 public class TowerAttack : MonoBehaviour
 {
-    [SerializeField] private List<ProjectileData> projectileDatas;
-    private ProjectileData currentProjectileData;
+    private TowerDataSO towerData;
 
-    [SerializeField] private Projectile projectilePrefab;
+    public void SetTowerData(TowerDataSO data)
+    {
+        towerData = data;
+    }
 
     public void Shoot(ProjectileType projectileType, Vector3 direction, bool IsHit)
     {
-        switch (projectileType)
+        if(towerData==null||towerData.projectileType==null)
         {
-            case ProjectileType.Normal:
-                currentProjectileData = projectileDatas.Find(p => p.projectileType == ProjectileType.Normal);
-                break;
+            UnityEngine.Debug.Log($"Not Find TowerData ProjectileData{gameObject.name}");
+            return;
         }
+
+        ProjectileData currentProjectileData = towerData.projectileType;
 
         Projectile projectile = ProjectilePoolManager.Instance.GetProjectile(currentProjectileData);
         if (projectile == null)
         {
-            return;
+            projectile = Instantiate(currentProjectileData.projectilePrefab, transform.position, Quaternion.LookRotation(direction)).GetComponent<Projectile>();
         }
 
-        projectile.transform.position = transform.position;
-        projectile.transform.rotation = Quaternion.LookRotation(direction);
         projectile.Initialize(currentProjectileData, direction, IsHit);
     }
 }

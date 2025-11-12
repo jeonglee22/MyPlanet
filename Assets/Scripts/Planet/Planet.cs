@@ -12,7 +12,6 @@ public class Planet : LivingEntity
 
     [SerializeField] private GameObject towerPrefab;
     [SerializeField] private Transform towerSlotTransform;
-    [SerializeField] private List<TowerDataSO> towerDataList;
 
     private int towerCount;
     private float exp;
@@ -75,11 +74,28 @@ public class Planet : LivingEntity
         this.towerCount = towerCount;
     }
 
-    public void SetTower(GameObject tower, int index)
+    public void SetTower(TowerDataSO towerData, int index)
     {
-        towers[index] = Instantiate(towerPrefab, towerSlotTransform);
+        //Delete Tower
+        if(towers[index]!=null)
+        {
+            Destroy(towers[index]);
+            towers[index] = null;
+        }
 
-        planetAttacks.Add(towers[index].GetComponent<TowerAttack>());
+        //Install Tower
+        GameObject installTower=Instantiate(towerPrefab, towerSlotTransform);
+        towers[index] = installTower;
+
+        //Enroll Tower
+        TowerAttack newTowerAttack = installTower.GetComponent<TowerAttack>();
+        if(newTowerAttack!=null)
+        {
+            newTowerAttack.SetTowerData(towerData);
+            planetAttacks.Add(newTowerAttack);
+        }
+        
+        //Rotation System
         var rot = new Vector3(0, 90, 0);
         rot.x = 360f * (index / (towers.Count - 1f));
 
@@ -101,17 +117,5 @@ public class Planet : LivingEntity
     internal int GetTowerSlotCount()
     {
         return towerCount;
-    }
-
-    internal void SetTowerInPlayerTowerMGR(int index, TowerDataSO randomData)
-    {
-        if(towers[index]!=null)
-        {
-            Destroy(towers[index]);
-            towers[index] = null;
-        }
-
-        var newTower = Instantiate(towerPrefab, towerSlotTransform);
-        towers[index] = newTower;
     }
 }
