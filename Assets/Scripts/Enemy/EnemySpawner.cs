@@ -4,10 +4,7 @@ using UnityEngine.Pool;
 
 public class EnemySpawner : MonoBehaviour
 {
-    private static EnemySpawner instance;
-    public static EnemySpawner Instance { get { return instance; } }
-
-    [SerializeField] private Transform player;
+    private Transform player;
 
     private Dictionary<GameObject, IObjectPool<Enemy>> enemyPools = new Dictionary<GameObject, IObjectPool<Enemy>>();
     [SerializeField] private bool collectionCheck = true;
@@ -16,14 +13,7 @@ public class EnemySpawner : MonoBehaviour
     
     private void Awake()
     {
-        if (instance == null)
-        {
-            instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        player = GameObject.FindGameObjectWithTag("Planet").transform;
     }
 
     public Enemy SpawnEnemy(EnemyData data, Vector3 spawnPosition)
