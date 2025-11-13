@@ -6,8 +6,10 @@ using UnityEngine.UIElements.Experimental;
 public class TowerTargetingSystem : MonoBehaviour
 {//updateTarget->GetEnemiesInRange(consider targetPriority) -> Return currentTarget -> driven atk sys
 
+    [SerializeField] private TowerInstallControl towerInstallControl;
     [SerializeField] private Transform towerFiringPoint; //assign tower object
     public Transform FirePoint => towerFiringPoint;
+    
     [SerializeField] private TargetRangeSO rangeData;
     [SerializeField] private BaseTargetPriority targetStrategy;
 
@@ -24,9 +26,17 @@ public class TowerTargetingSystem : MonoBehaviour
     private bool isAttacking { get; set; } = false;
     public void SetAttacking(bool value) => isAttacking = value;
 
+    private int slotIndex = -1;
+    public void SetSlotIndex(int index) => slotIndex = index;
+
     private void Awake()
     {
         if (towerFiringPoint == null) towerFiringPoint = transform;
+    }
+
+    private void Start()
+    {
+        scanTimer = scanInterval;
     }
 
     private void Update()
@@ -41,7 +51,11 @@ public class TowerTargetingSystem : MonoBehaviour
 
     private void ScanForTargets()
     {
-        if (rangeData == null||targetStrategy==null) return;
+        if (rangeData == null||targetStrategy==null)
+        {
+            Debug.LogWarning($"[TowerTargetingSystem] {gameObject.name}: RangeData or TargetStrategy is null.");
+            return;
+        }
 
         float radius = rangeData.GetRange();
         Vector3 firingPoint = towerFiringPoint.position;
@@ -52,17 +66,22 @@ public class TowerTargetingSystem : MonoBehaviour
         Debug.Log($"[TowerTargetingSystem] Collider count: {detects.Length}");
 
         var validTargets = new List<ITargetable>();
+        int totalEnemiesInRange = 0;
+
         foreach (var dt in detects)
         {
             if (dt.name == "Sphere") continue;
-            
-            Debug.Log($"[Scan] Detected: {dt.name} | Tag: {dt.tag} | IsTrigger: {dt.isTrigger} | Active: {dt.gameObject.activeInHierarchy}");
 
             if (!dt.CompareTag("Enemy")) continue;
+            totalEnemiesInRange++;
 
             var targetComponent = dt.GetComponent<ITargetable>();
 
-            if (targetComponent == null || !targetComponent.isAlive) continue;
+            if (targetComponent == null)
+            {
+                Debug.LogWarning($"[TowerTargetingSystem] {dt.name} has no ITargetable component. Skipping...");
+                continue;
+            }
 
             //Enemy Data Null Check
             var enemy = targetComponent as Enemy;
@@ -71,7 +90,13 @@ public class TowerTargetingSystem : MonoBehaviour
                 Debug.LogWarning($"[TowerTargetingSystem] Enemy {dt.name} has null Data. Skipping...");
                 continue;
             }
-            
+
+            if (!targetComponent.isAlive)
+            {
+                Debug.Log($"[TowerTargetingSystem] Enemy {dt.name} is not alive. Skipping...");
+                continue;
+            }
+
             validTargets.Add(targetComponent);
             
             Debug.Log($"[Scan] Valid Target: {dt.name} | HP:{targetComponent.maxHp} | ATK:{targetComponent.atk} | DEF:{targetComponent.def} | Pos:{targetComponent.position}");
@@ -80,23 +105,23 @@ public class TowerTargetingSystem : MonoBehaviour
         currentTarget = targetStrategy != null 
             ? targetStrategy.SelectTarget(validTargets) : null;
 
-        if (currentTarget !=previousTarget)
+        //Debug Log
+        string slotIndexStr = slotIndex >= 0 ? slotIndex.ToString() : "Unknown";
+        string priorityName = targetStrategy != null ? targetStrategy.name : "None";
+        string rangeName = rangeData != null ? rangeData.name : "None";
+
+        if (currentTarget != previousTarget)
         {
             previousTarget = currentTarget;
-            // if (currentTarget != null) Debug.Log($"[New Best Target] ATK:{currentTarget.atk} DEF:{currentTarget.def} HP:{currentTarget.maxHp}");
-            // else Debug.Log("No Valid Target");
+            string targetName = (currentTarget as MonoBehaviour)?.name ?? "Unknown";
+
+            if (currentTarget != null)
+                Debug.Log($"[BestTarget] Tower '{gameObject.name}' Slot {slotIndexStr} | Priority: {priorityName} | Range: {rangeName} (Enemies in Range: {totalEnemiesInRange}) => New Best Target: {targetName} | HP:{currentTarget.maxHp} ATK:{currentTarget.atk} DEF:{currentTarget.def}");
+            else
+                Debug.Log($"[BestTarget] Tower '{gameObject.name}' Slot {slotIndexStr} | Priority: {priorityName} | Range: {rangeName} (Enemies in Range: {totalEnemiesInRange}) => No valid target");
         }
     }
     public ITargetable GetCurrentTarget() => currentTarget;
-
-    private void OnDrawGizmosSelected() //debug method
-    {
-        if(towerFiringPoint!=null&&rangeData!=null)
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(towerFiringPoint.position, rangeData.GetRange());
-        }
-    }
 
     public void SetTowerData(TowerDataSO data)
     {
@@ -104,8 +129,7 @@ public class TowerTargetingSystem : MonoBehaviour
         rangeData = data.rangeData;
 
         targetStrategy = data.targetPriority!=null
-            ?ScriptableObject.Instantiate(data.targetPriority)
-            :null;
+            ?ScriptableObject.Instantiate(data.targetPriority):null;
 
         if(targetStrategy is ClosestDistancePrioritySO closest)
         {

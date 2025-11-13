@@ -118,9 +118,4 @@ public class Planet : LivingEntity
         
         Destroy(gameObject);
     }
-
-    internal int GetTowerSlotCount()
-    {
-        return towerCount;
-    }
 }
