@@ -1,24 +1,16 @@
+using System;
 using UnityEngine;
 
 public class PassiveAbility : IAbility
 {
     protected TowerAttack tower;
     protected Projectile projectile;
-    protected float amount;
-    public float Amount => amount;
+    protected float upgradeAmount;
 
     public PassiveAbility()
     {
-        tower = null;
-        amount = 0f;
     }
-
-    public PassiveAbility(PassiveAbility ability)
-    {
-        tower = ability.tower;
-        amount = ability.amount;
-    }
-
+    
     public virtual void ApplyAbility(GameObject gameObject)
     {
     }
@@ -29,7 +21,10 @@ public class PassiveAbility : IAbility
 
     public virtual void Setting(GameObject gameObject)
     {
-        if(gameObject is Projectile)
-            projectile = gameObject.GetComponent<Projectile>();
+    }
+
+    public override string ToString()
+    {
+        return string.Empty;
     }
 }

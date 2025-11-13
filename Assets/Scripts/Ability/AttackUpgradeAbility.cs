@@ -1,3 +1,4 @@
+using System.Text;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -5,6 +6,7 @@ public class AttackUpgradeAbility : PassiveAbility
 {
     public AttackUpgradeAbility()
     {
+        upgradeAmount = 50f;
     }
 
     public override void ApplyAbility(GameObject gameObject)
@@ -14,7 +16,7 @@ public class AttackUpgradeAbility : PassiveAbility
         var projectile = gameObject.GetComponent<Projectile>();
         if (projectile != null)
         {
-            projectile.damage += 100f;
+            projectile.damage += upgradeAmount;
             // Debug.Log("Damage Apply");
         }
     }
@@ -26,12 +28,20 @@ public class AttackUpgradeAbility : PassiveAbility
         var projectile = gameObject.GetComponent<Projectile>();
         if (projectile != null)
         {
-            projectile.damage -= 100f;
+            projectile.damage -= upgradeAmount;
         }
     }
 
     public override void Setting(GameObject gameObject)
     {
         base.Setting(gameObject);
+    }
+
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        sb.Append($"Attack\n{upgradeAmount}\nUp!!");
+
+        return sb.ToString();
     }
 }
