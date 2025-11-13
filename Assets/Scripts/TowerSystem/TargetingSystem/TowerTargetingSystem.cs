@@ -117,13 +117,15 @@ public class TowerTargetingSystem : MonoBehaviour
         if (currentTarget != previousTarget)
         {
             previousTarget = currentTarget;
-            string targetName = (currentTarget as MonoBehaviour)?.name ?? "Unknown";
+            string strategyName = targetStrategy != null ? targetStrategy.name : "None";
+            string targetName = currentTarget != null ? (currentTarget as MonoBehaviour)?.name : "null";
 
             if (currentTarget != null)
                 Debug.Log($"[BestTarget] Tower '{gameObject.name}' Slot {slotIndexStr} | Priority: {priorityName} | Range: {rangeName} (Enemies in Range: {totalEnemiesInRange}) => New Best Target: {targetName} | HP:{currentTarget.maxHp} ATK:{currentTarget.atk} DEF:{currentTarget.def}");
             else
                 Debug.Log($"[BestTarget] Tower '{gameObject.name}' Slot {slotIndexStr} | Priority: {priorityName} | Range: {rangeName} (Enemies in Range: {totalEnemiesInRange}) => No valid target");
         }
+
     }
     public ITargetable GetCurrentTarget() => currentTarget;
 

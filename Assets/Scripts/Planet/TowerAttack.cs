@@ -31,7 +31,7 @@ public class TowerAttack : MonoBehaviour
 
     private void Update()
     {
-        if (towerData == null) return;
+        if (towerData == null || targetingSystem == null) return;
 
         shootTimer += Time.deltaTime;
         float shootInterval = 1f / towerData.fireRate;
