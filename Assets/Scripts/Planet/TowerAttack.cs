@@ -18,14 +18,19 @@ public class TowerAttack : MonoBehaviour
 
     private void Awake()
     {
-        abilities = new List<IAbility>();
-        abilities.Add(AbilityManager.Instance.abilityDict[0]);
+        // abilities = new List<IAbility>();
+        // abilities.Add(AbilityManager.Instance.AbilityDict[0]);
     }
     
-    public void SetAbility(IAbility ability)
+    public void AddAbility(IAbility ability)
     {
-        var existAbility = AbilityManager.Instance.abilityDict[0] as PassiveAbility;
-        abilities.Add(new PassiveAbility(existAbility));
+        abilities.Add(ability);
+    }
+
+    public void SetRandomAbility()
+    {
+        var ability = AbilityManager.Instance.GetRandomAbility();
+        abilities.Add(ability);
     }
 
     public void Shoot(ProjectileType projectileType, Vector3 direction, bool IsHit)

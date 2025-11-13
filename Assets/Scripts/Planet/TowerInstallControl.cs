@@ -103,6 +103,7 @@ public class TowerInstallControl : MonoBehaviour
                 
                 //Init TowerAttack
                 var attack = tower.GetComponentInChildren<TowerAttack>();
+                attack.SetRandomAbility();
                 if (attack != null) attack.SetTowerData(chosenData);
             }
             

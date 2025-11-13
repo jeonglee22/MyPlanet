@@ -3,7 +3,8 @@ using UnityEngine;
 
 public class AbilityManager : MonoBehaviour
 {
-    public Dictionary<int, IAbility> abilityDict;
+    private Dictionary<int, IAbility> abilityDict;
+    public Dictionary<int, IAbility> AbilityDict => abilityDict;
 
     private static AbilityManager instance;
     public static AbilityManager Instance => instance;
@@ -19,5 +20,16 @@ public class AbilityManager : MonoBehaviour
         instance = this;
         abilityDict = new Dictionary<int, IAbility>();
         abilityDict.Add(0, new AttackUpgradeAbility());
+    }
+
+    public IAbility GetRandomAbility()
+    {
+        var count = abilityDict.Count;
+
+        if(count == 0)
+            return null;
+
+        var id = Random.Range(0, count);
+        return abilityDict[id];
     }
 }
