@@ -22,5 +22,6 @@ public class PlayManager : MonoBehaviour
     private void GameOver()
     {
         gameOverUI.SetActive(true);
+        Time.timeScale = 0f;
     }
 }
