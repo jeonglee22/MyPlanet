@@ -48,10 +48,9 @@ public class DropItem : MonoBehaviour
         transform.position = nextPos;
     }
 
-    protected void OnCollisionEnter(Collision other)
+    private void OnTriggerEnter(Collider other) 
     {
-        var obj = other.gameObject;
-        if (other.collider.CompareTag(TagName.Planet))
+        if (other.CompareTag(TagName.Planet))
         {
             isDestroy = true;
         }
