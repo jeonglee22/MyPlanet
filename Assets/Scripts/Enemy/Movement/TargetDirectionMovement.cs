@@ -11,6 +11,7 @@ public class TargetDirectionMovement : EnemyMovement
         }
 
         transform.position += moveDirection * moveSpeed * Time.deltaTime;
+        transform.LookAt(transform.position + moveDirection);
     }
 
     protected override void SetTargetDirection()
