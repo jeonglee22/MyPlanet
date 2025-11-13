@@ -27,9 +27,11 @@ public class Projectile : MonoBehaviour
     public event Action<GameObject> abilityAction;
     public event Action<GameObject> abilityRelease;
 
+    private bool isFinish = false;
+
     private void Update()
     {
-        if (currentLifeTime < projectileData.lifeTime)
+        if (!isFinish && currentLifeTime < projectileData.lifeTime)
         {
             MoveProjectile();
             currentLifeTime += Time.deltaTime;
@@ -37,6 +39,8 @@ public class Projectile : MonoBehaviour
         else
         {
             Cancel();
+            abilityRelease?.Invoke(gameObject);
+            abilityRelease = null;
             pool?.Release(this);
         }
     }
@@ -44,6 +48,8 @@ public class Projectile : MonoBehaviour
     private void OnDestroy()
     {
         Cancel();
+        abilityRelease?.Invoke(gameObject);
+        abilityRelease = null;
     }
     
     public void SetPool(IObjectPool<Projectile> pool)
@@ -70,12 +76,6 @@ public class Projectile : MonoBehaviour
         }
     }
 
-    void OnDisable()
-    {
-        abilityRelease?.Invoke(gameObject);
-        abilityRelease = null;
-    }
-
     /// <summary>
     /// Initialize the projectile with data
     /// </summary>
@@ -97,6 +97,7 @@ public class Projectile : MonoBehaviour
 
         Cancel();
         currentLifeTime = 0f;
+        isFinish = false;
     }
 
     void OnTriggerEnter(Collider other)
@@ -111,9 +112,8 @@ public class Projectile : MonoBehaviour
         var enemy = other.gameObject.GetComponent<Enemy>();
         if (damagable != null && enemy != null && isHit)
         {
-            abilityAction?.Invoke(gameObject);
+            abilityAction?.Invoke(other.gameObject);
             damagable.OnDamage(CalculateTotalDamage(enemy.Data.defense));
-            //Debug.Log(CalculateTotalDamage(enemy.Data.defense));
             abilityAction = null;
         }
 
@@ -121,7 +121,7 @@ public class Projectile : MonoBehaviour
 
         if (currentPierceCount <= 0)
         {
-            Destroy(gameObject);
+            isFinish = true;
         }
     }
     

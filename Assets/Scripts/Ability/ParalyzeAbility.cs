@@ -1,34 +1,32 @@
 using System.Text;
 using UnityEngine;
 
-public class SpeedUpgradeAbility : PassiveAbility
+public class ParalyzeAbility : PassiveAbility
 {
-    public SpeedUpgradeAbility()
+    private float initSpeed;
+
+    public ParalyzeAbility()
     {
-        upgradeAmount = 10f;
+        upgradeAmount = 0f;
     }
 
     public override void ApplyAbility(GameObject gameObject)
     {
         base.ApplyAbility(gameObject);
 
-        var projectile = gameObject.GetComponent<Projectile>();
-        if (projectile != null)
+        var movement = gameObject.GetComponent<EnemyMovement>();
+        if (movement != null)
         {
-            projectile.totalSpeed += upgradeAmount;
-            // Debug.Log("Speed Apply");
+            initSpeed = movement.moveSpeed;
+            movement.moveSpeed = 0;
+            movement.isDebuff = true;
+            Debug.Log("Paralyze Apply");
         }
     }
 
     public override void RemoveAbility(GameObject gameObject)
     {
         base.RemoveAbility(gameObject);
-
-        var projectile = gameObject.GetComponent<Projectile>();
-        if (projectile != null)
-        {
-            projectile.totalSpeed -= upgradeAmount;
-        }
     }
 
     public override void Setting(GameObject gameObject)
@@ -41,7 +39,7 @@ public class SpeedUpgradeAbility : PassiveAbility
     public override string ToString()
     {
         var sb = new StringBuilder();
-        sb.Append($"Speed\n{upgradeAmount}\nUp!!");
+        sb.Append($"Paralyze\nAttack!!");
 
         return sb.ToString();
     }

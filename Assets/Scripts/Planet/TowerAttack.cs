@@ -20,7 +20,7 @@ public class TowerAttack : MonoBehaviour
     {
         abilities = new List<IAbility>();
         // abilities.Add(AbilityManager.Instance.AbilityDict[0]);
-        SetRandomAbility();
+        // SetRandomAbility();
     }
     
     public void AddAbility(IAbility ability)
@@ -61,6 +61,7 @@ public class TowerAttack : MonoBehaviour
             // ability.Setting(projectile.gameObject);
             // ability.ApplyAbility(projectile.gameObject);
             ability.ApplyAbility(projectile.gameObject);
+            projectile.abilityAction += ability.ApplyAbility;
             projectile.abilityRelease += ability.RemoveAbility;
         }
 

@@ -82,7 +82,7 @@ public class Planet : LivingEntity
         this.towerCount = towerCount;
     }
 
-    public void SetTower(TowerDataSO towerData, int index)
+    public void SetTower(TowerDataSO towerData, int index, IAbility ability = null)
     {
         //Install Tower
         GameObject installTower=Instantiate(towerPrefab, towerSlotTransform);
@@ -93,6 +93,16 @@ public class Planet : LivingEntity
         if(newTowerAttack!=null)
         {
             newTowerAttack.SetTowerData(towerData);
+            if (ability == null)
+            {
+                newTowerAttack.SetRandomAbility();
+            }
+            else
+            {
+                newTowerAttack.AddAbility(ability);
+                Debug.Log(ability);
+            }
+            
             planetAttacks.Add(newTowerAttack);
         }
 
@@ -105,6 +115,14 @@ public class Planet : LivingEntity
         rot.x = 360f * (index / (towers.Count - 1f));
 
         towers[index].transform.rotation = Quaternion.Euler(rot);
+    }
+
+    public void UpgradeTower(int index)
+    {
+        var tower = towers[index];
+        var towerAttack = tower.GetComponent<TowerAttack>();
+    
+        towerAttack.AddAbility(new ParalyzeAbility());
     }
 
     public override void OnDamage(float damage)
