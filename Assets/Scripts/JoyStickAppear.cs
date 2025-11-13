@@ -17,6 +17,7 @@ public class JoyStickAppear : MonoBehaviour
     void Start()
     {
         isAppear = false;
+        joystick.SetActive(false);
         drag = joystick.GetComponentInChildren<OnScreenStick>();
     }
 
