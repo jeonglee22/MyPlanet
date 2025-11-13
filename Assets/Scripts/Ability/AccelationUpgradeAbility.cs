@@ -5,7 +5,7 @@ public class AccelationUpgradeAbility : PassiveAbility
 {
     public AccelationUpgradeAbility()
     {
-        upgradeAmount = 5f;
+        upgradeAmount = 2f;
     }
 
     public override void ApplyAbility(GameObject gameObject)

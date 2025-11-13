@@ -48,6 +48,8 @@ public class Projectile : MonoBehaviour
     private void OnDestroy()
     {
         Cancel();
+        abilityRelease?.Invoke(gameObject);
+        abilityRelease = null;
     }
     
     public void SetPool(IObjectPool<Projectile> pool)
