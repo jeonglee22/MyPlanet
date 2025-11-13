@@ -16,6 +16,8 @@ public class TowerInstallControl : MonoBehaviour
 
     private Planet planet;
     private List<GameObject> towers;
+    public List<GameObject> Towers => towers;
+
     private float towerRadius = 100f;
 
     [SerializeField] private PlanetTowerUI planetTowerUI;
@@ -90,16 +92,28 @@ public class TowerInstallControl : MonoBehaviour
                 assignedTowerDatas[index] = null;
                 continue;
             }
-            else
-            {
-                tower = Instantiate(towerBasePrefab, PlanetTransform);
-                var chosenData = PickRandomTowerData();
-                assignedTowerDatas[index] = chosenData;
 
-                TryAssignDataToTower(tower, chosenData);
-                // attack.SetRandomAbility();
+            //Install Tower
+            tower = Instantiate(towerBasePrefab, PlanetTransform);
+            var chosenData = PickRandomTowerData();
+            assignedTowerDatas[index] = chosenData;
+
+            TryAssignDataToTower(tower, chosenData);
+            // attack.SetRandomAbility();
+
+            //Init TowerAttack
+            var attack = tower.GetComponent<TowerAttack>();
+            if (attack != null) attack.SetTowerData(chosenData);
+
+            //Tower Targeting System Index Debug
+            var targeting = tower.GetComponent<TowerTargetingSystem>();
+            if (targeting != null)
+            {
+                targeting.SetSlotIndex(index);
+                targeting.SetTowerData(chosenData);
             }
-            
+
+
             var button = tower.GetComponent<Button>();
             button.onClick.AddListener(() => OpenInfoUI(index));
 
@@ -157,6 +171,14 @@ public class TowerInstallControl : MonoBehaviour
 
         Destroy(towers[index]);
         towers[index] = newTower;
+
+        //Debug targeting system index
+        var targeting = newTower.GetComponent<TowerTargetingSystem>();
+        if(targeting!=null)
+        {
+            targeting.SetSlotIndex(index);
+            targeting.SetTowerData(chosenData);
+        }
 
         var button = newTower.GetComponent<Button>();
         button.onClick.AddListener(() => OpenInfoUI(index));
