@@ -4,6 +4,7 @@ using UnityEngine;
 public class EnemyData : ScriptableObject
 {
     public GameObject prefab;
+    public ParticleSystem hitEffect;
     public MovementType movementType;
     public AbilityType[] abilityTypes;
 
