@@ -14,6 +14,7 @@ public class TowerTargetingSystem : MonoBehaviour
     [SerializeField] private BaseTargetPriority targetStrategy;
 
     private TowerDataSO assignedTowerData;
+
     private readonly string enemyTag = "Enemy";
 
     private ITargetable currentTarget;
@@ -28,6 +29,8 @@ public class TowerTargetingSystem : MonoBehaviour
 
     private int slotIndex = -1;
     public void SetSlotIndex(int index) => slotIndex = index;
+
+    public TowerDataSO GetTowerData() => assignedTowerData;
 
     private void Awake()
     {

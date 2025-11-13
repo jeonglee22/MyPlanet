@@ -8,6 +8,7 @@ public class TowerDataSO : ScriptableObject
     public ProjectileData projectileType;
 
     public string towerId;
+    public float fireRate = 1f;
 
     [Header("Accuracy & Hit Settings")]
     public float hitRate = 100f;

@@ -5,8 +5,20 @@ using UnityEngine;
 
 public class TowerAttack : MonoBehaviour
 {
+    private TowerTargetingSystem targetingSystem;
     private ProjectileData currentProjectileData;
     private TowerDataSO towerData;
+    private float shootTimer;
+
+    private List<IAbility> abilities;
+
+    private void Awake()
+    {
+        targetingSystem = GetComponent<TowerTargetingSystem>();
+        abilities = new List<IAbility>();
+        // abilities.Add(AbilityManager.Instance.AbilityDict[0]);
+        SetRandomAbility();
+    }
 
     public void SetTowerData(TowerDataSO data)
     {
@@ -14,15 +26,38 @@ public class TowerAttack : MonoBehaviour
         currentProjectileData = data.projectileType;
     }
 
-    private List<IAbility> abilities;
-
-    private void Awake()
+    private void Update()
     {
-        abilities = new List<IAbility>();
-        // abilities.Add(AbilityManager.Instance.AbilityDict[0]);
-        SetRandomAbility();
+        if (towerData == null) return;
+
+        shootTimer += Time.deltaTime;
+        float shootInterval = 1f / towerData.fireRate;
+
+        if(shootTimer>=shootInterval)
+        {
+            ShootAtTarget();
+            shootTimer = 0f;
+        }
     }
-    
+
+
+    private void ShootAtTarget()
+    {
+        var target = targetingSystem.CurrentTarget;
+        if (target == null || !target.isAlive) return;
+
+        Vector3 direction = (target.position - transform.position).normalized;
+
+        Debug.Log($"{name} shooting at {target} | Direction: {direction} | Projectile: {towerData.projectileType?.projectilePrefab.name}");
+
+        var projectile = ProjectilePoolManager.Instance.GetProjectile(towerData.projectileType);
+        if(projectile==null)
+        {
+            projectile = Instantiate(towerData.projectileType.projectilePrefab, transform.position, Quaternion.LookRotation(direction)).GetComponent<Projectile>();
+        }
+        projectile.Initialize(towerData.projectileType, direction, true);
+    }
+
     public void AddAbility(IAbility ability)
     {
         abilities.Add(ability);

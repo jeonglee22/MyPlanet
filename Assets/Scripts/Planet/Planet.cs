@@ -60,18 +60,20 @@ public class Planet : LivingEntity
     private void Update()
     {
 #if UNITY_EDITOR
+
         // if (Input.touchCount != 0)
         // {
         //     foreach (var attack in planetAttacks)
         //         attack.Shoot(ProjectileType.Normal, transform.forward, true);
         // }
-        if (shootTime > shootInterval)
+
+       /* if (shootTime > shootInterval)
         {
             foreach (var attack in planetAttacks)
                 attack.Shoot(attack.gameObject.transform.forward, true);
             shootTime = 0f;
         }
-        shootTime += Time.deltaTime;
+        shootTime += Time.deltaTime;*/
 #endif
     }
     
