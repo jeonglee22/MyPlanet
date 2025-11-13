@@ -8,8 +8,6 @@ public class TowerAttack : MonoBehaviour
     private ProjectileData currentProjectileData;
     private TowerDataSO towerData;
 
-    [SerializeField] private AttackAbility ability = AttackAbility.Basic;
-
     public void SetTowerData(TowerDataSO data)
     {
         towerData = data;
@@ -37,7 +35,7 @@ public class TowerAttack : MonoBehaviour
         Debug.Log(ability);
     }
 
-    public void Shoot(ProjectileType projectileType, Vector3 direction, bool IsHit)
+    public void Shoot(Vector3 direction, bool IsHit)
     {
         if(towerData==null||towerData.projectileType==null)
         {
