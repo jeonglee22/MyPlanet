@@ -100,7 +100,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 94dfd41efe9975e4293472c37519279d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ability: 0
+  firePoint: {fileID: 0}
 --- !u!114 &785463498762377262
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -113,7 +113,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56c08a1fa7665d847bd83aebb5d6eb60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  towerInstallControl: {fileID: 0}
   towerFiringPoint: {fileID: 0}
   rangeData: {fileID: 0}
   targetStrategy: {fileID: 0}
-  closestDistancePrioritySO: {fileID: 0}
+  scanInterval: 0.2
