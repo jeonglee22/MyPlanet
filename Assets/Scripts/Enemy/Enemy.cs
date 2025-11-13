@@ -45,6 +45,7 @@ public class Enemy : LivingEntity, ITargetable
         OnDeathEvent += SpawnManager.Instance.OnEnemyDied;
 
         Material = GetComponent<Renderer>().material;
+        Material.color = baseColor;
         ColorCancel();
     }
 
