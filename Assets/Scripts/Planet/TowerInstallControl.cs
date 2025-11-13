@@ -128,8 +128,7 @@ public class TowerInstallControl : MonoBehaviour
     {
         if (!IsReadyInstall) return;
 
-        Debug.Log($"Tower Upgrade!!! {index}");
-        Debug.Log($"{ChoosedData.towerData}");
+        planet?.UpgradeTower(index);
     }
 
     private void TryAssignDataToTower(GameObject towerObj, TowerDataSO data)
@@ -172,7 +171,7 @@ public class TowerInstallControl : MonoBehaviour
         var text = newTower.GetComponentInChildren<TextMeshProUGUI>();
         text.text = index.ToString();
 
-        planet?.SetTower(assignedTowerDatas[index], index);
+        planet?.SetTower(assignedTowerDatas[index], index, ChoosedData.ability);
         SettingTowerTransform(currentAngle);
 
         emptyTowerTest[index] = false;
