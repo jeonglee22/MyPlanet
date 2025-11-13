@@ -48,21 +48,31 @@ public class TowerTargetingSystem : MonoBehaviour
         Collider[] detects = Physics.OverlapSphere(firingPoint, radius, 
             Physics.DefaultRaycastLayers, QueryTriggerInteraction.Collide);
 
-        Debug.Log($"collider count:{detects.Length}");
-        
+        Debug.Log($"[TowerTargetingSystem] Collider count: {detects.Length}");
+
         var validTargets = new List<ITargetable>();
         foreach (var dt in detects)
         {
             if (dt.name == "Sphere") continue;
-            else Debug.Log($"[Scan] Detected: {dt.name} | Tag: {dt.tag} | IsTrigger: {dt.isTrigger} | Active: {dt.gameObject.activeInHierarchy}");
+            
+            Debug.Log($"[Scan] Detected: {dt.name} | Tag: {dt.tag} | IsTrigger: {dt.isTrigger} | Active: {dt.gameObject.activeInHierarchy}");
 
             if (!dt.CompareTag("Enemy")) continue;
 
             var targetComponent = dt.GetComponent<ITargetable>();
-            if (targetComponent != null && targetComponent.isAlive)
+
+            if (targetComponent == null || !targetComponent.isAlive) continue;
+
+            //Enemy Data Null Check
+            var enemy = targetComponent as Enemy;
+            if(enemy!=null&&enemy.Data==null)
             {
-                validTargets.Add(targetComponent);
+                Debug.LogWarning($"[TowerTargetingSystem] Enemy {dt.name} has null Data. Skipping...");
+                continue;
             }
+            
+            validTargets.Add(targetComponent);
+            
             Debug.Log($"[Scan] Valid Target: {dt.name} | HP:{targetComponent.maxHp} | ATK:{targetComponent.atk} | DEF:{targetComponent.def} | Pos:{targetComponent.position}");
         }
 
