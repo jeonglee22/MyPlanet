@@ -10,21 +10,30 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     [SerializeField] private TowerInstallControl installControl;
 
     //test
-    private Color[] towerColor;
+    private Color towerColor;
     private List<int> numlist;
     [SerializeField] private TextMeshProUGUI[] uiTexts;
+    private IAbility[] abilities;
     public Color choosedColor { get; private set; }
+
+    private bool isFirstEnable = true;
 
     private void Start()
     {
         foreach (var ui in upgradeUIs)
             ui.SetActive(false);
 
-        towerColor = new Color[3] { Color.yellow, Color.green, Color.cyan };
+        towerColor = Color.yellow;
     }
 
     private void OnEnable()
     {
+        if(isFirstEnable)
+        {
+            isFirstEnable = false;
+            return;
+        }
+
         foreach (var ui in upgradeUIs)
             ui.SetActive(true);
 
@@ -32,7 +41,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         installControl.IsReadyInstall = false;
 
         numlist = new List<int>();
-        foreach (var text in uiTexts)
+        for (int i = 0; i < uiTexts.Length; i++)
         {
             int number;
             int count = 0;
@@ -50,11 +59,11 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             // test
             if (!installControl.IsUsedSlot(number))
             {
-                text.text = $"new Tower";
+                uiTexts[i].text = $"new Tower\n\n{abilities[i]}";
             }
             else
             {
-                text.text = $"Upgrade\n{number}";
+                uiTexts[i].text = $"Upgrade\n{number}";
             }
             //
         }
@@ -78,13 +87,12 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             return;
         }
 
-        var color = towerColor[index];
-        choosedColor = color;
+        choosedColor = towerColor;
         upgradeUIs[index].GetComponentInChildren<Image>().color = choosedColor;
         upgradeUIs[(index + 1) % 3].GetComponentInChildren<Image>().color = Color.white;
         upgradeUIs[(index + 2) % 3].GetComponentInChildren<Image>().color = Color.white;
         installControl.IsReadyInstall = true;
-        installControl.ChoosedData = (choosedColor, uiTexts[index].text);
+        installControl.ChoosedData = (abilities[index], uiTexts[index].text);
 
         if (installControl.IsUsedSlot(numlist[index]))
         {
@@ -95,9 +103,11 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     
     private void ResetChoose()
     {
-        foreach(var ui in upgradeUIs)
+        abilities = new IAbility[upgradeUIs.Length];
+        for(int i = 0; i < upgradeUIs.Length; i++)
         {
-            ui.GetComponentInChildren<Image>().color = Color.white;
+            upgradeUIs[i].GetComponentInChildren<Image>().color = Color.white;
+            abilities[i] = AbilityManager.Instance.GetRandomAbility();
         }
     }
 }

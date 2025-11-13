@@ -27,7 +27,7 @@ public class TowerInstallControl : MonoBehaviour
     private TowerDataSO[] assignedTowerDatas;
 
     public bool IsReadyInstall { get; set; }
-    public (Color color, string towerData) ChoosedData { get; set; }
+    public (IAbility ability, string towerData) ChoosedData { get; set; }
     // public (Color color, TowerDataSO towerData) ChoosedData { get; set; }
 
     private void Awake()
@@ -163,9 +163,7 @@ public class TowerInstallControl : MonoBehaviour
         button.onClick.AddListener(() => OpenInfoUI(index));
 
         var image = newTower.GetComponentInChildren<Image>();
-        image.color = ChoosedData.color;
-        Debug.Log(ChoosedData.towerData);
-        // image.color = Color.Lerp(Color.red, Color.blue, (float)index / (towerCount - 1));
+        image.color = Color.Lerp(Color.red, Color.blue, (float)index / (towerCount - 1));
 
         assignedTowerDatas[index] = chosenData;
         TryAssignDataToTower(newTower, chosenData);

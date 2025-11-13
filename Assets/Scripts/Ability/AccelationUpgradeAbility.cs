@@ -1,7 +1,13 @@
+using System.Text;
 using UnityEngine;
 
 public class AccelationUpgradeAbility : PassiveAbility
 {
+    public AccelationUpgradeAbility()
+    {
+        upgradeAmount = 5f;
+    }
+
     public override void ApplyAbility(GameObject gameObject)
     {
         base.ApplyAbility(gameObject);
@@ -9,7 +15,7 @@ public class AccelationUpgradeAbility : PassiveAbility
         var projectile = gameObject.GetComponent<Projectile>();
         if (projectile != null)
         {
-            projectile.acceleration -= 5f;
+            projectile.acceleration -= upgradeAmount;
             // Debug.Log(projectile.acceleration);
         }
     }
@@ -21,7 +27,7 @@ public class AccelationUpgradeAbility : PassiveAbility
         var projectile = gameObject.GetComponent<Projectile>();
         if (projectile != null)
         {
-            projectile.acceleration += 5f;
+            projectile.acceleration += upgradeAmount;
         }
     }
 
@@ -29,6 +35,13 @@ public class AccelationUpgradeAbility : PassiveAbility
     {
         base.Setting(gameObject);
 
+    }
+    
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        sb.Append($"Accelation\n{upgradeAmount}\nUp!!");
 
+        return sb.ToString();
     }
 }

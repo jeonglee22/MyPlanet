@@ -1,7 +1,13 @@
+using System.Text;
 using UnityEngine;
 
 public class SpeedUpgradeAbility : PassiveAbility
 {
+    public SpeedUpgradeAbility()
+    {
+        upgradeAmount = 10f;
+    }
+
     public override void ApplyAbility(GameObject gameObject)
     {
         base.ApplyAbility(gameObject);
@@ -9,7 +15,7 @@ public class SpeedUpgradeAbility : PassiveAbility
         var projectile = gameObject.GetComponent<Projectile>();
         if (projectile != null)
         {
-            projectile.totalSpeed += 10f;
+            projectile.totalSpeed += upgradeAmount;
             // Debug.Log("Speed Apply");
         }
     }
@@ -21,7 +27,7 @@ public class SpeedUpgradeAbility : PassiveAbility
         var projectile = gameObject.GetComponent<Projectile>();
         if (projectile != null)
         {
-            projectile.totalSpeed -= 10f;
+            projectile.totalSpeed -= upgradeAmount;
         }
     }
 
@@ -30,5 +36,13 @@ public class SpeedUpgradeAbility : PassiveAbility
         base.Setting(gameObject);
 
 
+    }
+
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        sb.Append($"Speed\n{upgradeAmount}\nUp!!");
+
+        return sb.ToString();
     }
 }
