@@ -49,7 +49,8 @@ public class TowerTargetingSystem : MonoBehaviour
         if(scanTimer>= scanInterval)
         {
             scanTimer = 0f;
-            if(!isAttacking) ScanForTargets();
+            Debug.Log($"[TTS.Update] {gameObject.name} | isAttacking: {isAttacking} | Will scan: {!isAttacking}");
+            if (!isAttacking) ScanForTargets();
         }
     }
 
@@ -109,6 +110,13 @@ public class TowerTargetingSystem : MonoBehaviour
         currentTarget = targetStrategy != null 
             ? targetStrategy.SelectTarget(validTargets) : null;
 
+        //debug 
+        if (currentTarget != null)
+        {
+            Debug.Log($"[TARGET SELECTED] Tower: {gameObject.name} | Strategy: {targetStrategy.GetType().Name} | Selected: {(currentTarget as MonoBehaviour)?.name} | HP: {currentTarget.maxHp} | ATK: {currentTarget.atk} | DEF: {currentTarget.def} | (Total enemies in range: {validTargets.Count})");
+        }
+
+
         //Debug Log
         string slotIndexStr = slotIndex >= 0 ? slotIndex.ToString() : "Unknown";
         string priorityName = targetStrategy != null ? targetStrategy.name : "None";
@@ -134,10 +142,10 @@ public class TowerTargetingSystem : MonoBehaviour
         assignedTowerData = data;
         rangeData = data.rangeData;
 
-        targetStrategy = data.targetPriority!=null
-            ?ScriptableObject.Instantiate(data.targetPriority):null;
+        targetStrategy = data.targetPriority != null
+            ? ScriptableObject.Instantiate(data.targetPriority) : null;
 
-        if(targetStrategy is ClosestDistancePrioritySO closest)
+        if (targetStrategy is ClosestDistancePrioritySO closest)
         {
             closest.Initialize(towerFiringPoint);
         }
