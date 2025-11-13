@@ -96,7 +96,9 @@ public class TowerTargetingSystem : MonoBehaviour
             ?ScriptableObject.Instantiate(data.targetPriority)
             :null;
 
-        if (targetStrategy is ClosestDistancePrioritySO closest)
+        if(targetStrategy is ClosestDistancePrioritySO closest)
+        {
             closest.Initialize(towerFiringPoint);
+        }
     }
 }
