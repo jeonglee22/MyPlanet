@@ -42,8 +42,8 @@ public class Planet : LivingEntity
     public float MaxExp { get; internal set; } = 100f;
 
     //test
-    [SerializeField] private float shootInterval = 0.5f;
-    private float shootTime = 0f;
+    // [SerializeField] private float shootInterval = 0.5f;
+    // private float shootTime = 0f;
 
     [SerializeField] private Color baseColor = Color.gray;
     [SerializeField] private Color hitColor = Color.white;

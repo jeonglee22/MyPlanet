@@ -16,7 +16,7 @@ public class TowerTargetingSystem : MonoBehaviour
 
     private TowerDataSO assignedTowerData;
 
-    private readonly string enemyTag = "Enemy";
+    // private readonly string enemyTag = "Enemy";
 
     private ITargetable currentTarget;
     public ITargetable CurrentTarget => currentTarget;
@@ -49,7 +49,8 @@ public class TowerTargetingSystem : MonoBehaviour
         if(scanTimer>= scanInterval)
         {
             scanTimer = 0f;
-            if(!isAttacking) ScanForTargets();
+            // Debug.Log($"[TTS.Update] {gameObject.name} | isAttacking: {isAttacking} | Will scan: {!isAttacking}");
+            if (!isAttacking) ScanForTargets();
         }
     }
 
@@ -57,7 +58,7 @@ public class TowerTargetingSystem : MonoBehaviour
     {
         if (rangeData == null||targetStrategy==null)
         {
-            Debug.LogWarning($"[TowerTargetingSystem] {gameObject.name}: RangeData or TargetStrategy is null.");
+            // Debug.LogWarning($"[TowerTargetingSystem] {gameObject.name}: RangeData or TargetStrategy is null.");
             return;
         }
 
@@ -83,7 +84,7 @@ public class TowerTargetingSystem : MonoBehaviour
 
             if (targetComponent == null)
             {
-                Debug.LogWarning($"[TowerTargetingSystem] {dt.name} has no ITargetable component. Skipping...");
+                // Debug.LogWarning($"[TowerTargetingSystem] {dt.name} has no ITargetable component. Skipping...");
                 continue;
             }
 
@@ -91,13 +92,13 @@ public class TowerTargetingSystem : MonoBehaviour
             var enemy = targetComponent as Enemy;
             if(enemy!=null&&enemy.Data==null)
             {
-                Debug.LogWarning($"[TowerTargetingSystem] Enemy {dt.name} has null Data. Skipping...");
+                // Debug.LogWarning($"[TowerTargetingSystem] Enemy {dt.name} has null Data. Skipping...");
                 continue;
             }
 
             if (!targetComponent.isAlive)
             {
-                Debug.Log($"[TowerTargetingSystem] Enemy {dt.name} is not alive. Skipping...");
+                // Debug.Log($"[TowerTargetingSystem] Enemy {dt.name} is not alive. Skipping...");
                 continue;
             }
 
@@ -108,6 +109,13 @@ public class TowerTargetingSystem : MonoBehaviour
 
         currentTarget = targetStrategy != null 
             ? targetStrategy.SelectTarget(validTargets) : null;
+
+        //debug 
+        if (currentTarget != null)
+        {
+            // Debug.Log($"[TARGET SELECTED] Tower: {gameObject.name} | Strategy: {targetStrategy.GetType().Name} | Selected: {(currentTarget as MonoBehaviour)?.name} | HP: {currentTarget.maxHp} | ATK: {currentTarget.atk} | DEF: {currentTarget.def} | (Total enemies in range: {validTargets.Count})");
+        }
+
 
         //Debug Log
         string slotIndexStr = slotIndex >= 0 ? slotIndex.ToString() : "Unknown";
@@ -120,10 +128,10 @@ public class TowerTargetingSystem : MonoBehaviour
             string strategyName = targetStrategy != null ? targetStrategy.name : "None";
             string targetName = currentTarget != null ? (currentTarget as MonoBehaviour)?.name : "null";
 
-            if (currentTarget != null)
-                Debug.Log($"[BestTarget] Tower '{gameObject.name}' Slot {slotIndexStr} | Priority: {priorityName} | Range: {rangeName} (Enemies in Range: {totalEnemiesInRange}) => New Best Target: {targetName} | HP:{currentTarget.maxHp} ATK:{currentTarget.atk} DEF:{currentTarget.def}");
-            else
-                Debug.Log($"[BestTarget] Tower '{gameObject.name}' Slot {slotIndexStr} | Priority: {priorityName} | Range: {rangeName} (Enemies in Range: {totalEnemiesInRange}) => No valid target");
+            // if (currentTarget != null)
+            //     Debug.Log($"[BestTarget] Tower '{gameObject.name}' Slot {slotIndexStr} | Priority: {priorityName} | Range: {rangeName} (Enemies in Range: {totalEnemiesInRange}) => New Best Target: {targetName} | HP:{currentTarget.maxHp} ATK:{currentTarget.atk} DEF:{currentTarget.def}");
+            // else
+            //     Debug.Log($"[BestTarget] Tower '{gameObject.name}' Slot {slotIndexStr} | Priority: {priorityName} | Range: {rangeName} (Enemies in Range: {totalEnemiesInRange}) => No valid target");
         }
 
     }
@@ -134,10 +142,10 @@ public class TowerTargetingSystem : MonoBehaviour
         assignedTowerData = data;
         rangeData = data.rangeData;
 
-        targetStrategy = data.targetPriority!=null
-            ?ScriptableObject.Instantiate(data.targetPriority):null;
+        targetStrategy = data.targetPriority != null
+            ? ScriptableObject.Instantiate(data.targetPriority) : null;
 
-        if(targetStrategy is ClosestDistancePrioritySO closest)
+        if (targetStrategy is ClosestDistancePrioritySO closest)
         {
             closest.Initialize(towerFiringPoint);
         }
