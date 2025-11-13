@@ -20,6 +20,8 @@ public class AbilityManager : MonoBehaviour
         instance = this;
         abilityDict = new Dictionary<int, IAbility>();
         abilityDict.Add(0, new AttackUpgradeAbility());
+        abilityDict.Add(1, new AccelationUpgradeAbility());
+        abilityDict.Add(2, new SpeedUpgradeAbility());
     }
 
     public IAbility GetRandomAbility()

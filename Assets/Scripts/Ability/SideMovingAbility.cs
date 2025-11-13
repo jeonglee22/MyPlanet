@@ -1,9 +1,9 @@
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class AttackUpgradeAbility : PassiveAbility
+public class SideMovingAbility : PassiveAbility
 {
-    public AttackUpgradeAbility()
+    public SideMovingAbility()
     {
     }
 
@@ -14,8 +14,6 @@ public class AttackUpgradeAbility : PassiveAbility
         var projectile = gameObject.GetComponent<Projectile>();
         if (projectile != null)
         {
-            projectile.damage += 100f;
-            Debug.Log("Damage Apply");
         }
     }
 
@@ -26,7 +24,6 @@ public class AttackUpgradeAbility : PassiveAbility
         var projectile = gameObject.GetComponent<Projectile>();
         if (projectile != null)
         {
-            projectile.damage -= 100f;
         }
     }
 

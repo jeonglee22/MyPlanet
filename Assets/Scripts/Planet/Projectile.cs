@@ -18,6 +18,7 @@ public class Projectile : MonoBehaviour
     public int currentPierceCount = 1;
     private float currentLifeTime;
     public float hitRadius = 10f;
+    public float acceleration ;
 
     private IObjectPool<Projectile> pool;
 
@@ -58,7 +59,7 @@ public class Projectile : MonoBehaviour
 
     private void MoveProjectile()
     {
-        totalSpeed += projectileData.acceleration * Time.deltaTime;
+        totalSpeed += acceleration * Time.deltaTime;
 
         switch (projectileData.projectileType)
         {
@@ -86,6 +87,7 @@ public class Projectile : MonoBehaviour
         this.direction = direction;
         this.isHit = isHit;
 
+        acceleration = projectileData.acceleration;
         totalSpeed = projectileData.speed;
         currentPierceCount = projectileData.targetNumber;
 

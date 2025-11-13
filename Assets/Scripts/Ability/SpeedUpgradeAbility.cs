@@ -1,12 +1,7 @@
-using Unity.VisualScripting;
 using UnityEngine;
 
-public class AttackUpgradeAbility : PassiveAbility
+public class SpeedUpgradeAbility : PassiveAbility
 {
-    public AttackUpgradeAbility()
-    {
-    }
-
     public override void ApplyAbility(GameObject gameObject)
     {
         base.ApplyAbility(gameObject);
@@ -14,8 +9,8 @@ public class AttackUpgradeAbility : PassiveAbility
         var projectile = gameObject.GetComponent<Projectile>();
         if (projectile != null)
         {
-            projectile.damage += 100f;
-            Debug.Log("Damage Apply");
+            projectile.totalSpeed += 10f;
+            Debug.Log("Speed Apply");
         }
     }
 
@@ -26,12 +21,14 @@ public class AttackUpgradeAbility : PassiveAbility
         var projectile = gameObject.GetComponent<Projectile>();
         if (projectile != null)
         {
-            projectile.damage -= 100f;
+            projectile.totalSpeed -= 10f;
         }
     }
 
     public override void Setting(GameObject gameObject)
     {
         base.Setting(gameObject);
+
+
     }
 }

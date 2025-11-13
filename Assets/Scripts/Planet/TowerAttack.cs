@@ -18,8 +18,9 @@ public class TowerAttack : MonoBehaviour
 
     private void Awake()
     {
-        // abilities = new List<IAbility>();
+        abilities = new List<IAbility>();
         // abilities.Add(AbilityManager.Instance.AbilityDict[0]);
+        SetRandomAbility();
     }
     
     public void AddAbility(IAbility ability)
@@ -31,6 +32,7 @@ public class TowerAttack : MonoBehaviour
     {
         var ability = AbilityManager.Instance.GetRandomAbility();
         abilities.Add(ability);
+        Debug.Log(ability);
     }
 
     public void Shoot(ProjectileType projectileType, Vector3 direction, bool IsHit)
