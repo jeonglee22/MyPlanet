@@ -4,7 +4,6 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using NUnit.Framework.Constraints;
 using Unity.VisualScripting;
-using UnityEditor.Purchasing;
 using UnityEngine;
 
 public class Planet : LivingEntity
