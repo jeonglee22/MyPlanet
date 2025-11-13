@@ -97,6 +97,7 @@ public class TowerInstallControl : MonoBehaviour
                 assignedTowerDatas[index] = chosenData;
 
                 TryAssignDataToTower(tower, chosenData);
+                // attack.SetRandomAbility();
             }
             
             var button = tower.GetComponent<Button>();

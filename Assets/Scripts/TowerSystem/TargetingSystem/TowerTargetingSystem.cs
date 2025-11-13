@@ -83,8 +83,8 @@ public class TowerTargetingSystem : MonoBehaviour
         if (currentTarget !=previousTarget)
         {
             previousTarget = currentTarget;
-            if (currentTarget != null) Debug.Log($"[New Best Target] ATK:{currentTarget.atk} DEF:{currentTarget.def} HP:{currentTarget.maxHp}");
-            else Debug.Log("No Valid Target");
+            // if (currentTarget != null) Debug.Log($"[New Best Target] ATK:{currentTarget.atk} DEF:{currentTarget.def} HP:{currentTarget.maxHp}");
+            // else Debug.Log("No Valid Target");
         }
     }
     public ITargetable GetCurrentTarget() => currentTarget;
