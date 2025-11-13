@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements.Experimental;
 
 public class TowerTargetingSystem : MonoBehaviour
 {//updateTarget->GetEnemiesInRange(consider targetPriority) -> Return currentTarget -> driven atk sys
@@ -41,10 +42,11 @@ public class TowerTargetingSystem : MonoBehaviour
 
     private void ScanForTargets()
     {
-        if (rangeData == null)
+        if (rangeData == null || towerFiringPoint == null)
             return;
 
         float radius = rangeData.GetRange();
+
         Collider[] detects = Physics.OverlapSphere(towerFiringPoint.position, radius, 
             Physics.DefaultRaycastLayers, QueryTriggerInteraction.Collide);
 

@@ -4,7 +4,7 @@ public class TargetDirectionMovement : EnemyMovement
 {
     protected override void Move()
     {
-        if(!isDirectionSet)
+        if(!isDirectionSet && player != null)
         {
             SetTargetDirection();
             isDirectionSet = true;
