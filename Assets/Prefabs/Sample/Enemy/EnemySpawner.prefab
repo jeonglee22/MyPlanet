@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 8310431769271838183}
   - component: {fileID: 7004810841361380358}
-  - component: {fileID: 650853392919980525}
   m_Layer: 0
   m_Name: EnemySpawner
   m_TagString: Untagged
@@ -45,29 +44,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a26dcfd2792092d46953348193ce3955, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyDatas:
-  - {fileID: 11400000, guid: d07302420285fa54483a007b89774efc, type: 2}
-  - {fileID: 11400000, guid: a7e37ad4592cfd045877b081fa99f75a, type: 2}
-  spawnPoints:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  spawnInterval: 0.5
---- !u!114 &650853392919980525
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1847356028021512489}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fed345071666e624c8087af7e5f59c65, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  player: {fileID: 0}
-  collectionCheck: 1
-  defaultPoolCapacity: 20
-  maxPoolSize: 100
+  spawnPointSample: {fileID: 0}
+  spawnPointCount: 5
+  offSet: 1
