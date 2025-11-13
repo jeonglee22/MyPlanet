@@ -18,7 +18,7 @@ public class TowerAttack : MonoBehaviour
         targetingSystem = GetComponent<TowerTargetingSystem>();
         abilities = new List<IAbility>();
         // abilities.Add(AbilityManager.Instance.AbilityDict[0]);
-        SetRandomAbility();
+        // SetRandomAbility();
 
         if (firePoint == null) firePoint = transform;
     }
@@ -33,7 +33,7 @@ public class TowerAttack : MonoBehaviour
     {
         if (towerData == null || targetingSystem == null)
         {
-            Debug.LogWarning($"[TowerAttack.Update] {gameObject.name} | towerData: {(towerData != null ? "OK" : "NULL")} | targetingSystem: {(targetingSystem != null ? "OK" : "NULL")}");
+            // Debug.LogWarning($"[TowerAttack.Update] {gameObject.name} | towerData: {(towerData != null ? "OK" : "NULL")} | targetingSystem: {(targetingSystem != null ? "OK" : "NULL")}");
             return;
         }
 
@@ -42,7 +42,7 @@ public class TowerAttack : MonoBehaviour
 
         if(shootTimer>=shootInterval)
         {
-            Debug.Log($"[TowerAttack.Update] {gameObject.name} attempting to shoot | CurrentTarget: {(targetingSystem.CurrentTarget != null ? "EXISTS" : "NULL")}");
+            // Debug.Log($"[TowerAttack.Update] {gameObject.name} attempting to shoot | CurrentTarget: {(targetingSystem.CurrentTarget != null ? "EXISTS" : "NULL")}");
             ShootAtTarget();
             shootTimer = 0f;
         }
@@ -51,7 +51,7 @@ public class TowerAttack : MonoBehaviour
     private void ShootAtTarget()
     {
         var target = targetingSystem.CurrentTarget;
-        Debug.Log($"[ShootAtTarget] {gameObject.name} | Target: {(target != null ? (target as MonoBehaviour)?.name : "NULL")} | isAlive: {(target != null ? target.isAlive.ToString() : "N/A")}");
+        // Debug.Log($"[ShootAtTarget] {gameObject.name} | Target: {(target != null ? (target as MonoBehaviour)?.name : "NULL")} | isAlive: {(target != null ? target.isAlive.ToString() : "N/A")}");
         if (target == null || !target.isAlive) return;
 
         Vector3 direction = (target.position - transform.position).normalized;
@@ -59,7 +59,7 @@ public class TowerAttack : MonoBehaviour
         //debug
         var targetEnemy = target as Enemy;
         string strategyName = targetingSystem.GetTowerData()?.targetPriority?.GetType().Name ?? "Unknown";
-        Debug.Log($"[SHOOT] Tower: {gameObject.name} | Strategy: {strategyName} | Target: {(target as MonoBehaviour)?.name} | HP: {target.maxHp} | ATK: {target.atk} | DEF: {target.def} | Distance: {Vector3.Distance(transform.position, target.position):F2}");
+        // Debug.Log($"[SHOOT] Tower: {gameObject.name} | Strategy: {strategyName} | Target: {(target as MonoBehaviour)?.name} | HP: {target.maxHp} | ATK: {target.atk} | DEF: {target.def} | Distance: {Vector3.Distance(transform.position, target.position):F2}");
 
         var projectile = ProjectilePoolManager.Instance.GetProjectile(towerData.projectileType);
         if(projectile==null)
@@ -88,7 +88,7 @@ public class TowerAttack : MonoBehaviour
     {
         var ability = AbilityManager.Instance.GetRandomAbility();
         abilities.Add(ability);
-        Debug.Log(ability);
+        // Debug.Log(ability);
     }
 
     public void Shoot(Vector3 direction, bool IsHit)

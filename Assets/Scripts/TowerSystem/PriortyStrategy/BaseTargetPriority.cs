@@ -9,7 +9,7 @@ public abstract class BaseTargetPriority : ScriptableObject,ITargetPrioriy
     public ITargetable SelectTarget(IEnumerable<ITargetable> targets)
     {
         var validTargets = new List<(ITargetable target, float priority)>();
-        Debug.Log($"[SelectTarget START] Type: {this.GetType().Name} | isDescending: {isDescending}");
+        // Debug.Log($"[SelectTarget START] Type: {this.GetType().Name} | isDescending: {isDescending}");
 
 
         foreach (var t in targets)
@@ -19,13 +19,13 @@ public abstract class BaseTargetPriority : ScriptableObject,ITargetPrioriy
             validTargets.Add((t,GetPriorityValue(t)));
         }
 
-        Debug.Log($"[SelectTarget] Valid targets count: {validTargets.Count} | Sorting...");
+        // Debug.Log($"[SelectTarget] Valid targets count: {validTargets.Count} | Sorting...");
 
         validTargets.Sort((a, b) => 
             isDescending ? b.priority.CompareTo(a.priority): a.priority.CompareTo(b.priority));
 
         var selected = validTargets.Count > 0 ? validTargets[0].target : null;
-        Debug.Log($"[SelectTarget END] Selected: {(selected as MonoBehaviour)?.name}");
+        // Debug.Log($"[SelectTarget END] Selected: {(selected as MonoBehaviour)?.name}");
 
         return validTargets.Count > 0 ? validTargets[0].target : null;
     }
