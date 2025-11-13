@@ -15,12 +15,22 @@ public class ParalyzeAbility : PassiveAbility
         base.ApplyAbility(gameObject);
 
         var movement = gameObject.GetComponent<EnemyMovement>();
+        var enemy = gameObject.GetComponent<Enemy>();
         if (movement != null)
         {
             initSpeed = movement.moveSpeed;
             movement.moveSpeed = 0;
             movement.isDebuff = true;
             Debug.Log("Paralyze Apply");
+
+            if (enemy.Data.hitEffect != null)
+            {
+                var effectInstance = GameObject.Instantiate(enemy.Data.hitEffect, enemy.transform.position, Quaternion.identity);
+                effectInstance.Play();
+                
+                GameObject.Destroy(effectInstance.gameObject, effectInstance.main.duration + effectInstance.main.startLifetime.constantMax);
+            }
+            
         }
     }
 

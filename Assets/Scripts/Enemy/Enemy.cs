@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -28,6 +29,13 @@ public class Enemy : LivingEntity, ITargetable
 
     [SerializeField] private List<DropItem> drops;
 
+    //test
+    [SerializeField] private Color baseColor = Color.red;
+    [SerializeField] private Color hitColor = Color.white;
+    private Material Material;
+
+    private CancellationTokenSource colorResetCts;
+
     protected override void OnEnable()
     {
         base.OnEnable();
@@ -35,12 +43,17 @@ public class Enemy : LivingEntity, ITargetable
         movement = GetComponent<EnemyMovement>();
 
         OnDeathEvent += SpawnManager.Instance.OnEnemyDied;
+
+        Material = GetComponent<Renderer>().material;
+        ColorCancel();
     }
 
     protected void OnDestroy()
     {
         OnDeathEvent -= SpawnManager.Instance.OnEnemyDied;
         Cancel();
+
+        ColorCancel();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -60,6 +73,11 @@ public class Enemy : LivingEntity, ITargetable
     public override void OnDamage(float damage)
     {
         base.OnDamage(damage);
+
+        ColorCancel();
+
+        Material.color = hitColor;
+        ResetColorAsync(0.2f, colorResetCts.Token).Forget();
     }
 
     protected override void Die()
@@ -162,5 +180,19 @@ public class Enemy : LivingEntity, ITargetable
                 abilities.Add(ability);
             }
         }
+    }
+
+    //test
+    private void ColorCancel()
+    {
+        colorResetCts?.Cancel();
+        colorResetCts?.Dispose();
+        colorResetCts = new CancellationTokenSource();
+    }
+
+    private async UniTaskVoid ResetColorAsync(float delay, CancellationToken token = default)
+    {
+        await UniTask.Delay(TimeSpan.FromSeconds(delay), cancellationToken: colorResetCts.Token);
+        Material.color = baseColor;
     }
 }
