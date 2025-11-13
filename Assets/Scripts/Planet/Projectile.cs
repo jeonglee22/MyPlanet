@@ -13,7 +13,8 @@ public class Projectile : MonoBehaviour
 
     //Projectile Data
     public float damage = 10f;
-    public float panetration = 0f;
+    public float RatePanetration { get;  set; }
+    public float FixedPanetration { get;  set; }
     public float totalSpeed = 5f;
     public int currentPierceCount = 1;
     private float currentLifeTime;
@@ -88,6 +89,9 @@ public class Projectile : MonoBehaviour
 
         totalSpeed = projectileData.speed;
         currentPierceCount = projectileData.targetNumber;
+        RatePanetration = projectileData.percentPenetration;
+        FixedPanetration = projectileData.fixedPanetration;
+        damage = projectileData.damage;
 
         Cancel();
         currentLifeTime = 0f;
@@ -100,13 +104,14 @@ public class Projectile : MonoBehaviour
         {
             return;
         }
-        
+
         var damagable = other.gameObject.GetComponent<IDamagable>();
-        if (damagable != null)
+        var enemy = other.gameObject.GetComponent<Enemy>();
+        if (damagable != null && enemy != null && isHit)
         {
             abilityAction?.Invoke(gameObject);
-            damagable.OnDamage(damage);
-            Debug.Log(damage);
+            damagable.OnDamage(CalculateTotalDamage(enemy.Data.defense));
+            //Debug.Log(CalculateTotalDamage(enemy.Data.defense));
             abilityAction = null;
         }
 
@@ -116,5 +121,17 @@ public class Projectile : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
+    
+    private float CalculateTotalDamage(float enemyDef)
+    {
+        var totalEnemyDef = enemyDef * (1 - RatePanetration / 100f) - FixedPanetration;
+        if(totalEnemyDef < 0)
+        {
+            totalEnemyDef = 0;
+        }
+        var totalDamage = damage - totalEnemyDef;
+        
+        return totalDamage;
     }
 }
