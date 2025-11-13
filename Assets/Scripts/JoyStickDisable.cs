@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class JoyStickDisable : MonoBehaviour
 {
@@ -12,7 +13,8 @@ public class JoyStickDisable : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.touchCount == 0)
+        var touchScreen = Touchscreen.current;
+        if (touchScreen == null)
         {
             gameObject.SetActive(false);
         }

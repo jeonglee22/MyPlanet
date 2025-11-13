@@ -2,6 +2,7 @@ using System.Drawing;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.OnScreen;
 
 public class JoyStickAppear : MonoBehaviour
@@ -11,28 +12,35 @@ public class JoyStickAppear : MonoBehaviour
 
     private bool isAppear;
     private PointerEventData eventData;
+    private OnScreenStick drag;
 
     void Start()
     {
         isAppear = false;
+        joystick.SetActive(false);
+        drag = joystick.GetComponentInChildren<OnScreenStick>();
     }
 
     void Update()
     {
-        if (Input.touchCount == 0) return;
+        var touchScreen = Touchscreen.current;
+        if (touchScreen == null) return;
 
-         var drag = joystick.GetComponentInChildren<OnScreenStick>();
+        var primary = touchScreen.primaryTouch;
 
-        if (Input.touchCount != 0 && (Input.GetTouch(0).phase == TouchPhase.Ended ||
-            Input.GetTouch(0).phase == TouchPhase.Canceled))
+        if (primary.press.isPressed == false)
         {
-            eventData = new PointerEventData(EventSystem.current);
-            drag.OnPointerUp(eventData);
-            isAppear = false;
+            if (isAppear)
+            {
+                eventData = new PointerEventData(EventSystem.current);
+                drag.OnPointerUp(eventData);
+                isAppear = false;
+                joystick.SetActive(false);
+            }
             return;
         }
 
-        var touchPos = Input.GetTouch(0).position;
+        var touchPos = primary.position.ReadValue();
         if (!RectTransformUtility.RectangleContainsScreenPoint(touchRect, touchPos) || EventSystem.current.IsPointerOverGameObject())
         {
             return;
