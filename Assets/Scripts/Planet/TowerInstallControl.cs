@@ -101,6 +101,10 @@ public class TowerInstallControl : MonoBehaviour
             TryAssignDataToTower(tower, chosenData);
             // attack.SetRandomAbility();
 
+            //Init TowerAttack
+            var attack = tower.GetComponent<TowerAttack>();
+            if (attack != null) attack.SetTowerData(chosenData);
+
             //Tower Targeting System Index Debug
             var targeting = tower.GetComponent<TowerTargetingSystem>();
             if (targeting != null)
@@ -108,6 +112,7 @@ public class TowerInstallControl : MonoBehaviour
                 targeting.SetSlotIndex(index);
                 targeting.SetTowerData(chosenData);
             }
+
 
             var button = tower.GetComponent<Button>();
             button.onClick.AddListener(() => OpenInfoUI(index));

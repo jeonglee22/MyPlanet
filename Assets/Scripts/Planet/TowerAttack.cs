@@ -40,7 +40,6 @@ public class TowerAttack : MonoBehaviour
         }
     }
 
-
     private void ShootAtTarget()
     {
         var target = targetingSystem.CurrentTarget;
