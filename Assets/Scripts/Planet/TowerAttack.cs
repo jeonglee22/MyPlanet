@@ -5,13 +5,15 @@ using UnityEngine;
 
 public class TowerAttack : MonoBehaviour
 {
-    ProjectileData currentProjectileData;
-
+    private ProjectileData currentProjectileData;
     private TowerDataSO towerData;
+
+    [SerializeField] private AttackAbility ability = AttackAbility.Basic;
 
     public void SetTowerData(TowerDataSO data)
     {
         towerData = data;
+        currentProjectileData = data.projectileType;
     }
 
     private List<IAbility> abilities;
@@ -81,7 +83,6 @@ public class TowerAttack : MonoBehaviour
 
         projectile.transform.position = transform.position;
         projectile.transform.rotation = Quaternion.LookRotation(direction);
-
         projectile.Initialize(currentProjectileData, direction, IsHit);
     }
 
@@ -93,8 +94,9 @@ public class TowerAttack : MonoBehaviour
             projectile = Instantiate(currentProjectileData.projectilePrefab, transform.position, Quaternion.LookRotation(direction)).GetComponent<Projectile>();
         }
 
+        projectile.transform.position = transform.position;
+        projectile.transform.rotation = Quaternion.LookRotation(direction);
         projectile.Initialize(currentProjectileData, direction, IsHit);
-
         projectile.GetComponent<Projectile>().totalSpeed += 20f;
     }
 

@@ -7,27 +7,26 @@ public class TowerTargetingSystem : MonoBehaviour
 {//updateTarget->GetEnemiesInRange(consider targetPriority) -> Return currentTarget -> driven atk sys
 
     [SerializeField] private Transform towerFiringPoint; //assign tower object
+    public Transform FirePoint => towerFiringPoint;
     [SerializeField] private TargetRangeSO rangeData;
     [SerializeField] private BaseTargetPriority targetStrategy;
 
     private TowerDataSO assignedTowerData;
-    public TowerDataSO AssignedTowerData => assignedTowerData;
-
     private readonly string enemyTag = "Enemy";
+
     private ITargetable currentTarget;
+    public ITargetable CurrentTarget => currentTarget;
+    private ITargetable previousTarget; //only debug
 
     [SerializeField] private float scanInterval = 0.2f; // Multiple Interval Scan System
     private float scanTimer = 0f;
+
     private bool isAttacking { get; set; } = false;
+    public void SetAttacking(bool value) => isAttacking = value;
 
-    //debug
-    private ITargetable previousTarget;
-
-    //My Planet Fire Point Transform
-    [SerializeField] private ClosestDistancePrioritySO closestDistancePrioritySO;
-    private void Start()
+    private void Awake()
     {
-        closestDistancePrioritySO?.Initialize(transform);
+        if (towerFiringPoint == null) towerFiringPoint = transform;
     }
 
     private void Update()
@@ -42,36 +41,40 @@ public class TowerTargetingSystem : MonoBehaviour
 
     private void ScanForTargets()
     {
-        if (rangeData == null || towerFiringPoint == null)
-            return;
+        if (rangeData == null||targetStrategy==null) return;
 
         float radius = rangeData.GetRange();
+        Vector3 firingPoint = towerFiringPoint.position;
 
-        Collider[] detects = Physics.OverlapSphere(towerFiringPoint.position, radius, 
+        Collider[] detects = Physics.OverlapSphere(firingPoint, radius, 
             Physics.DefaultRaycastLayers, QueryTriggerInteraction.Collide);
 
-        Debug.Log($"collider count:{detects.Length}");
+        Debug.Log($"[TowerTargetingSystem] Collider count: {detects.Length}");
+
         var validTargets = new List<ITargetable>();
         foreach (var dt in detects)
         {
+            if (dt.name == "Sphere") continue;
+            
             Debug.Log($"[Scan] Detected: {dt.name} | Tag: {dt.tag} | IsTrigger: {dt.isTrigger} | Active: {dt.gameObject.activeInHierarchy}");
-            if (!dt.CompareTag(enemyTag))
-            {
-                Debug.Log($"[Scan] Skipped {dt.name}, wrong tag");
-                continue;
-            }
+
+            if (!dt.CompareTag("Enemy")) continue;
 
             var targetComponent = dt.GetComponent<ITargetable>();
-            if (targetComponent == null) Debug.Log($"No Target{dt.name}");
-            if (!targetComponent.isAlive)
+
+            if (targetComponent == null || !targetComponent.isAlive) continue;
+
+            //Enemy Data Null Check
+            var enemy = targetComponent as Enemy;
+            if(enemy!=null&&enemy.Data==null)
             {
-                Debug.Log($"[Scan] {dt.name} is dead");
+                Debug.LogWarning($"[TowerTargetingSystem] Enemy {dt.name} has null Data. Skipping...");
                 continue;
             }
-
+            
             validTargets.Add(targetComponent);
+            
             Debug.Log($"[Scan] Valid Target: {dt.name} | HP:{targetComponent.maxHp} | ATK:{targetComponent.atk} | DEF:{targetComponent.def} | Pos:{targetComponent.position}");
-            //if (targetComponent != null && targetComponent.isAlive)
         }
 
         currentTarget = targetStrategy != null 
@@ -99,8 +102,14 @@ public class TowerTargetingSystem : MonoBehaviour
     {
         assignedTowerData = data;
         rangeData = data.rangeData;
-        targetStrategy = data.targetPriority;
 
-        Debug.Log($"{name}:");
+        targetStrategy = data.targetPriority!=null
+            ?ScriptableObject.Instantiate(data.targetPriority)
+            :null;
+
+        if(targetStrategy is ClosestDistancePrioritySO closest)
+        {
+            closest.Initialize(towerFiringPoint);
+        }
     }
 }
