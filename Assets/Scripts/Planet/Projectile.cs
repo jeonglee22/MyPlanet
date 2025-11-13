@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.Pool;
@@ -12,7 +13,8 @@ public class Projectile : MonoBehaviour
 
     //Projectile Data
     public float damage = 10f;
-    public float panetration = 0f;
+    public float RatePanetration { get;  set; }
+    public float FixedPanetration { get;  set; }
     public float totalSpeed = 5f;
     public int currentPierceCount = 1;
     private float currentLifeTime;
@@ -21,6 +23,8 @@ public class Projectile : MonoBehaviour
     private IObjectPool<Projectile> pool;
 
     private CancellationTokenSource lifeTimeCts;
+    public event Action<GameObject> abilityAction;
+    public event Action<GameObject> abilityRelease;
 
     private void Update()
     {
@@ -65,6 +69,12 @@ public class Projectile : MonoBehaviour
         }
     }
 
+    void OnDisable()
+    {
+        abilityRelease?.Invoke(gameObject);
+        abilityRelease = null;
+    }
+
     /// <summary>
     /// Initialize the projectile with data
     /// </summary>
@@ -79,6 +89,9 @@ public class Projectile : MonoBehaviour
 
         totalSpeed = projectileData.speed;
         currentPierceCount = projectileData.targetNumber;
+        RatePanetration = projectileData.percentPenetration;
+        FixedPanetration = projectileData.fixedPanetration;
+        damage = projectileData.damage;
 
         Cancel();
         currentLifeTime = 0f;
@@ -91,11 +104,15 @@ public class Projectile : MonoBehaviour
         {
             return;
         }
-        
+
         var damagable = other.gameObject.GetComponent<IDamagable>();
-        if (damagable != null)
+        var enemy = other.gameObject.GetComponent<Enemy>();
+        if (damagable != null && enemy != null && isHit)
         {
-            damagable.OnDamage(damage);
+            abilityAction?.Invoke(gameObject);
+            damagable.OnDamage(CalculateTotalDamage(enemy.Data.defense));
+            //Debug.Log(CalculateTotalDamage(enemy.Data.defense));
+            abilityAction = null;
         }
 
         currentPierceCount--;
@@ -104,5 +121,17 @@ public class Projectile : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
+    
+    private float CalculateTotalDamage(float enemyDef)
+    {
+        var totalEnemyDef = enemyDef * (1 - RatePanetration / 100f) - FixedPanetration;
+        if(totalEnemyDef < 0)
+        {
+            totalEnemyDef = 0;
+        }
+        var totalDamage = damage - totalEnemyDef;
+        
+        return totalDamage;
     }
 }

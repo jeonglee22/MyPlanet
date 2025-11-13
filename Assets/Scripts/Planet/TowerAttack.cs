@@ -1,17 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class TowerAttack : MonoBehaviour
 {
-    public enum AttackAbility
-    {
-        Basic,
-        FastShoot,
-        DoubleShoot,
-    }
-
     private ProjectileData currentProjectileData;
     private TowerDataSO towerData;
 
@@ -23,7 +16,21 @@ public class TowerAttack : MonoBehaviour
         currentProjectileData = data.projectileType;
     }
 
-    public void Shoot(Vector3 direction, bool IsHit)
+    private List<IAbility> abilities;
+
+    private void Awake()
+    {
+        abilities = new List<IAbility>();
+        abilities.Add(AbilityManager.Instance.abilityDict[0]);
+    }
+    
+    public void SetAbility(IAbility ability)
+    {
+        var existAbility = AbilityManager.Instance.abilityDict[0] as PassiveAbility;
+        abilities.Add(new PassiveAbility(existAbility));
+    }
+
+    public void Shoot(ProjectileType projectileType, Vector3 direction, bool IsHit)
     {
         if(towerData==null||towerData.projectileType==null)
         {
@@ -33,18 +40,37 @@ public class TowerAttack : MonoBehaviour
 
         currentProjectileData = towerData.projectileType;
 
-        switch (ability)
+        Projectile projectile = ProjectilePoolManager.Instance.GetProjectile(currentProjectileData);
+        if (projectile == null)
         {
-            case AttackAbility.Basic:
-                BasicShoot(direction, IsHit);
-                break;
-            case AttackAbility.FastShoot:
-                FastShoot(direction, IsHit);
-                break;
-            case AttackAbility.DoubleShoot:
-                DoubleShoot(direction, IsHit);
-                break;
+            projectile = Instantiate(currentProjectileData.projectilePrefab, transform.position, Quaternion.LookRotation(direction)).GetComponent<Projectile>();
         }
+
+        projectile.transform.position = transform.position;
+        projectile.transform.rotation = Quaternion.LookRotation(direction);
+
+        projectile.Initialize(currentProjectileData, direction, IsHit);
+        
+        foreach (var ability in abilities)
+        {
+            // ability.Setting(projectile.gameObject);
+            // ability.ApplyAbility(projectile.gameObject);
+            ability.ApplyAbility(projectile.gameObject);
+            projectile.abilityRelease += ability.RemoveAbility;
+        }
+
+        // switch (attackAbility)
+        // {
+        //     case AttackAbility.Basic:
+        //         BasicShoot(direction, IsHit);
+        //         break;
+        //     case AttackAbility.FastShoot:
+        //         FastShoot(direction, IsHit);
+        //         break;
+        //     case AttackAbility.DoubleShoot:
+        //         DoubleShoot(direction, IsHit);
+        //         break;
+        // }
     }
 
     private void BasicShoot(Vector3 direction, bool IsHit)

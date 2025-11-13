@@ -80,9 +80,6 @@ public class Enemy : LivingEntity, ITargetable
     {
         //tower system random dummy test
         data = ScriptableObject.Instantiate(enemyData);
-        data.maxHealth = UnityEngine.Random.Range(50, 100);
-        data.damage = UnityEngine.Random.Range(5, 15);
-        data.defense = UnityEngine.Random.Range(1, 10);
 
         //data = enemyData;
         maxHealth = data.maxHealth;

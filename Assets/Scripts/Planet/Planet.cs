@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using NUnit.Framework.Constraints;
 using Unity.VisualScripting;
 using UnityEditor.Purchasing;
 using UnityEngine;
@@ -50,6 +51,10 @@ public class Planet : LivingEntity
         MaxExp = 100f;
 
         if (towerSlotTransform == null) towerSlotTransform = transform;
+    }
+
+    private void Start()
+    {
     }
 
     private void Update()
