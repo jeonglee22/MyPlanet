@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class TowerAttack : MonoBehaviour
 {
+    [SerializeField] private Transform firePoint;
     private TowerTargetingSystem targetingSystem;
     private ProjectileData currentProjectileData;
     private TowerDataSO towerData;
@@ -18,6 +19,8 @@ public class TowerAttack : MonoBehaviour
         abilities = new List<IAbility>();
         // abilities.Add(AbilityManager.Instance.AbilityDict[0]);
         SetRandomAbility();
+
+        if (firePoint == null) firePoint = transform;
     }
 
     public void SetTowerData(TowerDataSO data)
@@ -54,7 +57,16 @@ public class TowerAttack : MonoBehaviour
         {
             projectile = Instantiate(towerData.projectileType.projectilePrefab, transform.position, Quaternion.LookRotation(direction)).GetComponent<Projectile>();
         }
+
+        projectile.transform.position = firePoint.position;
+        projectile.transform.rotation = Quaternion.LookRotation(direction);
         projectile.Initialize(towerData.projectileType, direction, true);
+
+        foreach (var ability in abilities)
+        {
+            ability.ApplyAbility(projectile.gameObject);
+            projectile.abilityRelease += ability.RemoveAbility;
+        }
     }
 
     public void AddAbility(IAbility ability)
@@ -71,11 +83,7 @@ public class TowerAttack : MonoBehaviour
 
     public void Shoot(Vector3 direction, bool IsHit)
     {
-        if(towerData==null||towerData.projectileType==null)
-        {
-            UnityEngine.Debug.Log($"Not Find TowerData ProjectileData{gameObject.name}");
-            return;
-        }
+        if (towerData == null || towerData.projectileType == null) return;
 
         currentProjectileData = towerData.projectileType;
 
@@ -87,7 +95,6 @@ public class TowerAttack : MonoBehaviour
 
         projectile.transform.position = transform.position;
         projectile.transform.rotation = Quaternion.LookRotation(direction);
-
         projectile.Initialize(currentProjectileData, direction, IsHit);
         
         foreach (var ability in abilities)
