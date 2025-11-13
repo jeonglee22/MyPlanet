@@ -15,7 +15,7 @@ public class AttackUpgradeAbility : PassiveAbility
         if (projectile != null)
         {
             projectile.damage += 100f;
-            Debug.Log("Damage Apply");
+            // Debug.Log("Damage Apply");
         }
     }
 

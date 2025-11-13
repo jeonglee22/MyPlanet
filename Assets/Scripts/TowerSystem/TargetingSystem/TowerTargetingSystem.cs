@@ -50,14 +50,14 @@ public class TowerTargetingSystem : MonoBehaviour
         Collider[] detects = Physics.OverlapSphere(towerFiringPoint.position, radius, 
             Physics.DefaultRaycastLayers, QueryTriggerInteraction.Collide);
 
-        Debug.Log($"collider count:{detects.Length}");
+        // Debug.Log($"collider count:{detects.Length}");
         var validTargets = new List<ITargetable>();
         foreach (var dt in detects)
         {
-            Debug.Log($"[Scan] Detected: {dt.name} | Tag: {dt.tag} | IsTrigger: {dt.isTrigger} | Active: {dt.gameObject.activeInHierarchy}");
+            // Debug.Log($"[Scan] Detected: {dt.name} | Tag: {dt.tag} | IsTrigger: {dt.isTrigger} | Active: {dt.gameObject.activeInHierarchy}");
             if (!dt.CompareTag(enemyTag))
             {
-                Debug.Log($"[Scan] Skipped {dt.name}, wrong tag");
+                // Debug.Log($"[Scan] Skipped {dt.name}, wrong tag");
                 continue;
             }
 
@@ -65,12 +65,12 @@ public class TowerTargetingSystem : MonoBehaviour
             if (targetComponent == null) Debug.Log($"No Target{dt.name}");
             if (!targetComponent.isAlive)
             {
-                Debug.Log($"[Scan] {dt.name} is dead");
+                // Debug.Log($"[Scan] {dt.name} is dead");
                 continue;
             }
 
             validTargets.Add(targetComponent);
-            Debug.Log($"[Scan] Valid Target: {dt.name} | HP:{targetComponent.maxHp} | ATK:{targetComponent.atk} | DEF:{targetComponent.def} | Pos:{targetComponent.position}");
+            // Debug.Log($"[Scan] Valid Target: {dt.name} | HP:{targetComponent.maxHp} | ATK:{targetComponent.atk} | DEF:{targetComponent.def} | Pos:{targetComponent.position}");
             //if (targetComponent != null && targetComponent.isAlive)
         }
 
@@ -80,8 +80,8 @@ public class TowerTargetingSystem : MonoBehaviour
         if (currentTarget !=previousTarget)
         {
             previousTarget = currentTarget;
-            if (currentTarget != null) Debug.Log($"[New Best Target] ATK:{currentTarget.atk} DEF:{currentTarget.def} HP:{currentTarget.maxHp}");
-            else Debug.Log("No Valid Target");
+            // if (currentTarget != null) Debug.Log($"[New Best Target] ATK:{currentTarget.atk} DEF:{currentTarget.def} HP:{currentTarget.maxHp}");
+            // else Debug.Log("No Valid Target");
         }
     }
     public ITargetable GetCurrentTarget() => currentTarget;
@@ -101,6 +101,6 @@ public class TowerTargetingSystem : MonoBehaviour
         rangeData = data.rangeData;
         targetStrategy = data.targetPriority;
 
-        Debug.Log($"{name}:");
+        // Debug.Log($"{name}:");
     }
 }

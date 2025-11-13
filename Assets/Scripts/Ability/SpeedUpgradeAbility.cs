@@ -10,7 +10,7 @@ public class SpeedUpgradeAbility : PassiveAbility
         if (projectile != null)
         {
             projectile.totalSpeed += 10f;
-            Debug.Log("Speed Apply");
+            // Debug.Log("Speed Apply");
         }
     }
 

@@ -10,7 +10,7 @@ public class AccelationUpgradeAbility : PassiveAbility
         if (projectile != null)
         {
             projectile.acceleration -= 5f;
-            Debug.Log(projectile.acceleration);
+            // Debug.Log(projectile.acceleration);
         }
     }
 
