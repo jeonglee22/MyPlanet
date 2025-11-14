@@ -57,6 +57,10 @@ public class PlayerMove : MonoBehaviour
     private void AutoMove()
     {
         currentAngle += autoRotateSpeed * Time.deltaTime * (clockRotate ? -1f : 1f);
+        if(currentAngle >= 180f)
+            currentAngle -= 360f;
+        else if(currentAngle < -180f)
+            currentAngle += 360f;
 
         var newPos = CalculatePosOnCircle(currentAngle);
         transform.position = transform.parent.position + newPos * posOffset;
@@ -72,21 +76,28 @@ public class PlayerMove : MonoBehaviour
         Vector3 contolPos = new Vector3(unitVector.x, unitVector.y, 0);
 
         float diffAngle = Vector3.Angle(contolPos, CalculatePosOnCircle(currentAngle));
-        bool isOnRight = Vector3.Cross(contolPos, CalculatePosOnCircle(currentAngle)).z > 0;
-
-        if (diffAngle >= 10f && diffAngle <= 178f)
-        {
-            clockRotate = isOnRight;
-
-            currentAngle += moveSpeed * magnitude * Time.deltaTime * (clockRotate ? -1f : 1f);
-
-            var newPos = CalculatePosOnCircle(currentAngle);
-            transform.position = transform.parent.position + newPos * posOffset;
-        }
-        else if (diffAngle > 178f)
+        if(diffAngle > 178f)
         {
             AutoMove();
+            return;
+        }   
+
+        var joystickAngle = Mathf.Atan2(unitVector.y, unitVector.x) * Mathf.Rad2Deg;
+        var angleDelta = Mathf.DeltaAngle(currentAngle, joystickAngle);
+        var rotateAngle = moveSpeed * magnitude * Time.deltaTime;
+
+        if (Mathf.Abs(angleDelta) <= rotateAngle)
+        {
+            currentAngle = joystickAngle;
         }
+        else
+        {
+            currentAngle += Mathf.Sign(angleDelta) * rotateAngle;
+        }
+
+        currentAngle = Mathf.Repeat(currentAngle + 180f, 360f) - 180f;
+        Vector3 newPos = CalculatePosOnCircle(currentAngle);
+        transform.position = transform.parent.position + newPos * posOffset;
     }
     
     private Vector3 CalculatePosOnCircle(float angle)
