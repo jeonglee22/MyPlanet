@@ -74,7 +74,7 @@ public class PlayerMove : MonoBehaviour
         float diffAngle = Vector3.Angle(contolPos, CalculatePosOnCircle(currentAngle));
         bool isOnRight = Vector3.Cross(contolPos, CalculatePosOnCircle(currentAngle)).z > 0;
 
-        if (diffAngle >= 1f && diffAngle <= 170f)
+        if (diffAngle >= 10f && diffAngle <= 178f)
         {
             clockRotate = isOnRight;
 
@@ -83,7 +83,7 @@ public class PlayerMove : MonoBehaviour
             var newPos = CalculatePosOnCircle(currentAngle);
             transform.position = transform.parent.position + newPos * posOffset;
         }
-        else if (diffAngle > 170f)
+        else if (diffAngle > 178f)
         {
             AutoMove();
         }
