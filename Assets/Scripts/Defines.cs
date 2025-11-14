@@ -24,8 +24,9 @@ public static class DataTableIds
         "StringTableJp",
     };
 
-    public static string String => StringTableIds[(int)Variables.Language]; //언어 선택 / 프로퍼티로 바꾼 이유 : DataTableManager에서 고정된 id와 고정되지않은 id를 구분하기 위해서다.
+    public static string String => StringTableIds[(int)Variables.Language];
     public static readonly string Item = "ItemTable";
+    public static readonly string Enemy = "EnemyTable";
 }
 
 public static class Variables

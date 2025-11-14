@@ -8,6 +8,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 {
     [SerializeField] private GameObject[] upgradeUIs;
     [SerializeField] private TowerInstallControl installControl;
+    [SerializeField] private TowerInfoUI towerInfoUI;
 
     //test
     private Color towerColor;
@@ -97,6 +98,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         if (installControl.IsUsedSlot(numlist[index]))
         {
             installControl.UpgradeTower(numlist[index]);
+            towerInfoUI.gameObject.SetActive(false);
             gameObject.SetActive(false);
         }
     }

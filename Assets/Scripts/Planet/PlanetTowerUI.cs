@@ -7,6 +7,7 @@ public class PlanetTowerUI : MonoBehaviour
     [SerializeField] private Button leftButton;
     [SerializeField] private Button rightButton;
     [SerializeField] private Button battleButton;
+    [SerializeField] private TowerInfoUI towerInfoUI;
 
     public float Angle { get; private set; }
     public int TowerCount { get; set; }
@@ -37,6 +38,7 @@ public class PlanetTowerUI : MonoBehaviour
     
     private void OnStartBattelClicked()
     {
+        towerInfoUI.gameObject.SetActive(false);
         gameObject.SetActive(false);
         Time.timeScale = 1f;
     }
