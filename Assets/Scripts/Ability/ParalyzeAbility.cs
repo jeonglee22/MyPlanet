@@ -21,7 +21,6 @@ public class ParalyzeAbility : PassiveAbility
             initSpeed = movement.moveSpeed;
             movement.moveSpeed = 0;
             movement.isDebuff = true;
-            Debug.Log("Paralyze Apply");
 
             if (enemy.Data.hitEffect != null)
             {
@@ -42,8 +41,6 @@ public class ParalyzeAbility : PassiveAbility
     public override void Setting(GameObject gameObject)
     {
         base.Setting(gameObject);
-
-
     }
 
     public override string ToString()
