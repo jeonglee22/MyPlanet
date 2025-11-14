@@ -25,14 +25,14 @@ public class PlanetTowerUI : MonoBehaviour
 
     private void OnLetfMoveClicked()
     {
-        Angle += 360f / TowerCount;
-        TowerRotateClock = false;
+        Angle -= 360f / TowerCount;
+        TowerRotateClock = true;
     }
 
     private void OnRightMoveClicked()
     {
-        Angle -= 360f / TowerCount;
-        TowerRotateClock = true;
+        Angle += 360f / TowerCount;
+        TowerRotateClock = false;
     }
     
     private void OnStartBattelClicked()
