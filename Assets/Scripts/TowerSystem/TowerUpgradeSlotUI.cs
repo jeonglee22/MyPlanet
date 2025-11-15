@@ -1,11 +1,7 @@
 using System.Collections.Generic;
-using NUnit.Framework;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.OnScreen;
 using UnityEngine.UI;
 
 public class TowerUpgradeSlotUI : MonoBehaviour
@@ -123,6 +119,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         }
     }
     private GameObject dragImage = null;
+    private int choosedIndex = -1;
 
     public void OnTouchMakeDrageImage(InputAction.CallbackContext context)
     {
@@ -139,7 +136,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         if(Vector2.Distance(initTouchPos, touchPos) < 5f || !isNewTouch)
             return;
 
-        int choosedIndex = -1;
+        choosedIndex = -1;
         foreach (var upgradeUi in upgradeUIs)
         {
             if(RectTransformUtility.RectangleContainsScreenPoint(upgradeUi.GetComponent<RectTransform>(), touchPos))
@@ -170,6 +167,43 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             isStartTouch = false;
             towerImageIsDraging = false;
             isNewTouch = false;
+
+            var index = GetEndTouchOnInstallArea();
+            if(index != -1 && dragImage != null && choosedIndex != -1)
+            {
+                installControl.IsReadyInstall = true;
+                installControl.ChoosedData = (abilities[choosedIndex], uiTexts[choosedIndex].text);
+                installControl.IntallNewTower(index);
+                Destroy(dragImage);
+                dragImage = null;
+                gameObject.SetActive(false);
+            }
+
+            choosedIndex = -1;
         }
+    }
+
+    private int GetEndTouchOnInstallArea()
+    {
+        var touchScreen = Touchscreen.current;
+        if (touchScreen == null) return -1;
+
+        var primary = touchScreen.primaryTouch;
+
+        if (primary.press.isPressed)
+            return -1;
+
+        var touchPos = primary.position.ReadValue();
+
+        var towers = installControl.Towers;
+        for (int i = 0; i < installControl.TowerCount; i++)
+        {
+            if(!installControl.IsUsedSlot(i) && RectTransformUtility.RectangleContainsScreenPoint(towers[i].GetComponent<RectTransform>(), touchPos))
+            {
+                return i;
+            }
+        }
+
+        return -1;
     }
 }
