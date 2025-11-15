@@ -7,7 +7,7 @@ using UnityEngine.Pool;
 
 public class Enemy : LivingEntity, ITargetable
 {
-    private IObjectPool<Enemy> pool;
+    private ObjectPoolManager<int, Enemy> objectPoolManager;
 
     private EnemyMovement movement;
     private List<EnemyAbility> abilities = new List<EnemyAbility>();
@@ -35,6 +35,7 @@ public class Enemy : LivingEntity, ITargetable
     private Material Material;
 
     private CancellationTokenSource colorResetCts;
+    private int enemyId;
 
     protected override void OnEnable()
     {
@@ -92,11 +93,14 @@ public class Enemy : LivingEntity, ITargetable
             Instantiate(drop, transform.position, Quaternion.identity);
         }
 
-        pool?.Release(this);
+        objectPoolManager?.Return(enemyId, this);
     }
 
-    public void Initialize(EnemyData enemyData, Vector3 targetDirection)
+    public void Initialize(EnemyData enemyData, Vector3 targetDirection, int enemyId, ObjectPoolManager<int, Enemy> poolManager)
     {
+        this.enemyId = enemyId;
+        objectPoolManager = poolManager;
+
         //tower system random dummy test
         data = ScriptableObject.Instantiate(enemyData);
 
@@ -110,11 +114,6 @@ public class Enemy : LivingEntity, ITargetable
         Cancel();
 
         LifeTimeTask(lifeTimeCts.Token).Forget();
-    }
-
-    public void SetPool(IObjectPool<Enemy> pool)
-    {
-        this.pool = pool;
     }
 
     private void Cancel()
@@ -131,7 +130,7 @@ public class Enemy : LivingEntity, ITargetable
             await UniTask.Delay(System.TimeSpan.FromSeconds(lifeTime), cancellationToken: token);
             if(!token.IsCancellationRequested)
             {
-                pool?.Release(this);
+                objectPoolManager?.Return(enemyId, this);
             }
         }
         catch (System.OperationCanceledException)

@@ -8,7 +8,7 @@ public class EnemySpawner : MonoBehaviour
 
     private Transform player;
 
-    private Dictionary<GameObject, IObjectPool<Enemy>> enemyPools = new Dictionary<GameObject, IObjectPool<Enemy>>();
+    private ObjectPoolManager<int, Enemy> objectPoolManager = new ObjectPoolManager<int, Enemy>();
     [SerializeField] private bool collectionCheck = true;
     [SerializeField] private int defaultPoolCapacity = 20;
     [SerializeField] private int maxPoolSize = 100;
@@ -24,11 +24,17 @@ public class EnemySpawner : MonoBehaviour
     {
         player = GameObject.FindGameObjectWithTag("Planet").transform;
 
-        for(int i = 0; i < 100; i++)
+        int enemyDataCount = 0; //test
+        foreach (var enemyData in enemyDatas)
         {
-            var enemy = SpawnEnemy(enemyDatas[Random.Range(0, enemyDatas.Length)], transform.position);
-            enemy.gameObject.SetActive(false);
-            spawnEnemy.Add(enemy.gameObject);
+            objectPoolManager.CreatePool(
+                enemyDataCount++,
+                enemyData.prefab,
+                initialSize: defaultPoolCapacity,
+                maxSize: maxPoolSize,
+                collectionCheck: collectionCheck,
+                parent: this.transform
+            );
         }
     }
 
@@ -93,39 +99,20 @@ public class EnemySpawner : MonoBehaviour
 
     private Enemy CreateEnemy(EnemyData data, Vector3 position, Vector3 direction)
     {
-        GameObject prefab = data.prefab;
-        if(!enemyPools.ContainsKey(prefab))
+        int enemyId = System.Array.IndexOf(enemyDatas, data);
+
+        Enemy enemy = objectPoolManager.Get(enemyId);
+        if (enemy == null)
         {
-            CreatePool(prefab);
+            return null;
         }
 
-        Enemy enemy = enemyPools[prefab].Get();
         enemy.transform.position = position;
-
         Quaternion rotation = Quaternion.LookRotation(Vector3.forward, direction);
         enemy.transform.rotation = rotation;
 
-        enemy.Initialize(data, direction);
+        enemy.Initialize(data, direction, enemyId, objectPoolManager);
         return enemy;
-    }
-
-    private void CreatePool(GameObject prefab)
-    {
-        IObjectPool<Enemy> pool = new ObjectPool<Enemy>(
-            () => CreateEnemyInstance(prefab),
-            (enemy) => 
-            {
-                enemy.SetPool(enemyPools[prefab]);
-                enemy.gameObject.SetActive(true);
-            },
-            (enemy) => enemy.gameObject.SetActive(false),
-            (enemy) => Destroy(enemy.gameObject),
-            collectionCheck,
-            defaultPoolCapacity,
-            maxPoolSize
-        );
-
-        enemyPools.Add(prefab, pool);
     }
 
     private Enemy CreateEnemyInstance(GameObject prefab)
