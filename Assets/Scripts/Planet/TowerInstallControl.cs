@@ -161,7 +161,7 @@ public class TowerInstallControl : MonoBehaviour
         return availableTowerDatas[idx];
     }
 
-    private void IntallNewTower(int index)
+    public void IntallNewTower(int index)
     {
         if (!IsReadyInstall) return;
 

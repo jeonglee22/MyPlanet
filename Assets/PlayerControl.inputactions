@@ -8,7 +8,7 @@
             "actions": [
                 {
                     "name": "Move",
-                    "type": "Value",
+                    "type": "PassThrough",
                     "id": "e4184bab-7d33-47da-b5cf-b7b998a185f0",
                     "expectedControlType": "Vector2",
                     "processors": "",
@@ -25,6 +25,54 @@
                     "processors": "",
                     "groups": "",
                     "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "UI",
+            "id": "670cc205-3c43-423f-8e2c-77abb3eb36fa",
+            "actions": [
+                {
+                    "name": "UITouch",
+                    "type": "PassThrough",
+                    "id": "c2e197b7-7386-4862-91a7-4a21c3156374",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "UITouchPress",
+                    "type": "Button",
+                    "id": "81f9be52-52e9-4c0b-b979-f03ba4083971",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "73440798-a54e-4461-bc42-988024b2b490",
+                    "path": "<Touchscreen>/primaryTouch/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "UITouch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "6705486b-c64d-4ba9-a7b4-a21a479f57bb",
+                    "path": "<Touchscreen>/Press",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "UITouchPress",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
