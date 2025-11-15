@@ -19,6 +19,7 @@ public class PlanetStatusUI : MonoBehaviour
         planet.expUpEvent += ExpValueChange;
         planet.levelUpEvent += OpenTowerUpgradeUI;
 
+        towerSettingUi.SetActive(true);
         Initialize();
         //test
     }

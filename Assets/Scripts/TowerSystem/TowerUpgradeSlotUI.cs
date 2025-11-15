@@ -1,7 +1,11 @@
 using System.Collections.Generic;
+using NUnit.Framework;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.OnScreen;
 using UnityEngine.UI;
 
 public class TowerUpgradeSlotUI : MonoBehaviour
@@ -9,6 +13,11 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     [SerializeField] private GameObject[] upgradeUIs;
     [SerializeField] private TowerInstallControl installControl;
     [SerializeField] private TowerInfoUI towerInfoUI;
+    [SerializeField] private GameObject dragImagePrefab;
+    private bool towerImageIsDraging = false;
+    private bool isNewTouch;
+    private bool isStartTouch = false;
+    private Vector2 initTouchPos;
 
     //test
     private Color towerColor;
@@ -23,7 +32,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     {
         foreach (var ui in upgradeUIs)
             ui.SetActive(false);
-
         towerColor = Color.yellow;
     }
 
@@ -76,6 +84,8 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             ui.SetActive(false);
 
         Time.timeScale = 1f;
+        isStartTouch = false;
+        towerImageIsDraging = false;
     }
 
     public void OnClickUpgradeUIClicked(int index)
@@ -110,6 +120,56 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         {
             upgradeUIs[i].GetComponentInChildren<Image>().color = Color.white;
             abilities[i] = AbilityManager.Instance.GetRandomAbility();
+        }
+    }
+    private GameObject dragImage = null;
+
+    public void OnTouchMakeDrageImage(InputAction.CallbackContext context)
+    {
+        if(!context.performed || towerImageIsDraging)
+            return;
+
+        var touchPos = context.ReadValue<Vector2>();
+        if(!isStartTouch)
+        {
+            isStartTouch = true;
+            initTouchPos = touchPos;
+        }
+
+        if(Vector2.Distance(initTouchPos, touchPos) < 5f || !isNewTouch)
+            return;
+
+        int choosedIndex = -1;
+        foreach (var upgradeUi in upgradeUIs)
+        {
+            if(RectTransformUtility.RectangleContainsScreenPoint(upgradeUi.GetComponent<RectTransform>(), touchPos))
+            {
+                choosedIndex = System.Array.IndexOf(upgradeUIs, upgradeUi);
+            }
+        }
+
+        if (choosedIndex == -1 || 
+            installControl.IsUsedSlot(numlist[choosedIndex]))
+            return;
+
+        dragImage = Instantiate(dragImagePrefab, upgradeUIs[choosedIndex].transform);
+        towerImageIsDraging = true;
+        dragImage.SetActive(true);
+    }
+
+    public void OnTouchStateCheck(InputAction.CallbackContext context)
+    {
+        if (context.started)
+        {
+            isStartTouch = false;
+            towerImageIsDraging = false;
+            isNewTouch = true;
+        }
+        if (context.canceled)
+        {
+            isStartTouch = false;
+            towerImageIsDraging = false;
+            isNewTouch = false;
         }
     }
 }
