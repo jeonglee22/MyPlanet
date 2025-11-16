@@ -50,6 +50,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         if(isNotUpgradeOpen)
         {
             isNotUpgradeOpen = false;
+            refreshButton.gameObject.SetActive(false);
             return;
         }
 

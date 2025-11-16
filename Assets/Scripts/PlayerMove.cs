@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.Analytics;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
 
 public class PlayerMove : MonoBehaviour
 {
@@ -9,8 +10,8 @@ public class PlayerMove : MonoBehaviour
 
     [SerializeField] private float moveSpeed = 5.0f;
     [SerializeField] private float autoRotateSpeed = 1.0f;
-    [SerializeField] private float xAxisLimit = 3f;
-    [SerializeField] private float yAxisLimit = 3f;
+    [SerializeField] private float xAxisLimit = 1.5f;
+    [SerializeField] private float yAxisLimit = 1.3f;
     [SerializeField] private bool isMoveEllipse = false;
 
     private float eccentricity;
@@ -33,17 +34,7 @@ public class PlayerMove : MonoBehaviour
         currentAngle = -90f;
 
         var startPos = CalculatePosOnCircle(currentAngle);
-        if(isMoveEllipse)
-        {
-            var radius = xAxisLimit / (1 + eccentricity * Mathf.Cos(currentAngle * Mathf.Deg2Rad));
-            startPos = new Vector3(radius * Mathf.Cos(currentAngle * Mathf.Deg2Rad), radius * Mathf.Sin(currentAngle * Mathf.Deg2Rad), 0);
-            transform.position = transform.parent.position + startPos + new Vector3(eccentricity * xAxisLimit, 0, 0);
-        }
-        else
-        {
-            startPos = CalculatePosOnCircle(currentAngle);
-            transform.position = transform.parent.position + startPos * posOffset;
-        }
+        SetPlanetPosition();
 
         // var startPos = CalculatePosOnCircle(currentAngle);
 
@@ -64,16 +55,7 @@ public class PlayerMove : MonoBehaviour
         if (autoMoving)
             AutoMove();
         else
-        {
-            if(isMoveEllipse)
-            {
-                eccentricity = Mathf.Sqrt(1 - (yAxisLimit * yAxisLimit) / (xAxisLimit * xAxisLimit));
-                EllipseMove();
-            }
-            else
-                Move();
-        }
-            
+            Move();
 
         AutoRotate();
     }
@@ -91,55 +73,39 @@ public class PlayerMove : MonoBehaviour
         else if(currentAngle < -180f)
             currentAngle += 360f;
 
-        var newPos = Vector3.zero;
-        if(isMoveEllipse)
-        {
-            var radius = xAxisLimit / (1 + eccentricity * Mathf.Cos(currentAngle * Mathf.Deg2Rad));
-            newPos = new Vector3(radius * Mathf.Cos(currentAngle * Mathf.Deg2Rad), radius * Mathf.Sin(currentAngle * Mathf.Deg2Rad), 0);
-            transform.position = transform.parent.position + newPos + new Vector3(eccentricity * xAxisLimit, 0, 0);
-        }
-        else
-        {
-            newPos = CalculatePosOnCircle(currentAngle);
-            transform.position = transform.parent.position + newPos * posOffset;
-        }
-        
+        SetPlanetPosition();        
     }
 
-    private void EllipseMove()
+    private void SetPlanetPosition()
     {
-        var magnitude = moveVector.magnitude;
-
-        if (magnitude <= 0.2f) return;
-
-        Vector2 unitVector = moveVector.normalized;
-        Vector3 contolPos = new Vector3(unitVector.x, unitVector.y, 0);
-
-        float diffAngle = Vector3.Angle(contolPos, CalculatePosOnCircle(currentAngle));
-        if(diffAngle > 178f)
+        if(isMoveEllipse)
         {
-            AutoMove();
-            return;
-        }   
-
-        var joystickAngle = Mathf.Atan2(unitVector.y, unitVector.x) * Mathf.Rad2Deg;
-        var angleDelta = Mathf.DeltaAngle(currentAngle, joystickAngle);
-        var rotateAngle = moveSpeed * magnitude * Time.deltaTime;
-
-        if (Mathf.Abs(angleDelta) <= rotateAngle)
-        {
-            currentAngle = joystickAngle;
+            var ellipsePos = GetPosOnEllipse();
+            transform.position = transform.parent.position + ellipsePos;
         }
         else
         {
-            currentAngle += Mathf.Sign(angleDelta) * rotateAngle;
+            var newPos = CalculatePosOnCircle(currentAngle);
+            transform.position = transform.parent.position + newPos * posOffset;
         }
+    }
 
-        currentAngle = Mathf.Repeat(currentAngle + 180f, 360f) - 180f;
+    private Vector3 GetPosOnEllipse()
+    {
+        // var dir = CalculatePosOnCircle(currentAngle);
+        // var ratio = dir.y / dir.x;
+        // var xValue = Mathf.Sqrt(xAxisLimit * xAxisLimit * yAxisLimit * yAxisLimit / (yAxisLimit * yAxisLimit + xAxisLimit * xAxisLimit * ratio * ratio));
+        // var yValue = ratio * xValue;
+        // if (dir.x < 0) 
+        // {
+        //     xValue = -xValue;
+        //     yValue = -yValue;
+        // }
 
-        var radius = xAxisLimit * ( 1 - eccentricity * eccentricity) / (1 + eccentricity * Mathf.Cos(currentAngle * Mathf.Deg2Rad));
-        var newPos = new Vector3(radius * Mathf.Cos(currentAngle * Mathf.Deg2Rad), radius * Mathf.Sin(currentAngle * Mathf.Deg2Rad), 0);
-        transform.position = transform.parent.position + newPos;
+        var xValue = xAxisLimit * Mathf.Cos(currentAngle * Mathf.Deg2Rad);
+        var yValue = yAxisLimit * Mathf.Sin(currentAngle * Mathf.Deg2Rad);
+
+        return new Vector3(xValue, yValue, 0);
     }
 
     private void Move()
@@ -172,8 +138,7 @@ public class PlayerMove : MonoBehaviour
         }
 
         currentAngle = Mathf.Repeat(currentAngle + 180f, 360f) - 180f;
-        Vector3 newPos = CalculatePosOnCircle(currentAngle);
-        transform.position = transform.parent.position + newPos * posOffset;
+        SetPlanetPosition();
     }
     
     private Vector3 CalculatePosOnCircle(float angle)
