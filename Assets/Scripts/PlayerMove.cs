@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Analytics;
 using UnityEngine.InputSystem;
 
 public class PlayerMove : MonoBehaviour
@@ -8,6 +9,11 @@ public class PlayerMove : MonoBehaviour
 
     [SerializeField] private float moveSpeed = 5.0f;
     [SerializeField] private float autoRotateSpeed = 1.0f;
+    [SerializeField] private float xAxisLimit = 3f;
+    [SerializeField] private float yAxisLimit = 3f;
+    [SerializeField] private bool isMoveEllipse = false;
+
+    private float eccentricity;
 
     private float selfRotateSpeed = 30f;
 
@@ -25,9 +31,23 @@ public class PlayerMove : MonoBehaviour
         autoMoving = true;
         clockRotate = true;
         currentAngle = -90f;
-        var startPos = CalculatePosOnCircle(currentAngle);
 
-        transform.position = transform.parent.position + startPos * posOffset;
+        var startPos = CalculatePosOnCircle(currentAngle);
+        if(isMoveEllipse)
+        {
+            var radius = xAxisLimit / (1 + eccentricity * Mathf.Cos(currentAngle * Mathf.Deg2Rad));
+            startPos = new Vector3(radius * Mathf.Cos(currentAngle * Mathf.Deg2Rad), radius * Mathf.Sin(currentAngle * Mathf.Deg2Rad), 0);
+            transform.position = transform.parent.position + startPos + new Vector3(eccentricity * xAxisLimit, 0, 0);
+        }
+        else
+        {
+            startPos = CalculatePosOnCircle(currentAngle);
+            transform.position = transform.parent.position + startPos * posOffset;
+        }
+
+        // var startPos = CalculatePosOnCircle(currentAngle);
+
+        // transform.position = transform.parent.position + startPos * posOffset;
     }
 
     public void OnPlayerMove(InputAction.CallbackContext context)
@@ -44,7 +64,16 @@ public class PlayerMove : MonoBehaviour
         if (autoMoving)
             AutoMove();
         else
-            Move();
+        {
+            if(isMoveEllipse)
+            {
+                eccentricity = Mathf.Sqrt(1 - (yAxisLimit * yAxisLimit) / (xAxisLimit * xAxisLimit));
+                EllipseMove();
+            }
+            else
+                Move();
+        }
+            
 
         AutoRotate();
     }
@@ -62,8 +91,55 @@ public class PlayerMove : MonoBehaviour
         else if(currentAngle < -180f)
             currentAngle += 360f;
 
-        var newPos = CalculatePosOnCircle(currentAngle);
-        transform.position = transform.parent.position + newPos * posOffset;
+        var newPos = Vector3.zero;
+        if(isMoveEllipse)
+        {
+            var radius = xAxisLimit / (1 + eccentricity * Mathf.Cos(currentAngle * Mathf.Deg2Rad));
+            newPos = new Vector3(radius * Mathf.Cos(currentAngle * Mathf.Deg2Rad), radius * Mathf.Sin(currentAngle * Mathf.Deg2Rad), 0);
+            transform.position = transform.parent.position + newPos + new Vector3(eccentricity * xAxisLimit, 0, 0);
+        }
+        else
+        {
+            newPos = CalculatePosOnCircle(currentAngle);
+            transform.position = transform.parent.position + newPos * posOffset;
+        }
+        
+    }
+
+    private void EllipseMove()
+    {
+        var magnitude = moveVector.magnitude;
+
+        if (magnitude <= 0.2f) return;
+
+        Vector2 unitVector = moveVector.normalized;
+        Vector3 contolPos = new Vector3(unitVector.x, unitVector.y, 0);
+
+        float diffAngle = Vector3.Angle(contolPos, CalculatePosOnCircle(currentAngle));
+        if(diffAngle > 178f)
+        {
+            AutoMove();
+            return;
+        }   
+
+        var joystickAngle = Mathf.Atan2(unitVector.y, unitVector.x) * Mathf.Rad2Deg;
+        var angleDelta = Mathf.DeltaAngle(currentAngle, joystickAngle);
+        var rotateAngle = moveSpeed * magnitude * Time.deltaTime;
+
+        if (Mathf.Abs(angleDelta) <= rotateAngle)
+        {
+            currentAngle = joystickAngle;
+        }
+        else
+        {
+            currentAngle += Mathf.Sign(angleDelta) * rotateAngle;
+        }
+
+        currentAngle = Mathf.Repeat(currentAngle + 180f, 360f) - 180f;
+
+        var radius = xAxisLimit * ( 1 - eccentricity * eccentricity) / (1 + eccentricity * Mathf.Cos(currentAngle * Mathf.Deg2Rad));
+        var newPos = new Vector3(radius * Mathf.Cos(currentAngle * Mathf.Deg2Rad), radius * Mathf.Sin(currentAngle * Mathf.Deg2Rad), 0);
+        transform.position = transform.parent.position + newPos;
     }
 
     private void Move()

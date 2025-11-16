@@ -115,7 +115,6 @@ public class Planet : LivingEntity
             else
             {
                 newTowerAttack.AddAbility(ability);
-                Debug.Log(ability);
             }
             
             planetAttacks.Add(newTowerAttack);

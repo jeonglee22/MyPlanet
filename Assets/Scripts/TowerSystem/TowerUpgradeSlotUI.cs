@@ -22,26 +22,59 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     private IAbility[] abilities;
     public Color choosedColor { get; private set; }
 
-    private bool isFirstEnable = true;
+    private bool isNotUpgradeOpen = true;
+    public bool IsNotUpgradeOpen
+    {
+        get { return isNotUpgradeOpen; }
+        set { isNotUpgradeOpen = value; }
+    }
+
+    private GameObject dragImage = null;
+    private int choosedIndex = -1;
+    [SerializeField] private Button refreshButton;
+    private string canRefreshText = "Refresh";
+    private string cannotRefreshText = "IsUsed";
 
     private void Start()
     {
         foreach (var ui in upgradeUIs)
             ui.SetActive(false);
         towerColor = Color.yellow;
+
+        refreshButton.onClick.AddListener(OnClickRefreshButton);
+        refreshButton.gameObject.SetActive(false);
     }
 
     private void OnEnable()
     {
-        if(isFirstEnable)
+        if(isNotUpgradeOpen)
         {
-            isFirstEnable = false;
+            isNotUpgradeOpen = false;
             return;
         }
 
         foreach (var ui in upgradeUIs)
             ui.SetActive(true);
 
+        refreshButton.gameObject.SetActive(true);
+        refreshButton.interactable = true;
+        refreshButton.GetComponentInChildren<TextMeshProUGUI>().text = canRefreshText;
+
+        SettingUpgradeCards();
+    }
+
+    private void OnDisable()
+    {
+        foreach (var ui in upgradeUIs)
+            ui.SetActive(false);
+
+        Time.timeScale = 1f;
+        isStartTouch = false;
+        towerImageIsDraging = false;
+    }
+
+    private void SettingUpgradeCards()
+    {
         ResetChoose();
         installControl.IsReadyInstall = false;
 
@@ -60,7 +93,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
             if (installControl == null)
                 continue;
-            
+
             // test
             if (!installControl.IsUsedSlot(number))
             {
@@ -74,14 +107,11 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         }
     }
 
-    private void OnDisable()
+    private void OnClickRefreshButton()
     {
-        foreach (var ui in upgradeUIs)
-            ui.SetActive(false);
-
-        Time.timeScale = 1f;
-        isStartTouch = false;
-        towerImageIsDraging = false;
+        SettingUpgradeCards();
+        refreshButton.GetComponentInChildren<TextMeshProUGUI>().text = cannotRefreshText;
+        refreshButton.interactable = false;
     }
 
     public void OnClickUpgradeUIClicked(int index)
@@ -118,8 +148,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             abilities[i] = AbilityManager.Instance.GetRandomAbility();
         }
     }
-    private GameObject dragImage = null;
-    private int choosedIndex = -1;
 
     public void OnTouchMakeDrageImage(InputAction.CallbackContext context)
     {
