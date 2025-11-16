@@ -833,6 +833,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: ProjectilePool
       objectReference: {fileID: 0}
+    - target: {fileID: 6688653873941373363, guid: e422beeb38f3d85458f873802aa840fe, type: 3}
+      propertyPath: m_TagString
+      value: ProjectilePoolManager
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1064,37 +1068,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 2103983018442844833, guid: 16ff4fe48865f9e4483c443f11886eb1, type: 3}
   m_PrefabInstance: {fileID: 287381101}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &291370048
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 291370049}
-  m_Layer: 0
-  m_Name: ObjectPoolManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &291370049
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 291370048}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.7290738, y: -19.960667, z: 27.685669}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &333502549 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4544513131621298710, guid: e9eca66bea0d66f42b4b0770ba1325b2, type: 3}
@@ -2209,4 +2182,3 @@ SceneRoots:
   - {fileID: 277925339}
   - {fileID: 1030911501}
   - {fileID: 1913949396}
-  - {fileID: 291370049}

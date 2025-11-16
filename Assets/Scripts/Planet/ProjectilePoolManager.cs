@@ -7,7 +7,8 @@ public class ProjectilePoolManager : MonoBehaviour
     private static ProjectilePoolManager instance;
     public static ProjectilePoolManager Instance { get { return instance; } }
 
-    private Dictionary<ProjectileData, IObjectPool<Projectile>> projectilePools = new Dictionary<ProjectileData, IObjectPool<Projectile>>();
+    private ObjectPoolManager<ProjectileData, Projectile> objectPoolManager = new ObjectPoolManager<ProjectileData, Projectile>();
+    public ObjectPoolManager<ProjectileData, Projectile> ProjectilePool => objectPoolManager;
     [SerializeField] private bool collectionCheck = true;
     [SerializeField] private int defaultPoolCapacity = 20;
     [SerializeField] private int maxPoolSize = 100;
@@ -29,34 +30,24 @@ public class ProjectilePoolManager : MonoBehaviour
         GameObject prefab = data.projectilePrefab;
         Projectile projectile = prefab.GetComponent<Projectile>();
 
-        IObjectPool<Projectile> pool = new ObjectPool<Projectile>(
-            () => CreateProjectile(data, projectilePools[data]),
-            (obj) => obj.gameObject.SetActive(true),
-            (obj) => obj.gameObject.SetActive(false),
-            (obj) => Destroy(obj.gameObject),
-            collectionCheck,
+        objectPoolManager.CreatePool(
+            data,
+            data.projectilePrefab,
             defaultPoolCapacity,
-            maxPoolSize
+            maxPoolSize,
+            collectionCheck
         );
-
-        projectilePools.Add(data, pool);
     }
 
     public Projectile GetProjectile(ProjectileData data)
     {
-        if (!projectilePools.ContainsKey(data))
+        if (!objectPoolManager.HasPool(data))
         {
             CreatePool(data);
         }
 
-        return projectilePools[data].Get();
-    }
-    
-    private Projectile CreateProjectile(ProjectileData data, IObjectPool<Projectile> pool)
-    {
-        GameObject projectileObj = Instantiate(data.projectilePrefab);
-        Projectile projectile = projectileObj.GetComponent<Projectile>();
-        projectile.SetPool(pool);
+        Projectile projectile = objectPoolManager.Get(data);
+
         return projectile;
     }
 

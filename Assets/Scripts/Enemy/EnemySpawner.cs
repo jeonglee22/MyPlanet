@@ -18,8 +18,6 @@ public class EnemySpawner : MonoBehaviour
     private int enemyCount = 5;
     private float spawnRadius = 1f;
 
-    private List<GameObject> spawnEnemy = new List<GameObject>();
-
     private void Awake()
     {
         player = GameObject.FindGameObjectWithTag("Planet").transform;
