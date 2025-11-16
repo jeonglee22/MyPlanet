@@ -4,6 +4,7 @@ using UnityEngine;
 public abstract class BaseTargetPriority : ScriptableObject,ITargetPrioriy
 {
     [SerializeField] private bool isDescending = true; //True:Max, False:Min
+    public bool IsDescending => isDescending;
     //protected virtual int GetPriorityId(ITargetable target) => 0; //fixed data id value
     protected virtual float GetPriorityValue(ITargetable target) => 0f;// realtime value
     public ITargetable SelectTarget(IEnumerable<ITargetable> targets)
