@@ -110,7 +110,7 @@ public class Projectile : MonoBehaviour
         if (damagable != null && enemy != null && isHit)
         {
             abilityAction?.Invoke(other.gameObject);
-            damagable.OnDamage(CalculateTotalDamage(enemy.Data.defense));
+            damagable.OnDamage(CalculateTotalDamage(enemy.Data.Defense));
             abilityAction = null;
         }
 

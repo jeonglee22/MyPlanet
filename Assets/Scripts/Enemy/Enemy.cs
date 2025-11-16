@@ -11,8 +11,8 @@ public class Enemy : LivingEntity, ITargetable
 
     private EnemyMovement movement;
     private List<EnemyAbility> abilities = new List<EnemyAbility>();
-    private EnemyData data;
-    public EnemyData Data { get { return data; } }
+    private EnemyTableData data;
+    public EnemyTableData Data { get { return data; } }
 
     public Vector3 position => transform.position;
 
@@ -20,9 +20,9 @@ public class Enemy : LivingEntity, ITargetable
 
     public float maxHp => maxHealth;
 
-    public float atk => data.damage;
+    public float atk => data.Attack;
 
-    public float def => data.defense;
+    public float def => data.Defense;
 
     [SerializeField] private float lifeTime = 2f;
     private CancellationTokenSource lifeTimeCts;
@@ -68,7 +68,7 @@ public class Enemy : LivingEntity, ITargetable
         IDamagable damagable = other.gameObject.GetComponent<IDamagable>();
         if (damagable != null)
         {
-            damagable.OnDamage(data.damage);
+            damagable.OnDamage(data.Attack);
         }
     }
 
@@ -96,20 +96,16 @@ public class Enemy : LivingEntity, ITargetable
         objectPoolManager?.Return(enemyId, this);
     }
 
-    public void Initialize(EnemyData enemyData, Vector3 targetDirection, int enemyId, ObjectPoolManager<int, Enemy> poolManager)
+    public void Initialize(EnemyTableData enemyData, Vector3 targetDirection, int enemyId, ObjectPoolManager<int, Enemy> poolManager)
     {
         this.enemyId = enemyId;
         objectPoolManager = poolManager;
 
-        //tower system random dummy test
-        data = ScriptableObject.Instantiate(enemyData);
-
-        //data = enemyData;
-        maxHealth = data.maxHealth;
+        data = enemyData;
+        maxHealth = data.Hp;
         Health = maxHealth;
 
-        AddMovementComponent(data.movementType, data.speed, targetDirection);
-        AddAbilityComponents(data.abilityTypes);
+        AddMovementComponent((MovementType)data.EnemyType, data.MoveSpeed, targetDirection);
 
         Cancel();
 
@@ -176,7 +172,7 @@ public class Enemy : LivingEntity, ITargetable
 
             if(ability != null)
             {
-                ability.Initialize(this, data);
+                //ability.Initialize(this, data);
                 abilities.Add(ability);
             }
         }
