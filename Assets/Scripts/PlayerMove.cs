@@ -1,6 +1,8 @@
 using System;
 using UnityEngine;
+using UnityEngine.Analytics;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
 
 public class PlayerMove : MonoBehaviour
 {
@@ -8,6 +10,11 @@ public class PlayerMove : MonoBehaviour
 
     [SerializeField] private float moveSpeed = 5.0f;
     [SerializeField] private float autoRotateSpeed = 1.0f;
+    [SerializeField] private float xAxisLimit = 1.5f;
+    [SerializeField] private float yAxisLimit = 1.3f;
+    [SerializeField] private bool isMoveEllipse = false;
+
+    private float eccentricity;
 
     private float selfRotateSpeed = 30f;
 
@@ -25,9 +32,13 @@ public class PlayerMove : MonoBehaviour
         autoMoving = true;
         clockRotate = true;
         currentAngle = -90f;
-        var startPos = CalculatePosOnCircle(currentAngle);
 
-        transform.position = transform.parent.position + startPos * posOffset;
+        var startPos = CalculatePosOnCircle(currentAngle);
+        SetPlanetPosition();
+
+        // var startPos = CalculatePosOnCircle(currentAngle);
+
+        // transform.position = transform.parent.position + startPos * posOffset;
     }
 
     public void OnPlayerMove(InputAction.CallbackContext context)
@@ -62,8 +73,39 @@ public class PlayerMove : MonoBehaviour
         else if(currentAngle < -180f)
             currentAngle += 360f;
 
-        var newPos = CalculatePosOnCircle(currentAngle);
-        transform.position = transform.parent.position + newPos * posOffset;
+        SetPlanetPosition();        
+    }
+
+    private void SetPlanetPosition()
+    {
+        if(isMoveEllipse)
+        {
+            var ellipsePos = GetPosOnEllipse();
+            transform.position = transform.parent.position + ellipsePos;
+        }
+        else
+        {
+            var newPos = CalculatePosOnCircle(currentAngle);
+            transform.position = transform.parent.position + newPos * posOffset;
+        }
+    }
+
+    private Vector3 GetPosOnEllipse()
+    {
+        // var dir = CalculatePosOnCircle(currentAngle);
+        // var ratio = dir.y / dir.x;
+        // var xValue = Mathf.Sqrt(xAxisLimit * xAxisLimit * yAxisLimit * yAxisLimit / (yAxisLimit * yAxisLimit + xAxisLimit * xAxisLimit * ratio * ratio));
+        // var yValue = ratio * xValue;
+        // if (dir.x < 0) 
+        // {
+        //     xValue = -xValue;
+        //     yValue = -yValue;
+        // }
+
+        var xValue = xAxisLimit * Mathf.Cos(currentAngle * Mathf.Deg2Rad);
+        var yValue = yAxisLimit * Mathf.Sin(currentAngle * Mathf.Deg2Rad);
+
+        return new Vector3(xValue, yValue, 0);
     }
 
     private void Move()
@@ -96,8 +138,7 @@ public class PlayerMove : MonoBehaviour
         }
 
         currentAngle = Mathf.Repeat(currentAngle + 180f, 360f) - 180f;
-        Vector3 newPos = CalculatePosOnCircle(currentAngle);
-        transform.position = transform.parent.position + newPos * posOffset;
+        SetPlanetPosition();
     }
     
     private Vector3 CalculatePosOnCircle(float angle)
