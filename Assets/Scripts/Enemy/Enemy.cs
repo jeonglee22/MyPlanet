@@ -7,12 +7,12 @@ using UnityEngine.Pool;
 
 public class Enemy : LivingEntity, ITargetable
 {
-    private IObjectPool<Enemy> pool;
+    private ObjectPoolManager<int, Enemy> objectPoolManager;
 
     private EnemyMovement movement;
     private List<EnemyAbility> abilities = new List<EnemyAbility>();
-    private EnemyData data;
-    public EnemyData Data { get { return data; } }
+    private EnemyTableData data;
+    public EnemyTableData Data { get { return data; } }
 
     public Vector3 position => transform.position;
 
@@ -20,9 +20,9 @@ public class Enemy : LivingEntity, ITargetable
 
     public float maxHp => maxHealth;
 
-    public float atk => data.damage;
+    public float atk => data.Attack;
 
-    public float def => data.defense;
+    public float def => data.Defense;
 
     [SerializeField] private float lifeTime = 2f;
     private CancellationTokenSource lifeTimeCts;
@@ -35,6 +35,7 @@ public class Enemy : LivingEntity, ITargetable
     private Material Material;
 
     private CancellationTokenSource colorResetCts;
+    private int enemyId;
 
     protected override void OnEnable()
     {
@@ -67,7 +68,7 @@ public class Enemy : LivingEntity, ITargetable
         IDamagable damagable = other.gameObject.GetComponent<IDamagable>();
         if (damagable != null)
         {
-            damagable.OnDamage(data.damage);
+            damagable.OnDamage(data.Attack);
         }
     }
 
@@ -92,29 +93,23 @@ public class Enemy : LivingEntity, ITargetable
             Instantiate(drop, transform.position, Quaternion.identity);
         }
 
-        pool?.Release(this);
+        objectPoolManager?.Return(enemyId, this);
     }
 
-    public void Initialize(EnemyData enemyData, Vector3 targetDirection)
+    public void Initialize(EnemyTableData enemyData, Vector3 targetDirection, int enemyId, ObjectPoolManager<int, Enemy> poolManager)
     {
-        //tower system random dummy test
-        data = ScriptableObject.Instantiate(enemyData);
+        this.enemyId = enemyId;
+        objectPoolManager = poolManager;
 
-        //data = enemyData;
-        maxHealth = data.maxHealth;
+        data = enemyData;
+        maxHealth = data.Hp;
         Health = maxHealth;
 
-        AddMovementComponent(data.movementType, data.speed, targetDirection);
-        AddAbilityComponents(data.abilityTypes);
+        AddMovementComponent((MovementType)data.EnemyType, data.MoveSpeed, targetDirection);
 
         Cancel();
 
         LifeTimeTask(lifeTimeCts.Token).Forget();
-    }
-
-    public void SetPool(IObjectPool<Enemy> pool)
-    {
-        this.pool = pool;
     }
 
     private void Cancel()
@@ -131,7 +126,7 @@ public class Enemy : LivingEntity, ITargetable
             await UniTask.Delay(System.TimeSpan.FromSeconds(lifeTime), cancellationToken: token);
             if(!token.IsCancellationRequested)
             {
-                pool?.Release(this);
+                objectPoolManager?.Return(enemyId, this);
             }
         }
         catch (System.OperationCanceledException)
@@ -177,7 +172,7 @@ public class Enemy : LivingEntity, ITargetable
 
             if(ability != null)
             {
-                ability.Initialize(this, data);
+                //ability.Initialize(this, data);
                 abilities.Add(ability);
             }
         }

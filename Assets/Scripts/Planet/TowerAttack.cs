@@ -13,6 +13,9 @@ public class TowerAttack : MonoBehaviour
 
     private List<IAbility> abilities;
 
+    //test
+    private ProjectilePoolManager projectilePoolManager;
+
     private void Awake()
     {
         targetingSystem = GetComponent<TowerTargetingSystem>();
@@ -21,6 +24,8 @@ public class TowerAttack : MonoBehaviour
         // SetRandomAbility();
 
         if (firePoint == null) firePoint = transform;
+
+        projectilePoolManager = GameObject.FindGameObjectWithTag("ProjectilePoolManager").GetComponent<ProjectilePoolManager>();
     }
 
     public void SetTowerData(TowerDataSO data)
@@ -69,7 +74,7 @@ public class TowerAttack : MonoBehaviour
 
         projectile.transform.position = firePoint.position;
         projectile.transform.rotation = Quaternion.LookRotation(direction);
-        projectile.Initialize(towerData.projectileType, direction, true);
+        projectile.Initialize(towerData.projectileType, direction, true, projectilePoolManager.ProjectilePool);
 
         foreach (var ability in abilities)
         {
@@ -105,7 +110,7 @@ public class TowerAttack : MonoBehaviour
 
         projectile.transform.position = transform.position;
         projectile.transform.rotation = Quaternion.LookRotation(direction);
-        projectile.Initialize(currentProjectileData, direction, IsHit);
+        projectile.Initialize(currentProjectileData, direction, IsHit, projectilePoolManager.ProjectilePool);
         
         foreach (var ability in abilities)
         {
@@ -140,7 +145,7 @@ public class TowerAttack : MonoBehaviour
 
         projectile.transform.position = transform.position;
         projectile.transform.rotation = Quaternion.LookRotation(direction);
-        projectile.Initialize(currentProjectileData, direction, IsHit);
+        projectile.Initialize(currentProjectileData, direction, IsHit, projectilePoolManager.ProjectilePool);
     }
 
     private void FastShoot(Vector3 direction, bool IsHit)
@@ -153,7 +158,7 @@ public class TowerAttack : MonoBehaviour
 
         projectile.transform.position = transform.position;
         projectile.transform.rotation = Quaternion.LookRotation(direction);
-        projectile.Initialize(currentProjectileData, direction, IsHit);
+        projectile.Initialize(currentProjectileData, direction, IsHit, projectilePoolManager.ProjectilePool);
         projectile.GetComponent<Projectile>().totalSpeed += 20f;
     }
 
@@ -170,7 +175,7 @@ public class TowerAttack : MonoBehaviour
             projectile.transform.position = transform.position;
             projectile.transform.rotation = Quaternion.LookRotation(direction);
 
-            projectile.Initialize(currentProjectileData, direction + new Vector3(1,0,0) * ((0.5f - i) * 2f), IsHit);
+            projectile.Initialize(currentProjectileData, direction + new Vector3(1,0,0) * ((0.5f - i) * 2f), IsHit, projectilePoolManager.ProjectilePool);
         }
     }
 }
