@@ -233,17 +233,17 @@ public class TowerAttack : MonoBehaviour
             return;
         }
 
-        damageBuffMul = amp.damageBuff;
-        fireRateBuffMul = amp.fireRateBuff;
-        accelerationBuffAdd = amp.accelerationBuff;
+        damageBuffMul = amp.DamageBuff;
+        fireRateBuffMul = amp.FireRateBuff;
+        accelerationBuffAdd = amp.AccelerationBuff;
 
         //not yet_20251117 14:14
-        hitRadiusBuffMul = 1f + amp.hitRadiusBuff;
-        percentPenetrationBuffMul = amp.percentPenetrationBuff;
-        fixedPenetrationBuffAdd = amp.fixedPenetrationBuff;
-        projectileCountBuffAdd = amp.projectileCountBuff;
-        targetNumberBuffAdd = amp.targetNumberBuff;
-        hitRateBuffMul = amp.hitRateBuff;
+        hitRadiusBuffMul = 1f + amp.HitRadiusBuff;
+        percentPenetrationBuffMul = amp.PercentPenetrationBuff;
+        fixedPenetrationBuffAdd = amp.FixedPenetrationBuff;
+        projectileCountBuffAdd = amp.ProjectileCountBuff;
+        targetNumberBuffAdd = amp.TargetNumberBuff;
+        hitRateBuffMul = amp.HitRateBuff;
 
         Debug.Log($"[TowerAttack Buff] {name} | dmgMul={damageBuffMul:F2}, fireRateMul={fireRateBuffMul:F2}, accelAdd={accelerationBuffAdd:F2}");
     }

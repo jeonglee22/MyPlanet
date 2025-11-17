@@ -3,11 +3,31 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+public enum TowerInstallType
+{
+    Attack,
+    Amplifier,
+}
+
+public class TowerInstallChoice
+{
+    public TowerInstallType InstallType;
+    public TowerDataSO AttackTowerData;
+    public AmplifierTowerDataSO AmplifierTowerData;
+    public IAbility Ability;
+}
+
+
 public class TowerInstallControl : MonoBehaviour
 {
     [SerializeField] private int towerCount;
     public int TowerCount { get => towerCount; }
-    [SerializeField] private GameObject towerBasePrefab;
+
+    [Header("Tower Prefabs")]
+    [SerializeField] private GameObject towerBasePrefab; //Attack Tower Prefab
+    [SerializeField] private GameObject amplifierTowerPrefab; //Amplifier Tower Prefab
+
+    [Header("UI & Layout")]
     [SerializeField] private GameObject towerInfoObj;
     [SerializeField] private RectTransform PlanetTransform;
     [SerializeField] private float rotateSpeed = 300f;
@@ -29,8 +49,8 @@ public class TowerInstallControl : MonoBehaviour
     private TowerDataSO[] assignedTowerDatas;
 
     public bool IsReadyInstall { get; set; }
-    public (IAbility ability, string towerData) ChoosedData { get; set; }
-    // public (Color color, TowerDataSO towerData) ChoosedData { get; set; }
+
+    public TowerInstallChoice ChoosedData { get; set; }
 
     private void Awake()
     {
@@ -93,7 +113,7 @@ public class TowerInstallControl : MonoBehaviour
                 continue;
             }
 
-            //Install Tower
+            //Install Tower (Default: attack tower)
             tower = Instantiate(towerBasePrefab, PlanetTransform);
             var chosenData = PickRandomTowerData();
             assignedTowerDatas[index] = chosenData;
@@ -112,7 +132,6 @@ public class TowerInstallControl : MonoBehaviour
                 targeting.SetSlotIndex(index);
                 targeting.SetTowerData(chosenData);
             }
-
 
             var button = tower.GetComponent<Button>();
             button.onClick.AddListener(() => OpenInfoUI(index));
@@ -151,8 +170,7 @@ public class TowerInstallControl : MonoBehaviour
 
         //UI
         var nameText = towerObj.GetComponentInChildren<TMPro.TextMeshProUGUI>();
-        if (nameText != null)
-            nameText.text = data.towerId;
+        if (nameText != null) nameText.text = data.towerId;
     }
 
     private TowerDataSO PickRandomTowerData()
@@ -170,7 +188,8 @@ public class TowerInstallControl : MonoBehaviour
         var chosenData = PickRandomTowerData();
 
         Destroy(towers[index]);
-        towers[index] = newTower;
+        //---------------------------------
+
 
         //Debug targeting system index
         var targeting = newTower.GetComponent<TowerTargetingSystem>();
@@ -194,6 +213,11 @@ public class TowerInstallControl : MonoBehaviour
         text.text = index.ToString();
 
         planet?.SetTower(assignedTowerDatas[index], index, ChoosedData.ability);
+
+
+
+        //--------------------------------------
+        towers[index] = newTower;
         SettingTowerTransform(currentAngle);
 
         emptyTowerTest[index] = false;
