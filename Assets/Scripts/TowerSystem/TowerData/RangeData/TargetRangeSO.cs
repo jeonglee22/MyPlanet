@@ -16,6 +16,8 @@ public class TargetRangeSO : ScriptableObject
     [SerializeField] private float midRange = 10f;
     [SerializeField] private float longRange = 15f;
 
+    public RangeType RangeType => rangeType;
+
     public float GetRange()
     {
         return rangeType switch
