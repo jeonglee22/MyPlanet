@@ -39,9 +39,9 @@ public class EnemySpawner : MonoBehaviour
         }
         */
 
-         await UniTask.WaitUntil(() => GameManager.LoadManagerInstance != null);
-    await UniTask.WaitUntil(() => GameManager.LoadManagerInstance.GetLoadedPrefab(400101) != null);
-        CreatePoolFromLoadedPrefab(400101);
+        await UniTask.WaitUntil(() => GameManager.LoadManagerInstance != null);
+        await UniTask.WaitUntil(() => GameManager.LoadManagerInstance.GetLoadedPrefab(400201) != null);
+        CreatePoolFromLoadedPrefab(400201);
     }
 
     private void Update()
@@ -57,12 +57,12 @@ public class EnemySpawner : MonoBehaviour
             for (int i = 0; i < enemyCount; i++)
             {
                 Vector3 rnadomPosition = GetRandomPositionInCircle();
-                SpawnEnemy(400101, rnadomPosition);
+                SpawnEnemy(400201, rnadomPosition);
             }
 
             spawnTimer = 0f;
             spawnInterval = Random.Range(1f, 3f);
-            enemyCount = Random.Range(1, 3);
+            //enemyCount = Random.Range(1, 3);
         }
     }
     
@@ -72,7 +72,7 @@ public class EnemySpawner : MonoBehaviour
         return transform.position + new Vector3(randomCircle.x, randomCircle.y, 0f);
     }
 
-    public Enemy SpawnEnemy(int enemyId, Vector3 spawnPosition)
+    public Enemy SpawnEnemy(int enemyId, Vector3 spawnPosition, bool excutePattern = true)
     {
         currentTableData = DataTableManager.EnemyTable.Get(enemyId);
 
@@ -81,31 +81,10 @@ public class EnemySpawner : MonoBehaviour
             return null;
         }
 
-        Vector3 direction = CalculateDirection((MovementType)currentTableData.EnemyType, spawnPosition);
-        return CreateEnemy(enemyId, spawnPosition, direction);
+        return CreateEnemy(enemyId, spawnPosition, Vector3.down, excutePattern);
     }
 
-    private Vector3 CalculateDirection(MovementType type, Vector3 spawnPos)
-    {
-        switch (type)
-        {
-            case MovementType.StraightDown:
-                return Vector3.down;
-            case MovementType.TargetDirection:
-                if (player != null)
-                {
-                    return (player.position - spawnPos).normalized;
-                }
-                else
-                {
-                    return Vector3.down;
-                }
-            default:
-                return Vector3.down;
-        }
-    }
-
-    private Enemy CreateEnemy(int enemyId, Vector3 position, Vector3 direction)
+    private Enemy CreateEnemy(int enemyId, Vector3 position, Vector3 direction, bool excutePattern)
     {
         Enemy enemy = objectPoolManager.Get(enemyId);
         if (enemy == null)
@@ -117,14 +96,8 @@ public class EnemySpawner : MonoBehaviour
         Quaternion rotation = Quaternion.LookRotation(Vector3.forward, direction);
         enemy.transform.rotation = rotation;
 
-        enemy.Initialize(currentTableData, direction, enemyId, objectPoolManager);
-        return enemy;
-    }
-
-    private Enemy CreateEnemyInstance(GameObject prefab)
-    {
-        GameObject enemyObj = Instantiate(prefab);
-        Enemy enemy = enemyObj.GetComponent<Enemy>();
+        enemy.Spawner = this;
+        enemy.Initialize(currentTableData, direction, enemyId, objectPoolManager, excutePattern);
         return enemy;
     }
 

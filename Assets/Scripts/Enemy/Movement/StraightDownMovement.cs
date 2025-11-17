@@ -22,6 +22,11 @@ public class StraightDownMovement : EnemyMovement
         targetDirection = (randomPosition - transform.position).normalized;
     }
 
+    public override void SetDirection(Vector3 direction)
+    {
+        targetDirection = direction.normalized;
+    }
+
     private void OnEnable()
     {
         isDirectionSet = false;

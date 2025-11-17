@@ -10,7 +10,8 @@ public class Enemy : LivingEntity, ITargetable
     private ObjectPoolManager<int, Enemy> objectPoolManager;
 
     private EnemyMovement movement;
-    private List<EnemyAbility> abilities = new List<EnemyAbility>();
+    public EnemyMovement Movement => movement;
+    private EnemyPattern pattern;
     private EnemyTableData data;
     public EnemyTableData Data { get { return data; } }
 
@@ -36,6 +37,8 @@ public class Enemy : LivingEntity, ITargetable
 
     private CancellationTokenSource colorResetCts;
     private int enemyId;
+    private int patternId = 0; //test
+    public EnemySpawner Spawner { get; set; }
 
     protected override void OnEnable()
     {
@@ -70,11 +73,15 @@ public class Enemy : LivingEntity, ITargetable
         {
             damagable.OnDamage(data.Attack);
         }
+
+        pattern?.OnTrigger(other);
     }
 
     public override void OnDamage(float damage)
     {
-        base.OnDamage(damage);
+        float actualDamage = pattern != null ? pattern.CalculateDamage(damage) : damage;
+
+        base.OnDamage(actualDamage);
 
         ColorCancel();
 
@@ -96,7 +103,7 @@ public class Enemy : LivingEntity, ITargetable
         objectPoolManager?.Return(enemyId, this);
     }
 
-    public void Initialize(EnemyTableData enemyData, Vector3 targetDirection, int enemyId, ObjectPoolManager<int, Enemy> poolManager)
+    public void Initialize(EnemyTableData enemyData, Vector3 targetDirection, int enemyId, ObjectPoolManager<int, Enemy> poolManager, bool excutePattern)
     {
         this.enemyId = enemyId;
         objectPoolManager = poolManager;
@@ -105,11 +112,18 @@ public class Enemy : LivingEntity, ITargetable
         maxHealth = data.Hp;
         Health = maxHealth;
 
-        AddMovementComponent((MovementType)data.EnemyType, data.MoveSpeed, targetDirection);
+        AddMovementComponent();
+
+        AddPatternComponent(data.EnemyGrade, patternId);
 
         Cancel();
 
         LifeTimeTask(lifeTimeCts.Token).Forget();
+
+        if(excutePattern && pattern != null)
+        {
+            pattern.Initialize(this, movement, data);
+        }
     }
 
     private void Cancel()
@@ -121,9 +135,15 @@ public class Enemy : LivingEntity, ITargetable
 
     private async UniTaskVoid LifeTimeTask(CancellationToken token)
     {
+        float timeToWait = 0f;
+        float startTime = 0f;
+
         try
         {
-            await UniTask.Delay(System.TimeSpan.FromSeconds(lifeTime), cancellationToken: token);
+            timeToWait = remainingLifeTime > 0f ? remainingLifeTime : lifeTime;
+            startTime = Time.time;
+
+            await UniTask.Delay(System.TimeSpan.FromSeconds(timeToWait), cancellationToken: token);
             if(!token.IsCancellationRequested)
             {
                 objectPoolManager?.Return(enemyId, this);
@@ -131,49 +151,67 @@ public class Enemy : LivingEntity, ITargetable
         }
         catch (System.OperationCanceledException)
         {
-            // Ignore cancellation
+            if (isLifeTimePaused)
+            {
+                float elapsed = Time.time - startTime;
+                remainingLifeTime = timeToWait - elapsed;
+            }
         }
     }
 
-    private void AddMovementComponent(MovementType type, float speed, Vector3 targetDirection)
+    private float remainingLifeTime;
+    private bool isLifeTimePaused;
+    public void PauseLifeTime()
+    {
+        if(!isLifeTimePaused)
+        {
+            isLifeTimePaused = true;
+            Cancel();
+        }
+    }
+
+    public void ResumeLifeTime()
+    {
+        if(isLifeTimePaused)
+        {
+            isLifeTimePaused = false;
+            Cancel();
+            LifeTimeTask(lifeTimeCts.Token).Forget();
+        }
+    }
+
+    private void AddMovementComponent()
     {
         if(movement == null)
         {
-            switch (type)
-            {
-                case MovementType.StraightDown:
-                    movement = gameObject.AddComponent<StraightDownMovement>();
-                    break;
-                case MovementType.TargetDirection:
-                    movement = gameObject.AddComponent<TargetDirectionMovement>();
-                    break;
-            }
+            movement = gameObject.AddComponent<StraightDownMovement>();
         }
 
-        movement.Initialize(speed, targetDirection);
+        movement.Initialize(data.MoveSpeed, Vector3.down);
     }
-    
-    private void AddAbilityComponents(AbilityType[] types)
-    {
-        if (types == null || types.Length == 0)
-        {
-            return;
-        }
-        
-        foreach(var type in types)
-        {
-            EnemyAbility ability = null;
-            switch (type)
-            {
-                case AbilityType.SplitOnDeath:
-                    ability = gameObject.AddComponent<SplitDeathAbility>();
-                    break;
-            }
 
-            if(ability != null)
+    private void AddPatternComponent(int grade, int patternId)
+    {
+        if(pattern != null)
+        {
+            Destroy(pattern);
+        }
+
+        //Grade 4: Normal, Gade 3: Unique, Grade: Middle Boss, Grade 1: Boss
+        if(grade == 4)
+        {
+            pattern = gameObject.AddComponent<NormalPattern>();
+        }
+        else
+        {
+            switch (patternId)
             {
-                //ability.Initialize(this, data);
-                abilities.Add(ability);
+                case 0:
+                    pattern = gameObject.AddComponent<MeteorClusterPattern>();
+                    break;
+                default:
+                    pattern = gameObject.AddComponent<NormalPattern>();
+                    break;
             }
         }
     }

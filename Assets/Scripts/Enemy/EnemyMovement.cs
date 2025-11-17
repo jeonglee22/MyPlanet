@@ -5,6 +5,7 @@ public abstract class EnemyMovement : MonoBehaviour
 {
     public float moveSpeed = 5f;
     protected Vector3 moveDirection;
+    public Vector3 MoveDirection { get => moveDirection; set => moveDirection = value; }
 
     protected Transform player;
 
@@ -57,4 +58,9 @@ public abstract class EnemyMovement : MonoBehaviour
     }
 
     protected abstract void SetTargetDirection();
+
+    public virtual void SetDirection(Vector3 direction)
+    {
+        
+    }
 }

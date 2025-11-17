@@ -30,9 +30,9 @@ public class LoadManager : MonoBehaviour
         }
     }
 
-    public async UniTask TestLoadEnemy400101()
+    public async UniTask TestLoadEnemy()
     {
-        GameObject prefab = await LoadEnemyPrefabAsync(400101);
+        GameObject prefab = await LoadEnemyPrefabAsync(400201);
 
         if(prefab != null)
         {

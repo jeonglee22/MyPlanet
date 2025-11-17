@@ -12,6 +12,6 @@ public class GameManager : MonoBehaviour
 
         await DataTableManager.InitializeAsync();
 
-        await loadManager.TestLoadEnemy400101();
+        await loadManager.TestLoadEnemy();
     }
 }
