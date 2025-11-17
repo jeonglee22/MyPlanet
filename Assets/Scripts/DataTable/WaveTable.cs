@@ -63,4 +63,18 @@ public class WaveTable : DataTable
 
         return dictionary[key];
     }
+
+    public List<WaveData> GetCurrentStageWaveData(int stageIndex)
+    {
+        List<WaveData> result = new List<WaveData>();
+        foreach (var item in dictionary.Values)
+        {
+            if (item.StageIndex == stageIndex)
+            {
+                result.Add(item);
+            }
+        }
+
+        return result;
+    }
 }

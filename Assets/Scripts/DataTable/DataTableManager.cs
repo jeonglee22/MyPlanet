@@ -56,6 +56,22 @@ public static class DataTableManager
             return Get<EnemyTable>(DataTableIds.Enemy);
         }
     }
+
+    public static CombineTable CombineTable
+    {
+        get
+        {
+            return Get<CombineTable>(DataTableIds.Combine);
+        }
+    }
+
+    public static WaveTable WaveTable
+    {
+        get
+        {
+            return Get<WaveTable>(DataTableIds.Wave);
+        }
+    }
     
     public static T Get<T>(string id) where T : DataTable
     {
