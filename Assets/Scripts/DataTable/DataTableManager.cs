@@ -26,7 +26,9 @@ public static class DataTableManager
         var tasks = new List<UniTask>
         {
             LoadTableAsync<StringTable>(DataTableIds.String),
-            LoadTableAsync<EnemyTable>(DataTableIds.Enemy)
+            LoadTableAsync<EnemyTable>(DataTableIds.Enemy),
+            LoadTableAsync<CombineTable>(DataTableIds.Combine),
+            LoadTableAsync<WaveTable>(DataTableIds.Wave)
         };
 
         await UniTask.WhenAll(tasks);

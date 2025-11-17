@@ -14,6 +14,8 @@ public class MeteorClusterPattern : EnemyPattern
 
     private List<Enemy> childMeteors = new List<Enemy>();
 
+    private float spawnRadius = 1f;
+
     public override void Initialize(Enemy enemy, EnemyMovement movement, EnemyTableData enemyData)
     {
         base.Initialize(enemy, movement, enemyData);
@@ -73,7 +75,8 @@ public class MeteorClusterPattern : EnemyPattern
 
     private void SpawnChildMeteor()
     {
-        Enemy child = owner.Spawner.SpawnEnemy(data.Enemy_Id, owner.transform.position, excutePattern: false);
+        var pos = GetRandomPositionInCircle();
+        Enemy child = owner.Spawner.SpawnEnemy(data.Enemy_Id, pos, excutePattern: false);
 
         if(child != null)
         {
@@ -110,5 +113,11 @@ public class MeteorClusterPattern : EnemyPattern
 
             movement.SetDirection(direction);
         }
+    }
+
+    private Vector3 GetRandomPositionInCircle()
+    {
+        Vector2 randomCircle = UnityEngine.Random.insideUnitCircle * spawnRadius;
+        return owner.transform.position + new Vector3(randomCircle.x, randomCircle.y, 0f);
     }
 }
