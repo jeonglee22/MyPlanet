@@ -187,7 +187,8 @@ public class Enemy : LivingEntity, ITargetable
             movement = gameObject.AddComponent<StraightDownMovement>();
         }
 
-        movement.Initialize(data.MoveSpeed, Vector3.down);
+        //movement.Initialize(data.MoveSpeed, Vector3.down);
+        movement.Initialize(1f, Vector3.down);
     }
 
     private void AddPatternComponent(int grade, int patternId)

@@ -100,7 +100,7 @@ public class Projectile : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag(TagName.Planet) || other.gameObject.CompareTag(TagName.Projectile)
-            || other.gameObject.CompareTag(TagName.DropItem))
+            || other.gameObject.CompareTag(TagName.DropItem) || other.gameObject.CompareTag("PatternLine"))
         {
             return;
         }

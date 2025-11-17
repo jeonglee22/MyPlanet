@@ -105,7 +105,7 @@ public class TowerAttack : MonoBehaviour
         var buffedData = GetBuffedProjectileData();
         if (buffedData == null) return;
 
-        projectile.Initialize(buffedData, direction, true);
+        projectile.Initialize(buffedData, direction, true, projectilePoolManager.ProjectilePool);
 
         foreach (var ability in abilities)
         {
@@ -151,7 +151,7 @@ public class TowerAttack : MonoBehaviour
         var buffedData = GetBuffedProjectileData();
         if (buffedData == null) return;
 
-        projectile.Initialize(buffedData, direction, IsHit);
+        projectile.Initialize(currentProjectileData, direction, IsHit, projectilePoolManager.ProjectilePool);
         
         foreach (var ability in abilities)
         {
