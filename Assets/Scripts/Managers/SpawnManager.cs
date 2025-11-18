@@ -20,7 +20,7 @@ public class SpawnManager : MonoBehaviour
     private Rect screenBounds;
     private Rect offSetBounds;
     public Rect ScreenBounds => screenBounds;
-    [SerializeField] private float offSet = 5f;
+    [SerializeField] private float offSet = 10f;
 
     private void Awake()
     {
@@ -53,9 +53,7 @@ public class SpawnManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Screen bounds for enemy movement
-    /// </summary>
+    //Screen bounds for enemy movement
     private void SetScreenBounds()
     {
         Camera mainCamera = Camera.main;
@@ -88,5 +86,16 @@ public class SpawnManager : MonoBehaviour
 
             spawnPoints[i].gameObject.name = "SpawnPoint_" + i;
         }
+    }
+
+    private EnemySpawner GetSpawner(int spawnerIndex)
+    {
+        int index = spawnerIndex - 1;
+        if (spawnerIndex < 0 || spawnerIndex >= spawnPoints.Count)
+        {
+            return null;
+        }
+
+        return spawnPoints[spawnerIndex];
     }
 }

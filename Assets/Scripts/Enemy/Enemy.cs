@@ -21,10 +21,14 @@ public class Enemy : LivingEntity, ITargetable
 
     public float maxHp => maxHealth;
 
-    public float atk => data.Attack;
+    public float atk => attack;
 
-    public float def => data.Defense;
-
+    public float def => defense;
+    private float attack;
+    private float defense;
+    private float moveSpeed;
+    private float ratePenetration;
+    private float fixedPenetration;
     [SerializeField] private float lifeTime = 2f;
     private CancellationTokenSource lifeTimeCts;
 
@@ -103,14 +107,23 @@ public class Enemy : LivingEntity, ITargetable
         objectPoolManager?.Return(enemyId, this);
     }
 
-    public void Initialize(EnemyTableData enemyData, Vector3 targetDirection, int enemyId, ObjectPoolManager<int, Enemy> poolManager, bool excutePattern)
+    public void Initialize(EnemyTableData enemyData, Vector3 targetDirection, int enemyId, ObjectPoolManager<int, Enemy> poolManager, ScaleData scaleData, bool excutePattern)
     {
         this.enemyId = enemyId;
         objectPoolManager = poolManager;
 
         data = enemyData;
-        maxHealth = data.Hp;
+        maxHealth = data.Hp * scaleData.HpScale;
         Health = maxHealth;
+
+        attack = data.Attack * scaleData.AttScale;
+        defense = data.Defense * scaleData.DefScale;
+        moveSpeed = data.MoveSpeed * scaleData.MoveSpeedScale;
+
+        ratePenetration = data.UniqueRatePenetration * scaleData.PenetScale;
+        fixedPenetration = data.FixedPenetration * scaleData.PenetScale;
+
+        transform.localScale = Vector3.one * scaleData.PrefabScale;
 
         AddMovementComponent();
 
@@ -187,8 +200,8 @@ public class Enemy : LivingEntity, ITargetable
             movement = gameObject.AddComponent<StraightDownMovement>();
         }
 
-        //movement.Initialize(data.MoveSpeed, Vector3.down);
-        movement.Initialize(1f, Vector3.down);
+        movement.Initialize(moveSpeed, Vector3.down);
+        //movement.Initialize(1f, Vector3.down);
     }
 
     private void AddPatternComponent(int grade, int patternId)

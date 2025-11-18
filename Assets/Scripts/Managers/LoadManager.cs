@@ -53,4 +53,22 @@ public class LoadManager : MonoBehaviour
 
         return null;
     }
+
+    public async UniTask LoadEnemyPrefabsAsync(HashSet<int> enemyIds)
+    {
+        List<UniTask> loadTasks = new List<UniTask>();
+
+        foreach (int enemyId in enemyIds)
+        {
+            if(!loadedEnemyPrefabs.ContainsKey(enemyId))
+            {
+                loadTasks.Add(LoadEnemyPrefabAsync(enemyId).AsUniTask());
+            }
+        }
+
+        if(loadTasks.Count > 0)
+        {
+            await UniTask.WhenAll(loadTasks);
+        }
+    }
 }

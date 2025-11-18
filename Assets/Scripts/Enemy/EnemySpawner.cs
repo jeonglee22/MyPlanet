@@ -23,47 +23,6 @@ public class EnemySpawner : MonoBehaviour
     private async UniTaskVoid Start()
     {
         player = GameObject.FindGameObjectWithTag("Planet").transform;
-
-        /*
-        int enemyDataCount = 0; //test
-        foreach (var enemyData in enemyDatas)
-        {
-            objectPoolManager.CreatePool(
-                enemyDataCount++,
-                enemyData.prefab,
-                initialSize: defaultPoolCapacity,
-                maxSize: maxPoolSize,
-                collectionCheck: collectionCheck,
-                parent: this.transform
-            );
-        }
-        */
-
-        await UniTask.WaitUntil(() => GameManager.LoadManagerInstance != null);
-        await UniTask.WaitUntil(() => GameManager.LoadManagerInstance.GetLoadedPrefab(400201) != null);
-        CreatePoolFromLoadedPrefab(400201);
-    }
-
-    private void Update()
-    {
-        TrySpawnEnemies();
-    }
-
-    private void TrySpawnEnemies()
-    {
-        spawnTimer += Time.deltaTime;
-        if (spawnTimer >= spawnInterval)
-        {
-            for (int i = 0; i < enemyCount; i++)
-            {
-                Vector3 rnadomPosition = GetRandomPositionInCircle();
-                SpawnEnemy(400201, rnadomPosition);
-            }
-
-            spawnTimer = 0f;
-            spawnInterval = Random.Range(1f, 3f);
-            //enemyCount = Random.Range(1, 3);
-        }
     }
     
     private Vector3 GetRandomPositionInCircle()
@@ -81,10 +40,21 @@ public class EnemySpawner : MonoBehaviour
             return null;
         }
 
-        return CreateEnemy(enemyId, spawnPosition, Vector3.down, excutePattern);
+        ScaleData defaultScaleData = new ScaleData
+        {
+            HpScale = 1f,
+            AttScale = 1f,
+            DefScale = 1f,
+            PenetScale = 1f,
+            MoveSpeedScale = 1f,
+            PrefabScale = 1f,
+            ExpScale = 1f
+        };
+
+        return CreateEnemy(enemyId, spawnPosition, Vector3.down, defaultScaleData, excutePattern);
     }
 
-    private Enemy CreateEnemy(int enemyId, Vector3 position, Vector3 direction, bool excutePattern)
+    private Enemy CreateEnemy(int enemyId, Vector3 position, Vector3 direction, ScaleData scaleData, bool excutePattern)
     {
         Enemy enemy = objectPoolManager.Get(enemyId);
         if (enemy == null)
@@ -97,7 +67,7 @@ public class EnemySpawner : MonoBehaviour
         enemy.transform.rotation = rotation;
 
         enemy.Spawner = this;
-        enemy.Initialize(currentTableData, direction, enemyId, objectPoolManager, excutePattern);
+        enemy.Initialize(currentTableData, direction, enemyId, objectPoolManager, scaleData, excutePattern);
         return enemy;
     }
 
@@ -126,16 +96,16 @@ public class EnemySpawner : MonoBehaviour
     }
 
     //test
-    private void CreatePoolFromLoadedPrefab(int enemyId)
+    private void PreparePool(int enemyId)
     {
-        if(GameManager.LoadManagerInstance == null)
+        if(GameManager.LoadManagerInstance == null || objectPoolManager.HasPool(enemyId))
         {
             return;
         }
 
         GameObject prefab = GameManager.LoadManagerInstance.GetLoadedPrefab(enemyId);
 
-        if(prefab == null || objectPoolManager.HasPool(enemyId))
+        if(prefab == null)
         {
             return;
         }
@@ -148,5 +118,27 @@ public class EnemySpawner : MonoBehaviour
             collectionCheck,
             this.transform
         );
+    }
+
+    public void SpawnEnemiesWithScale(int enemyId, int quantity, ScaleData scaleData)
+    {
+        PreparePool(enemyId);
+
+        for (int i = 0; i < quantity; i++)
+        {
+            Vector3 spawnPos = GetRandomPositionInCircle();
+            SpawnEnemyWithScale(enemyId, spawnPos, scaleData);
+        }
+    }
+
+    public Enemy SpawnEnemyWithScale(int enemyId, Vector3 spawnPosition, ScaleData scaleData, bool excutePattern = true)
+    {
+        currentTableData = DataTableManager.EnemyTable.Get(enemyId);
+        if(currentTableData == null)
+        {
+            return null;
+        }
+
+        return CreateEnemy(enemyId, spawnPosition, Vector3.down, scaleData, excutePattern);
     }
 }
