@@ -16,7 +16,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     private bool isNewTouch;
     private bool isStartTouch = false;
     private Vector2 initTouchPos;
-    private Vector2 touchPos;
 
     //test
     private Color towerColor;
@@ -77,6 +76,15 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         choosedIndex = -1;
         isStartTouch = false;
         towerImageIsDraging = false;
+    }
+
+    private void Update()
+    {
+        if (towerInfoUI.gameObject.activeSelf)
+            return;
+
+        OnTouchStateCheck();
+        OnTouchMakeDrageImage();
     }
 
     private void SetActiveRefreshButtons(bool active)
@@ -192,11 +200,12 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         }
     }
 
-    public void OnTouchMakeDrageImage(InputAction.CallbackContext context)
+    public void OnTouchMakeDrageImage()
     {
-        touchPos = context.ReadValue<Vector2>();
+        var touchPos = TouchManager.Instance.TouchPos;
 
-        if(!context.performed || towerImageIsDraging || towerInfoUI.gameObject.activeSelf)
+        Debug.Log(TouchManager.Instance.IsTouching);
+        if(!TouchManager.Instance.IsTouching || towerImageIsDraging)
             return;
         
         if(!isStartTouch)
@@ -227,19 +236,16 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         dragImage.transform.position = touchPos;
     }
 
-    public void OnTouchStateCheck(InputAction.CallbackContext context)
+    public void OnTouchStateCheck()
     {
-        if (context.started)
+        var currentPhase = TouchManager.Instance.TouchPhase;
+        
+        Debug.Log(currentPhase);
+        if (currentPhase == InputActionPhase.Canceled)
         {
             isStartTouch = false;
             towerImageIsDraging = false;
             isNewTouch = true;
-        }
-        if (context.canceled)
-        {
-            isStartTouch = false;
-            towerImageIsDraging = false;
-            isNewTouch = false;
 
             var index = GetEndTouchOnInstallArea();
             if(index != -1 && dragImage != null && choosedIndex != -1)
@@ -259,6 +265,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
     private int GetEndTouchOnInstallArea()
     {
+        var touchPos = TouchManager.Instance.TouchPos; 
         var towers = installControl.Towers;
         for (int i = 0; i < installControl.TowerCount; i++)
         {

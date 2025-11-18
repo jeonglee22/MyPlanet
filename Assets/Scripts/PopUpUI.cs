@@ -11,14 +11,10 @@ public class PopUpUI : MonoBehaviour
         rectTransform = GetComponent<RectTransform>();
     }
 
-    public void OnUITouchPos(InputAction.CallbackContext context)
-    {
-        touchPos = context.ReadValue<Vector2>();
-    }
-
     // Update is called once per frame
     protected virtual void Update()
     {
+        touchPos = TouchManager.Instance.TouchPos;
         if(!RectTransformUtility.RectangleContainsScreenPoint(rectTransform, touchPos))
         {
             gameObject.SetActive(false);
