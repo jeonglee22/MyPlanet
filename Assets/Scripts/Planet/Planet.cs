@@ -11,8 +11,11 @@ public class Planet : LivingEntity
     private List<TowerAttack> planetAttacks;
     private List<GameObject> towers;
 
-    [SerializeField] private GameObject towerPrefab;
+    [SerializeField] private GameObject towerPrefab; //Attack Tower
+    [SerializeField] private GameObject amplifierTowerPrefab; //Amplier Tower
     [SerializeField] private Transform towerSlotTransform;
+
+    private TowerAmplifier[] amplifierSlots;
 
     private int towerCount;
     private float exp;

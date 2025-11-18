@@ -43,7 +43,7 @@ public class TowerInstallControl : MonoBehaviour
 
     //test
     private bool[] emptyTowerTest;
-    [SerializeField] private List<TowerDataSO> availableTowerDatas;
+    [SerializeField] private List<TowerDataSO> availableTowerDatas; //Attack Tower List
     private TowerDataSO[] assignedTowerDatas;
 
     public bool IsReadyInstall { get; set; }
@@ -175,7 +175,15 @@ public class TowerInstallControl : MonoBehaviour
 
     public void IntallNewTower(int index)
     {
+        Debug.Log($"[Install] IntallNewTower() enter - index={index}, IsReadyInstall={IsReadyInstall}, ChoosedDataNull={ChoosedData == null}");
         if (!IsReadyInstall) return;
+        if (ChoosedData == null)
+        {
+            Debug.LogError("[Install] ChoosedData is NULL! Drag에서 카드 정보가 안 넘어옴");
+            return;
+        }
+
+
         Destroy(towers[index]);
 
         GameObject newTower = null;
@@ -329,5 +337,6 @@ public class TowerInstallControl : MonoBehaviour
             if (attackTower == null) continue;
             ampTower.ApplyBuff(attackTower);
         }
+        //--------------------------------------------------------
     }
 }

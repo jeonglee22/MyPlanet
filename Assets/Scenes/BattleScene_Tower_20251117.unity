@@ -4751,6 +4751,14 @@ PrefabInstance:
       propertyPath: dragImagePrefab
       value: 
       objectReference: {fileID: 9173017397612216722, guid: 90cf15c0fa0690e4e97657711141590c, type: 3}
+    - target: {fileID: 914193106787571321, guid: e9eca66bea0d66f42b4b0770ba1325b2, type: 3}
+      propertyPath: proejctileCoreSO
+      value: 
+      objectReference: {fileID: 11400000, guid: 695dce885a1969447bbb594e3d4ddb01, type: 2}
+    - target: {fileID: 914193106787571321, guid: e9eca66bea0d66f42b4b0770ba1325b2, type: 3}
+      propertyPath: damageMatrixCoreSO
+      value: 
+      objectReference: {fileID: 11400000, guid: 56ed41c4cbc58234b8388f6ab1d47543, type: 2}
     - target: {fileID: 969658793608649272, guid: e9eca66bea0d66f42b4b0770ba1325b2, type: 3}
       propertyPath: m_SizeDelta.x
       value: 400
@@ -4823,6 +4831,10 @@ PrefabInstance:
       propertyPath: planetTowerUI
       value: 
       objectReference: {fileID: 1109203965}
+    - target: {fileID: 2834448802897956082, guid: e9eca66bea0d66f42b4b0770ba1325b2, type: 3}
+      propertyPath: amplifierTowerPrefab
+      value: 
+      objectReference: {fileID: 1023283278850307994, guid: 4d3d49db100941c4595d79e6f10750ec, type: 3}
     - target: {fileID: 2834448802897956082, guid: e9eca66bea0d66f42b4b0770ba1325b2, type: 3}
       propertyPath: availableTowerDatas.Array.size
       value: 3
@@ -9467,63 +9479,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2129434322}
   m_CullTransparentMesh: 1
---- !u!1001 &7843646276998264767
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 2779026858690014038, guid: 6b81903ad093cd1499b772738efc3af2, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2779026858690014038, guid: 6b81903ad093cd1499b772738efc3af2, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2779026858690014038, guid: 6b81903ad093cd1499b772738efc3af2, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2779026858690014038, guid: 6b81903ad093cd1499b772738efc3af2, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2779026858690014038, guid: 6b81903ad093cd1499b772738efc3af2, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2779026858690014038, guid: 6b81903ad093cd1499b772738efc3af2, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2779026858690014038, guid: 6b81903ad093cd1499b772738efc3af2, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2779026858690014038, guid: 6b81903ad093cd1499b772738efc3af2, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2779026858690014038, guid: 6b81903ad093cd1499b772738efc3af2, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2779026858690014038, guid: 6b81903ad093cd1499b772738efc3af2, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3697690918579857417, guid: 6b81903ad093cd1499b772738efc3af2, type: 3}
-      propertyPath: m_Name
-      value: AmplifierTower
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 6b81903ad093cd1499b772738efc3af2, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -9537,4 +9492,3 @@ SceneRoots:
   - {fileID: 277925339}
   - {fileID: 1030911501}
   - {fileID: 1913949396}
-  - {fileID: 7843646276998264767}
