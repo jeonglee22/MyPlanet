@@ -12,15 +12,12 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private int defaultPoolCapacity = 20;
     [SerializeField] private int maxPoolSize = 100;
 
-    private float spawnInterval = 2f;
-    private float spawnTimer = 0f;
-    private int enemyCount = 1;
     private float spawnRadius = 1f;
 
     //test
     private EnemyTableData currentTableData;
 
-    private async UniTaskVoid Start()
+    private void Start()
     {
         player = GameObject.FindGameObjectWithTag("Planet").transform;
     }

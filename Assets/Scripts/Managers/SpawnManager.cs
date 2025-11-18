@@ -52,6 +52,11 @@ public class SpawnManager : MonoBehaviour
         {
             currentEnemyCount = 0;
         }
+
+        if(currentEnemyCount == 0)
+        {
+            WaveManager.Instance.OnWaveCleared().Forget();
+        }
     }
 
     //Screen bounds for enemy movement
@@ -85,7 +90,7 @@ public class SpawnManager : MonoBehaviour
             var spawner = Instantiate(spawnPointSample, new Vector3(x, y, 0f), Quaternion.identity).GetComponent<EnemySpawner>();
             spawnPoints.Add(spawner);
 
-            spawnPoints[i].gameObject.name = "SpawnPoint_" + i;
+            spawnPoints[i].gameObject.name = "SpawnPoint_" + (i + 1);
         }
     }
 
@@ -110,12 +115,12 @@ public class SpawnManager : MonoBehaviour
 
     private void SpawnSlot(int enemyId, int quantity, int spawnPointIndex, ScaleData scaleData)
     {
-        if(enemyId == 0 || quantity <= 0)
+        if(enemyId == 0 || quantity <= 0 || spawnPointIndex - 1 <= 0)
         {
             return;
         }
 
-        var spawner = GetSpawner(spawnPointIndex);
+        var spawner = GetSpawner(spawnPointIndex - 1);
         if(spawner == null)
         {
             return;
@@ -135,8 +140,6 @@ public class SpawnManager : MonoBehaviour
         SpawnSlot(combineData.Enemy_Id_1, combineData.EnemyQuantity_1, combineData.SpawnPoint_1, scaleData);
         SpawnSlot(combineData.Enemy_Id_2, combineData.EnemyQuantity_2, combineData.SpawnPoint_2, scaleData);
         SpawnSlot(combineData.Enemy_Id_3, combineData.EnemyQuantity_3, combineData.SpawnPoint_3, scaleData);
-        SpawnSlot(combineData.Enemy_Id_4, combineData.EnemyQuantity_4, combineData.SpawnPoint_4, scaleData);
-        SpawnSlot(combineData.Enemy_Id_5, combineData.EnemyQuantity_5, combineData.SpawnPoint_5, scaleData);
     }
 
     public void OnDrawGizmos()

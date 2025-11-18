@@ -29,6 +29,7 @@ public class Enemy : LivingEntity, ITargetable
     private float moveSpeed;
     private float ratePenetration;
     private float fixedPenetration;
+    private Vector3 originalScale;
     [SerializeField] private float lifeTime = 2f;
     private CancellationTokenSource lifeTimeCts;
 
@@ -41,8 +42,10 @@ public class Enemy : LivingEntity, ITargetable
 
     private CancellationTokenSource colorResetCts;
     private int enemyId;
-    private int patternId = 0; //test
+    private int patternId = 1; //test
     public EnemySpawner Spawner { get; set; }
+
+    public event Action OnLifeTimeOverEvent;
 
     protected override void OnEnable()
     {
@@ -50,11 +53,16 @@ public class Enemy : LivingEntity, ITargetable
 
         movement = GetComponent<EnemyMovement>();
 
+        OnDeathEvent -= SpawnManager.Instance.OnEnemyDied;
+        OnLifeTimeOverEvent -= SpawnManager.Instance.OnEnemyDied;
         OnDeathEvent += SpawnManager.Instance.OnEnemyDied;
+        OnLifeTimeOverEvent += SpawnManager.Instance.OnEnemyDied;
 
         Material = GetComponent<Renderer>().material;
         Material.color = baseColor;
         ColorCancel();
+
+        originalScale = transform.localScale;
     }
 
     protected void OnDestroy()
@@ -104,6 +112,15 @@ public class Enemy : LivingEntity, ITargetable
             Instantiate(drop, transform.position, Quaternion.identity);
         }
 
+        transform.localScale = originalScale;
+
+        objectPoolManager?.Return(enemyId, this);
+    }
+
+    private void OnLifeTimeOver()
+    {
+        OnLifeTimeOverEvent?.Invoke();
+        transform.localScale = originalScale;
         objectPoolManager?.Return(enemyId, this);
     }
 
@@ -159,7 +176,7 @@ public class Enemy : LivingEntity, ITargetable
             await UniTask.Delay(System.TimeSpan.FromSeconds(timeToWait), cancellationToken: token);
             if(!token.IsCancellationRequested)
             {
-                objectPoolManager?.Return(enemyId, this);
+                OnLifeTimeOver();
             }
         }
         catch (System.OperationCanceledException)
