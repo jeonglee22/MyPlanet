@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 public class TowerUpgradeSlotUI : MonoBehaviour
@@ -14,6 +16,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     private bool isNewTouch;
     private bool isStartTouch = false;
     private Vector2 initTouchPos;
+    private Vector2 touchPos;
 
     //test
     private Color towerColor;
@@ -31,9 +34,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
     private GameObject dragImage = null;
     private int choosedIndex = -1;
-    [SerializeField] private Button refreshButton;
-    private string canRefreshText = "Refresh";
-    private string cannotRefreshText = "IsUsed";
+    [SerializeField] private Button[] refreshButtons;
 
     private void Start()
     {
@@ -41,8 +42,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             ui.SetActive(false);
         towerColor = Color.yellow;
 
-        refreshButton.onClick.AddListener(OnClickRefreshButton);
-        refreshButton.gameObject.SetActive(false);
+        SetActiveRefreshButtons(false);
     }
 
     private void OnEnable()
@@ -50,16 +50,18 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         if(isNotUpgradeOpen)
         {
             isNotUpgradeOpen = false;
-            refreshButton.gameObject.SetActive(false);
+            SetActiveRefreshButtons(false);
             return;
         }
 
         foreach (var ui in upgradeUIs)
             ui.SetActive(true);
 
-        refreshButton.gameObject.SetActive(true);
-        refreshButton.interactable = true;
-        refreshButton.GetComponentInChildren<TextMeshProUGUI>().text = canRefreshText;
+        foreach (var refreshButton in refreshButtons)
+        {
+            refreshButton.gameObject.SetActive(true);
+            refreshButton.interactable = true;
+        }
 
         SettingUpgradeCards();
     }
@@ -68,12 +70,19 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     {
         foreach (var ui in upgradeUIs)
             ui.SetActive(false);
+        SetActiveRefreshButtons(false);
 
         Time.timeScale = 1f;
         numlist = null;
         choosedIndex = -1;
         isStartTouch = false;
         towerImageIsDraging = false;
+    }
+
+    private void SetActiveRefreshButtons(bool active)
+    {
+        foreach (var refreshButton in refreshButtons)
+            refreshButton.gameObject.SetActive(active);
     }
 
     private void SettingUpgradeCards()
@@ -110,11 +119,42 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         }
     }
 
-    private void OnClickRefreshButton()
+    private void ResetUpgradeCard(int index)
     {
-        SettingUpgradeCards();
-        refreshButton.GetComponentInChildren<TextMeshProUGUI>().text = cannotRefreshText;
-        refreshButton.interactable = false;
+        abilities[index] = AbilityManager.Instance.GetRandomAbility();
+
+        int number;
+        int count = 0;
+        do
+        {
+            number = Random.Range(0, installControl.TowerCount);
+            count++;
+        } while (numlist.Contains(number) && count < installControl.TowerCount);
+
+        numlist[index] = number;
+
+        if (installControl == null)
+            return;
+
+        // test
+        if (!installControl.IsUsedSlot(number))
+        {
+            uiTexts[index].text = $"new Tower\n\n{abilities[index]}";
+        }
+        else
+        {
+            uiTexts[index].text = $"Upgrade\n{number}";
+        }
+        //
+    }
+
+    public void OnClickRefreshButton(int index)
+    {
+        ResetUpgradeCard(index);
+        if(refreshButtons == null) return;
+
+        refreshButtons[index].interactable = false;
+
     }
 
     public void OnClickUpgradeUIClicked(int index)
@@ -154,10 +194,11 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
     public void OnTouchMakeDrageImage(InputAction.CallbackContext context)
     {
-        if(!context.performed || towerImageIsDraging)
-            return;
+        touchPos = context.ReadValue<Vector2>();
 
-        var touchPos = context.ReadValue<Vector2>();
+        if(!context.performed || towerImageIsDraging || towerInfoUI.gameObject.activeSelf)
+            return;
+        
         if(!isStartTouch)
         {
             isStartTouch = true;
@@ -183,6 +224,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         dragImage = Instantiate(dragImagePrefab, upgradeUIs[choosedIndex].transform);
         towerImageIsDraging = true;
         dragImage.SetActive(true);
+        dragImage.transform.position = touchPos;
     }
 
     public void OnTouchStateCheck(InputAction.CallbackContext context)
@@ -205,10 +247,11 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 installControl.IsReadyInstall = true;
                 installControl.ChoosedData = (abilities[choosedIndex], uiTexts[choosedIndex].text);
                 installControl.IntallNewTower(index);
-                Destroy(dragImage);
-                dragImage = null;
                 gameObject.SetActive(false);
             }
+
+            Destroy(dragImage);
+            dragImage = null;
 
             choosedIndex = -1;
         }
@@ -216,16 +259,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
     private int GetEndTouchOnInstallArea()
     {
-        var touchScreen = Touchscreen.current;
-        if (touchScreen == null) return -1;
-
-        var primary = touchScreen.primaryTouch;
-
-        if (primary.press.isPressed)
-            return -1;
-
-        var touchPos = primary.position.ReadValue();
-
         var towers = installControl.Towers;
         for (int i = 0; i < installControl.TowerCount; i++)
         {
