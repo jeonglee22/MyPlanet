@@ -36,7 +36,6 @@ public class TowerInfoUI : PopUpUI
 
     public void SetInfo(int index)
     {
-        Debug.Log("Tower Info");
         nameText.text = $"Tower {index}";
 
         if (installControl == null)
@@ -85,13 +84,6 @@ public class TowerInfoUI : PopUpUI
 
     protected override void Update()
     {
-        var touchScreen = Touchscreen.current;
-        if (touchScreen == null) return;
-
-        var primary = touchScreen.primaryTouch;
-        if (!primary.press.isPressed) return;
-
-        var touchPos = primary.position.ReadValue();
         if(RectTransformUtility.RectangleContainsScreenPoint(installControl.Towers[infoIndex].GetComponent<RectTransform>(),touchPos))
         {
             return;
