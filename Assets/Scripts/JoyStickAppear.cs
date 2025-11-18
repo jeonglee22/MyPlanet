@@ -14,6 +14,9 @@ public class JoyStickAppear : MonoBehaviour
     private PointerEventData eventData;
     private OnScreenStick drag;
 
+    // test
+    [SerializeField] private TowerUpgradeSlotUI upgradeSlotUI;
+
     void Start()
     {
         isAppear = false;
@@ -28,7 +31,7 @@ public class JoyStickAppear : MonoBehaviour
 
         var primary = touchScreen.primaryTouch;
 
-        if (primary.press.isPressed == false)
+        if (!primary.press.isPressed)
         {
             if (isAppear)
             {
@@ -40,8 +43,12 @@ public class JoyStickAppear : MonoBehaviour
             return;
         }
 
+        Debug.Log(upgradeSlotUI.gameObject.activeSelf);
+        if(upgradeSlotUI != null && upgradeSlotUI.gameObject.activeSelf)
+            return;
+
         var touchPos = primary.position.ReadValue();
-        if (!RectTransformUtility.RectangleContainsScreenPoint(touchRect, touchPos) || EventSystem.current.IsPointerOverGameObject())
+        if (!RectTransformUtility.RectangleContainsScreenPoint(touchRect, touchPos))
         {
             return;
         }
