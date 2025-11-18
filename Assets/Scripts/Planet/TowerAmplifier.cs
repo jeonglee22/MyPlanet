@@ -8,6 +8,11 @@ public class TowerAmplifier : MonoBehaviour
 
     private readonly List<TowerAttack> buffedTargets = new List<TowerAttack>();
 
+    public void SetData(AmplifierTowerDataSO data)
+    {
+        amplifierTowerData = data;
+    }
+
     public void ApplyBuff(TowerAttack target) //single target(apply buff)
     {
         if (target == null) return;

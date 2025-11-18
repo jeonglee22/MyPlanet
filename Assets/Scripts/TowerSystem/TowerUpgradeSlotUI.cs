@@ -129,8 +129,8 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         upgradeUIs[index].GetComponentInChildren<Image>().color = choosedColor;
         upgradeUIs[(index + 1) % 3].GetComponentInChildren<Image>().color = Color.white;
         upgradeUIs[(index + 2) % 3].GetComponentInChildren<Image>().color = Color.white;
-        installControl.IsReadyInstall = true;
-        installControl.ChoosedData = (abilities[index], uiTexts[index].text);
+        //installControl.IsReadyInstall = true;
+        //installControl.ChoosedData = (abilities[index], uiTexts[index].text);
 
         if (installControl.IsUsedSlot(numlist[index]))
         {
@@ -201,7 +201,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             if(index != -1 && dragImage != null && choosedIndex != -1)
             {
                 installControl.IsReadyInstall = true;
-                installControl.ChoosedData = (abilities[choosedIndex], uiTexts[choosedIndex].text);
+               // installControl.ChoosedData = (abilities[choosedIndex], uiTexts[choosedIndex].text);
                 installControl.IntallNewTower(index);
                 Destroy(dragImage);
                 dragImage = null;

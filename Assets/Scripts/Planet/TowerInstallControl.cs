@@ -12,11 +12,9 @@ public enum TowerInstallType
 public class TowerInstallChoice
 {
     public TowerInstallType InstallType;
-    public TowerDataSO AttackTowerData;
     public AmplifierTowerDataSO AmplifierTowerData;
-    public IAbility Ability;
+    public IAbility ability;
 }
-
 
 public class TowerInstallControl : MonoBehaviour
 {
@@ -49,7 +47,6 @@ public class TowerInstallControl : MonoBehaviour
     private TowerDataSO[] assignedTowerDatas;
 
     public bool IsReadyInstall { get; set; }
-
     public TowerInstallChoice ChoosedData { get; set; }
 
     private void Awake()
@@ -113,7 +110,7 @@ public class TowerInstallControl : MonoBehaviour
                 continue;
             }
 
-            //Install Tower (Default: attack tower)
+            //Install Attack Tower (Default: attack tower)
             tower = Instantiate(towerBasePrefab, PlanetTransform);
             var chosenData = PickRandomTowerData();
             assignedTowerDatas[index] = chosenData;
@@ -136,7 +133,7 @@ public class TowerInstallControl : MonoBehaviour
             var button = tower.GetComponent<Button>();
             button.onClick.AddListener(() => OpenInfoUI(index));
 
-            // test
+            // Test (Color)
             var image = tower.GetComponentInChildren<Image>();
             image.color = Color.Lerp(Color.red, Color.blue, (float)i / (slotCount - 1));
 
@@ -153,14 +150,12 @@ public class TowerInstallControl : MonoBehaviour
     public bool IsUsedSlot(int index)
     {
         if (emptyTowerTest == null) return false;
-
         return !emptyTowerTest[index];
     }
 
     public void UpgradeTower(int index)
     {
         if (!IsReadyInstall) return;
-
         planet?.UpgradeTower(index);
     }
 
@@ -168,7 +163,7 @@ public class TowerInstallControl : MonoBehaviour
     {
         if (data == null || towerObj == null) return;
 
-        //UI
+        //UI (Test: Print Tower Name)
         var nameText = towerObj.GetComponentInChildren<TMPro.TextMeshProUGUI>();
         if (nameText != null) nameText.text = data.towerId;
     }
@@ -182,44 +177,63 @@ public class TowerInstallControl : MonoBehaviour
     public void IntallNewTower(int index)
     {
         if (!IsReadyInstall) return;
-
-        // test Install
-        var newTower = Instantiate(towerBasePrefab, PlanetTransform);
-        var chosenData = PickRandomTowerData();
-
         Destroy(towers[index]);
-        //---------------------------------
 
-
-        //Debug targeting system index
-        var targeting = newTower.GetComponent<TowerTargetingSystem>();
-        if(targeting!=null)
+        GameObject newTower = null;
+        
+        // Attack||Amplifier Tower Branch ------------
+        if(ChoosedData.InstallType==TowerInstallType.Attack)
         {
-            targeting.SetSlotIndex(index);
-            targeting.SetTowerData(chosenData);
+            //Install Attack Tower
+            newTower = Instantiate(towerBasePrefab, PlanetTransform);
+            var chosenData = PickRandomTowerData(); // Pick Attack Tower: Random
+
+            towers[index] = newTower;
+
+            //Attack Tower Targeting System
+            var targeting = newTower.GetComponent<TowerTargetingSystem>();
+            if (targeting != null)
+            {
+                targeting.SetSlotIndex(index); //Debug
+                targeting.SetTowerData(chosenData);
+            }
+
+            assignedTowerDatas[index] = chosenData;
+            TryAssignDataToTower(newTower, chosenData);
+
+            planet?.SetTower(assignedTowerDatas[index], index, ChoosedData.ability);
         }
+        else if(ChoosedData.InstallType == TowerInstallType.Amplifier)
+        {
+            newTower = Instantiate(amplifierTowerPrefab, PlanetTransform);
+            towers[index] = newTower;
 
-        var button = newTower.GetComponent<Button>();
-        button.onClick.AddListener(() => OpenInfoUI(index));
+            assignedTowerDatas[index] = null; //(assignedTowerDatas: only attack tower)
 
-        var image = newTower.GetComponentInChildren<Image>();
-        image.color = Color.Lerp(Color.red, Color.blue, (float)index / (towerCount - 1));
+            var amplifierTower = newTower.GetComponent<TowerAmplifier>();
+            if(amplifierTower!=null&&ChoosedData.AmplifierTowerData!=null)
+            {
+                amplifierTower.SetData(ChoosedData.AmplifierTowerData);
+                //ApplyAmpliferBuffs(amplifierTower, index);
+            }
+        }
+        //---------------------------------------------------------
 
-        assignedTowerDatas[index] = chosenData;
-        TryAssignDataToTower(newTower, chosenData);
+        //UI-------------------------------------------------------
+        if(newTower!=null)
+        {
+            var button = newTower.GetComponent<Button>();
+            button.onClick.AddListener(() => OpenInfoUI(index));
 
-        // test index
-        var text = newTower.GetComponentInChildren<TextMeshProUGUI>();
-        text.text = index.ToString();
+            var image = newTower.GetComponentInChildren<Image>();
+            image.color = Color.Lerp(Color.red, Color.blue, (float)index / (towerCount - 1));
 
-        planet?.SetTower(assignedTowerDatas[index], index, ChoosedData.ability);
+            var text = newTower.GetComponentInChildren<TextMeshProUGUI>();
+            text.text = index.ToString();
+        }
+        //----------------------------------------------------------
 
-
-
-        //--------------------------------------
-        towers[index] = newTower;
         SettingTowerTransform(currentAngle);
-
         emptyTowerTest[index] = false;
         planetTowerUI.gameObject.SetActive(false);
     }
