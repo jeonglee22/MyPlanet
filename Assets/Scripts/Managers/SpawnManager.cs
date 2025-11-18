@@ -52,6 +52,11 @@ public class SpawnManager : MonoBehaviour
         {
             currentEnemyCount = 0;
         }
+
+        if(currentEnemyCount == 0)
+        {
+            WaveManager.Instance.OnWaveCleared().Forget();
+        }
     }
 
     //Screen bounds for enemy movement

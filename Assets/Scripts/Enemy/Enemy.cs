@@ -29,6 +29,7 @@ public class Enemy : LivingEntity, ITargetable
     private float moveSpeed;
     private float ratePenetration;
     private float fixedPenetration;
+    private Vector3 originalScale;
     [SerializeField] private float lifeTime = 2f;
     private CancellationTokenSource lifeTimeCts;
 
@@ -41,7 +42,7 @@ public class Enemy : LivingEntity, ITargetable
 
     private CancellationTokenSource colorResetCts;
     private int enemyId;
-    private int patternId = 0; //test
+    private int patternId = 1; //test
     public EnemySpawner Spawner { get; set; }
 
     protected override void OnEnable()
@@ -55,6 +56,8 @@ public class Enemy : LivingEntity, ITargetable
         Material = GetComponent<Renderer>().material;
         Material.color = baseColor;
         ColorCancel();
+
+        originalScale = transform.localScale;
     }
 
     protected void OnDestroy()
@@ -103,6 +106,8 @@ public class Enemy : LivingEntity, ITargetable
         {
             Instantiate(drop, transform.position, Quaternion.identity);
         }
+
+        transform.localScale = originalScale;
 
         objectPoolManager?.Return(enemyId, this);
     }
