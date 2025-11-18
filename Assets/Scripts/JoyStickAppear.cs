@@ -15,7 +15,6 @@ public class JoyStickAppear : MonoBehaviour
     private OnScreenStick drag;
 
     private Vector2 touchPos;
-    private bool isTouching;
 
     void Start()
     {
@@ -24,22 +23,12 @@ public class JoyStickAppear : MonoBehaviour
         drag = joystick.GetComponentInChildren<OnScreenStick>();
     }
 
-    public void OnUITouchPos(InputAction.CallbackContext context)
-    {
-        touchPos = context.ReadValue<Vector2>();
-    }
-
-    public void OnUITouchCheck(InputAction.CallbackContext context)
-    {
-        isTouching = context.ReadValueAsButton();
-    }
-
     void Update()
     {
         if(EventSystem.current.IsPointerOverGameObject())
             return;
 
-        if (!isTouching)
+        if (!TouchManager.Instance.IsTouching)
         {
             if (isAppear)
             {
@@ -51,6 +40,7 @@ public class JoyStickAppear : MonoBehaviour
             return;
         }
 
+        touchPos = TouchManager.Instance.TouchPos;
         if (!RectTransformUtility.RectangleContainsScreenPoint(touchRect, touchPos))
         {
             return;

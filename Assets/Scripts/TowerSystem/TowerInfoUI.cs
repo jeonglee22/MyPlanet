@@ -84,6 +84,7 @@ public class TowerInfoUI : PopUpUI
 
     protected override void Update()
     {
+        touchPos = TouchManager.Instance.TouchPos;
         if(RectTransformUtility.RectangleContainsScreenPoint(installControl.Towers[infoIndex].GetComponent<RectTransform>(),touchPos))
         {
             return;
