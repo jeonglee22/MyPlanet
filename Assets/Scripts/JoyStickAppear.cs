@@ -14,8 +14,8 @@ public class JoyStickAppear : MonoBehaviour
     private PointerEventData eventData;
     private OnScreenStick drag;
 
-    // test
-    [SerializeField] private TowerUpgradeSlotUI upgradeSlotUI;
+    private Vector2 touchPos;
+    private bool isTouching;
 
     void Start()
     {
@@ -24,17 +24,22 @@ public class JoyStickAppear : MonoBehaviour
         drag = joystick.GetComponentInChildren<OnScreenStick>();
     }
 
+    public void OnUITouchPos(InputAction.CallbackContext context)
+    {
+        touchPos = context.ReadValue<Vector2>();
+    }
+
+    public void OnUITouchCheck(InputAction.CallbackContext context)
+    {
+        isTouching = context.ReadValueAsButton();
+    }
+
     void Update()
     {
         if(EventSystem.current.IsPointerOverGameObject())
             return;
 
-        var touchScreen = Touchscreen.current;
-        if (touchScreen == null) return;
-
-        var primary = touchScreen.primaryTouch;
-
-        if (!primary.press.isPressed)
+        if (!isTouching)
         {
             if (isAppear)
             {
@@ -46,10 +51,6 @@ public class JoyStickAppear : MonoBehaviour
             return;
         }
 
-        if(upgradeSlotUI != null && upgradeSlotUI.gameObject.activeSelf)
-            return;
-
-        var touchPos = primary.position.ReadValue();
         if (!RectTransformUtility.RectangleContainsScreenPoint(touchRect, touchPos))
         {
             return;

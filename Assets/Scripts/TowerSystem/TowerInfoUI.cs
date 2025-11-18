@@ -33,11 +33,9 @@ public class TowerInfoUI : PopUpUI
 
     private int infoIndex = -1;
     private bool isSameTower;
-    private Vector2 touchPos;
 
     public void SetInfo(int index)
     {
-        Debug.Log("Tower Info");
         nameText.text = $"Tower {index}";
 
         if (installControl == null)
@@ -82,11 +80,6 @@ public class TowerInfoUI : PopUpUI
         SetText(targetNumberValueText, proj != null ? proj.targetNumber.ToString() : null);
         SetText(lifeTimeValueText, proj != null ? proj.lifeTime.ToString("0.00") : null);
         SetText(hitRadiusValueText, proj != null ? proj.hitRadius.ToString("0.00") : null);
-    }
-
-    public void OnUITouchPos(InputAction.CallbackContext context)
-    {
-        touchPos = context.ReadValue<Vector2>();
     }
 
     protected override void Update()
