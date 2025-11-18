@@ -169,4 +169,14 @@ public class Planet : LivingEntity
         await UniTask.Delay(TimeSpan.FromSeconds(delay), cancellationToken: colorResetCts.Token);
         Material.color = baseColor;
     }
+
+    public TowerAttack GetAttackTowerToAmpTower(int index)
+    {
+        if (towers == null || index < 0 || index >= towers.Count) return null;
+
+        var tower = towers[index];
+        if (tower == null) return null;
+
+        return tower.GetComponent<TowerAttack>();
+    }
 }

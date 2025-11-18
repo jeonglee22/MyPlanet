@@ -73,7 +73,8 @@ public class TowerInstallControl : MonoBehaviour
     {
         if (planetTowerUI != null && currentAngle != planetTowerUI.Angle)
         {
-            currentAngle += rotateSpeed * Time.unscaledDeltaTime * (planetTowerUI.TowerRotateClock ? -1f : 1f);
+            currentAngle += rotateSpeed * Time.unscaledDeltaTime * 
+                (planetTowerUI.TowerRotateClock ? -1f : 1f);
 
             SettingTowerTransform(currentAngle);
             
@@ -101,7 +102,7 @@ public class TowerInstallControl : MonoBehaviour
                 buttonEmpty.onClick.AddListener(() => IntallNewTower(index));
                 towers.Add(tower);
 
-                // test
+                // Test (Slot Index Text)
                 var numtext = tower.GetComponentInChildren<TextMeshProUGUI>();
                 numtext.text = index.ToString();
                 //
@@ -118,9 +119,7 @@ public class TowerInstallControl : MonoBehaviour
             TryAssignDataToTower(tower, chosenData);
             // attack.SetRandomAbility();
 
-            //Init TowerAttack
-            var attack = tower.GetComponent<TowerAttack>();
-            if (attack != null) attack.SetTowerData(chosenData);
+            //Install Attack System -> Planet.cs
 
             //Tower Targeting System Index Debug
             var targeting = tower.GetComponent<TowerTargetingSystem>();
@@ -214,13 +213,14 @@ public class TowerInstallControl : MonoBehaviour
             if(amplifierTower!=null&&ChoosedData.AmplifierTowerData!=null)
             {
                 amplifierTower.SetData(ChoosedData.AmplifierTowerData);
-                //ApplyAmpliferBuffs(amplifierTower, index);
             }
+
+            //ApplyAmpliferBuffs(amplifierTower, index);
         }
         //---------------------------------------------------------
 
         //UI-------------------------------------------------------
-        if(newTower!=null)
+        if (newTower!=null)
         {
             var button = newTower.GetComponent<Button>();
             button.onClick.AddListener(() => OpenInfoUI(index));
@@ -255,13 +255,79 @@ public class TowerInstallControl : MonoBehaviour
     {
         foreach (var tower in towers)
         {
-            var pos = new Vector2(Mathf.Cos((baseAngle + 90f) * Mathf.Deg2Rad), Mathf.Sin((baseAngle + 90f) * Mathf.Deg2Rad)) * towerRadius;
+            var pos = new Vector2(
+                Mathf.Cos((baseAngle + 90f) * Mathf.Deg2Rad), 
+                Mathf.Sin((baseAngle + 90f) * Mathf.Deg2Rad)
+                ) * towerRadius;
             var rot = new Vector3(0, 0, baseAngle);
             var towerRect = tower.GetComponent<RectTransform>();
             towerRect.localPosition = pos;
             towerRect.rotation = Quaternion.Euler(rot);
 
             baseAngle += 360f / towerCount;
+        }
+    }
+
+    private void ApplyBuffToAssignedSlots(TowerAmplifier ampTower, AmplifierTowerDataSO ampData, int selfIndex)
+    {
+        if (ampTower == null) return;
+        if (ampData == null) return;
+
+        //Candidate Buffed Tower: Attack Tower-------------------
+        List<int> buffAbleTowers = new List<int>();
+        
+        for(int i=0; i<towerCount; i++)
+        {
+            if (i == selfIndex) continue;
+            var attackTower = planet.GetAttackTowerToAmpTower(i);
+            if (ampData.OnlyAttackTower && attackTower == null) continue;
+            if (attackTower == null) continue;
+
+            buffAbleTowers.Add(i);
+        }
+        //--------------------------------------------------------
+
+        //Filtered by Target Mode (Random || LeftIndex)-----------
+        List<int> filteredBuffTowers = new List<int>();
+
+        switch (ampData.TargetMode)
+        {
+            case AmplifierTargetMode.RandomSlots:
+            {
+                if (buffAbleTowers.Count == 0) break;
+
+                int finalBuffedSlotCount = Mathf.Min(ampData.FixedBuffedSlotCount, buffAbleTowers.Count);
+
+                for (int n = 0; n < finalBuffedSlotCount; n++)
+                {
+                    int randIndex = Random.Range(0, buffAbleTowers.Count);
+                    int slotIndex = buffAbleTowers[randIndex];
+                    buffAbleTowers.Add(slotIndex);
+                }
+                break;
+            }
+
+            case AmplifierTargetMode.LeftNeighbor:
+            {
+                int leftIndex = (selfIndex - 1 + towerCount) % towerCount;
+                if (leftIndex < 0 || leftIndex >= towerCount) break;
+
+                var attackTower = planet.GetAttackTowerToAmpTower(leftIndex);
+
+                if (ampData.OnlyAttackTower && attackTower == null) break;
+                if (attackTower != null) buffAbleTowers.Add(leftIndex);
+
+                break;
+            }
+        }
+        //--------------------------------------------------------
+
+        //Go Buff-------------------------------------------------
+        foreach (int slotIndex in buffAbleTowers)
+        {
+            var attackTower = planet.GetAttackTowerToAmpTower(slotIndex);
+            if (attackTower == null) continue;
+            ampTower.ApplyBuff(attackTower);
         }
     }
 }

@@ -19,7 +19,7 @@ public class AmplifierTowerDataSO : ScriptableObject
     [SerializeField] private AmplifierType amplifierType;
 
     [SerializeField] private AmplifierTargetMode targetMode;
-    [SerializeField] private int buffedSlotCount = 1;      
+    [SerializeField] private int fixedBuffedSlotCount = 1;      
     [SerializeField] private bool onlyAttackTower = true;
 
     [SerializeField] private float damageBuff = 1f;  
@@ -35,8 +35,8 @@ public class AmplifierTowerDataSO : ScriptableObject
     public string AmplifierId => amplifierId;
     public AmplifierType AmplifierType => amplifierType;
     public AmplifierTargetMode TargetMode => targetMode;
-    public int AffectedSlotCount => buffedSlotCount;
-    public bool AffectInterceptorOnly => onlyAttackTower;
+    public int FixedBuffedSlotCount => fixedBuffedSlotCount;
+    public bool OnlyAttackTower => onlyAttackTower;
     public float DamageBuff => damageBuff;
     public float FireRateBuff => fireRateBuff;
     public float AccelerationBuff => accelerationBuff;
