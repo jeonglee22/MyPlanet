@@ -45,13 +45,18 @@ public class Enemy : LivingEntity, ITargetable
     private int patternId = 1; //test
     public EnemySpawner Spawner { get; set; }
 
+    public event Action OnLifeTimeOverEvent;
+
     protected override void OnEnable()
     {
         base.OnEnable();
 
         movement = GetComponent<EnemyMovement>();
 
+        OnDeathEvent -= SpawnManager.Instance.OnEnemyDied;
+        OnLifeTimeOverEvent -= SpawnManager.Instance.OnEnemyDied;
         OnDeathEvent += SpawnManager.Instance.OnEnemyDied;
+        OnLifeTimeOverEvent += SpawnManager.Instance.OnEnemyDied;
 
         Material = GetComponent<Renderer>().material;
         Material.color = baseColor;
@@ -112,6 +117,13 @@ public class Enemy : LivingEntity, ITargetable
         objectPoolManager?.Return(enemyId, this);
     }
 
+    private void OnLifeTimeOver()
+    {
+        OnLifeTimeOverEvent?.Invoke();
+        transform.localScale = originalScale;
+        objectPoolManager?.Return(enemyId, this);
+    }
+
     public void Initialize(EnemyTableData enemyData, Vector3 targetDirection, int enemyId, ObjectPoolManager<int, Enemy> poolManager, ScaleData scaleData, bool excutePattern)
     {
         this.enemyId = enemyId;
@@ -164,7 +176,7 @@ public class Enemy : LivingEntity, ITargetable
             await UniTask.Delay(System.TimeSpan.FromSeconds(timeToWait), cancellationToken: token);
             if(!token.IsCancellationRequested)
             {
-                objectPoolManager?.Return(enemyId, this);
+                OnLifeTimeOver();
             }
         }
         catch (System.OperationCanceledException)

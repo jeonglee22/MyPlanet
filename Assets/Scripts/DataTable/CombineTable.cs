@@ -15,17 +15,7 @@ public class CombineData
     public int Enemy_Id_3 { get; set; }
     public int EnemyQuantity_3 { get; set; }
     public int SpawnPoint_3 { get; set; }
-    public int Enemy_Id_4 { get; set; }
-    public int EnemyQuantity_4 { get; set; }
-    public int SpawnPoint_4 { get; set; }
-    public int Enemy_Id_5 { get; set; }
-    public int EnemyQuantity_5 { get; set; }
-    public int SpawnPoint_5 { get; set; }
 
-    public override string ToString()
-    {
-        return $"{Comb_Id}, {Enemy_Id_1}, {EnemyQuantity_1}, {SpawnPoint_1}, {Enemy_Id_2}, {EnemyQuantity_2}, {SpawnPoint_2}, {Enemy_Id_3}, {EnemyQuantity_3}, {SpawnPoint_3}, {Enemy_Id_4}, {EnemyQuantity_4}, {SpawnPoint_4}, {Enemy_Id_5}, {EnemyQuantity_5}, {SpawnPoint_5}";
-    }
 }
 
 public class CombineTable : DataTable

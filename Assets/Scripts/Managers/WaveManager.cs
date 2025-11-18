@@ -23,6 +23,8 @@ public class WaveManager : MonoBehaviour
     private int currentWaveIndex = 0;
     private bool isWaveInProgress = false;
 
+    public bool IsWaveInProgress => isWaveInProgress;
+
     private void Awake()
     {
         if (instance == null)
@@ -47,10 +49,6 @@ public class WaveManager : MonoBehaviour
             enemyIds.Add(combData.Enemy_Id_2);
         if (combData.Enemy_Id_3 != 0)
             enemyIds.Add(combData.Enemy_Id_3);
-        if (combData.Enemy_Id_4 != 0)
-            enemyIds.Add(combData.Enemy_Id_4);
-        if (combData.Enemy_Id_5 != 0)
-            enemyIds.Add(combData.Enemy_Id_5);
 
         return enemyIds;
     }
@@ -142,6 +140,7 @@ public class WaveManager : MonoBehaviour
         await ExecuteWave(currentWave);
     }
 
+    [SerializeField] private float waveInterval = 3f;
     public async UniTaskVoid OnWaveCleared()
     {
         if(!isWaveInProgress)
@@ -154,6 +153,7 @@ public class WaveManager : MonoBehaviour
 
         if(currentWaveIndex < waveDatas.Count)
         {
+            await UniTask.Delay(System.TimeSpan.FromSeconds(waveInterval));
             await StartNextWave();
         }
         else
