@@ -26,7 +26,9 @@ public static class DataTableManager
         var tasks = new List<UniTask>
         {
             LoadTableAsync<StringTable>(DataTableIds.String),
-            LoadTableAsync<EnemyTable>(DataTableIds.Enemy)
+            LoadTableAsync<EnemyTable>(DataTableIds.Enemy),
+            LoadTableAsync<CombineTable>(DataTableIds.Combine),
+            LoadTableAsync<WaveTable>(DataTableIds.Wave)
         };
 
         await UniTask.WhenAll(tasks);
@@ -52,6 +54,22 @@ public static class DataTableManager
         get
         {
             return Get<EnemyTable>(DataTableIds.Enemy);
+        }
+    }
+
+    public static CombineTable CombineTable
+    {
+        get
+        {
+            return Get<CombineTable>(DataTableIds.Combine);
+        }
+    }
+
+    public static WaveTable WaveTable
+    {
+        get
+        {
+            return Get<WaveTable>(DataTableIds.Wave);
         }
     }
     

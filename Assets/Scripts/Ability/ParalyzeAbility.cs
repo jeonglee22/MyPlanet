@@ -22,6 +22,7 @@ public class ParalyzeAbility : PassiveAbility
             movement.moveSpeed = 0;
             movement.isDebuff = true;
 
+            /*
             if (enemy.Data.hitEffect != null)
             {
                 var effectInstance = GameObject.Instantiate(enemy.Data.hitEffect, enemy.transform.position, Quaternion.identity);
@@ -29,7 +30,7 @@ public class ParalyzeAbility : PassiveAbility
                 
                 GameObject.Destroy(effectInstance.gameObject, effectInstance.main.duration + effectInstance.main.startLifetime.constantMax);
             }
-            
+            */
         }
     }
 

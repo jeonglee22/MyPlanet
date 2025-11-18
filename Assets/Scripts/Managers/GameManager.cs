@@ -1,0 +1,17 @@
+using Cysharp.Threading.Tasks;
+using UnityEngine;
+
+public class GameManager : MonoBehaviour
+{
+    [SerializeField] private LoadManager loadManager;
+    public static LoadManager LoadManagerInstance { get; private set; }
+
+    private async UniTaskVoid Start()
+    {
+        LoadManagerInstance = loadManager;
+
+        await DataTableManager.InitializeAsync();
+
+        await loadManager.TestLoadEnemy();
+    }
+}

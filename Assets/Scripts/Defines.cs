@@ -27,9 +27,13 @@ public static class DataTableIds
     public static string String => StringTableIds[(int)Variables.Language];
     public static readonly string Item = "ItemTable";
     public static readonly string Enemy = "EnemyTable";
+    public static readonly string Combine = "CombineTable";
+    public static readonly string Wave = "WaveTable";
 }
 
 public static class Variables
 {
     public static Languages Language = Languages.Korean;
+
+    public static int Stage {get; set;} = 1;
 }

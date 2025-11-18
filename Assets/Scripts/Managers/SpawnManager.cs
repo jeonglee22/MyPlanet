@@ -7,7 +7,7 @@ public class SpawnManager : MonoBehaviour
     private static SpawnManager instance;
     public static SpawnManager Instance { get { return instance; } }
 
-    private List<GameObject> spawnPoints = new List<GameObject>();
+    private List<EnemySpawner> spawnPoints = new List<EnemySpawner>();
 
     [SerializeField] private GameObject spawnPointSample;
     [SerializeField] private int spawnPointCount = 5;
@@ -83,7 +83,10 @@ public class SpawnManager : MonoBehaviour
             float x = center.x + radius * Mathf.Cos(angle);
             float y = center.y + radius * Mathf.Sin(angle);
 
-            spawnPoints.Add(Instantiate(spawnPointSample, new Vector3(x, y, 0f), Quaternion.identity));
+            var spawner = Instantiate(spawnPointSample, new Vector3(x, y, 0f), Quaternion.identity).GetComponent<EnemySpawner>();
+            spawnPoints.Add(spawner);
+
+            spawnPoints[i].gameObject.name = "SpawnPoint_" + i;
         }
     }
 }

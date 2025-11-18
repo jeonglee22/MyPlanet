@@ -70,6 +70,8 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             ui.SetActive(false);
 
         Time.timeScale = 1f;
+        numlist = null;
+        choosedIndex = -1;
         isStartTouch = false;
         towerImageIsDraging = false;
     }
@@ -175,7 +177,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         }
 
         if (choosedIndex == -1 || 
-            installControl.IsUsedSlot(numlist[choosedIndex]))
+            (numlist != null && installControl.IsUsedSlot(numlist[choosedIndex])))
             return;
 
         dragImage = Instantiate(dragImagePrefab, upgradeUIs[choosedIndex].transform);

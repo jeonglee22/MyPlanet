@@ -21,7 +21,7 @@ public class Projectile : MonoBehaviour
     public float hitRadius = 10f;
     public float acceleration ;
 
-    private IObjectPool<Projectile> pool;
+    private ObjectPoolManager<ProjectileData, Projectile> objectPoolManager;
 
     private CancellationTokenSource lifeTimeCts;
     public event Action<GameObject> abilityAction;
@@ -41,7 +41,7 @@ public class Projectile : MonoBehaviour
             Cancel();
             abilityRelease?.Invoke(gameObject);
             abilityRelease = null;
-            pool?.Release(this);
+            objectPoolManager.Return(projectileData, this);
         }
     }
 
@@ -50,11 +50,6 @@ public class Projectile : MonoBehaviour
         Cancel();
         abilityRelease?.Invoke(gameObject);
         abilityRelease = null;
-    }
-    
-    public void SetPool(IObjectPool<Projectile> pool)
-    {
-        this.pool = pool;
     }
 
     private void Cancel()
@@ -82,11 +77,13 @@ public class Projectile : MonoBehaviour
     /// <param name="projectileData">Projectile basic data</param>
     /// <param name="direction">Shooter direction</param>
     /// <param name="isHit">whether or not a hit is judged by the accuracy rate</param>
-    public void Initialize(ProjectileData projectileData, Vector3 direction, bool isHit)
+    public void Initialize(ProjectileData projectileData, Vector3 direction, bool isHit, ObjectPoolManager<ProjectileData, Projectile> poolManager)
     {
         this.projectileData = projectileData;
         this.direction = direction;
         this.isHit = isHit;
+
+        objectPoolManager = poolManager;
 
         acceleration = projectileData.acceleration;
         totalSpeed = projectileData.speed;
@@ -103,7 +100,7 @@ public class Projectile : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag(TagName.Planet) || other.gameObject.CompareTag(TagName.Projectile)
-            || other.gameObject.CompareTag(TagName.DropItem))
+            || other.gameObject.CompareTag(TagName.DropItem) || other.gameObject.CompareTag("PatternLine"))
         {
             return;
         }
@@ -113,7 +110,7 @@ public class Projectile : MonoBehaviour
         if (damagable != null && enemy != null && isHit)
         {
             abilityAction?.Invoke(other.gameObject);
-            damagable.OnDamage(CalculateTotalDamage(enemy.Data.defense));
+            damagable.OnDamage(CalculateTotalDamage(enemy.Data.Defense));
             abilityAction = null;
         }
 

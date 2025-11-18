@@ -7,12 +7,13 @@ using UnityEngine.Pool;
 
 public class Enemy : LivingEntity, ITargetable
 {
-    private IObjectPool<Enemy> pool;
+    private ObjectPoolManager<int, Enemy> objectPoolManager;
 
     private EnemyMovement movement;
-    private List<EnemyAbility> abilities = new List<EnemyAbility>();
-    private EnemyData data;
-    public EnemyData Data { get { return data; } }
+    public EnemyMovement Movement => movement;
+    private EnemyPattern pattern;
+    private EnemyTableData data;
+    public EnemyTableData Data { get { return data; } }
 
     public Vector3 position => transform.position;
 
@@ -20,9 +21,9 @@ public class Enemy : LivingEntity, ITargetable
 
     public float maxHp => maxHealth;
 
-    public float atk => data.damage;
+    public float atk => data.Attack;
 
-    public float def => data.defense;
+    public float def => data.Defense;
 
     [SerializeField] private float lifeTime = 2f;
     private CancellationTokenSource lifeTimeCts;
@@ -35,6 +36,9 @@ public class Enemy : LivingEntity, ITargetable
     private Material Material;
 
     private CancellationTokenSource colorResetCts;
+    private int enemyId;
+    private int patternId = 0; //test
+    public EnemySpawner Spawner { get; set; }
 
     protected override void OnEnable()
     {
@@ -67,13 +71,17 @@ public class Enemy : LivingEntity, ITargetable
         IDamagable damagable = other.gameObject.GetComponent<IDamagable>();
         if (damagable != null)
         {
-            damagable.OnDamage(data.damage);
+            damagable.OnDamage(data.Attack);
         }
+
+        pattern?.OnTrigger(other);
     }
 
     public override void OnDamage(float damage)
     {
-        base.OnDamage(damage);
+        float actualDamage = pattern != null ? pattern.CalculateDamage(damage) : damage;
+
+        base.OnDamage(actualDamage);
 
         ColorCancel();
 
@@ -92,29 +100,30 @@ public class Enemy : LivingEntity, ITargetable
             Instantiate(drop, transform.position, Quaternion.identity);
         }
 
-        pool?.Release(this);
+        objectPoolManager?.Return(enemyId, this);
     }
 
-    public void Initialize(EnemyData enemyData, Vector3 targetDirection)
+    public void Initialize(EnemyTableData enemyData, Vector3 targetDirection, int enemyId, ObjectPoolManager<int, Enemy> poolManager, bool excutePattern)
     {
-        //tower system random dummy test
-        data = ScriptableObject.Instantiate(enemyData);
+        this.enemyId = enemyId;
+        objectPoolManager = poolManager;
 
-        //data = enemyData;
-        maxHealth = data.maxHealth;
+        data = enemyData;
+        maxHealth = data.Hp;
         Health = maxHealth;
 
-        AddMovementComponent(data.movementType, data.speed, targetDirection);
-        AddAbilityComponents(data.abilityTypes);
+        AddMovementComponent();
+
+        AddPatternComponent(data.EnemyGrade, patternId);
 
         Cancel();
 
         LifeTimeTask(lifeTimeCts.Token).Forget();
-    }
 
-    public void SetPool(IObjectPool<Enemy> pool)
-    {
-        this.pool = pool;
+        if(excutePattern && pattern != null)
+        {
+            pattern.Initialize(this, movement, data);
+        }
     }
 
     private void Cancel()
@@ -126,59 +135,84 @@ public class Enemy : LivingEntity, ITargetable
 
     private async UniTaskVoid LifeTimeTask(CancellationToken token)
     {
+        float timeToWait = 0f;
+        float startTime = 0f;
+
         try
         {
-            await UniTask.Delay(System.TimeSpan.FromSeconds(lifeTime), cancellationToken: token);
+            timeToWait = remainingLifeTime > 0f ? remainingLifeTime : lifeTime;
+            startTime = Time.time;
+
+            await UniTask.Delay(System.TimeSpan.FromSeconds(timeToWait), cancellationToken: token);
             if(!token.IsCancellationRequested)
             {
-                pool?.Release(this);
+                objectPoolManager?.Return(enemyId, this);
             }
         }
         catch (System.OperationCanceledException)
         {
-            // Ignore cancellation
+            if (isLifeTimePaused)
+            {
+                float elapsed = Time.time - startTime;
+                remainingLifeTime = timeToWait - elapsed;
+            }
         }
     }
 
-    private void AddMovementComponent(MovementType type, float speed, Vector3 targetDirection)
+    private float remainingLifeTime;
+    private bool isLifeTimePaused;
+    public void PauseLifeTime()
+    {
+        if(!isLifeTimePaused)
+        {
+            isLifeTimePaused = true;
+            Cancel();
+        }
+    }
+
+    public void ResumeLifeTime()
+    {
+        if(isLifeTimePaused)
+        {
+            isLifeTimePaused = false;
+            Cancel();
+            LifeTimeTask(lifeTimeCts.Token).Forget();
+        }
+    }
+
+    private void AddMovementComponent()
     {
         if(movement == null)
         {
-            switch (type)
-            {
-                case MovementType.StraightDown:
-                    movement = gameObject.AddComponent<StraightDownMovement>();
-                    break;
-                case MovementType.TargetDirection:
-                    movement = gameObject.AddComponent<TargetDirectionMovement>();
-                    break;
-            }
+            movement = gameObject.AddComponent<StraightDownMovement>();
         }
 
-        movement.Initialize(speed, targetDirection);
+        //movement.Initialize(data.MoveSpeed, Vector3.down);
+        movement.Initialize(1f, Vector3.down);
     }
-    
-    private void AddAbilityComponents(AbilityType[] types)
-    {
-        if (types == null || types.Length == 0)
-        {
-            return;
-        }
-        
-        foreach(var type in types)
-        {
-            EnemyAbility ability = null;
-            switch (type)
-            {
-                case AbilityType.SplitOnDeath:
-                    ability = gameObject.AddComponent<SplitDeathAbility>();
-                    break;
-            }
 
-            if(ability != null)
+    private void AddPatternComponent(int grade, int patternId)
+    {
+        if(pattern != null)
+        {
+            Destroy(pattern);
+        }
+
+        //Grade 4: Normal, Gade 3: Unique, Grade: Middle Boss, Grade 1: Boss
+        if(grade == 4)
+        {
+            pattern = gameObject.AddComponent<NormalPattern>();
+        }
+        else
+        {
+            switch (patternId)
             {
-                ability.Initialize(this, data);
-                abilities.Add(ability);
+                case 0:
+                    pattern = gameObject.AddComponent<MeteorClusterPattern>();
+                    break;
+                default:
+                    pattern = gameObject.AddComponent<NormalPattern>();
+                    break;
             }
         }
     }
