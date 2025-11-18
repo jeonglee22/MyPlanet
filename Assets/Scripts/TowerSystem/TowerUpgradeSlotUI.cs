@@ -31,9 +31,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
     private GameObject dragImage = null;
     private int choosedIndex = -1;
-    [SerializeField] private Button refreshButton;
-    private string canRefreshText = "Refresh";
-    private string cannotRefreshText = "IsUsed";
+    [SerializeField] private Button[] refreshButtons;
 
     private void Start()
     {
@@ -41,8 +39,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             ui.SetActive(false);
         towerColor = Color.yellow;
 
-        refreshButton.onClick.AddListener(OnClickRefreshButton);
-        refreshButton.gameObject.SetActive(false);
+        SetActiveRefreshButtons(false);
     }
 
     private void OnEnable()
@@ -50,16 +47,18 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         if(isNotUpgradeOpen)
         {
             isNotUpgradeOpen = false;
-            refreshButton.gameObject.SetActive(false);
+            SetActiveRefreshButtons(false);
             return;
         }
 
         foreach (var ui in upgradeUIs)
             ui.SetActive(true);
 
-        refreshButton.gameObject.SetActive(true);
-        refreshButton.interactable = true;
-        refreshButton.GetComponentInChildren<TextMeshProUGUI>().text = canRefreshText;
+        foreach (var refreshButton in refreshButtons)
+        {
+            refreshButton.gameObject.SetActive(true);
+            refreshButton.interactable = true;
+        }
 
         SettingUpgradeCards();
     }
@@ -68,12 +67,19 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     {
         foreach (var ui in upgradeUIs)
             ui.SetActive(false);
+        SetActiveRefreshButtons(false);
 
         Time.timeScale = 1f;
         numlist = null;
         choosedIndex = -1;
         isStartTouch = false;
         towerImageIsDraging = false;
+    }
+
+    private void SetActiveRefreshButtons(bool active)
+    {
+        foreach (var refreshButton in refreshButtons)
+            refreshButton.gameObject.SetActive(active);
     }
 
     private void SettingUpgradeCards()
@@ -110,11 +116,42 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         }
     }
 
-    private void OnClickRefreshButton()
+    private void ResetUpgradeCard(int index)
     {
-        SettingUpgradeCards();
-        refreshButton.GetComponentInChildren<TextMeshProUGUI>().text = cannotRefreshText;
-        refreshButton.interactable = false;
+        abilities[index] = AbilityManager.Instance.GetRandomAbility();
+
+        int number;
+        int count = 0;
+        do
+        {
+            number = Random.Range(0, installControl.TowerCount);
+            count++;
+        } while (numlist.Contains(number) && count < installControl.TowerCount);
+
+        numlist[index] = number;
+
+        if (installControl == null)
+            return;
+
+        // test
+        if (!installControl.IsUsedSlot(number))
+        {
+            uiTexts[index].text = $"new Tower\n\n{abilities[index]}";
+        }
+        else
+        {
+            uiTexts[index].text = $"Upgrade\n{number}";
+        }
+        //
+    }
+
+    public void OnClickRefreshButton(int index)
+    {
+        ResetUpgradeCard(index);
+        if(refreshButtons == null) return;
+        
+        refreshButtons[index].interactable = false;
+
     }
 
     public void OnClickUpgradeUIClicked(int index)

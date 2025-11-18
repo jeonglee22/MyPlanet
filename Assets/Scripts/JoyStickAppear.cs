@@ -26,6 +26,9 @@ public class JoyStickAppear : MonoBehaviour
 
     void Update()
     {
+        if(EventSystem.current.IsPointerOverGameObject())
+            return;
+
         var touchScreen = Touchscreen.current;
         if (touchScreen == null) return;
 
@@ -43,7 +46,6 @@ public class JoyStickAppear : MonoBehaviour
             return;
         }
 
-        Debug.Log(upgradeSlotUI.gameObject.activeSelf);
         if(upgradeSlotUI != null && upgradeSlotUI.gameObject.activeSelf)
             return;
 

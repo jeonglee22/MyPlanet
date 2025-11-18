@@ -33,6 +33,7 @@ public class TowerInfoUI : PopUpUI
 
     private int infoIndex = -1;
     private bool isSameTower;
+    private Vector2 touchPos;
 
     public void SetInfo(int index)
     {
@@ -83,15 +84,13 @@ public class TowerInfoUI : PopUpUI
         SetText(hitRadiusValueText, proj != null ? proj.hitRadius.ToString("0.00") : null);
     }
 
+    public void OnUITouchPos(InputAction.CallbackContext context)
+    {
+        touchPos = context.ReadValue<Vector2>();
+    }
+
     protected override void Update()
     {
-        var touchScreen = Touchscreen.current;
-        if (touchScreen == null) return;
-
-        var primary = touchScreen.primaryTouch;
-        if (!primary.press.isPressed) return;
-
-        var touchPos = primary.position.ReadValue();
         if(RectTransformUtility.RectangleContainsScreenPoint(installControl.Towers[infoIndex].GetComponent<RectTransform>(),touchPos))
         {
             return;
