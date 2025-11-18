@@ -96,7 +96,7 @@ public class EnemySpawner : MonoBehaviour
     }
 
     //test
-    private void PreparePool(int enemyId)
+    public void PreparePool(int enemyId)
     {
         if(GameManager.LoadManagerInstance == null || objectPoolManager.HasPool(enemyId))
         {

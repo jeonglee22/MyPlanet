@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class SpawnManager : MonoBehaviour
 {
@@ -90,12 +91,60 @@ public class SpawnManager : MonoBehaviour
 
     private EnemySpawner GetSpawner(int spawnerIndex)
     {
-        int index = spawnerIndex - 1;
+        int index = spawnerIndex;
         if (spawnerIndex < 0 || spawnerIndex >= spawnPoints.Count)
         {
             return null;
         }
 
         return spawnPoints[spawnerIndex];
+    }
+
+    public void PrepareEnemyPools(int enemyId)
+    {
+        foreach (var spawner in spawnPoints)
+        {
+            spawner.PreparePool(enemyId);
+        }
+    }
+
+    private void SpawnSlot(int enemyId, int quantity, int spawnPointIndex, ScaleData scaleData)
+    {
+        if(enemyId == 0 || quantity <= 0)
+        {
+            return;
+        }
+
+        var spawner = GetSpawner(spawnPointIndex);
+        if(spawner == null)
+        {
+            return;
+        }
+
+        spawner.SpawnEnemiesWithScale(enemyId, quantity, scaleData);
+        currentEnemyCount += quantity;
+    }
+
+    public void SpawnCombination(CombineData combineData, ScaleData scaleData)
+    {
+        if(combineData == null)
+        {
+            return;
+        }
+
+        SpawnSlot(combineData.Enemy_Id_1, combineData.EnemyQuantity_1, combineData.SpawnPoint_1, scaleData);
+        SpawnSlot(combineData.Enemy_Id_2, combineData.EnemyQuantity_2, combineData.SpawnPoint_2, scaleData);
+        SpawnSlot(combineData.Enemy_Id_3, combineData.EnemyQuantity_3, combineData.SpawnPoint_3, scaleData);
+        SpawnSlot(combineData.Enemy_Id_4, combineData.EnemyQuantity_4, combineData.SpawnPoint_4, scaleData);
+        SpawnSlot(combineData.Enemy_Id_5, combineData.EnemyQuantity_5, combineData.SpawnPoint_5, scaleData);
+    }
+
+    public void OnDrawGizmos()
+    {
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(new Vector3(screenBounds.xMin, screenBounds.yMin, 0f), new Vector3(screenBounds.xMin, screenBounds.yMax, 0f));
+        Gizmos.DrawLine(new Vector3(screenBounds.xMin, screenBounds.yMax, 0f), new Vector3(screenBounds.xMax, screenBounds.yMax, 0f));
+        Gizmos.DrawLine(new Vector3(screenBounds.xMax, screenBounds.yMax, 0f), new Vector3(screenBounds.xMax, screenBounds.yMin, 0f));
+        Gizmos.DrawLine(new Vector3(screenBounds.xMax, screenBounds.yMin, 0f), new Vector3(screenBounds.xMin, screenBounds.yMin, 0f));
     }
 }
