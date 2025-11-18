@@ -48,6 +48,8 @@ public class EnemySpawner : MonoBehaviour
             ExpScale = 1f
         };
 
+        SpawnManager.Instance.CurrentEnemyCount++;
+
         return CreateEnemy(enemyId, spawnPosition, Vector3.down, defaultScaleData, excutePattern);
     }
 

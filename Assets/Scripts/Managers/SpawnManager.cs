@@ -13,7 +13,7 @@ public class SpawnManager : MonoBehaviour
     [SerializeField] private GameObject spawnPointSample;
     [SerializeField] private int spawnPointCount = 5;
 
-    public int CurrentEnemyCount { get => currentEnemyCount; }
+    public int CurrentEnemyCount { get => currentEnemyCount; set => currentEnemyCount = value; }
     private int currentEnemyCount = 0;
 
     public bool IsSpawning { get; set; } = false;
@@ -21,7 +21,7 @@ public class SpawnManager : MonoBehaviour
     private Rect screenBounds;
     private Rect offSetBounds;
     public Rect ScreenBounds => screenBounds;
-    [SerializeField] private float offSet = 10f;
+    private float offSet = 3f;
 
     private void Awake()
     {

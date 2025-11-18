@@ -42,7 +42,7 @@ public class Enemy : LivingEntity, ITargetable
 
     private CancellationTokenSource colorResetCts;
     private int enemyId;
-    private int patternId = 1; //test
+    private int patternId = 0; //test
     public EnemySpawner Spawner { get; set; }
 
     public event Action OnLifeTimeOverEvent;
@@ -231,7 +231,8 @@ public class Enemy : LivingEntity, ITargetable
         //Grade 4: Normal, Gade 3: Unique, Grade: Middle Boss, Grade 1: Boss
         if(grade == 4)
         {
-            pattern = gameObject.AddComponent<NormalPattern>();
+            //pattern = gameObject.AddComponent<NormalPattern>();
+            pattern = gameObject.AddComponent<MeteorClusterPattern>();
         }
         else
         {
