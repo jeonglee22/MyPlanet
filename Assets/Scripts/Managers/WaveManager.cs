@@ -88,5 +88,37 @@ public class WaveManager : MonoBehaviour
         }
 
         await PreloadWaveAssets(waveDatas[0]);
+
+        await ExecuteWave(waveDatas[0]);
+    }
+
+    private async UniTask ExecuteWave(WaveData waveData)
+    {
+        var combData = DataTableManager.CombineTable.Get(waveData.Comb_Id);
+        if(combData == null)
+        {
+            return;
+        }
+
+        ScaleData scaleData = new ScaleData
+        {
+            HpScale = waveData.HpScale,
+            AttScale = waveData.AttScale,
+            DefScale = waveData.DefScale,
+            PenetScale = waveData.PenetScale,
+            MoveSpeedScale = waveData.MoveSpeedScale,
+            PrefabScale = waveData.PrefabScale,
+            ExpScale = waveData.ExpScale
+        };
+
+        for(int i = 0; i < waveData.RepeatCount; i++)
+        {
+            SpawnManager.Instance.SpawnCombination(combData, scaleData);
+            
+            if(i < waveData.RepeatCount - 1)
+            {
+                await UniTask.Delay(System.TimeSpan.FromSeconds(waveData.SpawnTerm));
+            }
+        }
     }
 }

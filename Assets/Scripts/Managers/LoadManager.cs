@@ -23,24 +23,9 @@ public class LoadManager : MonoBehaviour
 
             return prefab;
         }
-        catch(System.Exception ex)
+        catch(System.Exception)
         {
-            Debug.LogError($"Failed to load enemy prefab with ID {enemyId} from Addressables. Exception: {ex}");
             return null;
-        }
-    }
-
-    public async UniTask TestLoadEnemy()
-    {
-        GameObject prefab = await LoadEnemyPrefabAsync(400201);
-
-        if(prefab != null)
-        {
-            Debug.Log($"Load Success: {prefab.name}");
-        }
-        else
-        {
-            Debug.Log("Load Failed");
         }
     }
 
@@ -62,7 +47,7 @@ public class LoadManager : MonoBehaviour
         {
             if(!loadedEnemyPrefabs.ContainsKey(enemyId))
             {
-                loadTasks.Add(LoadEnemyPrefabAsync(enemyId).AsUniTask());
+                loadTasks.Add(LoadEnemyPrefabAsync(enemyId));
             }
         }
 

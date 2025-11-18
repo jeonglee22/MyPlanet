@@ -123,7 +123,7 @@ public class Enemy : LivingEntity, ITargetable
         ratePenetration = data.UniqueRatePenetration * scaleData.PenetScale;
         fixedPenetration = data.FixedPenetration * scaleData.PenetScale;
 
-        transform.localScale = Vector3.one * scaleData.PrefabScale;
+        transform.localScale *= scaleData.PrefabScale;
 
         AddMovementComponent();
 
