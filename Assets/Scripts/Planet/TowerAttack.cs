@@ -9,6 +9,7 @@ public class TowerAttack : MonoBehaviour
     private TowerTargetingSystem targetingSystem;
     private ProjectileData currentProjectileData;
     private TowerDataSO towerData;
+    public TowerDataSO AttackTowerData => towerData;
     private float shootTimer;
 
     private List<IAbility> abilities;
@@ -28,9 +29,28 @@ public class TowerAttack : MonoBehaviour
     private int targetNumberBuffAdd=0;
     private float hitRateBuffMul=1f;
 
+    public float CurrentFireRate
+    {
+        get
+        {
+            if (towerData == null) return 0f;
+            return towerData.fireRate * fireRateBuffMul;
+        }
+    }
+
     //Apply Buff Version Projectile Data SO
     private ProjectileData addBuffProjectileData; //making runtime once
+    public ProjectileData CurrentProjectileData
+    {
+        get
+        {
+            var buffed = GetBuffedProjectileData();
+            if (buffed != null) return buffed;
+            return towerData != null ? towerData.projectileType : null;
+        }
+    }
     //-------------------------------------------------------
+
 
     private void Awake()
     {
@@ -72,6 +92,9 @@ public class TowerAttack : MonoBehaviour
             ShootAtTarget();
             shootTimer = 0f;
         }
+
+        Debug.Log($"[ShootTimer] {gameObject.name} finalFireRate={finalFireRate}");
+
     }
 
     private void ShootAtTarget()
@@ -237,17 +260,17 @@ public class TowerAttack : MonoBehaviour
             return;
         }
 
-        damageBuffMul = amp.damageBuff;
-        fireRateBuffMul = amp.fireRateBuff;
-        accelerationBuffAdd = amp.accelerationBuff;
+        damageBuffMul = amp.DamageBuff;
+        fireRateBuffMul = amp.FireRateBuff;
+        accelerationBuffAdd = amp.AccelerationBuff;
 
         //not yet_20251117 14:14
-        hitRadiusBuffMul = 1f + amp.hitRadiusBuff;
-        percentPenetrationBuffMul = amp.percentPenetrationBuff;
-        fixedPenetrationBuffAdd = amp.fixedPenetrationBuff;
-        projectileCountBuffAdd = amp.projectileCountBuff;
-        targetNumberBuffAdd = amp.targetNumberBuff;
-        hitRateBuffMul = amp.hitRateBuff;
+        hitRadiusBuffMul = 1f + amp.HitRadiusBuff;
+        percentPenetrationBuffMul = amp.PercentPenetrationBuff;
+        fixedPenetrationBuffAdd = amp.FixedPenetrationBuff;
+        projectileCountBuffAdd = amp.ProjectileCountBuff;
+        targetNumberBuffAdd = amp.TargetNumberBuff;
+        hitRateBuffMul = amp.HitRateBuff;
 
         Debug.Log($"[TowerAttack Buff] {name} | dmgMul={damageBuffMul:F2}, fireRateMul={fireRateBuffMul:F2}, accelAdd={accelerationBuffAdd:F2}");
     }
