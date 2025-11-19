@@ -109,6 +109,29 @@ public class TowerInfoUI : PopUpUI
         
         base.Update();
     }
+
+    private float CalculateAbilityUpgrade(int abilityId, int count, float baseValue)
+    {
+        var ability = AbilityManager.Instance.GetAbility(abilityId);
+
+        
+        if (ability.AbilityType == AbilityApplyType.Rate)
+        {
+            for(int i = 0; i < count; i++)
+            {
+                baseValue *= ability.UpgradeAmount;
+            }
+        }
+        else if (ability.AbilityType == AbilityApplyType.Fixed)
+        {
+            for(int i = 0; i < count; i++)
+            {
+                baseValue += ability.UpgradeAmount;
+            }
+        }
+        
+        return baseValue;
+    }
     
     public void OnCloseInfoClicked()
     {

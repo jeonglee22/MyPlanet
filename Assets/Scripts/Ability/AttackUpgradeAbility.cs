@@ -7,6 +7,7 @@ public class AttackUpgradeAbility : PassiveAbility
     public AttackUpgradeAbility()
     {
         upgradeAmount = 1.6f;
+        abilityType = AbilityApplyType.Rate;
     }
 
     public override void ApplyAbility(GameObject gameObject)

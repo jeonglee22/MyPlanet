@@ -5,6 +5,7 @@ public class AttackSpeedAbility : TowerAbility
     public AttackSpeedAbility()
     {
         upgradeAmount = 1.6f;
+        abilityType = AbilityApplyType.Rate;
     }
 
     public override void ApplyAbility(GameObject gameObject)

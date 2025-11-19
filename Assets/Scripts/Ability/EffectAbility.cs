@@ -4,6 +4,10 @@ public class EffectAbility : IAbility
 {
     protected TowerAttack tower;
     protected float upgradeAmount;
+    public float UpgradeAmount => upgradeAmount;
+
+    protected AbilityApplyType abilityType = AbilityApplyType.None;
+    public AbilityApplyType AbilityType => abilityType;
 
     public virtual void ApplyAbility(GameObject gameObject)
     {

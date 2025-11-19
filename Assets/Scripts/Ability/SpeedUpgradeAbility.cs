@@ -6,6 +6,7 @@ public class SpeedUpgradeAbility : PassiveAbility
     public SpeedUpgradeAbility()
     {
         upgradeAmount = 1.2f;
+        abilityType = AbilityApplyType.Rate;
     }
 
     public override void ApplyAbility(GameObject gameObject)

@@ -6,6 +6,10 @@ public class PassiveAbility : IAbility
     protected TowerAttack tower;
     protected Projectile projectile;
     protected float upgradeAmount;
+    public float UpgradeAmount => upgradeAmount;
+
+    protected AbilityApplyType abilityType = AbilityApplyType.None;
+    public AbilityApplyType AbilityType => abilityType;
 
     public PassiveAbility()
     {
