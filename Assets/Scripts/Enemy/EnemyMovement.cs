@@ -19,13 +19,13 @@ public abstract class EnemyMovement : MonoBehaviour
 
     public bool CanMove { get; set; } = true;
 
-    private void Start()
-    {
-        player = GameObject.FindGameObjectWithTag("Planet").transform;
-    }
-
     void OnEnable()
     {
+        if(player == null)
+        {
+            player = GameObject.FindGameObjectWithTag("Planet").transform;
+        }
+
         isDebuff = false;
     }
 
@@ -55,7 +55,13 @@ public abstract class EnemyMovement : MonoBehaviour
         }
     }
 
-    protected abstract void Move();
+    protected virtual void Move()
+    {
+        if(player == null)
+        {
+            player = GameObject.FindGameObjectWithTag("Planet").transform;
+        }
+    }
 
     public virtual void Initialize(float speed, Vector3 targetDirection)
     {

@@ -16,7 +16,7 @@ public class MeteorClusterPattern : EnemyPattern
 
     private float spawnRadius = 1f;
 
-    public override void Initialize(Enemy enemy, EnemyMovement movement, EnemyTableData enemyData)
+    public override void Initialize(Enemy enemy, EnemyMovement movement, EnemyTableData enemyData, ExecutionTrigger trigger = ExecutionTrigger.None, float interval = 0f)
     {
         base.Initialize(enemy, movement, enemyData);
         owner = enemy;
@@ -119,5 +119,10 @@ public class MeteorClusterPattern : EnemyPattern
     {
         Vector2 randomCircle = UnityEngine.Random.insideUnitCircle * spawnRadius;
         return owner.transform.position + new Vector3(randomCircle.x, randomCircle.y, 0f);
+    }
+
+    public override void Execute()
+    {
+        throw new NotImplementedException();
     }
 }

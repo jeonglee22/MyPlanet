@@ -1,10 +1,11 @@
 using UnityEngine;
 
-public class TargetDirectionMovement : EnemyMovement
+public class HomingMovement : EnemyMovement
 {
     protected override void Move()
     {
-        if(!isDirectionSet && player != null)
+        base.Move();
+        if(!isDirectionSet)
         {
             SetTargetDirection();
             isDirectionSet = true;
