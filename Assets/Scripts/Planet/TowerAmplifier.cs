@@ -73,7 +73,6 @@ public class TowerAmplifier : MonoBehaviour
         {
             if (i == selfIndex) continue;
             var attackTower = planet.GetAttackTowerToAmpTower(i);
-            if (ampData.OnlyAttackTower && attackTower == null) continue;
             if (attackTower == null) continue;
             buffAbleTowers.Add(i);
         }
@@ -95,8 +94,8 @@ public class TowerAmplifier : MonoBehaviour
                     {
                         int randIndex = UnityEngine.Random.Range(0, buffAbleTowers.Count);
                         int slotIndex = buffAbleTowers[randIndex];
-                        buffAbleTowers.Add(slotIndex);
-                        //buffAbleTowers.RemoveAt(randIndex); // 중복 방지
+                        filteredBuffTowers.Add(slotIndex);
+                        buffAbleTowers.RemoveAt(randIndex); // 중복 방지
                     }
                     break;
                 }
@@ -113,14 +112,15 @@ public class TowerAmplifier : MonoBehaviour
                 }
         }
         //--------------------------------------------------------
-
+        if (filteredBuffTowers.Count == 0) return;
         //Go Buff-------------------------------------------------
-        foreach (int slotIndex in buffAbleTowers)
+        foreach (int slotIndex in filteredBuffTowers)
         {
             var attackTower = planet.GetAttackTowerToAmpTower(slotIndex);
             if (attackTower == null) continue;
             ApplyBuff(attackTower);
         }
         //--------------------------------------------------------
+        Debug.Log($"[Amp] self={selfIndex}, targets={string.Join(",", filteredBuffTowers)}");
     }
 }
