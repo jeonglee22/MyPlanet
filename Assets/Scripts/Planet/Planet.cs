@@ -10,7 +10,8 @@ public class Planet : LivingEntity
 {
     private List<GameObject> towers; 
     private List<TowerAttack> planetAttacks; //Only Attack Tower
-    
+    private TowerAmplifier[] amplifiersSlots; //Installed Amplifer Tower
+
     [SerializeField] private GameObject towerPrefab; //Attack Tower
     [SerializeField] private GameObject amplifierTowerPrefab; //Amplier Tower
     [SerializeField] private Transform towerSlotTransform;
@@ -95,6 +96,9 @@ public class Planet : LivingEntity
         for (int i = 0; i < towerCount; i++) 
             towers.Add(null);
         this.towerCount = towerCount;
+
+        amplifiersSlots = new TowerAmplifier[towerCount];
+        planetAttacks = new List<TowerAttack>();
     }
 
     public void SetAttackTower(TowerDataSO towerData, int index, IAbility ability = null)
@@ -116,8 +120,8 @@ public class Planet : LivingEntity
             {
                 newTowerAttack.AddAbility(ability);
             }
-            
-            planetAttacks.Add(newTowerAttack);
+            if(!planetAttacks.Contains(newTowerAttack))
+                planetAttacks.Add(newTowerAttack);
         }
 
         //Enroll Targeting
@@ -126,6 +130,17 @@ public class Planet : LivingEntity
 
         //Rotation System
         SetSlotRotation(index);
+
+        //Apply Buffed Slot To New Tower
+        if(newTowerAttack!=null&&amplifiersSlots!=null)
+        {
+            for(int i=0; i<amplifiersSlots.Length; i++)
+            {
+                var amp = amplifiersSlots[i];
+                if (amp == null) continue;
+                amp.ApplyBuffForNewTower(index, newTowerAttack);
+            }
+        }
     }
 
     public void UpgradeTower(int index)
@@ -147,7 +162,11 @@ public class Planet : LivingEntity
 
         //Enroll Tower Amlifier System
         var amplifier=ampTower.GetComponent<TowerAmplifier>();
-        if (amplifier != null) amplifier.AddAmpTower(ampData, index, this);
+        if (amplifier != null)
+        {
+            amplifiersSlots[index] = amplifier;
+            amplifier.AddAmpTower(ampData, index, this);
+        }
     }
 
     private void SetSlotRotation(int index)
