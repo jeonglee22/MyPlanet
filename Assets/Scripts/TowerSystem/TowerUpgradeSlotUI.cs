@@ -101,8 +101,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
     private void Update()
     {
-        if (towerInfoUI.gameObject.activeSelf)
-            return;
+        if (towerInfoUI.gameObject.activeSelf) return;
 
         OnTouchStateCheck();
         OnTouchMakeDrageImage();
@@ -144,44 +143,48 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             //UsedSlot ? UpgradeCard : New Tower-------------------
             if (!installControl.IsUsedSlot(number))
             {
-                //Random Tower Type (0:Attack, 1:DamageMatrix, 2:ProjectileCore)
-                int towerType = Random.Range(0, 3);
-
-                if(isFirstInstall)
-                    towerType = 0;
-
-                if(towerType==0) //Attack
-                {
-                    choices[i].InstallType = TowerInstallType.Attack;
-                    choices[i].ability = abilities[i];
-                    choices[i].AmplifierTowerData = null;
-                    uiTexts[i].text = $"new\nAttack\nTower\n\n{abilities[i]}";
-                }
-                else if(towerType==1) //Damage Matrix
-                {
-                    choices[i].InstallType = TowerInstallType.Amplifier;
-                    choices[i].ability = null;
-                    choices[i].AmplifierTowerData = damageMatrixCoreSO;
-                    uiTexts[i].text = $"new\nDamage\nMatrix\n\n{abilities[i]}";
-                }
-                else //Projectile Core
-                {
-                    choices[i].InstallType = TowerInstallType.Amplifier;
-                    choices[i].ability = null;
-                    choices[i].AmplifierTowerData = proejctileCoreSO;
-                    uiTexts[i].text = $"new\nProjectile\nCore\n\n{abilities[i]}";
-                }
+                SetUpCard(i, number);
             }
             else
             {
                 choices[i].InstallType = TowerInstallType.Attack;
                 choices[i].ability = abilities[i];
-                choices[i].AmplifierTowerData=null;
+                choices[i].AmplifierTowerData = null;
                 uiTexts[i].text = $"Upgrade\n{number}";
             }
         }
     }
 
+    private void SetUpCard(int i, int slotNumber)
+    {
+        //Random Tower Type (0:Attack, 1:DamageMatrix, 2:ProjectileCore)
+        int towerType = Random.Range(0, 3);
+
+        if(isFirstInstall)
+            towerType = 0;
+
+        if (towerType == 0) //Attack
+        {
+            choices[i].InstallType = TowerInstallType.Attack;
+            choices[i].ability = abilities[i];
+            choices[i].AmplifierTowerData = null;
+            uiTexts[i].text = $"new\nAttack\nTower\n\n{abilities[i]}";
+        }
+        else if (towerType == 1) //Damage Matrix
+        {
+            choices[i].InstallType = TowerInstallType.Amplifier;
+            choices[i].ability = null;
+            choices[i].AmplifierTowerData = damageMatrixCoreSO;
+            uiTexts[i].text = $"new\nDamage\nMatrix\n\n{abilities[i]}";
+        }
+        else //Projectile Core
+        {
+            choices[i].InstallType = TowerInstallType.Amplifier;
+            choices[i].ability = null;
+            choices[i].AmplifierTowerData = proejctileCoreSO;
+            uiTexts[i].text = $"new\nProjectile\nCore\n\n{abilities[i]}";
+        }
+    }
     private void ResetUpgradeCard(int index)
     {
         abilities[index] = AbilityManager.Instance.GetRandomAbility();
@@ -205,46 +208,20 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         numlist[index] = number;
 
-        if (installControl == null)
-            return;
+        if (installControl == null) return;
 
         if (!installControl.IsUsedSlot(number))
-            {
-                //Random Tower Type (0:Attack, 1:DamageMatrix, 2:ProjectileCore)
-                int towerType = Random.Range(0, 3);
+        {
 
-                if(isFirstInstall)
-                    towerType = 0;
-
-                if(towerType==0) //Attack
-                {
-                    choices[index].InstallType = TowerInstallType.Attack;
-                    choices[index].ability = abilities[index];
-                    choices[index].AmplifierTowerData = null;
-                    uiTexts[index].text = $"new\nAttack\nTower\n\n{abilities[index]}";
-                }
-                else if(towerType==1) //Damage Matrix
-                {
-                    choices[index].InstallType = TowerInstallType.Amplifier;
-                    choices[index].ability = null;
-                    choices[index].AmplifierTowerData = damageMatrixCoreSO;
-                    uiTexts[index].text = $"new\nDamage\nMatrix\n\n{abilities[index]}";
-                }
-                else //Projectile Core
-                {
-                    choices[index].InstallType = TowerInstallType.Amplifier;
-                    choices[index].ability = null;
-                    choices[index].AmplifierTowerData = proejctileCoreSO;
-                    uiTexts[index].text = $"new\nProjectile\nCore\n\n{abilities[index]}";
-                }
-            }
-            else
-            {
-                choices[index].InstallType = TowerInstallType.Attack;
-                choices[index].ability = abilities[index];
-                choices[index].AmplifierTowerData=null;
-                uiTexts[index].text = $"Upgrade\n{number}";
-            }
+            SetUpCard(index, number);
+        }
+        else
+        {
+            choices[index].InstallType = TowerInstallType.Attack;
+            choices[index].ability = abilities[index];
+            choices[index].AmplifierTowerData = null;
+            uiTexts[index].text = $"Upgrade\n{number}";
+        }
     }
 
     public void OnClickRefreshButton(int index)
@@ -253,7 +230,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         if(refreshButtons == null) return;
 
         refreshButtons[index].interactable = false;
-
     }
 
     public void OnClickUpgradeUIClicked(int index)
@@ -366,7 +342,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 return i;
             }
         }
-
         return -1;
     }
+
 }
