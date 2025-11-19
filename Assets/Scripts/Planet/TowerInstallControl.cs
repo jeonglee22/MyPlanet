@@ -271,4 +271,10 @@ public class TowerInstallControl : MonoBehaviour
             baseAngle += 360f / towerCount;
         }
     }
+
+    public TowerAttack GetAttackTower(int index)
+    {
+        if (planet == null) return null;
+        return planet.GetAttackTowerToAmpTower(index);
+    }
 }

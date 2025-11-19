@@ -46,33 +46,42 @@ public class TowerInfoUI : PopUpUI
             return;
         }
 
-        var data = installControl.GetTowerData(index);
-        if (data == null)
+        var attackTower = installControl.GetAttackTower(index); //Attack Tower Data
+        if (attackTower == null||attackTower.AttackTowerData==null)
         {
             nameText.text = $"Empty Slot {index}";
             SetAllText(null);
             return;
         }
 
-        nameText.text = $"{data.towerId}"; //no use
+        var attackTowerData = attackTower.AttackTowerData;
+        var buffedProjectile = attackTower.CurrentProjectileData;
+
+        nameText.text = $"{attackTowerData.towerId}"; //no use
 
         isSameTower = (infoIndex == index);
         infoIndex = index;
 
-        //left panel_tower
-        SetText(towerIdValueText, data.towerId);
-        SetText(rangeTypeValueText, data.rangeData != null ? data.rangeData.RangeType.ToString() : null);
-        SetText(rangeValueText, data.rangeData != null ? data.rangeData.GetRange().ToString("0.0") : null);
-        SetText(priorityTypeValueText, data.targetPriority != null ? data.targetPriority.GetType().Name : null);
-        SetText(priorityOrderValueText, data.targetPriority != null ? (data.targetPriority.IsDescending ? "Max" : "Min") : null);
-        SetText(fireRateValueText, data.fireRate.ToString("0.00"));
-        SetText(hitRateValueText, data.hitRate.ToString("0.00") + "%");
-        SetText(spreadAccuracyValueText, data.spreadAccuracy.ToString("0.00") + "%");
-        //right panel_projectile
-        var proj = data.projectileType;
+        //Left panel_tower----------------------------------------
+        SetText(towerIdValueText, attackTowerData.towerId);
+        SetText(rangeTypeValueText, attackTowerData.rangeData != null ? attackTowerData.rangeData.RangeType.ToString() : null);
+        SetText(rangeValueText, attackTowerData.rangeData != null ? attackTowerData.rangeData.GetRange().ToString("0.0") : null);
+        SetText(priorityTypeValueText, attackTowerData.targetPriority != null ? attackTowerData.targetPriority.GetType().Name : null);
+        SetText(priorityOrderValueText, attackTowerData.targetPriority != null ? (attackTowerData.targetPriority.IsDescending ? "Max" : "Min") : null);
+        SetText(hitRateValueText, attackTowerData.hitRate.ToString("0.00") + "%");
+        SetText(spreadAccuracyValueText, attackTowerData.spreadAccuracy.ToString("0.00") + "%");
+
+        //Current Data
+        SetText(fireRateValueText,$"{attackTower.AttackTowerData.fireRate:0.00} ¡æ {attackTower.CurrentFireRate:0.00}");
+        //--------------------------------------------------------
+
+        //Right panel_projectile----------------------------------
+        var proj = attackTowerData.projectileType;
         SetText(projectileTypeValueText, proj != null ? proj.projectileType.ToString() : null);
         SetText(projectilePrefabValueText, proj != null && proj.projectilePrefab != null ? proj.projectilePrefab.name : null);
         SetText(hitEffectValueText, proj != null && proj.hitEffect != null ? proj.hitEffect.name : null);
+        
+        //Buffed Data
         SetText(damageValueText, proj != null ? proj.damage.ToString("0.00") : null);
         SetText(fixedPenetrationValueText, proj != null ? proj.fixedPanetration.ToString("0.00") : null);
         SetText(percentPenetrationValueText, proj != null ? proj.percentPenetration.ToString("0.00") + "%" : null);
@@ -81,6 +90,7 @@ public class TowerInfoUI : PopUpUI
         SetText(targetNumberValueText, proj != null ? proj.targetNumber.ToString() : null);
         SetText(lifeTimeValueText, proj != null ? proj.lifeTime.ToString("0.00") : null);
         SetText(hitRadiusValueText, proj != null ? proj.hitRadius.ToString("0.00") : null);
+        //--------------------------------------------------------
     }
 
     protected override void Update()

@@ -9,6 +9,7 @@ public class TowerAttack : MonoBehaviour
     private TowerTargetingSystem targetingSystem;
     private ProjectileData currentProjectileData;
     private TowerDataSO towerData;
+    public TowerDataSO AttackTowerData => towerData;
     private float shootTimer;
 
     private List<IAbility> abilities;
@@ -26,9 +27,28 @@ public class TowerAttack : MonoBehaviour
     private int targetNumberBuffAdd=0;
     private float hitRateBuffMul=1f;
 
+    public float CurrentFireRate
+    {
+        get
+        {
+            if (towerData == null) return 0f;
+            return towerData.fireRate * fireRateBuffMul;
+        }
+    }
+
     //Apply Buff Version Projectile Data SO
     private ProjectileData addBuffProjectileData; //making runtime once
+    public ProjectileData CurrentProjectileData
+    {
+        get
+        {
+            var buffed = GetBuffedProjectileData();
+            if (buffed != null) return buffed;
+            return towerData != null ? towerData.projectileType : null;
+        }
+    }
     //-------------------------------------------------------
+
 
     private void Awake()
     {
@@ -68,6 +88,9 @@ public class TowerAttack : MonoBehaviour
             ShootAtTarget();
             shootTimer = 0f;
         }
+
+        Debug.Log($"[ShootTimer] {gameObject.name} finalFireRate={finalFireRate}");
+
     }
 
     private void ShootAtTarget()
