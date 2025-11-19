@@ -25,7 +25,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     private IAbility[] abilities;
     public Color choosedColor { get; private set; }
 
-    private bool isNotUpgradeOpen = true;
+    private bool isNotUpgradeOpen = false;
     public bool IsNotUpgradeOpen
     {
         get { return isNotUpgradeOpen; }
@@ -38,11 +38,11 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
     private void Start()
     {
-        foreach (var ui in upgradeUIs)
-            ui.SetActive(false);
+        // foreach (var ui in upgradeUIs)
+        //     ui.SetActive(false);
         towerColor = Color.yellow;
 
-        SetActiveRefreshButtons(false);
+        // SetActiveRefreshButtons(false);
         installControl.OnTowerInstalled += SetTowerInstallText;
     }
 

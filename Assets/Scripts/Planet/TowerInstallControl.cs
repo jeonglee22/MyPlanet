@@ -60,9 +60,6 @@ public class TowerInstallControl : MonoBehaviour
         for (int i = 0; i < towerCount; i++)
         {
             emptyTower[i] = true;
-
-            if (i == index)
-                emptyTower[i] = false;
         }
         assignedTowerDatas = new TowerDataSO[towerCount];
     }
@@ -73,7 +70,7 @@ public class TowerInstallControl : MonoBehaviour
 
         ResetTowerSlot(towerCount);
         towerInfoObj.SetActive(false);
-        CurrentTowerCount = 1;
+        CurrentTowerCount = 0;
     }
 
     private void Update()
