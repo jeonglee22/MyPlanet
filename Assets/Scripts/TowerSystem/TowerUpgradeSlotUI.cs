@@ -207,8 +207,8 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         upgradeUIs[index].GetComponentInChildren<Image>().color = choosedColor;
         upgradeUIs[(index + 1) % 3].GetComponentInChildren<Image>().color = Color.white;
         upgradeUIs[(index + 2) % 3].GetComponentInChildren<Image>().color = Color.white;
-        //installControl.IsReadyInstall = true;
-        //installControl.ChoosedData = (abilities[index], uiTexts[index].text);
+        installControl.IsReadyInstall = true;
+        // installControl.ChoosedData = choices[index];
 
         if (installControl.IsUsedSlot(numlist[index]))
         {

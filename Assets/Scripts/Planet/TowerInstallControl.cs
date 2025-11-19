@@ -241,6 +241,7 @@ public class TowerInstallControl : MonoBehaviour
         SettingTowerTransform(currentAngle);
         emptyTowerTest[index] = false;
         planetTowerUI.gameObject.SetActive(false);
+        IsReadyInstall = false;
     }
 
     private void OpenInfoUI(int index)

@@ -71,7 +71,7 @@ public class TowerInfoUI : PopUpUI
         SetText(spreadAccuracyValueText, attackTowerData.spreadAccuracy.ToString("0.00") + "%");
 
         //Current Data
-        SetText(fireRateValueText,$"{attackTower.AttackTowerData.fireRate:0.00} ¡æ {attackTower.CurrentFireRate:0.00}");
+        SetText(fireRateValueText,$"{attackTower.AttackTowerData.fireRate:0.00} ï¿½ï¿½ {attackTower.CurrentFireRate:0.00}");
         //--------------------------------------------------------
 
         //Right panel_projectile----------------------------------
@@ -95,6 +95,9 @@ public class TowerInfoUI : PopUpUI
     protected override void Update()
     {
         touchPos = TouchManager.Instance.TouchPos;
+        if(infoIndex == -1)
+            return;
+
         if(RectTransformUtility.RectangleContainsScreenPoint(installControl.Towers[infoIndex].GetComponent<RectTransform>(),touchPos))
         {
             return;

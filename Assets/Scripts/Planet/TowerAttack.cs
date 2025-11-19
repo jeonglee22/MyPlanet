@@ -260,9 +260,9 @@ public class TowerAttack : MonoBehaviour
             return;
         }
 
-        damageBuffMul = amp.DamageBuff;
-        fireRateBuffMul = amp.FireRateBuff;
-        accelerationBuffAdd = amp.AccelerationBuff;
+        damageBuffMul += amp.DamageBuff;
+        fireRateBuffMul *= amp.FireRateBuff;
+        accelerationBuffAdd *= amp.AccelerationBuff;
 
         //not yet_20251117 14:14
         hitRadiusBuffMul = 1f + amp.HitRadiusBuff;
