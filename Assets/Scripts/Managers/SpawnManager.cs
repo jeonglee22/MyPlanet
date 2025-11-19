@@ -21,7 +21,7 @@ public class SpawnManager : MonoBehaviour
     private Rect screenBounds;
     private Rect offSetBounds;
     public Rect ScreenBounds => screenBounds;
-    [SerializeField] private float offSet = 10f;
+    private float offSet = 3f;
 
     private void Awake()
     {
