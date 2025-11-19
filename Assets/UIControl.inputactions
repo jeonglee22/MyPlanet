@@ -1,0 +1,55 @@
+{
+    "version": 1,
+    "name": "UIControl",
+    "maps": [
+        {
+            "name": "UI",
+            "id": "25e22918-166e-4966-8a9f-4927764bbb71",
+            "actions": [
+                {
+                    "name": "UIPressCheck",
+                    "type": "Button",
+                    "id": "069954fb-d0cc-4e74-9cbb-0808a958788d",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "UITouchPos",
+                    "type": "Value",
+                    "id": "653474ff-24df-4d12-aa88-6cc21af0390f",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "1ec8a1dc-b189-4fa9-b3a3-6b04699f4424",
+                    "path": "<Touchscreen>/Press",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "UIPressCheck",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "30db24e3-6b2d-4997-a1d4-8b67593bd174",
+                    "path": "<Touchscreen>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "UITouchPos",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
