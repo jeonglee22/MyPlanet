@@ -23,16 +23,27 @@ public class AbilityManager : MonoBehaviour
         abilityDict.Add(1, new AccelationUpgradeAbility());
         abilityDict.Add(2, new SpeedUpgradeAbility());
         abilityDict.Add(3, new AttackSpeedAbility());
+
+        abilityDict.Add(101, new ParalyzeAbility());
     }
 
-    public IAbility GetRandomAbility()
+    public int GetRandomAbility()
     {
         var count = abilityDict.Count;
 
         if(count == 0)
-            return null;
+            return -1;
 
-        var id = Random.Range(0, count);
-        return abilityDict[id];
+        var index = Random.Range(0, count);
+        var keys = new List<int>(abilityDict.Keys);
+        return keys[index];
+    }
+
+    public IAbility GetAbility(int id)
+    {
+        if (abilityDict.ContainsKey(id))
+            return abilityDict[id];
+        
+        return null;
     }
 }

@@ -12,7 +12,8 @@ public class TowerAttack : MonoBehaviour
     public TowerDataSO AttackTowerData => towerData;
     private float shootTimer;
 
-    private List<IAbility> abilities;
+    private List<int> abilities;
+    public List<int> Abilities => abilities;
 
     //test
     private ProjectilePoolManager projectilePoolManager;
@@ -54,7 +55,7 @@ public class TowerAttack : MonoBehaviour
     private void Awake()
     {
         targetingSystem = GetComponent<TowerTargetingSystem>();
-        abilities = new List<IAbility>();
+        abilities = new List<int>();
         // abilities.Add(AbilityManager.Instance.AbilityDict[0]);
         // SetRandomAbility();
 
@@ -129,15 +130,16 @@ public class TowerAttack : MonoBehaviour
 
         projectile.Initialize(buffedData, direction, true, projectilePoolManager.ProjectilePool);
 
-        foreach (var ability in abilities)
+        foreach (var abilityId in abilities)
         {
+            var ability = AbilityManager.Instance.GetAbility(abilityId);
             ability.ApplyAbility(projectile.gameObject);
             projectile.abilityAction += ability.ApplyAbility;
             projectile.abilityRelease += ability.RemoveAbility;
         }
     }
 
-    public void AddAbility(IAbility ability)
+    public void AddAbility(int ability)
     {
         abilities.Add(ability);
     }
@@ -175,8 +177,9 @@ public class TowerAttack : MonoBehaviour
 
         projectile.Initialize(currentProjectileData, direction, IsHit, projectilePoolManager.ProjectilePool);
         
-        foreach (var ability in abilities)
+        foreach (var abilityId in abilities)
         {
+            var ability = AbilityManager.Instance.GetAbility(abilityId);
             // ability.Setting(projectile.gameObject);
             // ability.ApplyAbility(projectile.gameObject);
             ability.ApplyAbility(projectile.gameObject);

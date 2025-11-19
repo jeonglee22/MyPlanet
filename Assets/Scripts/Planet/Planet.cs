@@ -97,7 +97,7 @@ public class Planet : LivingEntity
         this.towerCount = towerCount;
     }
 
-    public void SetAttackTower(TowerDataSO towerData, int index, IAbility ability = null)
+    public void SetAttackTower(TowerDataSO towerData, int index, int abilityId = -1)
     {
         //Install Attack Tower
         GameObject installTower=Instantiate(towerPrefab, towerSlotTransform);
@@ -108,13 +108,14 @@ public class Planet : LivingEntity
         if(newTowerAttack!=null)
         {
             newTowerAttack.SetTowerData(towerData);
-            if (ability == null)
+            if (abilityId == -1)
             {
                 newTowerAttack.SetRandomAbility();
             }
             else
             {
-                newTowerAttack.AddAbility(ability);
+                newTowerAttack.AddAbility(abilityId);
+                var ability = AbilityManager.Instance.GetAbility(abilityId);
                 ability.ApplyAbility(newTowerAttack.gameObject);
             }
             
@@ -134,7 +135,7 @@ public class Planet : LivingEntity
         var tower = towers[index];
         var towerAttack = tower.GetComponent<TowerAttack>();
         if (towerAttack == null) return; //If AmplifierTower||null -> return
-        towerAttack.AddAbility(new ParalyzeAbility());
+        towerAttack.AddAbility(101);
     }
 
     public void SetAmplifierTower(AmplifierTowerDataSO ampData, int index)

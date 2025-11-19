@@ -69,6 +69,9 @@ public class TowerInfoUI : PopUpUI
         isSameTower = (infoIndex == index);
         infoIndex = index;
 
+        var abilities = attackTower.Abilities;
+        
+
         //Left panel_tower----------------------------------------
         SetText(towerIdValueText, attackTowerData.towerId);
         SetText(rangeTypeValueText, attackTowerData.rangeData != null ? attackTowerData.rangeData.RangeType.ToString() : null);

@@ -27,7 +27,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     private Color towerColor;
     private List<int> numlist;
     [SerializeField] private TextMeshProUGUI[] uiTexts;
-    private IAbility[] abilities;
+    private int[] abilities;
     public Color choosedColor { get; private set; }
 
     private bool isNotUpgradeOpen = false;
@@ -140,6 +140,8 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
             numlist.Add(number);
 
+            var ability = AbilityManager.Instance.GetAbility(abilities[i]);
+
             if (installControl == null) continue;
             //UsedSlot ? UpgradeCard : New Tower-------------------
             if (!installControl.IsUsedSlot(number))
@@ -155,21 +157,21 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                     choices[i].InstallType = TowerInstallType.Attack;
                     choices[i].ability = abilities[i];
                     choices[i].AmplifierTowerData = null;
-                    uiTexts[i].text = $"new\nAttack\nTower\n\n{abilities[i]}";
+                    uiTexts[i].text = $"new\nAttack\nTower\n\n{ability}";
                 }
                 else if(towerType==1) //Damage Matrix
                 {
                     choices[i].InstallType = TowerInstallType.Amplifier;
-                    choices[i].ability = null;
+                    choices[i].ability = -1;
                     choices[i].AmplifierTowerData = damageMatrixCoreSO;
-                    uiTexts[i].text = $"new\nDamage\nMatrix\n\n{abilities[i]}";
+                    uiTexts[i].text = $"new\nDamage\nMatrix\n\n{ability}";
                 }
                 else //Projectile Core
                 {
                     choices[i].InstallType = TowerInstallType.Amplifier;
-                    choices[i].ability = null;
+                    choices[i].ability = -1;
                     choices[i].AmplifierTowerData = proejctileCoreSO;
-                    uiTexts[i].text = $"new\nProjectile\nCore\n\n{abilities[i]}";
+                    uiTexts[i].text = $"new\nProjectile\nCore\n\n{ability}";
                 }
             }
             else
@@ -177,7 +179,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 choices[i].InstallType = TowerInstallType.Attack;
                 choices[i].ability = abilities[i];
                 choices[i].AmplifierTowerData=null;
-                uiTexts[i].text = $"Upgrade\n{number}";
+                uiTexts[i].text = $"Upgrade\nTower\n{number}";
             }
         }
     }
@@ -204,6 +206,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         }
 
         numlist[index] = number;
+        var ability = AbilityManager.Instance.GetAbility(abilities[index]);
 
         if (installControl == null)
             return;
@@ -221,21 +224,21 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                     choices[index].InstallType = TowerInstallType.Attack;
                     choices[index].ability = abilities[index];
                     choices[index].AmplifierTowerData = null;
-                    uiTexts[index].text = $"new\nAttack\nTower\n\n{abilities[index]}";
+                    uiTexts[index].text = $"new\nAttack\nTower\n\n{ability}";
                 }
                 else if(towerType==1) //Damage Matrix
                 {
                     choices[index].InstallType = TowerInstallType.Amplifier;
-                    choices[index].ability = null;
+                    choices[index].ability = -1;
                     choices[index].AmplifierTowerData = damageMatrixCoreSO;
-                    uiTexts[index].text = $"new\nDamage\nMatrix\n\n{abilities[index]}";
+                    uiTexts[index].text = $"new\nDamage\nMatrix\n\n{ability}";
                 }
                 else //Projectile Core
                 {
                     choices[index].InstallType = TowerInstallType.Amplifier;
-                    choices[index].ability = null;
+                    choices[index].ability = -1;
                     choices[index].AmplifierTowerData = proejctileCoreSO;
-                    uiTexts[index].text = $"new\nProjectile\nCore\n\n{abilities[index]}";
+                    uiTexts[index].text = $"new\nProjectile\nCore\n\n{ability}";
                 }
             }
             else
@@ -283,7 +286,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     
     private void ResetChoose()
     {
-        abilities = new IAbility[upgradeUIs.Length];
+        abilities = new int[upgradeUIs.Length];
         choices = new TowerInstallChoice[upgradeUIs.Length];
 
         for(int i = 0; i < upgradeUIs.Length; i++)
