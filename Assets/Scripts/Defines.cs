@@ -13,6 +13,7 @@ public static class ObjectName
 {
     public static readonly string PatternProjectile = "PatternProjectile";
     public static readonly string Enemy = "EnemySample";
+    public static readonly string ProjectilePrefab = "Projectile_Sample";
     public static readonly string Projectile = "Projectile";
 }
 
@@ -43,6 +44,7 @@ public static class DataTableIds
     public static readonly string Enemy = "EnemyTable";
     public static readonly string Combine = "CombineTable";
     public static readonly string Wave = "WaveTable";
+    public static readonly string Projectile = "ProjectileTable";
 }
 
 public static class Variables
