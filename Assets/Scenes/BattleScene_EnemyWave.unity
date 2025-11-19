@@ -479,6 +479,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5377162174526976027, guid: a3ba0402da80b294fbc9c7f3252f3bef, type: 3}
   m_PrefabInstance: {fileID: 112521779}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &135675350 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5682685953946641452, guid: 703d7769bbf19824ab1a55923fe11f72, type: 3}
+  m_PrefabInstance: {fileID: 1514420456}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &252575113
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -682,6 +693,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1888550558825151881, guid: e422beeb38f3d85458f873802aa840fe, type: 3}
+      propertyPath: waveInterval
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 5724337228310531497, guid: e422beeb38f3d85458f873802aa840fe, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -994,6 +1009,7 @@ MonoBehaviour:
   statusUIButton: {fileID: 1514420458}
   towerInstallUiObj: {fileID: 685825292}
   timeText: {fileID: 1514420459}
+  enemyCountText: {fileID: 135675350}
 --- !u!1 &287381105 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2104843359855247775, guid: 16ff4fe48865f9e4483c443f11886eb1, type: 3}

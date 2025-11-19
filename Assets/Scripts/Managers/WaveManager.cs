@@ -23,6 +23,8 @@ public class WaveManager : MonoBehaviour
     private int currentWaveIndex = 0;
     private bool isWaveInProgress = false;
 
+    public bool IsWaveInProgress => isWaveInProgress;
+
     private void Awake()
     {
         if (instance == null)
@@ -33,6 +35,8 @@ public class WaveManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        ResetWave();
     }
 
     public HashSet<int> ExtractEnemyIds(CombineData combData)
@@ -45,10 +49,6 @@ public class WaveManager : MonoBehaviour
             enemyIds.Add(combData.Enemy_Id_2);
         if (combData.Enemy_Id_3 != 0)
             enemyIds.Add(combData.Enemy_Id_3);
-        if (combData.Enemy_Id_4 != 0)
-            enemyIds.Add(combData.Enemy_Id_4);
-        if (combData.Enemy_Id_5 != 0)
-            enemyIds.Add(combData.Enemy_Id_5);
 
         return enemyIds;
     }
@@ -88,12 +88,12 @@ public class WaveManager : MonoBehaviour
         }
 
         await PreloadWaveAssets(waveDatas[0]);
-
-        await ExecuteWave(waveDatas[0]);
+        await StartNextWave();
     }
 
     private async UniTask ExecuteWave(WaveData waveData)
     {
+        Debug.Log($"Starting Wave ID: {waveData.Wave_Id}");
         var combData = DataTableManager.CombineTable.Get(waveData.Comb_Id);
         if(combData == null)
         {
@@ -119,6 +119,62 @@ public class WaveManager : MonoBehaviour
             {
                 await UniTask.Delay(System.TimeSpan.FromSeconds(waveData.SpawnTerm));
             }
+        }
+    }
+
+    public async UniTask StartNextWave()
+    {
+        if(isWaveInProgress || currentWaveIndex >= waveDatas.Count)
+        {
+            return;
+        }
+        
+        isWaveInProgress = true;
+        var currentWave = waveDatas[currentWaveIndex];
+
+        if(currentWaveIndex + 1 < waveDatas.Count)
+        {
+            await PreloadWaveAssets(waveDatas[currentWaveIndex + 1]);
+        }
+
+        await ExecuteWave(currentWave);
+    }
+
+    [SerializeField] private float waveInterval = 3f;
+    public async UniTaskVoid OnWaveCleared()
+    {
+        if(!isWaveInProgress)
+        {
+            return;
+        }
+
+        isWaveInProgress = false;
+        currentWaveIndex++;
+
+        if(currentWaveIndex < waveDatas.Count)
+        {
+            await UniTask.Delay(System.TimeSpan.FromSeconds(waveInterval));
+            await StartNextWave();
+        }
+        else
+        {
+            Debug.Log($"Stage {currentStageId} completed!");
+        }
+    }
+
+    public void ResetWave()
+    {
+        currentWaveIndex = 0;
+        isWaveInProgress = false;
+        waveDatas.Clear();
+    }
+
+    public async UniTask RestartCurrentStage()
+    {
+        ResetWave();
+        if(currentStageId != 0)
+        {
+            await InitializeStage(currentStageId);
         }
     }
 }

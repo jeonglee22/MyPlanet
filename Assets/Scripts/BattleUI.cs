@@ -8,6 +8,7 @@ public class BattleUI : MonoBehaviour
     [SerializeField] private Button statusUIButton;
     [SerializeField] private GameObject towerInstallUiObj;
     [SerializeField] private TextMeshProUGUI timeText;
+    [SerializeField] private TextMeshProUGUI enemyCountText;
     private float battleTime = 0f;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -24,6 +25,7 @@ public class BattleUI : MonoBehaviour
         int minutes = Mathf.FloorToInt(battleTime / 60f);
         int seconds = Mathf.FloorToInt(battleTime % 60f);
         SetBattleTimeText(minutes, seconds);
+        SetEnemyCountText(SpawnManager.Instance.CurrentEnemyCount);
     }
     
     private void OnOpenInstallUIClicked()
@@ -42,5 +44,10 @@ public class BattleUI : MonoBehaviour
     private void SetBattleTimeText(int minutes, int seconds)
     {
         timeText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
+    }
+
+    public void SetEnemyCountText(int currentCount)
+    {
+        enemyCountText.text = $"{currentCount}";
     }
 }

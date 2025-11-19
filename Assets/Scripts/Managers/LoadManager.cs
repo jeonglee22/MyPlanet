@@ -14,7 +14,8 @@ public class LoadManager : MonoBehaviour
             return loadedEnemyPrefabs[enemyId];
         }
 
-        string addressKey = enemyId.ToString();
+        //string addressKey = enemyId.ToString();
+        string addressKey = "EnemySample";
 
         try
         {
