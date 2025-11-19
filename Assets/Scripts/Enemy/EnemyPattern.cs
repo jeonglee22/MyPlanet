@@ -1,6 +1,13 @@
 using System.Threading;
 using UnityEngine;
 
+public enum ExecutionTrigger
+{
+    None,
+    OnPatternLine,
+    OnInterval,
+}
+
 public abstract class EnemyPattern : MonoBehaviour
 {
     protected Enemy owner;

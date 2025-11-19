@@ -17,6 +17,8 @@ public abstract class EnemyMovement : MonoBehaviour
 
     private float initMoveSpeed;
 
+    public bool CanMove { get; set; } = true;
+
     private void Start()
     {
         player = GameObject.FindGameObjectWithTag("Planet").transform;
@@ -32,6 +34,11 @@ public abstract class EnemyMovement : MonoBehaviour
         if(isDebuff)
         {
             Debuff();
+        }
+
+        if (!CanMove)
+        {
+            return;
         }
 
         Move();
