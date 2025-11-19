@@ -115,6 +115,7 @@ public class Planet : LivingEntity
             else
             {
                 newTowerAttack.AddAbility(ability);
+                ability.ApplyAbility(newTowerAttack.gameObject);
             }
             
             planetAttacks.Add(newTowerAttack);

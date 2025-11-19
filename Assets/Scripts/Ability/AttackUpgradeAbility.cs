@@ -6,7 +6,7 @@ public class AttackUpgradeAbility : PassiveAbility
 {
     public AttackUpgradeAbility()
     {
-        upgradeAmount = 50f;
+        upgradeAmount = 1.6f;
     }
 
     public override void ApplyAbility(GameObject gameObject)
@@ -16,7 +16,7 @@ public class AttackUpgradeAbility : PassiveAbility
         var projectile = gameObject.GetComponent<Projectile>();
         if (projectile != null)
         {
-            projectile.damage += upgradeAmount;
+            projectile.damage *= upgradeAmount;
             // Debug.Log("Damage Apply");
         }
     }
@@ -28,7 +28,7 @@ public class AttackUpgradeAbility : PassiveAbility
         var projectile = gameObject.GetComponent<Projectile>();
         if (projectile != null)
         {
-            projectile.damage -= upgradeAmount;
+            projectile.damage /= upgradeAmount;
         }
     }
 
@@ -40,7 +40,7 @@ public class AttackUpgradeAbility : PassiveAbility
     public override string ToString()
     {
         var sb = new StringBuilder();
-        sb.Append($"Attack\n{upgradeAmount}\nUp!!");
+        sb.Append($"Attack\n{(upgradeAmount - 1f) * 100}%\nUp!!");
 
         return sb.ToString();
     }

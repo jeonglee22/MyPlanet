@@ -22,6 +22,7 @@ public class AbilityManager : MonoBehaviour
         abilityDict.Add(0, new AttackUpgradeAbility());
         abilityDict.Add(1, new AccelationUpgradeAbility());
         abilityDict.Add(2, new SpeedUpgradeAbility());
+        abilityDict.Add(3, new AttackSpeedAbility());
     }
 
     public IAbility GetRandomAbility()

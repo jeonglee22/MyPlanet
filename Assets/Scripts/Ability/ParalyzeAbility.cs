@@ -1,7 +1,7 @@
 using System.Text;
 using UnityEngine;
 
-public class ParalyzeAbility : PassiveAbility
+public class ParalyzeAbility : EffectAbility
 {
     private float initSpeed;
 

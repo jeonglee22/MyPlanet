@@ -18,7 +18,7 @@ public class TowerAttack : MonoBehaviour
     private ProjectilePoolManager projectilePoolManager;
     //------------ Amplifier Buff Field ---------------------
     private float damageBuffMul=1f; //damage = baseDamage * damageBuffMul
-    private float fireRateBuffMul=1f; //fireRate = baseFireRate * fireRateBuffMul
+    public float fireRateBuffMul=1f; //fireRate = baseFireRate * fireRateBuffMul
     private float accelerationBuffAdd=0f;  //just add
 
     private float hitRadiusBuffMul=1f; //hitbox Size, Mul or Add?
