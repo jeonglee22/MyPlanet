@@ -17,13 +17,15 @@ public abstract class EnemyMovement : MonoBehaviour
 
     private float initMoveSpeed;
 
-    private void Start()
-    {
-        player = GameObject.FindGameObjectWithTag("Planet").transform;
-    }
+    public bool CanMove { get; set; } = true;
 
     void OnEnable()
     {
+        if(player == null)
+        {
+            player = GameObject.FindGameObjectWithTag("Planet").transform;
+        }
+
         isDebuff = false;
     }
 
@@ -32,6 +34,11 @@ public abstract class EnemyMovement : MonoBehaviour
         if(isDebuff)
         {
             Debuff();
+        }
+
+        if (!CanMove)
+        {
+            return;
         }
 
         Move();
@@ -48,7 +55,13 @@ public abstract class EnemyMovement : MonoBehaviour
         }
     }
 
-    protected abstract void Move();
+    protected virtual void Move()
+    {
+        if(player == null)
+        {
+            player = GameObject.FindGameObjectWithTag("Planet").transform;
+        }
+    }
 
     public virtual void Initialize(float speed, Vector3 targetDirection)
     {

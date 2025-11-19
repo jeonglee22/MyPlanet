@@ -1,6 +1,13 @@
 using System.Threading;
 using UnityEngine;
 
+public enum ExecutionTrigger
+{
+    None,
+    OnPatternLine,
+    OnInterval,
+}
+
 public abstract class EnemyPattern : MonoBehaviour
 {
     protected Enemy owner;
@@ -8,11 +15,22 @@ public abstract class EnemyPattern : MonoBehaviour
     protected EnemyTableData data;
     protected CancellationTokenSource cts;
 
-    public virtual void Initialize(Enemy enemy, EnemyMovement movement, EnemyTableData enemyData)
+    //pattern test
+    protected ExecutionTrigger executionTrigger;
+    protected float interval;
+    private float lastExecuteTime;
+    private bool hasExecuted; //one time execute check
+
+    public virtual void Initialize(Enemy enemy, EnemyMovement movement, EnemyTableData enemyData, ExecutionTrigger trigger = ExecutionTrigger.None, float interval = 0f)
     {
         owner = enemy;
         this.movement = movement;
         data = enemyData;
+
+        executionTrigger = trigger;
+        this.interval = interval;
+        lastExecuteTime = Time.time;
+        hasExecuted = false;
     }
 
     public virtual float CalculateDamage(float damage)
@@ -22,7 +40,36 @@ public abstract class EnemyPattern : MonoBehaviour
 
     protected virtual void Update()
     {
+        if(executionTrigger == ExecutionTrigger.OnInterval)
+        {
+            if(Time.time - lastExecuteTime >= interval)
+            {
+                Execute();
+                lastExecuteTime = Time.time;
+            }
+        }
+    }
+
+    protected virtual void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("Enemy"))
+        {
+            return;
+        }
         
+        IDamagable damagable = other.gameObject.GetComponent<IDamagable>();
+        if (damagable != null)
+        {
+            damagable.OnDamage(owner.atk);
+        }
+
+        if(executionTrigger == ExecutionTrigger.OnPatternLine && !hasExecuted && other.CompareTag("PatternLine"))
+        {
+            Execute();
+            hasExecuted = true;
+        }
+
+        OnTrigger(other);
     }
 
     public virtual void OnTrigger(Collider other)
@@ -36,4 +83,6 @@ public abstract class EnemyPattern : MonoBehaviour
         cts?.Dispose();
         cts = new CancellationTokenSource();
     }
+
+    public abstract void Execute();
 }

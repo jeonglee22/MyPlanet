@@ -6,4 +6,9 @@ public class NormalPattern : EnemyPattern
     {
         return damage;
     }
+
+    public override void Execute()
+    {
+        throw new System.NotImplementedException();
+    }
 }
