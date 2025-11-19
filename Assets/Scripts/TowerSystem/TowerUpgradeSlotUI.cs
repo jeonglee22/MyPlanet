@@ -17,6 +17,11 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     private bool isStartTouch = false;
     private Vector2 initTouchPos;
 
+    //Add Amplifier Choice
+    [SerializeField] private AmplifierTowerDataSO damageMatrixCoreSO;
+    [SerializeField] private AmplifierTowerDataSO proejctileCoreSO;
+    private TowerInstallChoice[] choices; //Tuple(Ability,Index) -> Struct(Add Tower Type)
+
     //test
     private Color towerColor;
     private List<int> numlist;
@@ -46,7 +51,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
     private void OnEnable()
     {
-        if(isNotUpgradeOpen)
+        if (isNotUpgradeOpen)
         {
             isNotUpgradeOpen = false;
             SetActiveRefreshButtons(false);
@@ -108,22 +113,45 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 number = Random.Range(0, installControl.TowerCount);
                 count++;
             } while (numlist.Contains(number) && count < installControl.TowerCount);
-
             numlist.Add(number);
 
-            if (installControl == null)
-                continue;
 
-            // test
+            if (installControl == null) continue;
+            //UsedSlot ? UpgradeCard : New Tower-------------------
             if (!installControl.IsUsedSlot(number))
             {
-                uiTexts[i].text = $"new Tower\n\n{abilities[i]}";
+                //Random Tower Type (0:Attack, 1:DamageMatrix, 2:ProjectileCore)
+                int towerType = Random.Range(0, 3);
+
+                if(towerType==0) //Attack
+                {
+                    choices[i].InstallType = TowerInstallType.Attack;
+                    choices[i].ability = abilities[i];
+                    choices[i].AmplifierTowerData = null;
+                    uiTexts[i].text = $"new\nAttack\nTower\n\n{abilities[i]}";
+                }
+                else if(towerType==1) //Damage Matrix
+                {
+                    choices[i].InstallType = TowerInstallType.Amplifier;
+                    choices[i].ability = null;
+                    choices[i].AmplifierTowerData = damageMatrixCoreSO;
+                    uiTexts[i].text = $"new\nDamage\nMatrix\n\n{abilities[i]}";
+                }
+                else //Projectile Core
+                {
+                    choices[i].InstallType = TowerInstallType.Amplifier;
+                    choices[i].ability = null;
+                    choices[i].AmplifierTowerData = proejctileCoreSO;
+                    uiTexts[i].text = $"new\nProjectile\nCore\n\n{abilities[i]}";
+                }
             }
             else
             {
+                choices[i].InstallType = TowerInstallType.Attack;
+                choices[i].ability = abilities[i];
+                choices[i].AmplifierTowerData=null;
                 uiTexts[i].text = $"Upgrade\n{number}";
             }
-            //
         }
     }
 
@@ -180,7 +208,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         upgradeUIs[(index + 1) % 3].GetComponentInChildren<Image>().color = Color.white;
         upgradeUIs[(index + 2) % 3].GetComponentInChildren<Image>().color = Color.white;
         installControl.IsReadyInstall = true;
-        installControl.ChoosedData = (abilities[index], uiTexts[index].text);
+        // installControl.ChoosedData = choices[index];
 
         if (installControl.IsUsedSlot(numlist[index]))
         {
@@ -193,10 +221,13 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     private void ResetChoose()
     {
         abilities = new IAbility[upgradeUIs.Length];
+        choices = new TowerInstallChoice[upgradeUIs.Length];
+
         for(int i = 0; i < upgradeUIs.Length; i++)
         {
             upgradeUIs[i].GetComponentInChildren<Image>().color = Color.white;
             abilities[i] = AbilityManager.Instance.GetRandomAbility();
+            choices[i] = new TowerInstallChoice();
         }
     }
 
@@ -246,10 +277,10 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             isNewTouch = true;
 
             var index = GetEndTouchOnInstallArea();
-            if(index != -1 && dragImage != null && choosedIndex != -1)
+            if (index != -1 && dragImage != null && choosedIndex != -1)
             {
                 installControl.IsReadyInstall = true;
-                installControl.ChoosedData = (abilities[choosedIndex], uiTexts[choosedIndex].text);
+                installControl.ChoosedData = choices[choosedIndex];
                 installControl.IntallNewTower(index);
                 gameObject.SetActive(false);
             }

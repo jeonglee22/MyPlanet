@@ -8,18 +8,21 @@ using UnityEngine;
 
 public class Planet : LivingEntity
 {
-    private List<TowerAttack> planetAttacks;
-    private List<GameObject> towers;
-
-    [SerializeField] private GameObject towerPrefab;
+    private List<GameObject> towers; 
+    private List<TowerAttack> planetAttacks; //Only Attack Tower
+    
+    [SerializeField] private GameObject towerPrefab; //Attack Tower
+    [SerializeField] private GameObject amplifierTowerPrefab; //Amplier Tower
     [SerializeField] private Transform towerSlotTransform;
 
     private int towerCount;
+    public int TowerCount => towers?.Count ?? 0;
     private float exp;
     private float level;
 
     public event Action levelUpEvent;
     public event Action<float> expUpEvent;
+
     public float CurrentExp
     {
         get => exp;
@@ -38,10 +41,6 @@ public class Planet : LivingEntity
     }
 
     public float MaxExp { get; internal set; } = 100f;
-
-    //test
-    // [SerializeField] private float shootInterval = 0.5f;
-    // private float shootTime = 0f;
 
     [SerializeField] private Color baseColor = Color.gray;
     [SerializeField] private Color hitColor = Color.white;
@@ -93,17 +92,18 @@ public class Planet : LivingEntity
     public void InitPlanet(int towerCount = 12)
     {
         towers = new List<GameObject>();
-        for (int i = 0; i < towerCount; i++) towers.Add(null);
+        for (int i = 0; i < towerCount; i++) 
+            towers.Add(null);
         this.towerCount = towerCount;
     }
 
-    public void SetTower(TowerDataSO towerData, int index, IAbility ability = null)
+    public void SetAttackTower(TowerDataSO towerData, int index, IAbility ability = null)
     {
-        //Install Tower
+        //Install Attack Tower
         GameObject installTower=Instantiate(towerPrefab, towerSlotTransform);
         towers[index] = installTower;
 
-        //Enroll TowerAttack
+        //Enroll Tower Attack System
         TowerAttack newTowerAttack = installTower.GetComponent<TowerAttack>();
         if(newTowerAttack!=null)
         {
@@ -123,20 +123,39 @@ public class Planet : LivingEntity
         //Enroll Targeting
         var targeting = installTower.GetComponent<TowerTargetingSystem>();
         if (targeting != null) targeting.SetTowerData(towerData);
-        
-        //Rotation System
-        var rot = new Vector3(0, 90, 0);
-        rot.x = 360f * (index / (towers.Count - 1f));
 
-        towers[index].transform.rotation = Quaternion.Euler(rot);
+        //Rotation System
+        SetSlotRotation(index);
     }
 
     public void UpgradeTower(int index)
     {
         var tower = towers[index];
         var towerAttack = tower.GetComponent<TowerAttack>();
-    
+        if (towerAttack == null) return; //If AmplifierTower||null -> return
         towerAttack.AddAbility(new ParalyzeAbility());
+    }
+
+    public void SetAmplifierTower(AmplifierTowerDataSO ampData, int index)
+    {
+        //Install Amplifier Tower
+        GameObject ampTower = Instantiate(amplifierTowerPrefab, towerSlotTransform);
+        towers[index] = ampTower;
+
+        //Rotation System
+        SetSlotRotation(index);
+
+        //Enroll Tower Amlifier System
+        var amplifier=ampTower.GetComponent<TowerAmplifier>();
+        if (amplifier != null) amplifier.AddAmpTower(ampData, index, this);
+    }
+
+    private void SetSlotRotation(int index)
+    {
+        var rot = new Vector3(0, 90, 0);
+        rot.x = 360f * (index / (towers.Count - 1f));
+
+        towers[index].transform.rotation = Quaternion.Euler(rot);
     }
 
     public override void OnDamage(float damage)
@@ -168,5 +187,15 @@ public class Planet : LivingEntity
     {
         await UniTask.Delay(TimeSpan.FromSeconds(delay), cancellationToken: colorResetCts.Token);
         Material.color = baseColor;
+    }
+
+    public TowerAttack GetAttackTowerToAmpTower(int index)
+    {
+        if (towers == null || index < 0 || index >= towers.Count) return null;
+
+        var tower = towers[index];
+        if (tower == null) return null;
+
+        return tower.GetComponent<TowerAttack>();
     }
 }
