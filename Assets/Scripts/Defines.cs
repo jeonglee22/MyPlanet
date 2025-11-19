@@ -30,6 +30,11 @@ public enum PrefabType
     PatternProjectile
 }
 
+public enum ProjectileType
+{
+    Normal,
+}
+
 public static class DataTableIds
 {
     public static readonly string[] StringTableIds =

@@ -455,6 +455,30 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6687394493264662134, guid: a3ba0402da80b294fbc9c7f3252f3bef, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6687394493264662134, guid: a3ba0402da80b294fbc9c7f3252f3bef, type: 3}
+      propertyPath: m_ActionEvents.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6687394493264662134, guid: a3ba0402da80b294fbc9c7f3252f3bef, type: 3}
+      propertyPath: m_ActionEvents.Array.data[1].m_ActionId
+      value: c2e197b7-7386-4862-91a7-4a21c3156374
+      objectReference: {fileID: 0}
+    - target: {fileID: 6687394493264662134, guid: a3ba0402da80b294fbc9c7f3252f3bef, type: 3}
+      propertyPath: m_ActionEvents.Array.data[2].m_ActionId
+      value: 81f9be52-52e9-4c0b-b979-f03ba4083971
+      objectReference: {fileID: 0}
+    - target: {fileID: 6687394493264662134, guid: a3ba0402da80b294fbc9c7f3252f3bef, type: 3}
+      propertyPath: m_ActionEvents.Array.data[1].m_ActionName
+      value: 'UI/UITouchPosition[/Device Simulator Touchscreen/primaryTouch/position]'
+      objectReference: {fileID: 0}
+    - target: {fileID: 6687394493264662134, guid: a3ba0402da80b294fbc9c7f3252f3bef, type: 3}
+      propertyPath: m_ActionEvents.Array.data[2].m_ActionName
+      value: 'UI/UIPressCheck[/Device Simulator Touchscreen/press]'
+      objectReference: {fileID: 0}
     - target: {fileID: 6965101979763091209, guid: a3ba0402da80b294fbc9c7f3252f3bef, type: 3}
       propertyPath: m_TagString
       value: Planet
@@ -487,9 +511,41 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 650853392919980525, guid: 798ad3db1a72670449d2bc191ce39170, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 1422580332}
     - target: {fileID: 1847356028021512489, guid: 798ad3db1a72670449d2bc191ce39170, type: 3}
       propertyPath: m_Name
       value: EnemySpawner
+      objectReference: {fileID: 0}
+    - target: {fileID: 7004810841361380358, guid: 798ad3db1a72670449d2bc191ce39170, type: 3}
+      propertyPath: spawnPointCount
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7004810841361380358, guid: 798ad3db1a72670449d2bc191ce39170, type: 3}
+      propertyPath: spawnPointSample
+      value: 
+      objectReference: {fileID: 1060066670136191017, guid: 4e8f4480959c9304c91fae63831304fe, type: 3}
+    - target: {fileID: 7004810841361380358, guid: 798ad3db1a72670449d2bc191ce39170, type: 3}
+      propertyPath: 'spawnPoints.Array.data[0]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7004810841361380358, guid: 798ad3db1a72670449d2bc191ce39170, type: 3}
+      propertyPath: 'spawnPoints.Array.data[1]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7004810841361380358, guid: 798ad3db1a72670449d2bc191ce39170, type: 3}
+      propertyPath: 'spawnPoints.Array.data[2]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7004810841361380358, guid: 798ad3db1a72670449d2bc191ce39170, type: 3}
+      propertyPath: 'spawnPoints.Array.data[3]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7004810841361380358, guid: 798ad3db1a72670449d2bc191ce39170, type: 3}
+      propertyPath: 'spawnPoints.Array.data[4]'
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 8310431769271838183, guid: 798ad3db1a72670449d2bc191ce39170, type: 3}
       propertyPath: m_LocalPosition.x
@@ -531,7 +587,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 650853392919980525, guid: 798ad3db1a72670449d2bc191ce39170, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -1208,7 +1265,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7232452463989002681, guid: f3d6215b6033e8a40bffa735588a1807, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.75
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7232452463989002681, guid: f3d6215b6033e8a40bffa735588a1807, type: 3}
       propertyPath: m_LocalPosition.z
@@ -2406,6 +2463,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1405701171}
   m_CullTransparentMesh: 1
+--- !u!4 &1422580332 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4569254026605816817, guid: a3ba0402da80b294fbc9c7f3252f3bef, type: 3}
+  m_PrefabInstance: {fileID: 112521779}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1429513896 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6965101979763091209, guid: a3ba0402da80b294fbc9c7f3252f3bef, type: 3}
@@ -2425,7 +2487,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 1000000
   towerPrefab: {fileID: 1023283278850307994, guid: 0571919fcf38eb946ae60d72aeed9ac4, type: 3}
-  amplifierTowerPrefab: {fileID: 0}
+  amplifierTowerPrefab: {fileID: 1023283278850307994, guid: 4d3d49db100941c4595d79e6f10750ec, type: 3}
   towerSlotTransform: {fileID: 824370128}
   baseColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   hitColor: {r: 1, g: 1, b: 1, a: 1}
@@ -2439,7 +2501,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1488899774}
   - component: {fileID: 1488899773}
-  - component: {fileID: 1488899772}
+  - component: {fileID: 1488899775}
   m_Layer: 0
   m_Name: TouchManager
   m_TagString: Untagged
@@ -2447,7 +2509,34 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1488899772
+--- !u!114 &1488899773
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1488899771}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4cb102f35b09ab5468a8e04ad060729b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &1488899774
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1488899771}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 595.54535, y: 1578.4775, z: -14.0233}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1488899775
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2521,33 +2610,6 @@ MonoBehaviour:
   m_DefaultActionMap: UI
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
---- !u!114 &1488899773
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1488899771}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4cb102f35b09ab5468a8e04ad060729b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!4 &1488899774
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1488899771}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 595.54535, y: 1578.4775, z: -14.0233}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1514420456
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5192,6 +5254,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c15cd46035a06c44b2862470aa5ca24, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2030029818 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 409136490359602347, guid: 9c9a3571875e71c4c8004577983199cf, type: 3}
+  m_PrefabInstance: {fileID: 1403100445}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2059445915
 GameObject:
   m_ObjectHideFlags: 0
@@ -5473,8 +5546,9 @@ MonoBehaviour:
   installControl: {fileID: 2834448803939915530}
   towerInfoUI: {fileID: 4544513132663384558}
   dragImagePrefab: {fileID: 9173017397612216722, guid: 90cf15c0fa0690e4e97657711141590c, type: 3}
-  damageMatrixCoreSO: {fileID: 0}
-  proejctileCoreSO: {fileID: 0}
+  towerInstallText: {fileID: 2030029818}
+  damageMatrixCoreSO: {fileID: 11400000, guid: 56ed41c4cbc58234b8388f6ab1d47543, type: 2}
+  proejctileCoreSO: {fileID: 11400000, guid: 695dce885a1969447bbb594e3d4ddb01, type: 2}
   uiTexts:
   - {fileID: 1403100453}
   - {fileID: 1403100452}
@@ -5614,7 +5688,7 @@ MonoBehaviour:
   planetObj: {fileID: 1429513896}
   rotateSpeed: 300
   towerInfoObj: {fileID: 5363757936205387701}
-  towerUIBasePrefab: {fileID: 0}
+  towerUIBasePrefab: {fileID: 4187861493209293078, guid: 94c9f60a30b4d9f47b02be09e573b6fb, type: 3}
   emptySlotPrefab: {fileID: 1900192328185390982, guid: c25fd9231c3043e478190ac6f73cd668, type: 3}
   planetTowerUI: {fileID: 520921929070594631}
   availableTowerDatas:

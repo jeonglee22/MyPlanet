@@ -1,5 +1,8 @@
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks.CompilerServices;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.Pool;
 
 public class ProjectilePoolManager : MonoBehaviour
@@ -13,6 +16,8 @@ public class ProjectilePoolManager : MonoBehaviour
     [SerializeField] private int defaultPoolCapacity = 20;
     [SerializeField] private int maxPoolSize = 100;
 
+    public GameObject ProjectilePrefab { get; private set; }
+
     private void Awake()
     {
         if (instance == null)
@@ -25,14 +30,29 @@ public class ProjectilePoolManager : MonoBehaviour
         }
     }
 
+    private async UniTaskVoid OnEnable() 
+    {
+        await LoadPatternPrefabAsync();
+    }
+
+    private async UniTask LoadPatternPrefabAsync()
+    {
+        if(ProjectilePrefab != null)
+        {
+            return;
+        }
+
+        ProjectilePrefab = await Addressables.LoadAssetAsync<GameObject>(ObjectName.ProjectilePrefab).ToUniTask();
+    }
+
     public void CreatePool(ProjectileData data)
     {
-        GameObject prefab = data.projectilePrefab;
+        GameObject prefab = ProjectilePrefab;
         Projectile projectile = prefab.GetComponent<Projectile>();
 
         objectPoolManager.CreatePool(
             data,
-            data.projectilePrefab,
+            ProjectilePrefab,
             defaultPoolCapacity,
             maxPoolSize,
             collectionCheck

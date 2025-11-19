@@ -28,6 +28,8 @@ public class TowerAttack : MonoBehaviour
     private int targetNumberBuffAdd=0;
     private float hitRateBuffMul=1f;
 
+    private int projectileId = 1100001; //test
+
     public float CurrentFireRate
     {
         get
@@ -66,7 +68,7 @@ public class TowerAttack : MonoBehaviour
     public void SetTowerData(TowerDataSO data)
     {
         towerData = data;
-        currentProjectileData = data.projectileType;
+        currentProjectileData = DataTableManager.ProjectileTable.Get(projectileId);
     }
 
     private void Update()
@@ -111,7 +113,7 @@ public class TowerAttack : MonoBehaviour
         if(projectile==null)
         {
             projectile = Instantiate(
-                towerData.projectileType.projectilePrefab, 
+                ProjectilePoolManager.Instance.ProjectilePrefab, 
                 transform.position, 
                 Quaternion.LookRotation(direction)
                 ).GetComponent<Projectile>();
@@ -157,7 +159,7 @@ public class TowerAttack : MonoBehaviour
         if (projectile == null)
         {
             projectile = Instantiate(
-                currentProjectileData.projectilePrefab, 
+                ProjectilePoolManager.Instance.ProjectilePrefab, 
                 transform.position, 
                 Quaternion.LookRotation(direction)
                 ).GetComponent<Projectile>();
@@ -200,7 +202,7 @@ public class TowerAttack : MonoBehaviour
         Projectile projectile = ProjectilePoolManager.Instance.GetProjectile(currentProjectileData);
         if (projectile == null)
         {
-            projectile = Instantiate(currentProjectileData.projectilePrefab, transform.position, Quaternion.LookRotation(direction)).GetComponent<Projectile>();
+            projectile = Instantiate(ProjectilePoolManager.Instance.ProjectilePrefab, transform.position, Quaternion.LookRotation(direction)).GetComponent<Projectile>();
         }
 
         projectile.transform.position = transform.position;
@@ -213,7 +215,7 @@ public class TowerAttack : MonoBehaviour
         Projectile projectile = ProjectilePoolManager.Instance.GetProjectile(currentProjectileData);
         if (projectile == null)
         {
-            projectile = Instantiate(currentProjectileData.projectilePrefab, transform.position, Quaternion.LookRotation(direction)).GetComponent<Projectile>();
+            projectile = Instantiate(ProjectilePoolManager.Instance.ProjectilePrefab, transform.position, Quaternion.LookRotation(direction)).GetComponent<Projectile>();
         }
 
         projectile.transform.position = transform.position;
@@ -229,7 +231,7 @@ public class TowerAttack : MonoBehaviour
             Projectile projectile = ProjectilePoolManager.Instance.GetProjectile(currentProjectileData);
             if (projectile == null)
             {
-                projectile = Instantiate(currentProjectileData.projectilePrefab, transform.position, Quaternion.LookRotation(direction)).GetComponent<Projectile>();
+                projectile = Instantiate(ProjectilePoolManager.Instance.ProjectilePrefab, transform.position, Quaternion.LookRotation(direction)).GetComponent<Projectile>();
             }
 
             projectile.transform.position = transform.position;
@@ -278,24 +280,23 @@ public class TowerAttack : MonoBehaviour
         var baseData = towerData.projectileType;
         if(addBuffProjectileData==null)
         {
-            addBuffProjectileData = ScriptableObject.CreateInstance<ProjectileData>();
+            var data = new ProjectileData();
+            addBuffProjectileData = data;
         }
 
         //Base Projectile Data (Not YET_ 20251117 14:38)------------------------
-        addBuffProjectileData.projectileType = baseData.projectileType;
-        addBuffProjectileData.projectilePrefab = baseData.projectilePrefab;
-        addBuffProjectileData.hitEffect = baseData.hitEffect;
-        addBuffProjectileData.lifeTime = baseData.lifeTime;
-        addBuffProjectileData.targetNumber = baseData.targetNumber;
-        addBuffProjectileData.hitRadius = baseData.hitRadius;
-        addBuffProjectileData.fixedPanetration = baseData.fixedPanetration;
-        addBuffProjectileData.percentPenetration = baseData.percentPenetration;
+        addBuffProjectileData.AttackType = baseData.AttackType;
+        addBuffProjectileData.RemainTime = baseData.RemainTime;
+        addBuffProjectileData.TargetNum = baseData.TargetNum;
+        addBuffProjectileData.CollisionSize = baseData.CollisionSize;
+        addBuffProjectileData.FixedPenetration = baseData.FixedPenetration;
+        addBuffProjectileData.RatePenetration = baseData.RatePenetration;
         //---------------------------------------------
 
         //Buffed Projectile Data ----------------------
         //(Damage, Acceleration)
-        addBuffProjectileData.damage = baseData.damage * damageBuffMul;
-        addBuffProjectileData.acceleration = baseData.acceleration + accelerationBuffAdd;
+        addBuffProjectileData.Attack = baseData.Attack * damageBuffMul;
+        addBuffProjectileData.ProjectileAddSpeed = baseData.ProjectileAddSpeed + accelerationBuffAdd;
         //---------------------------------------------
 
         return addBuffProjectileData;

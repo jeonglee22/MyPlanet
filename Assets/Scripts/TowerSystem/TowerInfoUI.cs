@@ -77,19 +77,19 @@ public class TowerInfoUI : PopUpUI
 
         //Right panel_projectile----------------------------------
         var proj = attackTowerData.projectileType;
-        SetText(projectileTypeValueText, proj != null ? proj.projectileType.ToString() : null);
-        SetText(projectilePrefabValueText, proj != null && proj.projectilePrefab != null ? proj.projectilePrefab.name : null);
-        SetText(hitEffectValueText, proj != null && proj.hitEffect != null ? proj.hitEffect.name : null);
+        SetText(projectileTypeValueText, proj != null ? proj.ProjectileName : null);
+        //SetText(projectilePrefabValueText, proj != null && proj.projectilePrefab != null ? proj.projectilePrefab.name : null);
+        //SetText(hitEffectValueText, proj != null && proj.hitEffect != null ? proj.hitEffect.name : null);
         
         //Buffed Data
-        SetText(damageValueText, proj != null ? proj.damage.ToString("0.00") : null);
-        SetText(fixedPenetrationValueText, proj != null ? proj.fixedPanetration.ToString("0.00") : null);
-        SetText(percentPenetrationValueText, proj != null ? proj.percentPenetration.ToString("0.00") + "%" : null);
-        SetText(speedValueText, proj != null ? proj.speed.ToString("0.00") : null);
-        SetText(accelerationValueText, proj != null ? proj.acceleration.ToString("0.00") : null);
-        SetText(targetNumberValueText, proj != null ? proj.targetNumber.ToString() : null);
-        SetText(lifeTimeValueText, proj != null ? proj.lifeTime.ToString("0.00") : null);
-        SetText(hitRadiusValueText, proj != null ? proj.hitRadius.ToString("0.00") : null);
+        SetText(damageValueText, proj != null ? proj.Attack.ToString("0.00") : null);
+        SetText(fixedPenetrationValueText, proj != null ? proj.FixedPenetration.ToString("0.00") : null);
+        SetText(percentPenetrationValueText, proj != null ? proj.RatePenetration.ToString("0.00") + "%" : null);
+        SetText(speedValueText, proj != null ? proj.ProjectileSpeed.ToString("0.00") : null);
+        SetText(accelerationValueText, proj != null ? proj.ProjectileAddSpeed.ToString("0.00") : null);
+        SetText(targetNumberValueText, proj != null ? proj.TargetNum.ToString() : null);
+        SetText(lifeTimeValueText, proj != null ? proj.RemainTime.ToString("0.00") : null);
+        SetText(hitRadiusValueText, proj != null ? proj.CollisionSize.ToString("0.00") : null);
         //--------------------------------------------------------
     }
 

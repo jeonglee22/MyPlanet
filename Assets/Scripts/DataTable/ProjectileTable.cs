@@ -3,7 +3,7 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
-public class ProjectileTableData
+public class ProjectileData
 {
     public int Projectile_ID { get; set; }
     public string ProjectileName { get; set; }
@@ -32,7 +32,7 @@ public class ProjectileTableData
 
 public class ProjectileTable : DataTable
 {
-    private readonly Dictionary<int, ProjectileTableData> dictionary = new Dictionary<int, ProjectileTableData>();
+    private readonly Dictionary<int, ProjectileData> dictionary = new Dictionary<int, ProjectileData>();
 
     public override async UniTask LoadAsync(string filename)
     {
@@ -41,7 +41,7 @@ public class ProjectileTable : DataTable
         var path = string.Format(FormatPath, filename);
         var textAsset = await Addressables.LoadAssetAsync<TextAsset>(path).ToUniTask();
 
-        var list = await LoadCSVAsync<ProjectileTableData>(textAsset.text);
+        var list = await LoadCSVAsync<ProjectileData>(textAsset.text);
         foreach (var item in list)
         {
             if (!dictionary.TryAdd(item.Projectile_ID, item))
@@ -58,7 +58,7 @@ public class ProjectileTable : DataTable
         */
     }
 
-    public ProjectileTableData Get(int key)
+    public ProjectileData Get(int key)
     {
         if (!dictionary.ContainsKey(key))
         {
