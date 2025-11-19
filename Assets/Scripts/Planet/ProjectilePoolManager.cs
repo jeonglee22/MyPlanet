@@ -18,9 +18,11 @@ public class ProjectilePoolManager : MonoBehaviour
         if (instance == null)
         {
             instance = this;
+            Debug.Log("[ProjectilePoolManager] Singleton Instance set.");
         }
         else
         {
+            Debug.LogWarning("[ProjectilePoolManager] Duplicate instance, destroying.");
             Destroy(gameObject);
         }
     }
@@ -29,6 +31,9 @@ public class ProjectilePoolManager : MonoBehaviour
     {
         GameObject prefab = data.projectilePrefab;
         Projectile projectile = prefab.GetComponent<Projectile>();
+
+        Debug.Log($"[ProjectilePoolManager] CreatePool: {data.name}, " +
+                  $"capacity={defaultPoolCapacity}, max={maxPoolSize}");
 
         objectPoolManager.CreatePool(
             data,
