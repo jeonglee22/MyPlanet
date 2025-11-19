@@ -48,14 +48,10 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         refreshButton.onClick.AddListener(OnClickRefreshButton);
         refreshButton.gameObject.SetActive(false);
-
-        Debug.Log("[UpgradeUI] Start - upgradeUIs:" + upgradeUIs.Length);
     }
 
     private void OnEnable()
     {
-        Debug.Log("[UpgradeUI] OnEnable - isNotUpgradeOpen = " + isNotUpgradeOpen);
-
         if (isNotUpgradeOpen)
         {
             isNotUpgradeOpen = false;
@@ -75,8 +71,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
     private void OnDisable()
     {
-        Debug.Log("[UpgradeUI] OnDisable");
-
         foreach (var ui in upgradeUIs)
             ui.SetActive(false);
 
@@ -87,8 +81,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
     private void SettingUpgradeCards()
     {
-        Debug.Log("[UpgradeUI] SettingUpgradeCards 호출");
-
         ResetChoose();
         installControl.IsReadyInstall = false;
 
@@ -118,8 +110,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                     choices[i].ability = abilities[i];
                     choices[i].AmplifierTowerData = null;
                     uiTexts[i].text = $"new\nAttack\nTower\n\n{abilities[i]}";
-
-                    Debug.Log($"[UpgradeUI] 카드 {i} - 빈 슬롯 {number}, 타입=Attack, ability={abilities[i]}");
                 }
                 else if(towerType==1) //Damage Matrix
                 {
@@ -127,8 +117,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                     choices[i].ability = null;
                     choices[i].AmplifierTowerData = damageMatrixCoreSO;
                     uiTexts[i].text = $"new\nDamage\nMatrix\n\n{abilities[i]}";
-
-                    Debug.Log($"[UpgradeUI] 카드 {i} - 빈 슬롯 {number}, 타입=DamageMatrix");
                 }
                 else //Projectile Core
                 {
@@ -136,8 +124,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                     choices[i].ability = null;
                     choices[i].AmplifierTowerData = proejctileCoreSO;
                     uiTexts[i].text = $"new\nProjectile\nCore\n\n{abilities[i]}";
-
-                    Debug.Log($"[UpgradeUI] 카드 {i} - 빈 슬롯 {number}, 타입=ProjectileCore");
                 }
             }
             else
@@ -146,8 +132,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 choices[i].ability = abilities[i];
                 choices[i].AmplifierTowerData=null;
                 uiTexts[i].text = $"Upgrade\n{number}";
-
-                Debug.Log($"[UpgradeUI] 카드 {i} - 사용중 슬롯 {number}, 업그레이드 카드");
             }
         }
     }
@@ -161,13 +145,9 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
     public void OnClickUpgradeUIClicked(int index)
     {
-        Debug.Log($"[UpgradeUI] 카드 클릭 index={index}, numlist={numlist[index]}");
-
         var currentColor = upgradeUIs[index].GetComponentInChildren<Image>().color;
         if (currentColor != Color.white)
         {
-            Debug.Log("[UpgradeUI] 이미 선택된 카드 다시 클릭 → 선택 해제");
-
             installControl.IsReadyInstall = false;
             upgradeUIs[index].GetComponentInChildren<Image>().color = Color.white;
             return;
@@ -182,8 +162,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         if (installControl.IsUsedSlot(numlist[index]))
         {
-            Debug.Log($"[UpgradeUI] 업그레이드 슬롯 클릭 → UpgradeTower({numlist[index]}) 호출");
-
             installControl.UpgradeTower(numlist[index]);
             towerInfoUI.gameObject.SetActive(false);
             gameObject.SetActive(false);
@@ -192,8 +170,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     
     private void ResetChoose()
     {
-        Debug.Log("[UpgradeUI] ResetChoose 호출");
-
         abilities = new IAbility[upgradeUIs.Length];
         choices = new TowerInstallChoice[upgradeUIs.Length];
 
@@ -202,24 +178,19 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             upgradeUIs[i].GetComponentInChildren<Image>().color = Color.white;
             abilities[i] = AbilityManager.Instance.GetRandomAbility();
             choices[i] = new TowerInstallChoice();
-
-            Debug.Log($"[UpgradeUI] 카드 {i} 초기화 - ability={abilities[i]}");
         }
     }
 
     public void OnTouchMakeDrageImage(InputAction.CallbackContext context)
     {
-        if(!context.performed || towerImageIsDraging)
+        if(!context.performed || towerImageIsDraging) 
             return;
 
         var touchPos = context.ReadValue<Vector2>();
-        Debug.Log($"[UpgradeUI] OnTouchMakeDrageImage performed - pos={touchPos}, isStartTouch={isStartTouch}, isNewTouch={isNewTouch}");
-
         if (!isStartTouch)
         {
             isStartTouch = true;
             initTouchPos = touchPos;
-            Debug.Log($"[UpgradeUI] 드래그 시작 지점 기록: {initTouchPos}");
         }
 
         if(Vector2.Distance(initTouchPos, touchPos) < 5f || !isNewTouch)
@@ -233,8 +204,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 choosedIndex = System.Array.IndexOf(upgradeUIs, upgradeUi);
             }
         }
-
-        Debug.Log($"[UpgradeUI] DragStart - choosedIndex={choosedIndex}, isUsedSlot={(choosedIndex >= 0 ? installControl.IsUsedSlot(numlist[choosedIndex]).ToString() : "N/A")}");
 
         if (choosedIndex == -1 || 
             installControl.IsUsedSlot(numlist[choosedIndex]))
@@ -260,8 +229,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             isNewTouch = false;
 
             var index = GetEndTouchOnInstallArea();
-
-            Debug.Log($"[UpgradeUI] TouchEnd - slotIndex={index}, choosedIndex={choosedIndex}, dragImageNull={dragImage == null}");
             if (index != -1 && dragImage != null && choosedIndex != -1)
             {
                 installControl.IsReadyInstall = true;
@@ -272,7 +239,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 dragImage = null;
                 gameObject.SetActive(false);
             }
-
             choosedIndex = -1;
         }
     }
