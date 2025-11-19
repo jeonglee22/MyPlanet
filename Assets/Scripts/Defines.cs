@@ -8,11 +8,23 @@ public static class TagName
     public static readonly string DropItem = "DropItem";
 }
 
+public static class PoolObjectName
+{
+    public static readonly string PatternProjectile = "PatternProjectile";
+    public static readonly string Enemy = "EnemySample";
+}
+
 public enum Languages
 {
     Korean,
     English,
     Japanese,
+}
+
+public enum PrefabType
+{
+    Enemy,
+    PatternProjectile
 }
 
 public static class DataTableIds

@@ -147,8 +147,9 @@ public class Enemy : LivingEntity, ITargetable
         if(excutePattern && pattern != null)
         {
             //ExecutionTrigger trigger = ExecutionTrigger.None;
-            ExecutionTrigger trigger = ExecutionTrigger.OnPatternLine;
-            float interval = 0f; //test
+            //ExecutionTrigger trigger = ExecutionTrigger.OnPatternLine;
+            ExecutionTrigger trigger = ExecutionTrigger.OnInterval;
+            float interval = 3f; //test
             /*
             if(data.EnemyGrade == 4)
             {
@@ -247,7 +248,7 @@ public class Enemy : LivingEntity, ITargetable
         //Grade 4: Normal, Gade 3: Unique, Grade: Middle Boss, Grade 1: Boss
         if(grade == 4)
         {
-            pattern = gameObject.AddComponent<HomingPattern>();
+            pattern = gameObject.AddComponent<SimpleShotPattern>();
             //pattern = gameObject.AddComponent<MeteorClusterPattern>();
         }
         else
