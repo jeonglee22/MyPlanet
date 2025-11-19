@@ -6,12 +6,14 @@ public static class TagName
     public static readonly string Planet = "Planet";
     public static readonly string Projectile = "Projectile";
     public static readonly string DropItem = "DropItem";
+    public static readonly string Enemy = "Enemy";
 }
 
-public static class PoolObjectName
+public static class ObjectName
 {
     public static readonly string PatternProjectile = "PatternProjectile";
     public static readonly string Enemy = "EnemySample";
+    public static readonly string Projectile = "Projectile";
 }
 
 public enum Languages

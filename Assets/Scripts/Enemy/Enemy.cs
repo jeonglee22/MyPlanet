@@ -31,6 +31,8 @@ public class Enemy : LivingEntity, ITargetable
     private float fixedPenetration;
     private Vector3 originalScale;
     [SerializeField] private float lifeTime = 2f;
+    public float LifeTime => lifeTime;
+    public float RemainingLifeTime => remainingLifeTime > 0 ? remainingLifeTime : lifeTime;
     private CancellationTokenSource lifeTimeCts;
 
     [SerializeField] private List<DropItem> drops;
@@ -147,9 +149,10 @@ public class Enemy : LivingEntity, ITargetable
         if(excutePattern && pattern != null)
         {
             //ExecutionTrigger trigger = ExecutionTrigger.None;
-            //ExecutionTrigger trigger = ExecutionTrigger.OnPatternLine;
-            ExecutionTrigger trigger = ExecutionTrigger.OnInterval;
-            float interval = 3f; //test
+            ExecutionTrigger trigger = ExecutionTrigger.OnPatternLine;
+            //ExecutionTrigger trigger = ExecutionTrigger.OnInterval;
+            //float interval = 3f; //test
+            float interval = 0f; //test
             /*
             if(data.EnemyGrade == 4)
             {
@@ -248,8 +251,8 @@ public class Enemy : LivingEntity, ITargetable
         //Grade 4: Normal, Gade 3: Unique, Grade: Middle Boss, Grade 1: Boss
         if(grade == 4)
         {
-            pattern = gameObject.AddComponent<SimpleShotPattern>();
-            //pattern = gameObject.AddComponent<MeteorClusterPattern>();
+            //pattern = gameObject.AddComponent<SimpleShotPattern>();
+            pattern = gameObject.AddComponent<MeteorClusterPattern>();
         }
         else
         {

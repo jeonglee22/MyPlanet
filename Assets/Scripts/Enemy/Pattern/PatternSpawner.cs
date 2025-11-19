@@ -43,14 +43,7 @@ public class PatternSpawner : MonoBehaviour
             return;
         }
 
-        try
-        {
-            patternPrefab = await Addressables.LoadAssetAsync<GameObject>(PoolObjectName.PatternProjectile).ToUniTask();
-        }
-        catch (System.Exception)
-        {
-            
-        }
+        patternPrefab = await Addressables.LoadAssetAsync<GameObject>(ObjectName.PatternProjectile).ToUniTask();
     }
 
     private void PreparePool()

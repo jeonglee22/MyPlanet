@@ -1208,7 +1208,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7232452463989002681, guid: f3d6215b6033e8a40bffa735588a1807, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.95
+      value: 0.75
       objectReference: {fileID: 0}
     - target: {fileID: 7232452463989002681, guid: f3d6215b6033e8a40bffa735588a1807, type: 3}
       propertyPath: m_LocalPosition.z
@@ -2425,6 +2425,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 1000000
   towerPrefab: {fileID: 1023283278850307994, guid: 0571919fcf38eb946ae60d72aeed9ac4, type: 3}
+  amplifierTowerPrefab: {fileID: 0}
   towerSlotTransform: {fileID: 824370128}
   baseColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   hitColor: {r: 1, g: 1, b: 1, a: 1}
@@ -5472,6 +5473,8 @@ MonoBehaviour:
   installControl: {fileID: 2834448803939915530}
   towerInfoUI: {fileID: 4544513132663384558}
   dragImagePrefab: {fileID: 9173017397612216722, guid: 90cf15c0fa0690e4e97657711141590c, type: 3}
+  damageMatrixCoreSO: {fileID: 0}
+  proejctileCoreSO: {fileID: 0}
   uiTexts:
   - {fileID: 1403100453}
   - {fileID: 1403100452}
@@ -5607,12 +5610,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   towerCount: 12
-  towerBasePrefab: {fileID: 4187861493209293078, guid: 94c9f60a30b4d9f47b02be09e573b6fb, type: 3}
-  towerInfoObj: {fileID: 5363757936205387701}
   PlanetTransform: {fileID: 5918462258407620994}
-  rotateSpeed: 300
-  emptySlotPrefab: {fileID: 1900192328185390982, guid: c25fd9231c3043e478190ac6f73cd668, type: 3}
   planetObj: {fileID: 1429513896}
+  rotateSpeed: 300
+  towerInfoObj: {fileID: 5363757936205387701}
+  towerUIBasePrefab: {fileID: 0}
+  emptySlotPrefab: {fileID: 1900192328185390982, guid: c25fd9231c3043e478190ac6f73cd668, type: 3}
   planetTowerUI: {fileID: 520921929070594631}
   availableTowerDatas:
   - {fileID: 11400000, guid: d358652c618b8d247a56a84773bd4de6, type: 2}
