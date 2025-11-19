@@ -12,6 +12,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     [SerializeField] private TowerInstallControl installControl;
     [SerializeField] private TowerInfoUI towerInfoUI;
     [SerializeField] private GameObject dragImagePrefab;
+    [SerializeField] private TextMeshProUGUI towerInstallText;
     private bool towerImageIsDraging = false;
     private bool isNewTouch;
     private bool isStartTouch = false;
@@ -29,7 +30,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     private IAbility[] abilities;
     public Color choosedColor { get; private set; }
 
-    private bool isNotUpgradeOpen = true;
+    private bool isNotUpgradeOpen = false;
     public bool IsNotUpgradeOpen
     {
         get { return isNotUpgradeOpen; }
@@ -42,11 +43,17 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
     private void Start()
     {
-        foreach (var ui in upgradeUIs)
-            ui.SetActive(false);
+        // foreach (var ui in upgradeUIs)
+        //     ui.SetActive(false);
         towerColor = Color.yellow;
 
-        SetActiveRefreshButtons(false);
+        // SetActiveRefreshButtons(false);
+        installControl.OnTowerInstalled += SetTowerInstallText;
+    }
+
+    void OnDestroy()
+    {
+        installControl.OnTowerInstalled -= SetTowerInstallText;
     }
 
     private void OnEnable()
@@ -68,6 +75,13 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         }
 
         SettingUpgradeCards();
+        
+    }
+
+    private void SetTowerInstallText()
+    {
+        Debug.Log("SetTowerInstallText");
+        towerInstallText.text = $"({installControl.CurrentTowerCount}/{installControl.MaxTowerCount})";
     }
 
     private void OnDisable()
@@ -107,12 +121,21 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         for (int i = 0; i < uiTexts.Length; i++)
         {
             int number;
-            int count = 0;
-            do
+            
+            while (true)
             {
                 number = Random.Range(0, installControl.TowerCount);
-                count++;
-            } while (numlist.Contains(number) && count < installControl.TowerCount);
+
+                if (installControl.MaxTowerCount == installControl.CurrentTowerCount && 
+                    !installControl.IsUsedSlot(number))
+                {
+                    continue;
+                }
+
+                if(!numlist.Contains(number))
+                    break;
+            }
+
             numlist.Add(number);
 
 
@@ -158,14 +181,23 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     private void ResetUpgradeCard(int index)
     {
         abilities[index] = AbilityManager.Instance.GetRandomAbility();
+        installControl.IsReadyInstall = false;
+        upgradeUIs[index].GetComponentInChildren<Image>().color = Color.white;
 
         int number;
-        int count = 0;
-        do
+        while (true)
         {
             number = Random.Range(0, installControl.TowerCount);
-            count++;
-        } while (numlist.Contains(number) && count < installControl.TowerCount);
+
+            if (installControl.MaxTowerCount == installControl.CurrentTowerCount && 
+                !installControl.IsUsedSlot(number))
+            {
+                continue;
+            }
+
+            if(!numlist.Contains(number))
+                break;
+        }
 
         numlist[index] = number;
 
@@ -179,7 +211,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         }
         else
         {
-            uiTexts[index].text = $"Upgrade\n{number}";
+            uiTexts[index].text = $"Upgrade\n{number}\nTower";
         }
         //
     }
