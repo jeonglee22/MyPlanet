@@ -39,6 +39,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
     private GameObject dragImage = null;
     private int choosedIndex = -1;
+    private bool isFirstInstall = true;
     [SerializeField] private Button[] refreshButtons;
 
     private void Start()
@@ -95,6 +96,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         choosedIndex = -1;
         isStartTouch = false;
         towerImageIsDraging = false;
+        isFirstInstall = false;
     }
 
     private void Update()
@@ -138,13 +140,15 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
             numlist.Add(number);
 
-
             if (installControl == null) continue;
             //UsedSlot ? UpgradeCard : New Tower-------------------
             if (!installControl.IsUsedSlot(number))
             {
                 //Random Tower Type (0:Attack, 1:DamageMatrix, 2:ProjectileCore)
                 int towerType = Random.Range(0, 3);
+
+                if(isFirstInstall)
+                    towerType = 0;
 
                 if(towerType==0) //Attack
                 {
@@ -204,16 +208,43 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         if (installControl == null)
             return;
 
-        // test
         if (!installControl.IsUsedSlot(number))
-        {
-            uiTexts[index].text = $"new Tower\n\n{abilities[index]}";
-        }
-        else
-        {
-            uiTexts[index].text = $"Upgrade\n{number}\nTower";
-        }
-        //
+            {
+                //Random Tower Type (0:Attack, 1:DamageMatrix, 2:ProjectileCore)
+                int towerType = Random.Range(0, 3);
+
+                if(isFirstInstall)
+                    towerType = 0;
+
+                if(towerType==0) //Attack
+                {
+                    choices[index].InstallType = TowerInstallType.Attack;
+                    choices[index].ability = abilities[index];
+                    choices[index].AmplifierTowerData = null;
+                    uiTexts[index].text = $"new\nAttack\nTower\n\n{abilities[index]}";
+                }
+                else if(towerType==1) //Damage Matrix
+                {
+                    choices[index].InstallType = TowerInstallType.Amplifier;
+                    choices[index].ability = null;
+                    choices[index].AmplifierTowerData = damageMatrixCoreSO;
+                    uiTexts[index].text = $"new\nDamage\nMatrix\n\n{abilities[index]}";
+                }
+                else //Projectile Core
+                {
+                    choices[index].InstallType = TowerInstallType.Amplifier;
+                    choices[index].ability = null;
+                    choices[index].AmplifierTowerData = proejctileCoreSO;
+                    uiTexts[index].text = $"new\nProjectile\nCore\n\n{abilities[index]}";
+                }
+            }
+            else
+            {
+                choices[index].InstallType = TowerInstallType.Attack;
+                choices[index].ability = abilities[index];
+                choices[index].AmplifierTowerData=null;
+                uiTexts[index].text = $"Upgrade\n{number}";
+            }
     }
 
     public void OnClickRefreshButton(int index)

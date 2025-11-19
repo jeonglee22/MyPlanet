@@ -46,12 +46,20 @@ public class TowerInfoUI : PopUpUI
         }
 
         var attackTower = installControl.GetAttackTower(index); //Attack Tower Data
-        if (attackTower == null||attackTower.AttackTowerData==null)
+        // if (attackTower == null||attackTower.AttackTowerData==null)
+        // {
+        //     nameText.text = $"Empty Slot {index}";
+        //     SetAllText(null);
+        //     return;
+        // }
+        if (attackTower == null||attackTower.AttackTowerData==null) //AmpliferTower
         {
             nameText.text = $"Empty Slot {index}";
             SetAllText(null);
+            SetAllText("증폭타워");
+            infoIndex = index;
             return;
-        }
+        } 
 
         var attackTowerData = attackTower.AttackTowerData;
         var buffedProjectile = attackTower.CurrentProjectileData;

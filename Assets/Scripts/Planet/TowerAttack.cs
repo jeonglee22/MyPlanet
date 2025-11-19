@@ -21,7 +21,6 @@ public class TowerAttack : MonoBehaviour
     private float fireRateBuffMul=1f; //fireRate = baseFireRate * fireRateBuffMul
     private float accelerationBuffAdd=0f;  //just add
 
-    //not yet_20251117 13:52 #117
     private float hitRadiusBuffMul=1f; //hitbox Size, Mul or Add?
     private float percentPenetrationBuffMul=1f;
     private float fixedPenetrationBuffAdd=0f;

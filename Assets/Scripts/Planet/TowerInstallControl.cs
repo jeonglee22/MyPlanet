@@ -203,8 +203,8 @@ public class TowerInstallControl : MonoBehaviour
         }
 
         // test Install
-        var newTower = Instantiate(towerBasePrefab, PlanetTransform);
-        var chosenData = PickRandomTowerData();
+        // var newTower = Instantiate(towerBasePrefab, PlanetTransform);
+        // var chosenData = PickRandomTowerData();
         if (ChoosedData == null) return;
 
         Destroy(towers[index]);
