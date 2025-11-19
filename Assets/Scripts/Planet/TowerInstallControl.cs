@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -7,6 +8,23 @@ public class TowerInstallControl : MonoBehaviour
 {
     [SerializeField] private int towerCount;
     public int TowerCount { get => towerCount; }
+
+    private int currentTowerCount;
+    public int CurrentTowerCount
+    {
+        get { return currentTowerCount; }
+        set 
+        { 
+            currentTowerCount = value;
+            OnTowerInstalled?.Invoke();
+        }
+    }
+
+    private int maxTowerCount = 6;
+    public int MaxTowerCount { get => maxTowerCount; }
+
+    public event Action OnTowerInstalled;
+
     [SerializeField] private GameObject towerBasePrefab;
     [SerializeField] private GameObject towerInfoObj;
     [SerializeField] private RectTransform PlanetTransform;
@@ -24,7 +42,7 @@ public class TowerInstallControl : MonoBehaviour
     private float currentAngle;
 
     //test
-    private bool[] emptyTowerTest;
+    private bool[] emptyTower;
     [SerializeField] private List<TowerDataSO> availableTowerDatas;
     private TowerDataSO[] assignedTowerDatas;
 
@@ -36,10 +54,15 @@ public class TowerInstallControl : MonoBehaviour
     {
         planetTowerUI.TowerCount = towerCount;
 
-        emptyTowerTest = new bool[towerCount];
+        emptyTower = new bool[towerCount];
+        
+        var index = UnityEngine.Random.Range(0, towerCount);
         for (int i = 0; i < towerCount; i++)
         {
-            emptyTowerTest[i] = Random.value < 0.5f;
+            emptyTower[i] = true;
+
+            if (i == index)
+                emptyTower[i] = false;
         }
         assignedTowerDatas = new TowerDataSO[towerCount];
     }
@@ -50,6 +73,7 @@ public class TowerInstallControl : MonoBehaviour
 
         ResetTowerSlot(towerCount);
         towerInfoObj.SetActive(false);
+        CurrentTowerCount = 1;
     }
 
     private void Update()
@@ -79,7 +103,7 @@ public class TowerInstallControl : MonoBehaviour
             GameObject tower;
             int index = i;
 
-            if (emptyTowerTest[index])
+            if (emptyTower[index])
             {
                 tower = Instantiate(emptySlotPrefab, PlanetTransform);
                 var buttonEmpty = tower.GetComponent<Button>();
@@ -135,9 +159,9 @@ public class TowerInstallControl : MonoBehaviour
 
     public bool IsUsedSlot(int index)
     {
-        if (emptyTowerTest == null) return false;
+        if (emptyTower == null) return false;
 
-        return !emptyTowerTest[index];
+        return !emptyTower[index];
     }
 
     public void UpgradeTower(int index)
@@ -159,13 +183,19 @@ public class TowerInstallControl : MonoBehaviour
 
     private TowerDataSO PickRandomTowerData()
     {
-        int idx = Random.Range(0, availableTowerDatas.Count);
+        int idx = UnityEngine.Random.Range(0, availableTowerDatas.Count);
         return availableTowerDatas[idx];
     }
 
     public void IntallNewTower(int index)
     {
         if (!IsReadyInstall) return;
+
+        if(currentTowerCount >= maxTowerCount)
+        {
+            Debug.Log("Tower limit");
+            return;
+        }
 
         // test Install
         var newTower = Instantiate(towerBasePrefab, PlanetTransform);
@@ -198,8 +228,10 @@ public class TowerInstallControl : MonoBehaviour
         planet?.SetTower(assignedTowerDatas[index], index, ChoosedData.ability);
         SettingTowerTransform(currentAngle);
 
-        emptyTowerTest[index] = false;
+        emptyTower[index] = false;
         planetTowerUI.gameObject.SetActive(false);
+
+        CurrentTowerCount += 1;
     }
 
     private void OpenInfoUI(int index)

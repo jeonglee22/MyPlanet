@@ -26,7 +26,11 @@ public class JoyStickAppear : MonoBehaviour
     void Update()
     {
         if(EventSystem.current.IsPointerOverGameObject())
+        {
+            isAppear = false;
+            joystick.SetActive(false);
             return;
+        }
 
         if (!TouchManager.Instance.IsTouching)
         {
@@ -54,6 +58,7 @@ public class JoyStickAppear : MonoBehaviour
         }
         else
         {
+            Debug.Log("Show Joystick");
             joystick.transform.position = touchPos;
             joystick.SetActive(true);
 

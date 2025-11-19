@@ -12,6 +12,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     [SerializeField] private TowerInstallControl installControl;
     [SerializeField] private TowerInfoUI towerInfoUI;
     [SerializeField] private GameObject dragImagePrefab;
+    [SerializeField] private TextMeshProUGUI towerInstallText;
     private bool towerImageIsDraging = false;
     private bool isNewTouch;
     private bool isStartTouch = false;
@@ -42,6 +43,12 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         towerColor = Color.yellow;
 
         SetActiveRefreshButtons(false);
+        installControl.OnTowerInstalled += SetTowerInstallText;
+    }
+
+    void OnDestroy()
+    {
+        installControl.OnTowerInstalled -= SetTowerInstallText;
     }
 
     private void OnEnable()
@@ -63,6 +70,13 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         }
 
         SettingUpgradeCards();
+        
+    }
+
+    private void SetTowerInstallText()
+    {
+        Debug.Log("SetTowerInstallText");
+        towerInstallText.text = $"({installControl.CurrentTowerCount}/{installControl.MaxTowerCount})";
     }
 
     private void OnDisable()
@@ -121,7 +135,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             }
             else
             {
-                uiTexts[i].text = $"Upgrade\n{number}";
+                uiTexts[i].text = $"Upgrade\n{number}\nTower";
             }
             //
         }
@@ -151,7 +165,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         }
         else
         {
-            uiTexts[index].text = $"Upgrade\n{number}";
+            uiTexts[index].text = $"Upgrade\n{number}\nTower";
         }
         //
     }
