@@ -204,7 +204,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     {
         var touchPos = TouchManager.Instance.TouchPos;
 
-        Debug.Log(TouchManager.Instance.IsTouching);
         if(!TouchManager.Instance.IsTouching || towerImageIsDraging)
             return;
         
@@ -240,7 +239,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     {
         var currentPhase = TouchManager.Instance.TouchPhase;
         
-        Debug.Log(currentPhase);
         if (currentPhase == InputActionPhase.Canceled)
         {
             isStartTouch = false;
