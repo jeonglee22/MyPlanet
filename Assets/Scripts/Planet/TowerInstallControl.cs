@@ -169,6 +169,7 @@ public class TowerInstallControl : MonoBehaviour
         if (!IsReadyInstall) return;
 
         planet?.UpgradeTower(index);
+        IsReadyInstall = false;
     }
 
     private void TryAssignDataToTower(GameObject towerObj, TowerDataSO data)
@@ -232,6 +233,7 @@ public class TowerInstallControl : MonoBehaviour
         planetTowerUI.gameObject.SetActive(false);
 
         CurrentTowerCount += 1;
+        IsReadyInstall = false;
     }
 
     private void OpenInfoUI(int index)

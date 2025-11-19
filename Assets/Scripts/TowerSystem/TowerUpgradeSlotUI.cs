@@ -116,12 +116,20 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         for (int i = 0; i < uiTexts.Length; i++)
         {
             int number;
-            int count = 0;
-            do
+            
+            while (true)
             {
                 number = Random.Range(0, installControl.TowerCount);
-                count++;
-            } while (numlist.Contains(number) && count < installControl.TowerCount);
+
+                if (installControl.MaxTowerCount == installControl.CurrentTowerCount && 
+                    !installControl.IsUsedSlot(number))
+                {
+                    continue;
+                }
+
+                if(!numlist.Contains(number))
+                    break;
+            }
 
             numlist.Add(number);
 
@@ -144,14 +152,23 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     private void ResetUpgradeCard(int index)
     {
         abilities[index] = AbilityManager.Instance.GetRandomAbility();
+        installControl.IsReadyInstall = false;
+        upgradeUIs[index].GetComponentInChildren<Image>().color = Color.white;
 
         int number;
-        int count = 0;
-        do
+        while (true)
         {
             number = Random.Range(0, installControl.TowerCount);
-            count++;
-        } while (numlist.Contains(number) && count < installControl.TowerCount);
+
+            if (installControl.MaxTowerCount == installControl.CurrentTowerCount && 
+                !installControl.IsUsedSlot(number))
+            {
+                continue;
+            }
+
+            if(!numlist.Contains(number))
+                break;
+        }
 
         numlist[index] = number;
 
