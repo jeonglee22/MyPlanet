@@ -16,19 +16,12 @@ public class TowerAttack : MonoBehaviour
     
     //test
     private ProjectilePoolManager projectilePoolManager;
+
     //------------ Amplifier Buff Field ---------------------
     private float damageBuffMul=1f; //damage = baseDamage * damageBuffMul
     private float fireRateBuffMul=1f; //fireRate = baseFireRate * fireRateBuffMul
     private float accelerationBuffAdd=0f;  //just add
-
-    //not yet_20251117 13:52 #117
-    private float hitRadiusBuffMul=1f; //hitbox Size, Mul or Add?
-    private float percentPenetrationBuffMul=1f;
-    private float fixedPenetrationBuffAdd=0f;
-    private int projectileCountBuffAdd=0; //new variable
-    private int targetNumberBuffAdd=0;
-    private float hitRateBuffMul=1f;
-
+   
     public float CurrentFireRate
     {
         get
@@ -38,19 +31,39 @@ public class TowerAttack : MonoBehaviour
         }
     }
 
-    //Apply Buff Version Projectile Data SO
-    private ProjectileData addBuffProjectileData; //making runtime once
-    public ProjectileData CurrentProjectileData
+    //projectile Count---------------------------------------
+    private int baseProjectileCount = 1;
+    private int projectileCountBuffAdd = 0;
+    public int CurrentProjectileCount
     {
         get
         {
-            var buffed = GetBuffedProjectileData();
-            if (buffed != null) return buffed;
-            return towerData != null ? towerData.projectileType : null;
+            int finalCount = baseProjectileCount + projectileCountBuffAdd;
+            return Mathf.Max(1, finalCount);
         }
     }
     //-------------------------------------------------------
 
+    //Apply Buff Version Projectile Data SO------------------
+    private ProjectileData addBuffProjectileData; //making runtime once
+    public ProjectileData CurrentProjectileData 
+    { 
+        get 
+        {
+            var buffed = GetBuffedProjectileData();
+            if (buffed != null) return buffed;
+            return towerData != null ? towerData.projectileType : null;
+        } 
+    }
+    //-------------------------------------------------------
+
+    //not yet_20251119 19:05
+    private float hitRadiusBuffMul = 1f; //hitbox Size, Mul or Add?
+    private float percentPenetrationBuffMul = 1f;
+    private float fixedPenetrationBuffAdd = 0f;
+    private int targetNumberBuffAdd = 0;
+    private float hitRateBuffMul = 1f;
+    //-------------------------------------------------------
 
     private void Awake()
     {
@@ -68,27 +81,27 @@ public class TowerAttack : MonoBehaviour
     {
         towerData = data;
         currentProjectileData = data.projectileType;
+
+        if (towerData != null && towerData.projectileType != null)
+        {
+            baseProjectileCount = Mathf.Max(1, towerData.projectileType.targetNumber);
+        }
+        else baseProjectileCount = 1;
     }
 
     private void Update()
     {
-        if (towerData == null || targetingSystem == null)
-        {
-            // Debug.LogWarning($"[TowerAttack.Update] {gameObject.name} | towerData: {(towerData != null ? "OK" : "NULL")} | targetingSystem: {(targetingSystem != null ? "OK" : "NULL")}");
-            return;
-        }
+        if (towerData == null || targetingSystem == null) return;
 
         shootTimer += Time.deltaTime;
 
         //Fire Rate Buff Calculator
-        float basicFireRate = towerData.fireRate;
-        float finalFireRate = basicFireRate * fireRateBuffMul;
+        float finalFireRate = CurrentFireRate;
         if (finalFireRate <= 0) return;
         float shootInterval = 1f / finalFireRate;
 
         if(shootTimer>=shootInterval)
         {
-            //Debug.Log($"[TowerAttack.Update] {gameObject.name} attempting to shoot | CurrentTarget: {(targetingSystem.CurrentTarget != null ? "EXISTS" : "NULL")}");
             ShootAtTarget();
             shootTimer = 0f;
         }
@@ -97,10 +110,13 @@ public class TowerAttack : MonoBehaviour
     private void ShootAtTarget()
     {
         var target = targetingSystem.CurrentTarget;
-        // Debug.Log($"[ShootAtTarget] {gameObject.name} | Target: {(target != null ? (target as MonoBehaviour)?.name : "NULL")} | isAlive: {(target != null ? target.isAlive.ToString() : "N/A")}");
         if (target == null || !target.isAlive) return;
 
         Vector3 direction = (target.position - transform.position).normalized;
+
+        //Buffed Tower Data
+        ProjectileData buffedData = CurrentProjectileData;
+        if (buffedData == null) return;
 
         //Enemy Debug---------------------------------------
         var targetEnemy = target as Enemy;
@@ -108,30 +124,47 @@ public class TowerAttack : MonoBehaviour
         // Debug.Log($"[SHOOT] Tower: {gameObject.name} | Strategy: {strategyName} | Target: {(target as MonoBehaviour)?.name} | HP: {target.maxHp} | ATK: {target.atk} | DEF: {target.def} | Distance: {Vector3.Distance(transform.position, target.position):F2}");
         //--------------------------------------------
 
-        var projectile = ProjectilePoolManager.Instance.GetProjectile(towerData.projectileType);
-        if(projectile==null)
+        int shotCount = CurrentProjectileCount;
+
+        var baseData = towerData.projectileType; //For Pooling
+
+        //add projectile debug
+        float spreadAngle = 10f; // 임시로 10도씩 퍼트리기
+        float centerIndex = (shotCount - 1) * 0.5f;
+
+        for (int i=0;i<shotCount; i++)
         {
-            projectile = Instantiate(
-                towerData.projectileType.projectilePrefab, 
-                transform.position, 
-                Quaternion.LookRotation(direction)
-                ).GetComponent<Projectile>();
-        }
 
-        projectile.transform.position = firePoint.position;
-        projectile.transform.rotation = Quaternion.LookRotation(direction);
+            //add projectile debug
+            float offsetIndex = i - centerIndex;
+            Quaternion spreadRot = Quaternion.AngleAxis(offsetIndex * spreadAngle, Vector3.up);
+            Vector3 shotDir = spreadRot * direction;
+            //Vector3 shotDir = direction; 
 
-        //Buffed check
-        var buffedData = GetBuffedProjectileData();
-        if (buffedData == null) return;
+            //Pool (Using BaseData For Recycle)
+            var projectile = ProjectilePoolManager.Instance.GetProjectile(baseData);
+            if (projectile == null)
+            {
+                projectile = Instantiate(
+                    baseData.projectilePrefab,
+                    transform.position,
+                    Quaternion.LookRotation(direction)
+                    ).GetComponent<Projectile>();
+            }
 
-        projectile.Initialize(buffedData, direction, true, projectilePoolManager.ProjectilePool);
+            projectile.transform.position = firePoint.position;
+            projectile.transform.rotation = Quaternion.LookRotation(direction);
 
-        foreach (var ability in abilities)
-        {
-            ability.ApplyAbility(projectile.gameObject);
-            projectile.abilityAction += ability.ApplyAbility;
-            projectile.abilityRelease += ability.RemoveAbility;
+            //Initialize Buffed Data
+            projectile.Initialize(buffedData, shotDir, true, projectilePoolManager.ProjectilePool);
+
+            //Ability
+            foreach (var ability in abilities)
+            {
+                ability.ApplyAbility(projectile.gameObject);
+                projectile.abilityAction += ability.ApplyAbility;
+                projectile.abilityRelease += ability.RemoveAbility;
+            }
         }
     }
 
@@ -247,7 +280,8 @@ public class TowerAttack : MonoBehaviour
             damageBuffMul = 1f;
             fireRateBuffMul = 1f;
             accelerationBuffAdd = 0f;
-            //not YET(2025-11-17 14:45)
+            
+            //not YET(2025-11-19 19:07)
             hitRadiusBuffMul = 1f;
             percentPenetrationBuffMul = 1f;
             fixedPenetrationBuffAdd = 0f;
@@ -261,14 +295,14 @@ public class TowerAttack : MonoBehaviour
             damageBuffMul += amp.DamageBuff;
             fireRateBuffMul *= amp.FireRateBuff;
             accelerationBuffAdd *= amp.AccelerationBuff;
+            projectileCountBuffAdd += amp.ProjectileCountBuff;
 
-            //not yet_20251117 14:14
-            hitRadiusBuffMul = 1f + amp.HitRadiusBuff;
+            //not yet_20251119 19:07
+            hitRadiusBuffMul += amp.HitRadiusBuff;
             percentPenetrationBuffMul = amp.PercentPenetrationBuff;
             fixedPenetrationBuffAdd = amp.FixedPenetrationBuff;
-            projectileCountBuffAdd = amp.ProjectileCountBuff;
-            targetNumberBuffAdd = amp.TargetNumberBuff;
-            hitRateBuffMul = amp.HitRateBuff;
+            targetNumberBuffAdd += amp.TargetNumberBuff;
+            hitRateBuffMul *= amp.HitRateBuff;
         }
     }
 
