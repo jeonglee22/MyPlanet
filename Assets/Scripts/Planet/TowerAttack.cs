@@ -28,7 +28,7 @@ public class TowerAttack : MonoBehaviour
     private int targetNumberBuffAdd=0;
     private float hitRateBuffMul=1f;
 
-    private int projectileId = 1100001; //test
+    private int projectileId = 1100003; //test
 
     public float CurrentFireRate
     {
@@ -69,6 +69,7 @@ public class TowerAttack : MonoBehaviour
     {
         towerData = data;
         currentProjectileData = DataTableManager.ProjectileTable.Get(projectileId);
+        towerData.projectileType = currentProjectileData;
     }
 
     private void Update()

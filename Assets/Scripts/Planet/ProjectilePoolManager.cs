@@ -61,7 +61,7 @@ public class ProjectilePoolManager : MonoBehaviour
 
     public Projectile GetProjectile(ProjectileData data)
     {
-        if (!objectPoolManager.HasPool(data))
+        if (data != null && !objectPoolManager.HasPool(data))
         {
             CreatePool(data);
         }
