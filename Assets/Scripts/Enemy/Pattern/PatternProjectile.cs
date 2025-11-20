@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class PatternProjectile : MonoBehaviour
 {
+    [SerializeField] private TrailRenderer trailRenderer;
     private float damage;
     private float moveSpeed;
     private float lifeTime;
@@ -41,6 +42,18 @@ public class PatternProjectile : MonoBehaviour
     private void OnEnable()
     {
         isReturn = false;
+        trailRenderer.Clear();
+        trailRenderer.enabled = true;
+        trailRenderer.emitting = true;
+    }
+
+    private void OnDisable()
+    {
+        trailRenderer.emitting = false;
+        trailRenderer.Clear();
+        trailRenderer.enabled = false;
+
+        transform.position = PatternSpawner.Instance.transform.position;
     }
 
     private void Update()
@@ -106,6 +119,7 @@ public class PatternProjectile : MonoBehaviour
 
         OnHitByProjectileEvent = null;
         OnPlayerHitEvent = null;
+        trailRenderer.Clear();
         spawner?.ReturnPatternToPool(this);
     }
 
