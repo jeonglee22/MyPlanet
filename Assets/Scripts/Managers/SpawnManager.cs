@@ -21,7 +21,7 @@ public class SpawnManager : MonoBehaviour
     private Rect screenBounds;
     private Rect offSetBounds;
     public Rect ScreenBounds => screenBounds;
-    private float offSet = 3f;
+    private float offSet = 1f;
 
     private void Awake()
     {
@@ -35,7 +35,7 @@ public class SpawnManager : MonoBehaviour
         }
 
         SetScreenBounds();
-        GenerateSemicircleSpawnPoints();
+        GenerateRectSpawnPoints();
     }
 
     private void Start()
@@ -74,20 +74,21 @@ public class SpawnManager : MonoBehaviour
         offSetBounds = new Rect(bottomLeft.x - offSet, bottomLeft.y, (topRight.x - bottomLeft.x) + (offSet * 2), (topRight.y - bottomLeft.y) + offSet);
     }
 
-    public void GenerateSemicircleSpawnPoints()
+    public void GenerateRectSpawnPoints()
     {
-        Vector3 center = new Vector3(offSetBounds.center.x, offSetBounds.yMin, 0f);
-
-        float radius = Mathf.Abs(center.x - offSetBounds.xMin);
-
-        for (int i = 0; i < spawnPointCount; i++)
+        Vector3[] positions = new Vector3[5]
         {
-            float angle = Mathf.PI * i / (spawnPointCount - 1);
+            new Vector3(offSetBounds.xMax, offSetBounds.yMin, 0f),
+            new Vector3(offSetBounds.xMax, offSetBounds.yMax, 0f),
+            new Vector3(offSetBounds.center.x, offSetBounds.yMax, 0f),
+            new Vector3(offSetBounds.xMin, offSetBounds.yMax, 0f),
+            new Vector3(offSetBounds.xMin, offSetBounds.yMin, 0f)
+        };
 
-            float x = center.x + radius * Mathf.Cos(angle);
-            float y = center.y + radius * Mathf.Sin(angle);
-
-            var spawner = Instantiate(spawnPointSample, new Vector3(x, y, 0f), Quaternion.identity).GetComponent<EnemySpawner>();
+        for (int i = 0; i < spawnPointCount && i < positions.Length; i++)
+        {
+            var spawner = Instantiate(spawnPointSample, positions[i], Quaternion.identity).GetComponent<EnemySpawner>();
+            spawner.SetSpawnPointIndex(i);
             spawnPoints.Add(spawner);
 
             spawnPoints[i].gameObject.name = "SpawnPoint_" + (i + 1);

@@ -120,7 +120,7 @@ public class Enemy : LivingEntity, ITargetable
         objectPoolManager?.Return(enemyId, this);
     }
 
-    public void Initialize(EnemyTableData enemyData, Vector3 targetDirection, int enemyId, ObjectPoolManager<int, Enemy> poolManager, ScaleData scaleData)
+    public void Initialize(EnemyTableData enemyData, Vector3 targetDirection, int enemyId, ObjectPoolManager<int, Enemy> poolManager, ScaleData scaleData, int spawnPointIndex)
     {
         this.enemyId = enemyId;
         objectPoolManager = poolManager;
@@ -138,7 +138,7 @@ public class Enemy : LivingEntity, ITargetable
 
         transform.localScale *= scaleData.PrefabScale;
 
-        AddMovementComponent();
+        AddMovementComponent(spawnPointIndex);
 
         AddPatternComponent(data.EnemyGrade, data.AttackType);
 
@@ -225,7 +225,7 @@ public class Enemy : LivingEntity, ITargetable
         }
     }
 
-    private void AddMovementComponent()
+    private void AddMovementComponent(int spawnPointIndex)
     {
         if(movement == null)
         {
@@ -233,6 +233,11 @@ public class Enemy : LivingEntity, ITargetable
         }
 
         movement.Initialize(moveSpeed, Vector3.down);
+
+        if(movement is StraightDownMovement straightDownMovement)
+        {
+            straightDownMovement.SetSpawnPointIndex(spawnPointIndex);
+        }
         //movement.Initialize(1f, Vector3.down);
     }
 
