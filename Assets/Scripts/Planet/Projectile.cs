@@ -43,14 +43,7 @@ public class Projectile : MonoBehaviour
             Cancel();
             abilityRelease?.Invoke(gameObject);
             abilityRelease = null;
-
-            Debug.Log(
-            $"[Projectile] Return Request | " +
-            $"data={(projectileData != null ? projectileData.name : "NULL")} | " +
-            $"instanceID={GetInstanceID()}"
-        );
-
-            objectPoolManager.Return(projectileData, this);
+            objectPoolManager.Return(poolKeyData, this);
         }
     }
 

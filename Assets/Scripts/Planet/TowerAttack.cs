@@ -140,15 +140,6 @@ public class TowerAttack : MonoBehaviour
 
             //Pool (Using BaseData For Recycle)
             var projectile = ProjectilePoolManager.Instance.GetProjectile(baseData);
-            if (projectile == null)
-            {
-                projectile = Instantiate(
-                    baseData.projectilePrefab,
-                    transform.position,
-                    Quaternion.LookRotation(direction)
-                    ).GetComponent<Projectile>();
-            }
-
             projectile.transform.position = firePoint.position;
             projectile.transform.rotation = Quaternion.LookRotation(direction);
 
@@ -194,15 +185,6 @@ public class TowerAttack : MonoBehaviour
         if (buffedData == null) return;
 
         Projectile projectile = ProjectilePoolManager.Instance.GetProjectile(baseData);
-        if (projectile == null)
-        {
-            projectile = Instantiate(
-                baseData.projectilePrefab, 
-                transform.position, 
-                Quaternion.LookRotation(direction)
-                ).GetComponent<Projectile>();
-        }
-
         projectile.transform.position = transform.position;
         projectile.transform.rotation = Quaternion.LookRotation(direction);
         projectile.Initialize(buffedData,baseData, direction, IsHit, projectilePoolManager.ProjectilePool);
@@ -239,14 +221,9 @@ public class TowerAttack : MonoBehaviour
         if (buffedData == null) return;
 
         Projectile projectile = ProjectilePoolManager.Instance.GetProjectile(baseData);
-        if (projectile == null)
-        {
-            projectile = Instantiate(baseData.projectilePrefab, transform.position, Quaternion.LookRotation(direction)).GetComponent<Projectile>();
-        }
-
         projectile.transform.position = transform.position;
         projectile.transform.rotation = Quaternion.LookRotation(direction);
-        projectile.Initialize(buffedData,baseData, direction, IsHit, projectilePoolManager.ProjectilePool);
+        projectile.Initialize(buffedData, baseData, direction, IsHit, projectilePoolManager.ProjectilePool);
     }
 
     private void FastShoot(Vector3 direction, bool IsHit)
@@ -258,11 +235,6 @@ public class TowerAttack : MonoBehaviour
         if (buffedData == null) return;
 
         Projectile projectile = ProjectilePoolManager.Instance.GetProjectile(baseData);
-        if (projectile == null)
-        {
-            projectile = Instantiate(baseData.projectilePrefab, transform.position, Quaternion.LookRotation(direction)).GetComponent<Projectile>();
-        }
-
         projectile.transform.position = transform.position;
         projectile.transform.rotation = Quaternion.LookRotation(direction);
         projectile.Initialize(buffedData,baseData, direction, IsHit, projectilePoolManager.ProjectilePool);
@@ -280,11 +252,6 @@ public class TowerAttack : MonoBehaviour
         for (int i = 0; i < 2; i++)
         {
             Projectile projectile = ProjectilePoolManager.Instance.GetProjectile(baseData);
-            if (projectile == null)
-            {
-                projectile = Instantiate(baseData.projectilePrefab, transform.position, Quaternion.LookRotation(direction)).GetComponent<Projectile>();
-            }
-
             projectile.transform.position = transform.position;
             projectile.transform.rotation = Quaternion.LookRotation(direction);
             projectile.Initialize(buffedData, baseData, direction + new Vector3(1,0,0) * ((0.5f - i) * 2f), IsHit, projectilePoolManager.ProjectilePool);

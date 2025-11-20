@@ -66,7 +66,6 @@ public class ObjectPoolManager<TKey, TValue> where TValue : Component
             Object.Destroy(value.gameObject);
             return;
         }
-
         poolData.pool.Release(value);
     }
 
