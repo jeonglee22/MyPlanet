@@ -5,7 +5,9 @@ using UnityEngine.Pool;
 
 public class Projectile : MonoBehaviour
 {
-    public ProjectileData projectileData;
+    public ProjectileData projectileData; //Buffed Data
+    private ProjectileData poolKeyData; //BaseDataSO for Key 
+
     public Vector3 direction;
     public bool isHit;
 
@@ -41,7 +43,7 @@ public class Projectile : MonoBehaviour
             Cancel();
             abilityRelease?.Invoke(gameObject);
             abilityRelease = null;
-            objectPoolManager.Return(projectileData, this);
+            objectPoolManager.Return(poolKeyData, this);
         }
     }
 
@@ -77,9 +79,15 @@ public class Projectile : MonoBehaviour
     /// <param name="projectileData">Projectile basic data</param>
     /// <param name="direction">Shooter direction</param>
     /// <param name="isHit">whether or not a hit is judged by the accuracy rate</param>
-    public void Initialize(ProjectileData projectileData, Vector3 direction, bool isHit, ObjectPoolManager<ProjectileData, Projectile> poolManager)
+    public void Initialize(
+        ProjectileData projectileData, //Buffed 
+        ProjectileData poolKey, //Pool Key(Base Data)
+        Vector3 direction, 
+        bool isHit, 
+        ObjectPoolManager<ProjectileData, Projectile> poolManager)
     {
         this.projectileData = projectileData;
+        this.poolKeyData = poolKey;
         this.direction = direction;
         this.isHit = isHit;
 

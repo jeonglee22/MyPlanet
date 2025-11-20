@@ -7,28 +7,23 @@ public class TowerAttack : MonoBehaviour
 {
     [SerializeField] private Transform firePoint;
     private TowerTargetingSystem targetingSystem;
-    private ProjectileData currentProjectileData;
     private TowerDataSO towerData;
     public TowerDataSO AttackTowerData => towerData;
     private float shootTimer;
 
     private List<IAbility> abilities;
-    
-    //test
-    private ProjectilePoolManager projectilePoolManager;
+
     //------------ Amplifier Buff Field ---------------------
     private float damageBuffMul=1f; //damage = baseDamage * damageBuffMul
     private float fireRateBuffMul=1f; //fireRate = baseFireRate * fireRateBuffMul
     private float accelerationBuffAdd=0f;  //just add
 
+    //not yet_20251117 13:52 #117
     private float hitRadiusBuffMul=1f; //hitbox Size, Mul or Add?
     private float percentPenetrationBuffMul=1f;
     private float fixedPenetrationBuffAdd=0f;
-    private int projectileCountBuffAdd=0; //new variable
     private int targetNumberBuffAdd=0;
     private float hitRateBuffMul=1f;
-
-    private int projectileId = 1100003; //test
 
     public float CurrentFireRate
     {
@@ -39,19 +34,34 @@ public class TowerAttack : MonoBehaviour
         }
     }
 
-    //Apply Buff Version Projectile Data SO
-    private ProjectileData addBuffProjectileData; //making runtime once
-    public ProjectileData CurrentProjectileData
+    //projectile Count---------------------------------------
+    private float baseProjectileCount = 1;
+    private int projectileCountBuffAdd = 0;
+    public float CurrentProjectileCount
     {
         get
         {
-            var buffed = GetBuffedProjectileData();
-            if (buffed != null) return buffed;
-            return towerData != null ? towerData.projectileType : null;
+            float finalCount = baseProjectileCount + projectileCountBuffAdd;
+            return Mathf.Max(1, finalCount);
         }
     }
     //-------------------------------------------------------
 
+    //Apply Buff Version Projectile Data SO------------------
+    private int projectileId = 1100003; //test
+    private ProjectilePoolManager projectilePoolManager;
+    private ProjectileData currentProjectileData; //base projectile data from Data Table
+    private ProjectileData addBuffProjectileData; //making runtime once
+    public ProjectileData CurrentProjectileData 
+    { 
+        get 
+        {
+            var buffed = GetBuffedProjectileData();
+            if (buffed != null) return buffed;
+            return towerData != null ? towerData.projectileType : null;
+        } 
+    }
+    //-------------------------------------------------------
 
     private void Awake()
     {
@@ -62,35 +72,38 @@ public class TowerAttack : MonoBehaviour
 
         if (firePoint == null) firePoint = transform;
 
-        projectilePoolManager = GameObject.FindGameObjectWithTag("ProjectilePoolManager").GetComponent<ProjectilePoolManager>();
+        projectilePoolManager = GameObject
+            .FindGameObjectWithTag("ProjectilePoolManager")
+            .GetComponent<ProjectilePoolManager>();
     }
 
     public void SetTowerData(TowerDataSO data)
     {
         towerData = data;
+
+        //Connect Data Table To baseProjectileData(=currentProjectileData) 
         currentProjectileData = DataTableManager.ProjectileTable.Get(projectileId);
+        
+        //Connect Tower Data
         towerData.projectileType = currentProjectileData;
+        
+        //Set Projectile Count
+        baseProjectileCount = Mathf.Max(1, currentProjectileData.TargetNum);
     }
 
     private void Update()
     {
-        if (towerData == null || targetingSystem == null)
-        {
-            // Debug.LogWarning($"[TowerAttack.Update] {gameObject.name} | towerData: {(towerData != null ? "OK" : "NULL")} | targetingSystem: {(targetingSystem != null ? "OK" : "NULL")}");
-            return;
-        }
+        if (towerData == null || targetingSystem == null) return;
 
         shootTimer += Time.deltaTime;
 
         //Fire Rate Buff Calculator
-        float basicFireRate = towerData.fireRate;
-        float finalFireRate = basicFireRate * fireRateBuffMul;
+        float finalFireRate = CurrentFireRate;
         if (finalFireRate <= 0) return;
         float shootInterval = 1f / finalFireRate;
 
         if(shootTimer>=shootInterval)
         {
-            //Debug.Log($"[TowerAttack.Update] {gameObject.name} attempting to shoot | CurrentTarget: {(targetingSystem.CurrentTarget != null ? "EXISTS" : "NULL")}");
             ShootAtTarget();
             shootTimer = 0f;
         }
@@ -99,10 +112,13 @@ public class TowerAttack : MonoBehaviour
     private void ShootAtTarget()
     {
         var target = targetingSystem.CurrentTarget;
-        // Debug.Log($"[ShootAtTarget] {gameObject.name} | Target: {(target != null ? (target as MonoBehaviour)?.name : "NULL")} | isAlive: {(target != null ? target.isAlive.ToString() : "N/A")}");
         if (target == null || !target.isAlive) return;
 
         Vector3 direction = (target.position - transform.position).normalized;
+
+        //Buffed Tower Data
+        ProjectileData buffedData = CurrentProjectileData; //Buffed Data
+        if (buffedData == null) return;
 
         //Enemy Debug---------------------------------------
         var targetEnemy = target as Enemy;
@@ -110,33 +126,46 @@ public class TowerAttack : MonoBehaviour
         // Debug.Log($"[SHOOT] Tower: {gameObject.name} | Strategy: {strategyName} | Target: {(target as MonoBehaviour)?.name} | HP: {target.maxHp} | ATK: {target.atk} | DEF: {target.def} | Distance: {Vector3.Distance(transform.position, target.position):F2}");
         //--------------------------------------------
 
-        var projectile = ProjectilePoolManager.Instance.GetProjectile(towerData.projectileType);
-        if(projectile==null)
+        float shotCount = CurrentProjectileCount;
+        var baseData = towerData.projectileType; //Pooling Key
+
+        //add projectile debug-----------------------
+        float spreadAngle = 10f;
+        float centerIndex = (shotCount - 1) * 0.5f;
+        //-------------------------------------------
+
+        for (int i = 0; i < shotCount; i++)
         {
-            projectile = Instantiate(
-                ProjectilePoolManager.Instance.ProjectilePrefab, 
-                transform.position, 
-                Quaternion.LookRotation(direction)
-                ).GetComponent<Projectile>();
-        }
+            //add projectile debug-------------------
+            float offsetIndex = i - centerIndex;
+            Quaternion spreadRot = Quaternion.AngleAxis(offsetIndex * spreadAngle, Vector3.up);
+            Vector3 shotDir = spreadRot * direction;
+            //Vector3 shotDir = direction; 
+            //---------------------------------------
 
-        projectile.transform.position = firePoint.position;
-        projectile.transform.rotation = Quaternion.LookRotation(direction);
+            //Pool (Using BaseData For Recycle)
+            var projectile = ProjectilePoolManager.Instance.GetProjectile(baseData);
+            projectile.transform.position = firePoint.position;
+            projectile.transform.rotation = Quaternion.LookRotation(shotDir);
 
-        //Buffed check
-        var buffedData = GetBuffedProjectileData();
-        if (buffedData == null) return;
+            //Initialize Buffed Data
+            projectile.Initialize(
+                buffedData,
+                baseData,
+                shotDir,
+                true,
+                projectilePoolManager.ProjectilePool
+                );
 
-        projectile.Initialize(buffedData, direction, true, projectilePoolManager.ProjectilePool);
-
-        foreach (var ability in abilities)
-        {
-            ability.ApplyAbility(projectile.gameObject);
-            projectile.abilityAction += ability.ApplyAbility;
-            projectile.abilityRelease += ability.RemoveAbility;
+            //Ability
+            foreach (var ability in abilities)
+            {
+                ability.ApplyAbility(projectile.gameObject);
+                projectile.abilityAction += ability.ApplyAbility;
+                projectile.abilityRelease += ability.RemoveAbility;
+            }
         }
     }
-
     public void AddAbility(IAbility ability)
     {
         abilities.Add(ability);
@@ -149,31 +178,20 @@ public class TowerAttack : MonoBehaviour
         // Debug.Log(ability);
     }
 
+
+    //If You Need Method------------------------------------------------
     public void Shoot(Vector3 direction, bool IsHit)
     {
         if (towerData == null || towerData.projectileType == null) return;
 
-        var baseData = towerData.projectileType;
+        var baseData = currentProjectileData;
+        var buffedData = CurrentProjectileData;
         currentProjectileData = baseData;
 
         Projectile projectile = ProjectilePoolManager.Instance.GetProjectile(currentProjectileData);
-        if (projectile == null)
-        {
-            projectile = Instantiate(
-                ProjectilePoolManager.Instance.ProjectilePrefab, 
-                transform.position, 
-                Quaternion.LookRotation(direction)
-                ).GetComponent<Projectile>();
-        }
-
         projectile.transform.position = transform.position;
         projectile.transform.rotation = Quaternion.LookRotation(direction);
-
-        //Buffed Check
-        var buffedData = GetBuffedProjectileData();
-        if (buffedData == null) return;
-
-        projectile.Initialize(currentProjectileData, direction, IsHit, projectilePoolManager.ProjectilePool);
+        projectile.Initialize(buffedData,baseData, direction, IsHit, projectilePoolManager.ProjectilePool);
         
         foreach (var ability in abilities)
         {
@@ -201,27 +219,17 @@ public class TowerAttack : MonoBehaviour
     private void BasicShoot(Vector3 direction, bool IsHit)
     {
         Projectile projectile = ProjectilePoolManager.Instance.GetProjectile(currentProjectileData);
-        if (projectile == null)
-        {
-            projectile = Instantiate(ProjectilePoolManager.Instance.ProjectilePrefab, transform.position, Quaternion.LookRotation(direction)).GetComponent<Projectile>();
-        }
-
         projectile.transform.position = transform.position;
         projectile.transform.rotation = Quaternion.LookRotation(direction);
-        projectile.Initialize(currentProjectileData, direction, IsHit, projectilePoolManager.ProjectilePool);
+        projectile.Initialize(CurrentProjectileData, currentProjectileData, direction, IsHit, projectilePoolManager.ProjectilePool);
     }
 
     private void FastShoot(Vector3 direction, bool IsHit)
     {
         Projectile projectile = ProjectilePoolManager.Instance.GetProjectile(currentProjectileData);
-        if (projectile == null)
-        {
-            projectile = Instantiate(ProjectilePoolManager.Instance.ProjectilePrefab, transform.position, Quaternion.LookRotation(direction)).GetComponent<Projectile>();
-        }
-
         projectile.transform.position = transform.position;
         projectile.transform.rotation = Quaternion.LookRotation(direction);
-        projectile.Initialize(currentProjectileData, direction, IsHit, projectilePoolManager.ProjectilePool);
+        projectile.Initialize(CurrentProjectileData, currentProjectileData, direction, IsHit, projectilePoolManager.ProjectilePool);
         projectile.GetComponent<Projectile>().totalSpeed += 20f;
     }
 
@@ -230,15 +238,9 @@ public class TowerAttack : MonoBehaviour
         for(int i = 0; i < 2; i++)
         {
             Projectile projectile = ProjectilePoolManager.Instance.GetProjectile(currentProjectileData);
-            if (projectile == null)
-            {
-                projectile = Instantiate(ProjectilePoolManager.Instance.ProjectilePrefab, transform.position, Quaternion.LookRotation(direction)).GetComponent<Projectile>();
-            }
-
             projectile.transform.position = transform.position;
             projectile.transform.rotation = Quaternion.LookRotation(direction);
-
-            projectile.Initialize(currentProjectileData, direction + new Vector3(1,0,0) * ((0.5f - i) * 2f), IsHit, projectilePoolManager.ProjectilePool);
+            projectile.Initialize(CurrentProjectileData, currentProjectileData, direction + new Vector3(1,0,0) * ((0.5f - i) * 2f), IsHit, projectilePoolManager.ProjectilePool);
         }
     }
 
@@ -249,11 +251,12 @@ public class TowerAttack : MonoBehaviour
             damageBuffMul = 1f;
             fireRateBuffMul = 1f;
             accelerationBuffAdd = 0f;
-            //not YET(2025-11-17 14:45)
+            projectileCountBuffAdd = 0;
+
+            //not YET(2025-11-19 19:07)
             hitRadiusBuffMul = 1f;
             percentPenetrationBuffMul = 1f;
             fixedPenetrationBuffAdd = 0f;
-            projectileCountBuffAdd = 0;
             targetNumberBuffAdd = 0;
             hitRateBuffMul = 1f;
             return;
@@ -263,24 +266,26 @@ public class TowerAttack : MonoBehaviour
             damageBuffMul += amp.DamageBuff;
             fireRateBuffMul *= amp.FireRateBuff;
             accelerationBuffAdd *= amp.AccelerationBuff;
+            projectileCountBuffAdd += amp.ProjectileCountBuff;
 
-            //not yet_20251117 14:14
-            hitRadiusBuffMul = 1f + amp.HitRadiusBuff;
+            //not yet_20251119 19:07
+            hitRadiusBuffMul += amp.HitRadiusBuff;
             percentPenetrationBuffMul = amp.PercentPenetrationBuff;
             fixedPenetrationBuffAdd = amp.FixedPenetrationBuff;
-            projectileCountBuffAdd = amp.ProjectileCountBuff;
-            targetNumberBuffAdd = amp.TargetNumberBuff;
-            hitRateBuffMul = amp.HitRateBuff;
+            targetNumberBuffAdd += amp.TargetNumberBuff;
+            hitRateBuffMul *= amp.HitRateBuff;
         }
     }
 
     private ProjectileData GetBuffedProjectileData() //making runtime once
     {
-        if (towerData == null || towerData.projectileType == null) return null;
+        if (currentProjectileData==null) return null;
 
-        var baseData = towerData.projectileType;
-        if(addBuffProjectileData==null)
+        var baseData = currentProjectileData;
+
+        if (addBuffProjectileData==null)
         {
+            //addBuffProjectileData = ScriptableObject.CreateInstance<ProjectileData>();
             var data = new ProjectileData();
             addBuffProjectileData = data;
         }
@@ -291,7 +296,8 @@ public class TowerAttack : MonoBehaviour
         addBuffProjectileData.Attack = baseData.Attack;
         addBuffProjectileData.AttackType = baseData.AttackType;
         addBuffProjectileData.RemainTime = baseData.RemainTime;
-        addBuffProjectileData.TargetNum = baseData.TargetNum;
+        float finalTargetNumber = baseData.TargetNum + targetNumberBuffAdd;
+        addBuffProjectileData.TargetNum = Mathf.Max(1, finalTargetNumber);
         addBuffProjectileData.CollisionSize = baseData.CollisionSize;
         addBuffProjectileData.FixedPenetration = baseData.FixedPenetration;
         addBuffProjectileData.RatePenetration = baseData.RatePenetration;
