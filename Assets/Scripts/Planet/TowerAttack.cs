@@ -289,12 +289,24 @@ public class TowerAttack : MonoBehaviour
         }
 
         //Base Projectile Data (Not YET_ 20251117 14:38)------------------------
+        addBuffProjectileData.Projectile_ID = baseData.Projectile_ID;
+        addBuffProjectileData.ProjectileName = baseData.ProjectileName;
+        addBuffProjectileData.Attack = baseData.Attack;
         addBuffProjectileData.AttackType = baseData.AttackType;
         addBuffProjectileData.RemainTime = baseData.RemainTime;
         addBuffProjectileData.TargetNum = baseData.TargetNum;
         addBuffProjectileData.CollisionSize = baseData.CollisionSize;
         addBuffProjectileData.FixedPenetration = baseData.FixedPenetration;
         addBuffProjectileData.RatePenetration = baseData.RatePenetration;
+        addBuffProjectileData.ProjectileSpeed = baseData.ProjectileSpeed;
+        addBuffProjectileData.ProjectileAddSpeed = baseData.ProjectileAddSpeed;
+        addBuffProjectileData.HitType = baseData.HitType;
+        addBuffProjectileData.ProjectileProperties1_ID = baseData.ProjectileProperties1_ID;
+        addBuffProjectileData.ProjectileProperties1Value = baseData.ProjectileProperties1Value;
+        addBuffProjectileData.ProjectileProperties2_ID = baseData.ProjectileProperties2_ID;
+        addBuffProjectileData.ProjectileProperties2Value = baseData.ProjectileProperties2Value;
+        addBuffProjectileData.ProjectileProperties3_ID = baseData.ProjectileProperties3_ID;
+        addBuffProjectileData.ProjectileProperties3Value = baseData.ProjectileProperties3Value;
         //---------------------------------------------
 
         //Buffed Projectile Data ----------------------

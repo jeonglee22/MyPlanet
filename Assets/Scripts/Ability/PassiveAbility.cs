@@ -17,7 +17,6 @@ public class PassiveAbility : IAbility
     
     public virtual void ApplyAbility(GameObject gameObject)
     {
-        projectile = gameObject.GetComponent<Projectile>();
     }
 
     public virtual void RemoveAbility(GameObject gameObject)
