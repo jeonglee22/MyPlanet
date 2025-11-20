@@ -9,6 +9,7 @@ public class TowerAmplifier : MonoBehaviour
 
     private readonly List<TowerAttack> buffedTargets = new List<TowerAttack>();
     private readonly List<int> buffedSlotIndex = new List<int>();
+    public IReadOnlyList<int> BuffedSlotIndex => buffedSlotIndex;
 
     private int selfIndex;
     private Planet planet;
