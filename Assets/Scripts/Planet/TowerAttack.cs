@@ -13,7 +13,7 @@ public class TowerAttack : MonoBehaviour
     private float shootTimer;
 
     private List<IAbility> abilities;
-
+    
     //test
     private ProjectilePoolManager projectilePoolManager;
     //------------ Amplifier Buff Field ---------------------
@@ -21,7 +21,6 @@ public class TowerAttack : MonoBehaviour
     private float fireRateBuffMul=1f; //fireRate = baseFireRate * fireRateBuffMul
     private float accelerationBuffAdd=0f;  //just add
 
-    //not yet_20251117 13:52 #117
     private float hitRadiusBuffMul=1f; //hitbox Size, Mul or Add?
     private float percentPenetrationBuffMul=1f;
     private float fixedPenetrationBuffAdd=0f;
@@ -92,9 +91,6 @@ public class TowerAttack : MonoBehaviour
             ShootAtTarget();
             shootTimer = 0f;
         }
-
-        Debug.Log($"[ShootTimer] {gameObject.name} finalFireRate={finalFireRate}");
-
     }
 
     private void ShootAtTarget()
@@ -259,20 +255,20 @@ public class TowerAttack : MonoBehaviour
             hitRateBuffMul = 1f;
             return;
         }
+        else
+        {
+            damageBuffMul += amp.DamageBuff;
+            fireRateBuffMul *= amp.FireRateBuff;
+            accelerationBuffAdd *= amp.AccelerationBuff;
 
-        damageBuffMul += amp.DamageBuff;
-        fireRateBuffMul *= amp.FireRateBuff;
-        accelerationBuffAdd *= amp.AccelerationBuff;
-
-        //not yet_20251117 14:14
-        hitRadiusBuffMul = 1f + amp.HitRadiusBuff;
-        percentPenetrationBuffMul = amp.PercentPenetrationBuff;
-        fixedPenetrationBuffAdd = amp.FixedPenetrationBuff;
-        projectileCountBuffAdd = amp.ProjectileCountBuff;
-        targetNumberBuffAdd = amp.TargetNumberBuff;
-        hitRateBuffMul = amp.HitRateBuff;
-
-        Debug.Log($"[TowerAttack Buff] {name} | dmgMul={damageBuffMul:F2}, fireRateMul={fireRateBuffMul:F2}, accelAdd={accelerationBuffAdd:F2}");
+            //not yet_20251117 14:14
+            hitRadiusBuffMul = 1f + amp.HitRadiusBuff;
+            percentPenetrationBuffMul = amp.PercentPenetrationBuff;
+            fixedPenetrationBuffAdd = amp.FixedPenetrationBuff;
+            projectileCountBuffAdd = amp.ProjectileCountBuff;
+            targetNumberBuffAdd = amp.TargetNumberBuff;
+            hitRateBuffMul = amp.HitRateBuff;
+        }
     }
 
     private ProjectileData GetBuffedProjectileData() //making runtime once

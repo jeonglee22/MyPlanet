@@ -8,6 +8,7 @@ public class TowerAmplifier : MonoBehaviour
     public AmplifierTowerDataSO AmplifierTowerData => amplifierTowerData;
 
     private readonly List<TowerAttack> buffedTargets = new List<TowerAttack>();
+    private readonly List<int> buffedSlotIndex = new List<int>();
 
     private int selfIndex;
     private Planet planet;
@@ -66,15 +67,15 @@ public class TowerAmplifier : MonoBehaviour
         int towerCount = planet.TowerCount;
         if (towerCount <= 0) return;
 
+        buffedTargets.Clear();
+        buffedSlotIndex.Clear();
+
         //Candidate Buffed Tower: Attack Tower-------------------
         List<int> buffAbleTowers = new List<int>();
 
         for (int i = 0; i < towerCount; i++)
         {
             if (i == selfIndex) continue;
-            var attackTower = planet.GetAttackTowerToAmpTower(i);
-            if (ampData.OnlyAttackTower && attackTower == null) continue;
-            if (attackTower == null) continue;
             buffAbleTowers.Add(i);
         }
         if (buffAbleTowers.Count == 0) return;
@@ -95,8 +96,8 @@ public class TowerAmplifier : MonoBehaviour
                     {
                         int randIndex = UnityEngine.Random.Range(0, buffAbleTowers.Count);
                         int slotIndex = buffAbleTowers[randIndex];
-                        buffAbleTowers.Add(slotIndex);
-                        //buffAbleTowers.RemoveAt(randIndex); // 중복 방지
+                        filteredBuffTowers.Add(slotIndex);
+                        buffAbleTowers.RemoveAt(randIndex);
                     }
                     break;
                 }
@@ -104,23 +105,38 @@ public class TowerAmplifier : MonoBehaviour
             case AmplifierTargetMode.LeftNeighbor:
                 {
                     int leftIndex = (selfIndex - 1 + towerCount) % towerCount;
-                    if (leftIndex < 0 || leftIndex >= towerCount) break;
 
                     var attackTower = planet.GetAttackTowerToAmpTower(leftIndex);
-                    if (attackTower != null) buffAbleTowers.Add(leftIndex);
-
+                    if(buffAbleTowers.Contains(leftIndex)) filteredBuffTowers.Add(leftIndex);
                     break;
                 }
         }
         //--------------------------------------------------------
+        if (filteredBuffTowers.Count == 0) return;
+        
+        //Remember Buffed Slots
+        buffedSlotIndex.AddRange(filteredBuffTowers);
 
+        
         //Go Buff-------------------------------------------------
-        foreach (int slotIndex in buffAbleTowers)
+        foreach (int slotIndex in filteredBuffTowers)
         {
             var attackTower = planet.GetAttackTowerToAmpTower(slotIndex);
             if (attackTower == null) continue;
             ApplyBuff(attackTower);
         }
         //--------------------------------------------------------
+        Debug.Log($"[Amp] self={selfIndex}, targets={string.Join(",", filteredBuffTowers)}");
+    }
+    public void ApplyBuffForNewTower(int slotIndex, TowerAttack newTower)
+    {
+        if (newTower == null) return;
+        if (AmplifierTowerData == null) return;
+        if (!buffedSlotIndex.Contains(slotIndex)) return;
+
+        var attackTower = planet.GetAttackTowerToAmpTower(slotIndex);
+        if (attackTower == null) return;
+        
+        ApplyBuff(newTower);
     }
 }

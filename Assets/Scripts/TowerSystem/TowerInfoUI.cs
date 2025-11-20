@@ -46,12 +46,13 @@ public class TowerInfoUI : PopUpUI
         }
 
         var attackTower = installControl.GetAttackTower(index); //Attack Tower Data
-        if (attackTower == null||attackTower.AttackTowerData==null)
+
+        if (attackTower == null||attackTower.AttackTowerData==null) //AmpliferTower
         {
-            nameText.text = $"Empty Slot {index}";
-            SetAllText(null);
+            SetAllText("증폭타워");
+            infoIndex = index;
             return;
-        }
+        } 
 
         var attackTowerData = attackTower.AttackTowerData;
         var buffedProjectile = attackTower.CurrentProjectileData;
@@ -71,7 +72,7 @@ public class TowerInfoUI : PopUpUI
         SetText(spreadAccuracyValueText, attackTowerData.spreadAccuracy.ToString("0.00") + "%");
 
         //Current Data
-        SetText(fireRateValueText,$"{attackTower.AttackTowerData.fireRate:0.00} �� {attackTower.CurrentFireRate:0.00}");
+        SetText(fireRateValueText,$"{attackTower.AttackTowerData.fireRate:0.00} -> {attackTower.CurrentFireRate:0.00}");
         //--------------------------------------------------------
 
         //Right panel_projectile----------------------------------
