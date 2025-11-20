@@ -44,7 +44,7 @@ public class Enemy : LivingEntity, ITargetable
 
     private CancellationTokenSource colorResetCts;
     private int enemyId;
-    private int patternId = 0; //test
+    // private int patternId = 0; //test
     public EnemySpawner Spawner { get; set; }
 
     public event Action OnLifeTimeOverEvent;
