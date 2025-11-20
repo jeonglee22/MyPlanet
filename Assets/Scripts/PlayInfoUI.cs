@@ -10,6 +10,7 @@ public class PlayInfoUI : MonoBehaviour
 
     void Start()
     {
+        Application.targetFrameRate = 60;
         fpsText.color = Color.yellow;
     }
 
