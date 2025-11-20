@@ -150,6 +150,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 choices[i].InstallType = TowerInstallType.Attack;
                 choices[i].ability = abilities[i];
                 choices[i].AmplifierTowerData = null;
+                choices[i].BuffSlotIndex = null;
                 uiTexts[i].text = $"Upgrade\n{number}";
             }
         }
@@ -160,8 +161,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         //Random Tower Type (0:Attack, 1:DamageMatrix, 2:ProjectileCore)
         int towerType = Random.Range(0, 3);
 
-        if(isFirstInstall)
-            towerType = 0;
+        if(isFirstInstall) towerType = 0;
 
         var ability = AbilityManager.Instance.GetAbility(abilities[i]);
 
@@ -170,6 +170,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             choices[i].InstallType = TowerInstallType.Attack;
             choices[i].ability = abilities[i];
             choices[i].AmplifierTowerData = null;
+            choices[i].BuffSlotIndex = null;
             uiTexts[i].text = $"new\nAttack\nTower\n\n{ability}";
         }
         else if (towerType == 1) //Damage Matrix
@@ -177,14 +178,26 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             choices[i].InstallType = TowerInstallType.Amplifier;
             choices[i].ability = -1;
             choices[i].AmplifierTowerData = damageMatrixCoreSO;
-            uiTexts[i].text = $"new\nDamage\nMatrix\n\n{ability}";
+
+            int buffCount = damageMatrixCoreSO != null
+                ? Mathf.Max(1, damageMatrixCoreSO.FixedBuffedSlotCount) : 1;
+
+            int[] buffSlots = GetRandomBuffSlot(buffCount);
+            choices[i].BuffSlotIndex = buffSlots;
+
+            string slotText = (buffSlots != null && buffSlots.Length > 0)
+                ? string.Join(",", buffSlots) : "-";
+
+            uiTexts[i].text = $"new\nDamage\nMatrix\n\nbuff slots: {slotText}";
+
         }
         else //Projectile Core
         {
             choices[i].InstallType = TowerInstallType.Amplifier;
             choices[i].ability = -1;
             choices[i].AmplifierTowerData = proejctileCoreSO;
-            uiTexts[i].text = $"new\nProjectile\nCore\n\n{ability}";
+            choices[i].BuffSlotIndex = null;
+            uiTexts[i].text = "new\nProjectile\nCore\n\nleft slot buff";
         }
     }
     private void ResetUpgradeCard(int index)
@@ -222,6 +235,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             choices[index].InstallType = TowerInstallType.Attack;
             choices[index].ability = abilities[index];
             choices[index].AmplifierTowerData = null;
+            choices[index].BuffSlotIndex = null;
             uiTexts[index].text = $"Upgrade\n{number}";
         }
     }
@@ -269,6 +283,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             upgradeUIs[i].GetComponentInChildren<Image>().color = Color.white;
             abilities[i] = AbilityManager.Instance.GetRandomAbility();
             choices[i] = new TowerInstallChoice();
+            choices[i].BuffSlotIndex = null;
         }
     }
 
@@ -347,4 +362,27 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         return -1;
     }
 
+    private int[] GetRandomBuffSlot(int count) //Seperate Pick Random Slots Logic Method
+    {
+        int towerCount = installControl.TowerCount;
+        if (towerCount <=0 || count <= 0) return new int[0];
+
+        count = Mathf.Clamp(count, 1, towerCount);
+
+        List<int> available = new List<int>(towerCount);
+        for(int i=0; i<towerCount; i++)
+        {
+            available.Add(i);
+        }
+
+        int[] results = new int[count];
+
+        for(int n=0; n<count; n++)
+        {
+            int randIndex = UnityEngine.Random.Range(0, available.Count);
+            results[n] = available[randIndex];
+            available.RemoveAt(randIndex);
+        }
+        return results;
+    }
 }
