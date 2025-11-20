@@ -27,17 +27,17 @@ public class AbilityManager : MonoBehaviour
         instance = this;
         abilityDict = new Dictionary<int, IAbility>();
         
-        abilityDict.Add(1, new AccelationUpgradeAbility());
-        abilityDict.Add(2, new SpeedUpgradeAbility());
+        // abilityDict.Add(1, new AccelationUpgradeAbility());
+        // abilityDict.Add(2, new SpeedUpgradeAbility());
 
-        abilityDict.Add(103, new AttackSpeedAbility());
+        abilityDict.Add(200002, new AttackSpeedAbility());
 
-        abilityDict.Add(200, new AttackUpgradeAbility());
-        abilityDict.Add(201, new FixedPanetrationUpgradeAbility());
-        abilityDict.Add(202, new RatePanetrationUpgradeAbility());
-        abilityDict.Add(203, new HItSizeUpgradeAbility());
+        abilityDict.Add(200001, new AttackUpgradeAbility());
+        abilityDict.Add(200004, new FixedPanetrationUpgradeAbility());
+        abilityDict.Add(200003, new RatePanetrationUpgradeAbility());
+        abilityDict.Add(200006, new HItSizeUpgradeAbility());
 
-        abilityDict.Add(401, new ParalyzeAbility());
+        abilityDict.Add(200005, new ParalyzeAbility());
     }
 
     public int GetRandomAbility()

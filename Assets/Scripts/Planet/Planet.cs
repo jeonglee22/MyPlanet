@@ -150,7 +150,7 @@ public class Planet : LivingEntity
         var tower = towers[index];
         var towerAttack = tower.GetComponent<TowerAttack>();
         if (towerAttack == null) return; //If AmplifierTower||null -> return
-        towerAttack.AddAbility(101);
+        // towerAttack.AddAbility(101);
     }
 
     public void SetAmplifierTower(AmplifierTowerDataSO ampData, int index)

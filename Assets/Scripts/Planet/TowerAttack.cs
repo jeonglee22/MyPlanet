@@ -52,7 +52,6 @@ public class TowerAttack : MonoBehaviour
 
     //Apply Buff Version Projectile Data SO------------------
     private int projectileId = 1100003; //test
-    private ProjectilePoolManager projectilePoolManager;
     private ProjectileData currentProjectileData; //base projectile data from Data Table
     private ProjectileData addBuffProjectileData; //making runtime once
     public ProjectileData CurrentProjectileData 
@@ -157,12 +156,13 @@ public class TowerAttack : MonoBehaviour
                 projectilePoolManager.ProjectilePool
                 );
 
-        foreach (var abilityId in abilities)
-        {
-            var ability = AbilityManager.Instance.GetAbility(abilityId);
-            ability.ApplyAbility(projectile.gameObject);
-            projectile.abilityAction += ability.ApplyAbility;
-            projectile.abilityRelease += ability.RemoveAbility;
+            foreach (var abilityId in abilities)
+            {
+                var ability = AbilityManager.Instance.GetAbility(abilityId);
+                ability.ApplyAbility(projectile.gameObject);
+                projectile.abilityAction += ability.ApplyAbility;
+                projectile.abilityRelease += ability.RemoveAbility;
+            }
         }
     }
 
@@ -200,47 +200,6 @@ public class TowerAttack : MonoBehaviour
             ability.ApplyAbility(projectile.gameObject);
             projectile.abilityAction += ability.ApplyAbility;
             projectile.abilityRelease += ability.RemoveAbility;
-        }
-
-        // switch (attackAbility)
-        // {
-        //     case AttackAbility.Basic:
-        //         BasicShoot(direction, IsHit);
-        //         break;
-        //     case AttackAbility.FastShoot:
-        //         FastShoot(direction, IsHit);
-        //         break;
-        //     case AttackAbility.DoubleShoot:
-        //         DoubleShoot(direction, IsHit);
-        //         break;
-        // }
-    }
-
-    private void BasicShoot(Vector3 direction, bool IsHit)
-    {
-        Projectile projectile = ProjectilePoolManager.Instance.GetProjectile(currentProjectileData);
-        projectile.transform.position = transform.position;
-        projectile.transform.rotation = Quaternion.LookRotation(direction);
-        projectile.Initialize(CurrentProjectileData, currentProjectileData, direction, IsHit, projectilePoolManager.ProjectilePool);
-    }
-
-    private void FastShoot(Vector3 direction, bool IsHit)
-    {
-        Projectile projectile = ProjectilePoolManager.Instance.GetProjectile(currentProjectileData);
-        projectile.transform.position = transform.position;
-        projectile.transform.rotation = Quaternion.LookRotation(direction);
-        projectile.Initialize(CurrentProjectileData, currentProjectileData, direction, IsHit, projectilePoolManager.ProjectilePool);
-        projectile.GetComponent<Projectile>().totalSpeed += 20f;
-    }
-
-    private void DoubleShoot(Vector3 direction, bool IsHit)
-    {
-        for(int i = 0; i < 2; i++)
-        {
-            Projectile projectile = ProjectilePoolManager.Instance.GetProjectile(currentProjectileData);
-            projectile.transform.position = transform.position;
-            projectile.transform.rotation = Quaternion.LookRotation(direction);
-            projectile.Initialize(CurrentProjectileData, currentProjectileData, direction + new Vector3(1,0,0) * ((0.5f - i) * 2f), IsHit, projectilePoolManager.ProjectilePool);
         }
     }
 
