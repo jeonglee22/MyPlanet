@@ -5,6 +5,7 @@ using UnityEngine.Pool;
 
 public class Projectile : MonoBehaviour
 {
+    [SerializeField] private TrailRenderer trailRenderer;
     public ProjectileData projectileData; //Buffed Data
     private ProjectileData poolKeyData; //BaseDataSO for Key 
 
@@ -30,6 +31,20 @@ public class Projectile : MonoBehaviour
     public event Action<GameObject> abilityRelease;
 
     private bool isFinish = false;
+
+    private void OnEnable()
+    {
+        trailRenderer.Clear();
+        trailRenderer.enabled = true;
+        trailRenderer.emitting = true;
+    }
+
+    private void OnDisable()
+    {
+        trailRenderer.emitting = false;
+        trailRenderer.Clear();
+        trailRenderer.enabled = false;
+    }
 
     private void Update()
     {
