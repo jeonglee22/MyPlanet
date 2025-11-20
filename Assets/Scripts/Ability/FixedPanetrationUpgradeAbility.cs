@@ -1,12 +1,11 @@
-using System.Text;
 using UnityEngine;
 
-public class AccelationUpgradeAbility : PassiveAbility
+public class FixedPanetrationUpgradeAbility : PassiveAbility
 {
-    public AccelationUpgradeAbility()
+    public FixedPanetrationUpgradeAbility()
     {
-        upgradeAmount = 2f;
-        abilityType = AbilityApplyType.Rate;
+        upgradeAmount = 30f;
+        abilityType = AbilityApplyType.Fixed;
     }
 
     public override void ApplyAbility(GameObject gameObject)
@@ -16,8 +15,7 @@ public class AccelationUpgradeAbility : PassiveAbility
         var projectile = gameObject.GetComponent<Projectile>();
         if (projectile != null)
         {
-            projectile.acceleration -= upgradeAmount;
-            // Debug.Log(projectile.acceleration);
+            projectile.FixedPanetration += upgradeAmount;
         }
     }
 
@@ -28,21 +26,17 @@ public class AccelationUpgradeAbility : PassiveAbility
         var projectile = gameObject.GetComponent<Projectile>();
         if (projectile != null)
         {
-            projectile.acceleration += upgradeAmount;
+            projectile.FixedPanetration -= upgradeAmount;
         }
     }
 
     public override void Setting(GameObject gameObject)
     {
         base.Setting(gameObject);
-
     }
-    
+
     public override string ToString()
     {
-        var sb = new StringBuilder();
-        sb.Append($"Accelation\n{upgradeAmount}\nUp!!");
-
-        return sb.ToString();
+        return $"Fixed\nPanetration\n{upgradeAmount}\nUp!!";
     }
 }

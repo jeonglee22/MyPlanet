@@ -5,7 +5,8 @@ public class SpeedUpgradeAbility : PassiveAbility
 {
     public SpeedUpgradeAbility()
     {
-        upgradeAmount = 10f;
+        upgradeAmount = 1.2f;
+        abilityType = AbilityApplyType.Rate;
     }
 
     public override void ApplyAbility(GameObject gameObject)
@@ -15,7 +16,7 @@ public class SpeedUpgradeAbility : PassiveAbility
         var projectile = gameObject.GetComponent<Projectile>();
         if (projectile != null)
         {
-            projectile.totalSpeed += upgradeAmount;
+            projectile.totalSpeed *= upgradeAmount;
             // Debug.Log("Speed Apply");
         }
     }
@@ -27,7 +28,7 @@ public class SpeedUpgradeAbility : PassiveAbility
         var projectile = gameObject.GetComponent<Projectile>();
         if (projectile != null)
         {
-            projectile.totalSpeed -= upgradeAmount;
+            projectile.totalSpeed /= upgradeAmount;
         }
     }
 
@@ -41,7 +42,7 @@ public class SpeedUpgradeAbility : PassiveAbility
     public override string ToString()
     {
         var sb = new StringBuilder();
-        sb.Append($"Speed\n{upgradeAmount}\nUp!!");
+        sb.Append($"Speed\n{(upgradeAmount - 1f) * 100}%\nUp!!");
 
         return sb.ToString();
     }
