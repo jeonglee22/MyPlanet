@@ -3,34 +3,54 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UIElements;
 
-public class MeteorClusterPattern : EnemyPattern
+public class MeteorClusterPattern : MovementPattern
 {
-    private int meteorCount;
-    private int spawnedCount = 0;
-    private bool isSpawning;
-    private Transform playerTransform;
-    private float originalSpeed;
+    private PatternSpawner spawner;
 
-    private List<Enemy> childMeteors = new List<Enemy>();
+    private int meteorCount;
+    private bool isSpawning;
+    private bool hasCollided;
+    private float accumulateDamage = 0f;
+    private float damageThreshold;
+
+    private List<PatternProjectile> patterns = new List<PatternProjectile>();
 
     private float spawnRadius = 1f;
 
+    private void OnDisable()
+    {
+        returnAllPatterns();
+
+        if(owner != null)
+        {
+            owner.OnDeathEvent -= OnOwnerDeath;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        returnAllPatterns();
+
+        if(owner != null)
+        {
+            owner.OnDeathEvent -= OnOwnerDeath;
+        }
+    }
+
     public override void Initialize(Enemy enemy, EnemyMovement movement, EnemyTableData enemyData, ExecutionTrigger trigger = ExecutionTrigger.None, float interval = 0f)
     {
-        base.Initialize(enemy, movement, enemyData);
-        owner = enemy;
+        base.Initialize(enemy, movement, enemyData, trigger, interval);
 
-        meteorCount = UnityEngine.Random.Range(4, 5);
-        spawnedCount = 0;
         originalSpeed = movement.moveSpeed;
-        childMeteors.Clear();
+        patterns.Clear();
+        isSpawning = false;
+        hasCollided = false;
 
-        isSpawning = true;
-        playerTransform = GameObject.FindGameObjectWithTag("Planet").transform;
-        movement.moveSpeed = 0f;
+        spawner = PatternSpawner.Instance;
 
-        owner.PauseLifeTime();
+        owner.OnDeathEvent += OnOwnerDeath;
 
         Cancel();
         SpawnSequence(cts.Token).Forget();
@@ -40,6 +60,15 @@ public class MeteorClusterPattern : EnemyPattern
     {
         try
         {
+            isSpawning = true;
+
+            movement.moveSpeed = 0f;
+            owner.PauseLifeTime();
+
+            meteorCount = UnityEngine.Random.Range(3, 6);
+
+            damageThreshold = owner.maxHp / meteorCount;
+
             for(int i = 0; i < meteorCount; i++)
             {
                 if(token.IsCancellationRequested)
@@ -47,8 +76,7 @@ public class MeteorClusterPattern : EnemyPattern
                     break;
                 }
 
-                SpawnChildMeteor();
-                spawnedCount++;
+                SpawnPatterns();
 
                 await UniTask.Delay(TimeSpan.FromSeconds(0.2f), cancellationToken: token);
             }
@@ -56,14 +84,13 @@ public class MeteorClusterPattern : EnemyPattern
             if(!token.IsCancellationRequested)
             {
                 isSpawning = false;
-                movement.moveSpeed = originalSpeed;
 
+                movement.moveSpeed = originalSpeed;
                 owner.ResumeLifeTime();
 
-                foreach(var meteor in childMeteors)
+                foreach(var pattern in patterns)
                 {
-                    meteor.Movement.moveSpeed = originalSpeed;
-                    meteor.ResumeLifeTime();
+                    pattern.SetCanMove(true);
                 }
             }
         }
@@ -73,46 +100,81 @@ public class MeteorClusterPattern : EnemyPattern
         }
     }
 
-    private void SpawnChildMeteor()
+    private void RemoveOnePattern()
+    {
+        if(patterns.Count == 0)
+        {
+            return;
+        }
+
+        PatternProjectile pattern = patterns[0];
+        patterns.RemoveAt(0);
+        pattern.ReturnToPool();
+
+        if(patterns.Count == 0)
+        {
+            owner.OnDamage(owner.maxHp);
+        }
+    }
+
+    private void OnPatternHitByProjectile(PatternProjectile pattern, float projectileDamage)
+    {
+        accumulateDamage += projectileDamage;
+
+        if(accumulateDamage >= damageThreshold)
+        {
+            accumulateDamage -= damageThreshold;
+            RemoveOnePattern();
+        }
+    }
+
+    private void OnPatternHitPlayer(PatternProjectile pattern)
+    {
+        if (hasCollided)
+        {
+            return;
+        }
+        
+        hasCollided = true;
+
+        float totalDamage = owner.atk * patterns.Count;
+        pattern.SetDamage(totalDamage);
+
+        foreach(var p in patterns)
+        {
+            if(p != pattern)
+            {
+                p.SetCanDealDamage(false);
+            }
+        }
+    }
+
+    private void SpawnPatterns()
     {
         var pos = GetRandomPositionInCircle();
-        Enemy child = owner.Spawner.SpawnEnemy(data.Enemy_Id, pos, excutePattern: false);
+        float clusterLifeTime = owner.RemainingLifeTime;
 
-        if(child != null)
+        PatternProjectile pattern = spawner.SpawnPattern(pos, Vector3.down, owner.atk, originalSpeed, clusterLifeTime);
+
+        if(pattern != null)
         {
-            child.Movement.moveSpeed = 0f;
-            child.PauseLifeTime();
-            childMeteors.Add(child);
+            pattern.SetCanMove(false);
+
+            pattern.OnHitByProjectileEvent += OnPatternHitByProjectile;
+            pattern.OnPlayerHitEvent += OnPatternHitPlayer;
+
+            patterns.Add(pattern);
         }
     }
 
     public override float CalculateDamage(float damage)
     {
-        if(isSpawning)
+        if(isSpawning || patterns.Count > 0)
         {
             return 0f;
         }
 
-        meteorCount--;
-
-        if (meteorCount > 0)
-        {
-            return 0;
-        }
-        else
-        {
-            return damage;
-        }
-    }
-
-    public override void OnTrigger(Collider other)
-    {
-        if(other.CompareTag("PatternLine") && playerTransform != null)
-        {
-            Vector3 direction = (playerTransform.position - owner.transform.position).normalized;
-
-            movement.SetDirection(direction);
-        }
+        return damage;
     }
 
     private Vector3 GetRandomPositionInCircle()
@@ -121,8 +183,45 @@ public class MeteorClusterPattern : EnemyPattern
         return owner.transform.position + new Vector3(randomCircle.x, randomCircle.y, 0f);
     }
 
-    public override void Execute()
+    protected override void ChangeMovement()
     {
-        throw new NotImplementedException();
+        if(movement != null)
+        {
+            Destroy(movement);
+        }
+
+        var homingMovement = owner.gameObject.AddComponent<HomingMovement>();
+        homingMovement.Initialize(originalSpeed, Vector3.zero);
+
+        Transform playerTransform = GameObject.FindGameObjectWithTag(TagName.Planet).transform;
+        if(playerTransform != null)
+        {
+            foreach(var pattern in patterns)
+            {
+                if(pattern != null)
+                {
+                    Vector3 direction = (playerTransform.position - pattern.transform.position).normalized;
+                    pattern.MoveDirection = direction;
+                }
+            }
+        }
+    }
+
+    private void returnAllPatterns()
+    {
+        foreach(var pattern in patterns)
+        {
+            if(pattern != null)
+            {
+                pattern.ReturnToPool();
+            }
+        }
+
+        patterns.Clear();
+    }
+
+    private void OnOwnerDeath()
+    {
+        returnAllPatterns();
     }
 }

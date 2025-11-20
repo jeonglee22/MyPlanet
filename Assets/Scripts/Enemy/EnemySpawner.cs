@@ -19,7 +19,7 @@ public class EnemySpawner : MonoBehaviour
 
     private void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Planet").transform;
+        player = GameObject.FindGameObjectWithTag(TagName.Planet).transform;
     }
     
     private Vector3 GetRandomPositionInCircle()

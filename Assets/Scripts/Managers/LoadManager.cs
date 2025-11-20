@@ -15,7 +15,7 @@ public class LoadManager : MonoBehaviour
         }
 
         //string addressKey = enemyId.ToString();
-        string addressKey = "EnemySample";
+        string addressKey = ObjectName.Enemy;
 
         try
         {

@@ -23,7 +23,7 @@ public abstract class EnemyMovement : MonoBehaviour
     {
         if(player == null)
         {
-            player = GameObject.FindGameObjectWithTag("Planet").transform;
+            player = GameObject.FindGameObjectWithTag(TagName.Planet).transform;
         }
 
         isDebuff = false;
@@ -59,7 +59,7 @@ public abstract class EnemyMovement : MonoBehaviour
     {
         if(player == null)
         {
-            player = GameObject.FindGameObjectWithTag("Planet").transform;
+            player = GameObject.FindGameObjectWithTag(TagName.Planet).transform;
         }
     }
 
