@@ -52,7 +52,7 @@ public abstract class EnemyPattern : MonoBehaviour
 
     protected virtual void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Enemy"))
+        if (other.gameObject.CompareTag(TagName.Enemy))
         {
             return;
         }
@@ -68,13 +68,6 @@ public abstract class EnemyPattern : MonoBehaviour
             Execute();
             hasExecuted = true;
         }
-
-        OnTrigger(other);
-    }
-
-    public virtual void OnTrigger(Collider other)
-    {
-        
     }
 
     protected virtual void Cancel()
