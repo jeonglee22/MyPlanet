@@ -219,4 +219,14 @@ public class Planet : LivingEntity
 
         return tower.GetComponent<TowerAttack>();
     }
+
+    public TowerAmplifier GetAmplifierTower(int index)
+    {
+        if (towers == null || index < 0 || index >= towers.Count) return null;
+
+        var tower = towers[index];
+        if (tower == null) return null;
+
+        return tower.GetComponent<TowerAmplifier>();
+    }
 }
