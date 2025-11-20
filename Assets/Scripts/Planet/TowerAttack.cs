@@ -6,6 +6,7 @@ using UnityEngine;
 public class TowerAttack : MonoBehaviour
 {
     [SerializeField] private Transform firePoint;
+    [SerializeField] private float projectileOffset = 0.05f;
     private TowerTargetingSystem targetingSystem;
     private TowerDataSO towerData;
     public TowerDataSO AttackTowerData => towerData;
@@ -129,7 +130,7 @@ public class TowerAttack : MonoBehaviour
         var baseData = towerData.projectileType; //Pooling Key
 
         //add projectile debug-----------------------
-        float spreadAngle = 10f;
+        // float spreadAngle = 10f;
         float centerIndex = (shotCount - 1) * 0.5f;
         //-------------------------------------------
 
@@ -137,21 +138,24 @@ public class TowerAttack : MonoBehaviour
         {
             //add projectile debug-------------------
             float offsetIndex = i - centerIndex;
-            Quaternion spreadRot = Quaternion.AngleAxis(offsetIndex * spreadAngle, Vector3.up);
-            Vector3 shotDir = spreadRot * direction;
+            // Quaternion spreadRot = Quaternion.AngleAxis(offsetIndex * spreadAngle, Vector3.up);
+            // Vector3 shotDir = spreadRot * direction;
             //Vector3 shotDir = direction; 
             //---------------------------------------
 
             //Pool (Using BaseData For Recycle)
             var projectile = ProjectilePoolManager.Instance.GetProjectile(baseData);
-            projectile.transform.position = firePoint.position;
-            projectile.transform.rotation = Quaternion.LookRotation(shotDir);
+
+            var verticalDirection = new Vector3(-direction.y, direction.x, direction.z).normalized;
+
+            projectile.transform.position = firePoint.position + verticalDirection * projectileOffset * offsetIndex;
+            projectile.transform.rotation = Quaternion.LookRotation(direction);
 
             //Initialize Buffed Data
             projectile.Initialize(
                 buffedData,
                 baseData,
-                shotDir,
+                direction,
                 true,
                 projectilePoolManager.ProjectilePool
                 );
