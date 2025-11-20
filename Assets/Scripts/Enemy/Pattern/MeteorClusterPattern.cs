@@ -154,7 +154,7 @@ public class MeteorClusterPattern : MovementPattern
         var pos = GetRandomPositionInCircle();
         float clusterLifeTime = owner.RemainingLifeTime;
 
-        PatternProjectile pattern = spawner.SpawnPattern(pos, Vector3.down, owner.atk, originalSpeed, clusterLifeTime);
+        PatternProjectile pattern = spawner.SpawnPattern(pos, owner.Movement.MoveDirection, owner.atk, originalSpeed, clusterLifeTime);
 
         if(pattern != null)
         {

@@ -9,6 +9,7 @@ public class EnemyTableData
     public string Name { get; set; }
     public int EnemyType { get; set; }
     public int EnemyGrade { get; set; }
+    public int AttackType { get; set; }
     public float Hp { get; set; }
     public float Defense { get; set; }
     public float Shield { get; set; }
@@ -20,7 +21,7 @@ public class EnemyTableData
 
     public override string ToString()
     {
-        return $"{Enemy_Id}, {Name}, {EnemyType}, {EnemyGrade}, {Hp}, {Defense}, {Shield}, {MoveSpeed}, {Attack}, {UniqueRatePenetration}, {FixedPenetration}, {Exp}";
+        return $"{Enemy_Id}, {Name}, {EnemyType}, {EnemyGrade}, {AttackType}, {Hp}, {Defense}, {Shield}, {MoveSpeed}, {Attack}, {UniqueRatePenetration}, {FixedPenetration}, {Exp}";
     }
 }
 
