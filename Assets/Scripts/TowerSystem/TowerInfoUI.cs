@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -47,73 +48,46 @@ public class TowerInfoUI : PopUpUI
         {
             nameText.text = "No data";
             SetAllText(null);
+            SetText(abilityExplainText, "no tower");
             return;
         }
 
         var attackTower = installControl.GetAttackTower(index); //Attack Tower Data
+        var amplifierTower = installControl.GetAmplifierTower(index);
 
-        if (attackTower == null||attackTower.AttackTowerData==null) //AmpliferTower
+        if (attackTower != null && attackTower.AttackTowerData != null)
         {
-            SetAllText("증폭타워");
-            infoIndex = index;
+            FillAttackTowerInfo(index, attackTower);
+            SetAbilityExplainForAttack(attackTower);
             return;
-        } 
+        }
 
-        var attackTowerData = attackTower.AttackTowerData;
-        var buffedProjectile = attackTower.CurrentProjectileData;
+        if (amplifierTower != null && amplifierTower.AmplifierTowerData != null)
+        {
+            FillAmplifierTowerInfo(index, amplifierTower);
+            SetAbilityExplainForAmplifier(amplifierTower);
+            return;
+        }
 
-        nameText.text = $"{attackTowerData.towerId}"; //no use
-
-        isSameTower = (infoIndex == index);
-        infoIndex = index;
-
-        var abilities = attackTower.Abilities;
-        
-
-        //Left panel_tower----------------------------------------
-        SetText(towerIdValueText, attackTowerData.towerId);
-        // SetText(rangeTypeValueText, attackTowerData.rangeData != null ? attackTowerData.rangeData.RangeType.ToString() : null);
-        SetText(rangeValueText, attackTowerData.rangeData != null ? attackTowerData.rangeData.GetRange().ToString("0.0") : null);
-        // SetText(priorityTypeValueText, attackTowerData.targetPriority != null ? attackTowerData.targetPriority.GetType().Name : null);
-        // SetText(priorityOrderValueText, attackTowerData.targetPriority != null ? (attackTowerData.targetPriority.IsDescending ? "Max" : "Min") : null);
-        SetText(hitRateValueText, attackTowerData.hitRate.ToString("0.00") + "%");
-        SetText(spreadAccuracyValueText, attackTowerData.spreadAccuracy.ToString("0.00") + "%");
-
-        //Current Data
-        SetText(fireRateValueText,$"{attackTower.AttackTowerData.fireRate:0.00}", attackTower.AttackTowerData.fireRate == attackTower.CurrentFireRate ? float.MaxValue : attackTower.CurrentFireRate);
-        //--------------------------------------------------------
-
-        //Right panel_projectile----------------------------------
-        var proj = attackTowerData.projectileType;
-        // SetText(projectileTypeValueText, proj != null ? proj.ProjectileName : null);
-        //SetText(projectilePrefabValueText, proj != null && proj.projectilePrefab != null ? proj.projectilePrefab.name : null);
-        //SetText(hitEffectValueText, proj != null && proj.hitEffect != null ? proj.hitEffect.name : null);
-        
-        //Buffed Data
-        SetText(damageValueText, proj != null ? proj.Attack.ToString("0.00") : null, CalculateEachAbility(200001,abilities, proj.Attack));
-        SetText(fixedPenetrationValueText, proj != null ? proj.FixedPenetration.ToString("0.00") : null,  CalculateEachAbility(200004,abilities, proj.FixedPenetration));
-        SetText(percentPenetrationValueText, proj != null ? proj.RatePenetration.ToString("0.00") + "%" : null,  CalculateEachAbility(200003,abilities, proj.RatePenetration), "%");
-        // SetText(speedValueText, proj != null ? proj.ProjectileSpeed.ToString("0.00") : null);
-        // SetText(accelerationValueText, proj != null ? proj.ProjectileAddSpeed.ToString("0.00") : null);
-        SetText(projectileNumberValueText, proj != null ? 0.ToString() : null);
-        SetText(targetNumberValueText, proj != null ? proj.TargetNum.ToString() : null);
-        SetText(lifeTimeValueText, proj != null ? proj.RemainTime.ToString("0.00") : null);
-        SetText(projectileSizeValueText, proj != null ? proj.CollisionSize.ToString("0.00") : null, CalculateEachAbility(200006,abilities, proj.CollisionSize));
-        //--------------------------------------------------------
-        SetText(abilityExplainText, AbilityManager.Instance.GetAbility(abilities[0])?.ToString());
+        if (nameText != null)
+            nameText.text = $"Empty Slot {index}";
+        SetAllText("-");
+        SetText(abilityExplainText, "no tower");
     }
 
     protected override void Update()
     {
         touchPos = TouchManager.Instance.TouchPos;
-        if(infoIndex == -1)
+        if (infoIndex == -1)
             return;
 
-        if(RectTransformUtility.RectangleContainsScreenPoint(installControl.Towers[infoIndex].GetComponent<RectTransform>(),touchPos))
+        if (RectTransformUtility.RectangleContainsScreenPoint(
+               installControl.Towers[infoIndex].GetComponent<RectTransform>(),
+               touchPos))
         {
             return;
         }
-        
+
         base.Update();
     }
 
@@ -220,4 +194,177 @@ public class TowerInfoUI : PopUpUI
         lifeTimeValueText.color = Color.black;
         projectileSizeValueText.color = Color.black;
     }
+
+    private void FillAttackTowerInfo(int index, TowerAttack attackTower)
+    {
+        var attackTowerData = attackTower.AttackTowerData;
+        var buffedProjectile = attackTower.CurrentProjectileData;
+
+        if (nameText != null)
+            nameText.text = $"{attackTowerData.towerId}";
+
+        isSameTower = (infoIndex == index);
+
+        var abilities = attackTower.Abilities;
+
+        // Left panel : Tower Data
+        SetText(towerIdValueText, attackTowerData.towerId);
+        SetText(rangeValueText,
+            attackTowerData.rangeData != null
+                ? attackTowerData.rangeData.GetRange().ToString("0.0")
+                : null);
+        SetText(hitRateValueText, attackTowerData.hitRate.ToString("0.00") + "%");
+        SetText(spreadAccuracyValueText, attackTowerData.spreadAccuracy.ToString("0.00") + "%");
+
+        // Fire Rate
+        SetText(
+            fireRateValueText,
+            $"{attackTower.AttackTowerData.fireRate:0.00}",
+            attackTower.AttackTowerData.fireRate == attackTower.CurrentFireRate
+                ? float.MaxValue
+                : attackTower.CurrentFireRate
+        );
+
+        // Right panel
+        var proj = attackTowerData.projectileType;
+
+        if (proj != null)
+        {
+            SetText(
+                damageValueText,
+                proj.Attack.ToString("0.00"),
+                CalculateEachAbility(200001, abilities, proj.Attack)
+            );
+
+            SetText(
+                fixedPenetrationValueText,
+                proj.FixedPenetration.ToString("0.00"),
+                CalculateEachAbility(200004, abilities, proj.FixedPenetration)
+            );
+
+            SetText(
+                percentPenetrationValueText,
+                proj.RatePenetration.ToString("0.00") + "%",
+                CalculateEachAbility(200003, abilities, proj.RatePenetration),
+                "%"
+            );
+
+            SetText(projectileNumberValueText, "0"); 
+            SetText(targetNumberValueText, proj.TargetNum.ToString());
+            SetText(lifeTimeValueText, proj.RemainTime.ToString("0.00"));
+            SetText(
+                projectileSizeValueText,
+                proj.CollisionSize.ToString("0.00"),
+                CalculateEachAbility(200006, abilities, proj.CollisionSize)
+            );
+        }
+        else
+        {
+            SetText(damageValueText, "-");
+            SetText(fixedPenetrationValueText, "-");
+            SetText(percentPenetrationValueText, "-");
+            SetText(projectileNumberValueText, "-");
+            SetText(targetNumberValueText, "-");
+            SetText(lifeTimeValueText, "-");
+            SetText(projectileSizeValueText, "-");
+        }
+    }
+    private void SetAbilityExplainForAttack(TowerAttack attackTower)
+    {
+        var abilities = attackTower.Abilities;
+        if (abilities == null || abilities.Count == 0)
+        {
+            SetText(abilityExplainText, "no ability");
+            return;
+        }
+
+        var ability = AbilityManager.Instance.GetAbility(abilities[0]);
+        SetText(abilityExplainText, ability?.ToString() ?? "no ability");
+    }
+
+    private void FillAmplifierTowerInfo(int index, TowerAmplifier amplifierTower)
+    {
+        var ampData = amplifierTower.AmplifierTowerData;
+        var slots = amplifierTower.BuffedSlotIndex;
+
+        if (ampData == null)
+        {
+            if (nameText != null)
+                nameText.text = $"Amplifier {index}";
+            SetAllText("no data");
+            return;
+        }
+
+        if (nameText != null)
+            nameText.text = ampData.AmplifierId;
+
+        SetText(rangeValueText, ampData.AmplifierType.ToString());
+        SetText(fireRateValueText, ampData.TargetMode.ToString());
+        SetText(hitRateValueText, ampData.FixedBuffedSlotCount.ToString());
+        SetText(spreadAccuracyValueText, ampData.OnlyAttackTower ? "Attack Only" : "All Towers");
+
+        SetText(damageValueText, $"x{ampData.DamageBuff:0.00}");         
+        SetText(fixedPenetrationValueText, $"x{ampData.FireRateBuff:0.00}");
+        SetText(percentPenetrationValueText, $"+{ampData.ProjectileCountBuff}"); 
+        SetText(targetNumberValueText, $"+{ampData.TargetNumberBuff}");   
+        SetText(projectileNumberValueText, $"+{ampData.HitRadiusBuff:0.00}"); 
+        SetText(lifeTimeValueText, $"x{ampData.PercentPenetrationBuff:0.00}");  
+        SetText(projectileSizeValueText, $"+{ampData.FixedPenetrationBuff:0.00}");
+    }
+
+    private void SetAbilityExplainForAmplifier(TowerAmplifier amplifierTower)
+    {
+        if (abilityExplainText == null) return;
+
+        var ampData = amplifierTower.AmplifierTowerData;
+        var slots = amplifierTower.BuffedSlotIndex;
+
+        if (ampData == null)
+        {
+            abilityExplainText.text = "no buff";
+            return;
+        }
+
+        var sb = new StringBuilder();
+
+        if (slots != null && slots.Count > 0)
+        {
+            sb.AppendLine($"버프 슬롯: {string.Join(", ", slots)}");
+        }
+        else
+        {
+            sb.AppendLine("버프 슬롯: 없음");
+        }
+
+        var buffParts = new List<string>();
+
+        if (ampData.DamageBuff != 1f)
+            buffParts.Add($"공격력 x{ampData.DamageBuff:0.00}");
+        if (ampData.FireRateBuff != 1f)
+            buffParts.Add($"공속 x{ampData.FireRateBuff:0.00}");
+        if (ampData.ProjectileCountBuff != 0)
+            buffParts.Add($"투사체 +{ampData.ProjectileCountBuff}");
+        if (ampData.TargetNumberBuff != 0)
+            buffParts.Add($"타겟수 +{ampData.TargetNumberBuff}");
+        if (ampData.HitRadiusBuff != 0f)
+            buffParts.Add($"히트 반경 +{ampData.HitRadiusBuff:0.00}");
+        if (ampData.PercentPenetrationBuff != 1f)
+            buffParts.Add($"관통률 x{ampData.PercentPenetrationBuff:0.00}");
+        if (ampData.FixedPenetrationBuff != 0f)
+            buffParts.Add($"고정 관통 +{ampData.FixedPenetrationBuff:0.00}");
+        if (ampData.HitRateBuff != 1f)
+            buffParts.Add($"명중률 x{ampData.HitRateBuff:0.00}");
+
+        if (buffParts.Count > 0)
+        {
+            sb.Append(string.Join(", ", buffParts));
+        }
+        else
+        {
+            sb.Append("추가 버프 없음");
+        }
+
+        abilityExplainText.text = sb.ToString();
+    }
+
 }

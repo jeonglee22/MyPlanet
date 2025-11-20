@@ -321,4 +321,10 @@ public class TowerInstallControl : MonoBehaviour
         if (planet == null) return null;
         return planet.GetAttackTowerToAmpTower(index);
     }
+
+    public TowerAmplifier GetAmplifierTower(int index)
+    {
+        if (planet == null) return null;
+        return planet.GetAmplifierTower(index);
+    }
 }
