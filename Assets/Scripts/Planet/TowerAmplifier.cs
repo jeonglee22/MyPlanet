@@ -56,7 +56,7 @@ public class TowerAmplifier : MonoBehaviour
         ClearAllbuffs();
     }
 
-    internal void AddAmpTower(AmplifierTowerDataSO ampData, int index, Planet planet)
+    internal void AddAmpTower(AmplifierTowerDataSO ampData, int index, Planet planet, int[] presetBuffSlots=null)
     {
         if (ampData == null || planet == null) return;
 
@@ -88,16 +88,36 @@ public class TowerAmplifier : MonoBehaviour
         {
             case AmplifierTargetMode.RandomSlots:
                 {
-                    if (buffAbleTowers.Count == 0) break;
-
-                    int finalBuffedSlotCount = Mathf.Min(ampData.FixedBuffedSlotCount, buffAbleTowers.Count);
-
-                    for (int n = 0; n < finalBuffedSlotCount; n++)
+                    //Card Random Pick
+                    if(presetBuffSlots!=null&&presetBuffSlots.Length>0)
                     {
-                        int randIndex = UnityEngine.Random.Range(0, buffAbleTowers.Count);
-                        int slotIndex = buffAbleTowers[randIndex];
-                        filteredBuffTowers.Add(slotIndex);
-                        buffAbleTowers.RemoveAt(randIndex);
+                        foreach(var slotIndex in presetBuffSlots)
+                        {
+                            if (slotIndex < 0 || slotIndex >= towerCount) continue;
+                            if (slotIndex == selfIndex) continue;
+                            if(!filteredBuffTowers.Contains(slotIndex))
+                            {
+                                filteredBuffTowers.Add(slotIndex);
+                            }
+                        }
+                    }
+
+                    //No Empty Slots
+                    if(filteredBuffTowers.Count==0&&buffAbleTowers.Count>0)
+                    {
+                        int finalBuffedSlotCount = Mathf.Min(
+                            ampData.FixedBuffedSlotCount, 
+                            buffAbleTowers.Count,
+                            buffAbleTowers.Count
+                            );
+
+                        for (int n = 0; n < finalBuffedSlotCount; n++)
+                        {
+                            int randIndex = UnityEngine.Random.Range(0, buffAbleTowers.Count);
+                            int slotIndex = buffAbleTowers[randIndex];
+                            filteredBuffTowers.Add(slotIndex);
+                            buffAbleTowers.RemoveAt(randIndex);
+                        }
                     }
                     break;
                 }
@@ -105,8 +125,7 @@ public class TowerAmplifier : MonoBehaviour
             case AmplifierTargetMode.LeftNeighbor:
                 {
                     int leftIndex = (selfIndex - 1 + towerCount) % towerCount;
-
-                    var attackTower = planet.GetAttackTowerToAmpTower(leftIndex);
+                    //
                     if(buffAbleTowers.Contains(leftIndex)) filteredBuffTowers.Add(leftIndex);
                     break;
                 }
@@ -117,7 +136,6 @@ public class TowerAmplifier : MonoBehaviour
         //Remember Buffed Slots
         buffedSlotIndex.AddRange(filteredBuffTowers);
 
-        
         //Go Buff-------------------------------------------------
         foreach (int slotIndex in filteredBuffTowers)
         {

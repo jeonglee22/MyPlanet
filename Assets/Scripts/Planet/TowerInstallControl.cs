@@ -15,6 +15,7 @@ public class TowerInstallChoice
     public TowerInstallType InstallType;
     public AmplifierTowerDataSO AmplifierTowerData;
     public int ability;
+    public int[] BuffSlotIndex;
 }
 
 public class TowerInstallControl : MonoBehaviour
@@ -245,7 +246,13 @@ public class TowerInstallControl : MonoBehaviour
 
             //Set Amplifier Tower In Planet
             if (ChoosedData.AmplifierTowerData != null)
-                planet?.SetAmplifierTower(ChoosedData.AmplifierTowerData, index);
+            {
+                planet?.SetAmplifierTower(
+                    ChoosedData.AmplifierTowerData, 
+                    index,
+                    ChoosedData.BuffSlotIndex
+                    );
+            }
         }
         //---------------------------------------------------------
 
