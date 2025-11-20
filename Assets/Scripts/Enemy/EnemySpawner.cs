@@ -16,10 +16,16 @@ public class EnemySpawner : MonoBehaviour
 
     //test
     private EnemyTableData currentTableData;
+    private int spawnPointIndex = -1;
 
     private void Start()
     {
         player = GameObject.FindGameObjectWithTag(TagName.Planet).transform;
+    }
+
+    public void SetSpawnPointIndex(int index)
+    {
+        spawnPointIndex = index;
     }
     
     private Vector3 GetRandomPositionInCircle()
@@ -41,7 +47,7 @@ public class EnemySpawner : MonoBehaviour
         enemy.transform.rotation = rotation;
 
         enemy.Spawner = this;
-        enemy.Initialize(currentTableData, direction, enemyId, objectPoolManager, scaleData);
+        enemy.Initialize(currentTableData, direction, enemyId, objectPoolManager, scaleData, spawnPointIndex);
         return enemy;
     }
 
