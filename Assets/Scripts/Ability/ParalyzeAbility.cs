@@ -4,6 +4,7 @@ using UnityEngine;
 public class ParalyzeAbility : PassiveAbility
 {
     private float initSpeed;
+    public float slowPercentage = 40f;
 
     public ParalyzeAbility()
     {
@@ -19,7 +20,14 @@ public class ParalyzeAbility : PassiveAbility
         if (movement != null)
         {
             initSpeed = movement.moveSpeed;
-            movement.moveSpeed = 0;
+
+            float dataSlowPercentage = slowPercentage;
+            if(projectile != null && projectile.projectileData != null)
+            {
+                dataSlowPercentage = projectile.projectileData.ProjectileProperties1Value;
+            }
+
+            movement.moveSpeed = initSpeed * (1f - dataSlowPercentage / 100f);
             movement.isDebuff = true;
 
             /*

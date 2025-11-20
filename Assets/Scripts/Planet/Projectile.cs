@@ -16,7 +16,7 @@ public class Projectile : MonoBehaviour
     public float RatePanetration { get;  set; }
     public float FixedPanetration { get;  set; }
     public float totalSpeed = 5f;
-    public int currentPierceCount = 1;
+    public float currentPierceCount = 1;
     private float currentLifeTime;
     public float hitRadius = 10f;
     public float acceleration ;
@@ -31,7 +31,7 @@ public class Projectile : MonoBehaviour
 
     private void Update()
     {
-        if (!isFinish && currentLifeTime < projectileData.lifeTime)
+        if (!isFinish && currentLifeTime < projectileData.RemainTime)
         {
             MoveProjectile();
             currentLifeTime += Time.deltaTime;
@@ -63,7 +63,7 @@ public class Projectile : MonoBehaviour
     {
         totalSpeed += acceleration * Time.deltaTime;
 
-        switch (projectileData.projectileType)
+        switch ((ProjectileType)projectileData.AttackType)
         {
             case ProjectileType.Normal:
                 transform.position += direction.normalized * totalSpeed * Time.deltaTime;
@@ -85,12 +85,12 @@ public class Projectile : MonoBehaviour
 
         objectPoolManager = poolManager;
 
-        acceleration = projectileData.acceleration;
-        totalSpeed = projectileData.speed;
-        currentPierceCount = projectileData.targetNumber;
-        RatePanetration = projectileData.percentPenetration;
-        FixedPanetration = projectileData.fixedPanetration;
-        damage = projectileData.damage;
+        acceleration = projectileData.ProjectileAddSpeed;
+        totalSpeed = projectileData.ProjectileSpeed;
+        currentPierceCount = projectileData.TargetNum;
+        RatePanetration = projectileData.RatePenetration;
+        FixedPanetration = projectileData.FixedPenetration;
+        damage = projectileData.Attack;
 
         Cancel();
         currentLifeTime = 0f;
