@@ -70,5 +70,4 @@ public class ProjectilePoolManager : MonoBehaviour
 
         return projectile;
     }
-
 }

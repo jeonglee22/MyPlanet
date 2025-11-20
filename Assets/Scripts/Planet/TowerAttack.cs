@@ -35,13 +35,13 @@ public class TowerAttack : MonoBehaviour
     }
 
     //projectile Count---------------------------------------
-    private float baseProjectileCount = 1;
-    private int projectileCountBuffAdd = 0;
-    public float CurrentProjectileCount
+    private int baseProjectileCount = 1; //from TargetDataSO (NOT Data Table)
+    private int projectileCountBuffAdd = 0; 
+    public int CurrentProjectileCount
     {
         get
         {
-            float finalCount = baseProjectileCount + projectileCountBuffAdd;
+            int finalCount = baseProjectileCount + projectileCountBuffAdd;
             return Mathf.Max(1, finalCount);
         }
     }
@@ -80,15 +80,12 @@ public class TowerAttack : MonoBehaviour
     public void SetTowerData(TowerDataSO data)
     {
         towerData = data;
-
         //Connect Data Table To baseProjectileData(=currentProjectileData) 
         currentProjectileData = DataTableManager.ProjectileTable.Get(projectileId);
-        
         //Connect Tower Data
         towerData.projectileType = currentProjectileData;
-        
-        //Set Projectile Count
-        baseProjectileCount = Mathf.Max(1, currentProjectileData.TargetNum);
+        //Set Projectile Count -> From Tower Data SO (NOT Data Table)
+        baseProjectileCount = Mathf.Max(1, towerData.projectileCount);
     }
 
     private void Update()
@@ -126,7 +123,7 @@ public class TowerAttack : MonoBehaviour
         // Debug.Log($"[SHOOT] Tower: {gameObject.name} | Strategy: {strategyName} | Target: {(target as MonoBehaviour)?.name} | HP: {target.maxHp} | ATK: {target.atk} | DEF: {target.def} | Distance: {Vector3.Distance(transform.position, target.position):F2}");
         //--------------------------------------------
 
-        float shotCount = CurrentProjectileCount;
+        int shotCount = CurrentProjectileCount; //From TowerDataSO (NO DataTable)
         var baseData = towerData.projectileType; //Pooling Key
 
         //add projectile debug-----------------------
@@ -177,7 +174,6 @@ public class TowerAttack : MonoBehaviour
         abilities.Add(ability);
         // Debug.Log(ability);
     }
-
 
     //If You Need Method------------------------------------------------
     public void Shoot(Vector3 direction, bool IsHit)
@@ -259,6 +255,7 @@ public class TowerAttack : MonoBehaviour
             fixedPenetrationBuffAdd = 0f;
             targetNumberBuffAdd = 0;
             hitRateBuffMul = 1f;
+
             return;
         }
         else
@@ -296,8 +293,11 @@ public class TowerAttack : MonoBehaviour
         addBuffProjectileData.Attack = baseData.Attack;
         addBuffProjectileData.AttackType = baseData.AttackType;
         addBuffProjectileData.RemainTime = baseData.RemainTime;
+
+
         float finalTargetNumber = baseData.TargetNum + targetNumberBuffAdd;
         addBuffProjectileData.TargetNum = Mathf.Max(1, finalTargetNumber);
+
         addBuffProjectileData.CollisionSize = baseData.CollisionSize;
         addBuffProjectileData.FixedPenetration = baseData.FixedPenetration;
         addBuffProjectileData.RatePenetration = baseData.RatePenetration;
@@ -317,7 +317,6 @@ public class TowerAttack : MonoBehaviour
         addBuffProjectileData.Attack = baseData.Attack * damageBuffMul;
         addBuffProjectileData.ProjectileAddSpeed = baseData.ProjectileAddSpeed + accelerationBuffAdd;
         //---------------------------------------------
-
         return addBuffProjectileData;
     }
 }
