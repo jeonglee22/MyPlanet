@@ -14,7 +14,7 @@ public class TowerInstallChoice
 {
     public TowerInstallType InstallType;
     public AmplifierTowerDataSO AmplifierTowerData;
-    public IAbility ability;
+    public int ability;
 }
 
 public class TowerInstallControl : MonoBehaviour

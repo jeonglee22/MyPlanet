@@ -11,11 +11,14 @@ public class TowerAttack : MonoBehaviour
     public TowerDataSO AttackTowerData => towerData;
     private float shootTimer;
 
-    private List<IAbility> abilities;
+    private List<int> abilities;
+    public List<int> Abilities => abilities;
 
+    //test
+    private ProjectilePoolManager projectilePoolManager;
     //------------ Amplifier Buff Field ---------------------
     private float damageBuffMul=1f; //damage = baseDamage * damageBuffMul
-    private float fireRateBuffMul=1f; //fireRate = baseFireRate * fireRateBuffMul
+    public float fireRateBuffMul=1f; //fireRate = baseFireRate * fireRateBuffMul
     private float accelerationBuffAdd=0f;  //just add
 
     //not yet_20251117 13:52 #117
@@ -66,7 +69,7 @@ public class TowerAttack : MonoBehaviour
     private void Awake()
     {
         targetingSystem = GetComponent<TowerTargetingSystem>();
-        abilities = new List<IAbility>();
+        abilities = new List<int>();
         // abilities.Add(AbilityManager.Instance.AbilityDict[0]);
         // SetRandomAbility();
 
@@ -154,16 +157,16 @@ public class TowerAttack : MonoBehaviour
                 projectilePoolManager.ProjectilePool
                 );
 
-            //Ability
-            foreach (var ability in abilities)
-            {
-                ability.ApplyAbility(projectile.gameObject);
-                projectile.abilityAction += ability.ApplyAbility;
-                projectile.abilityRelease += ability.RemoveAbility;
-            }
+        foreach (var abilityId in abilities)
+        {
+            var ability = AbilityManager.Instance.GetAbility(abilityId);
+            ability.ApplyAbility(projectile.gameObject);
+            projectile.abilityAction += ability.ApplyAbility;
+            projectile.abilityRelease += ability.RemoveAbility;
         }
     }
-    public void AddAbility(IAbility ability)
+
+    public void AddAbility(int ability)
     {
         abilities.Add(ability);
     }
@@ -189,8 +192,9 @@ public class TowerAttack : MonoBehaviour
         projectile.transform.rotation = Quaternion.LookRotation(direction);
         projectile.Initialize(buffedData,baseData, direction, IsHit, projectilePoolManager.ProjectilePool);
         
-        foreach (var ability in abilities)
+        foreach (var abilityId in abilities)
         {
+            var ability = AbilityManager.Instance.GetAbility(abilityId);
             // ability.Setting(projectile.gameObject);
             // ability.ApplyAbility(projectile.gameObject);
             ability.ApplyAbility(projectile.gameObject);

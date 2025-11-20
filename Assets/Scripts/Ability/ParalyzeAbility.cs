@@ -1,14 +1,14 @@
 using System.Text;
 using UnityEngine;
 
-public class ParalyzeAbility : PassiveAbility
+public class ParalyzeAbility : EffectAbility
 {
     private float initSpeed;
     public float slowPercentage = 40f;
 
     public ParalyzeAbility()
     {
-        upgradeAmount = 0f;
+        upgradeAmount = 40f;
     }
 
     public override void ApplyAbility(GameObject gameObject)
@@ -21,13 +21,7 @@ public class ParalyzeAbility : PassiveAbility
         {
             initSpeed = movement.moveSpeed;
 
-            float dataSlowPercentage = slowPercentage;
-            if(projectile != null && projectile.projectileData != null)
-            {
-                dataSlowPercentage = projectile.projectileData.ProjectileProperties1Value;
-            }
-
-            movement.moveSpeed = initSpeed * (1f - dataSlowPercentage / 100f);
+            movement.moveSpeed = initSpeed * (1f - upgradeAmount / 100f);
             movement.isDebuff = true;
 
             /*
