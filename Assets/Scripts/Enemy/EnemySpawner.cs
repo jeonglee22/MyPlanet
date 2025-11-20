@@ -28,32 +28,7 @@ public class EnemySpawner : MonoBehaviour
         return transform.position + new Vector3(randomCircle.x, randomCircle.y, 0f);
     }
 
-    public Enemy SpawnEnemy(int enemyId, Vector3 spawnPosition, bool excutePattern = true)
-    {
-        currentTableData = DataTableManager.EnemyTable.Get(enemyId);
-
-        if(currentTableData == null)
-        {
-            return null;
-        }
-
-        ScaleData defaultScaleData = new ScaleData
-        {
-            HpScale = 1f,
-            AttScale = 1f,
-            DefScale = 1f,
-            PenetScale = 1f,
-            MoveSpeedScale = 1f,
-            PrefabScale = 1f,
-            ExpScale = 1f
-        };
-
-        SpawnManager.Instance.CurrentEnemyCount++;
-
-        return CreateEnemy(enemyId, spawnPosition, Vector3.down, defaultScaleData, excutePattern);
-    }
-
-    private Enemy CreateEnemy(int enemyId, Vector3 position, Vector3 direction, ScaleData scaleData, bool excutePattern)
+    private Enemy CreateEnemy(int enemyId, Vector3 position, Vector3 direction, ScaleData scaleData)
     {
         Enemy enemy = objectPoolManager.Get(enemyId);
         if (enemy == null)
@@ -66,7 +41,7 @@ public class EnemySpawner : MonoBehaviour
         enemy.transform.rotation = rotation;
 
         enemy.Spawner = this;
-        enemy.Initialize(currentTableData, direction, enemyId, objectPoolManager, scaleData, excutePattern);
+        enemy.Initialize(currentTableData, direction, enemyId, objectPoolManager, scaleData);
         return enemy;
     }
 
@@ -130,7 +105,7 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
-    public Enemy SpawnEnemyWithScale(int enemyId, Vector3 spawnPosition, ScaleData scaleData, bool excutePattern = true)
+    public Enemy SpawnEnemyWithScale(int enemyId, Vector3 spawnPosition, ScaleData scaleData)
     {
         currentTableData = DataTableManager.EnemyTable.Get(enemyId);
         if(currentTableData == null)
@@ -138,6 +113,6 @@ public class EnemySpawner : MonoBehaviour
             return null;
         }
 
-        return CreateEnemy(enemyId, spawnPosition, Vector3.down, scaleData, excutePattern);
+        return CreateEnemy(enemyId, spawnPosition, Vector3.down, scaleData);
     }
 }

@@ -120,7 +120,7 @@ public class Enemy : LivingEntity, ITargetable
         objectPoolManager?.Return(enemyId, this);
     }
 
-    public void Initialize(EnemyTableData enemyData, Vector3 targetDirection, int enemyId, ObjectPoolManager<int, Enemy> poolManager, ScaleData scaleData, bool excutePattern)
+    public void Initialize(EnemyTableData enemyData, Vector3 targetDirection, int enemyId, ObjectPoolManager<int, Enemy> poolManager, ScaleData scaleData)
     {
         this.enemyId = enemyId;
         objectPoolManager = poolManager;
@@ -140,37 +140,32 @@ public class Enemy : LivingEntity, ITargetable
 
         AddMovementComponent();
 
-        AddPatternComponent(data.EnemyGrade, patternId);
+        AddPatternComponent(data.EnemyGrade, data.AttackType);
 
         Cancel();
 
         LifeTimeTask(lifeTimeCts.Token).Forget();
 
-        if(excutePattern && pattern != null)
+        if(pattern != null)
         {
-            //ExecutionTrigger trigger = ExecutionTrigger.None;
-            ExecutionTrigger trigger = ExecutionTrigger.OnPatternLine;
-            //ExecutionTrigger trigger = ExecutionTrigger.OnInterval;
-            //float interval = 3f; //test
+            ExecutionTrigger trigger = ExecutionTrigger.None;
             float interval = 0f; //test
-            /*
-            if(data.EnemyGrade == 4)
+            switch (data.AttackType)
             {
-                trigger = ExecutionTrigger.None;
-            }
-            else if(data.EnemyGrade == 3)
-            {
-                if(pattern is MovementPattern)
-                {
+                case 0:
+                    trigger = ExecutionTrigger.None;
+                    break;
+                case 1:
                     trigger = ExecutionTrigger.OnPatternLine;
-                }
-                else
-                {
+                    break;
+                case 10:
                     trigger = ExecutionTrigger.OnInterval;
-                }
+                    interval = 2f;
+                    break;
+                default:
+                    trigger = ExecutionTrigger.None;
+                    break;
             }
-            //Grade 2 and 1 bosses -> add later...
-            */
 
             pattern.Initialize(this, movement, data, trigger, interval);
         }
@@ -248,23 +243,20 @@ public class Enemy : LivingEntity, ITargetable
             Destroy(pattern);
         }
 
-        //Grade 4: Normal, Gade 3: Unique, Grade: Middle Boss, Grade 1: Boss
-        if(grade == 4)
+        switch (patternId)
         {
-            //pattern = gameObject.AddComponent<SimpleShotPattern>();
-            pattern = gameObject.AddComponent<MeteorClusterPattern>();
-        }
-        else
-        {
-            switch (patternId)
-            {
-                case 0:
-                    pattern = gameObject.AddComponent<HomingPattern>();
-                    break;
-                default:
-                    pattern = gameObject.AddComponent<NormalPattern>();
-                    break;
-            }
+            case 0:
+                pattern = gameObject.AddComponent<NormalPattern>();
+                break;
+            case 1:
+                pattern = gameObject.AddComponent<HomingPattern>();
+                break;
+            case 10:
+                pattern = gameObject.AddComponent<SimpleShotPattern>();
+                break;
+            default:
+                pattern = gameObject.AddComponent<NormalPattern>();
+                break;
         }
     }
 

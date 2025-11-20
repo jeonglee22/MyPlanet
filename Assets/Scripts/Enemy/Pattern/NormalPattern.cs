@@ -9,6 +9,6 @@ public class NormalPattern : EnemyPattern
 
     public override void Execute()
     {
-        throw new System.NotImplementedException();
+        
     }
 }
