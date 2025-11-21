@@ -2,14 +2,32 @@ using UnityEngine;
 
 public class ExplosionAbility : EffectAbility
 {
+    private GameObject explosionEffect;
+
     public ExplosionAbility()
     {
-        upgradeAmount = 5f;
+        upgradeAmount = 2f;
     }
 
     public override void ApplyAbility(GameObject gameObject)
     {
         base.ApplyAbility(gameObject);
+
+        var enemy = gameObject.GetComponent<Enemy>();
+        if(enemy != null)
+        {
+            var newGo = new GameObject("ExplosionEffect");
+
+            newGo.AddComponent<MeshFilter>().mesh = Resources.GetBuiltinResource<Mesh>("Sphere.fbx");
+            var renderer = newGo.AddComponent<MeshRenderer>();
+            renderer.material.color = new Color(0f, 1f, 0f, 0.2f);
+
+            newGo.transform.position = gameObject.transform.position;
+            newGo.AddComponent<SphereCollider>().isTrigger = true;
+
+            var explosion = newGo.AddComponent<Explosion>();
+            explosion.SetInitRadius(0.1f, upgradeAmount);
+        }
     }
 
     public override void RemoveAbility(GameObject gameObject)
@@ -22,15 +40,8 @@ public class ExplosionAbility : EffectAbility
         base.Setting(gameObject);
     }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public override string ToString()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        return $"Explosion\nAbility!!";
     }
 }

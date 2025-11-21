@@ -37,7 +37,7 @@ public class AttackSpeedAbility : TowerAbility
         base.Setting(gameObject);
     }
 
-    override public string ToString()
+    public override string ToString()
     {
         return $"Attack Speed\n{upgradeAmount} times\nUp!!";
     }
