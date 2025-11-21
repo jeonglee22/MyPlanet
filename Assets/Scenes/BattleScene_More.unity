@@ -4456,7 +4456,7 @@ GameObject:
   - component: {fileID: 5682685952709057732}
   - component: {fileID: 6208456468235681179}
   m_Layer: 5
-  m_Name: EnemyCountText (1)
+  m_Name: WaveCountText (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5062,7 +5062,7 @@ GameObject:
   - component: {fileID: 7109443296371985310}
   - component: {fileID: 2659214080357543332}
   m_Layer: 5
-  m_Name: EnemyCountText
+  m_Name: WaveCountText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5795,6 +5795,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   installControl: {fileID: 2834448803939915530}
   nameText: {fileID: 732169772}
+  towerIdLabelText: {fileID: 0}
+  rangeLabelText: {fileID: 0}
+  fireRateLabelText: {fileID: 0}
+  hitRateLabelText: {fileID: 0}
+  spreadLabelText: {fileID: 0}
+  damageLabelText: {fileID: 0}
+  fixedPenLabelText: {fileID: 0}
+  percentPenLabelText: {fileID: 0}
+  targetNumLabelText: {fileID: 0}
+  projectileNumLabelText: {fileID: 0}
+  lifeTimeLabelText: {fileID: 0}
+  projectileSizeLabelText: {fileID: 0}
   towerIdValueText: {fileID: 1580770407}
   rangeValueText: {fileID: 1580770424}
   fireRateValueText: {fileID: 1580770421}
@@ -6286,7 +6298,7 @@ MonoBehaviour:
   m_fontSizeMin: 8
   m_fontSizeMax: 15
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
+  m_HorizontalAlignment: 2
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -6845,7 +6857,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uB0A8\uC740 \uC801 :"
+  m_text: WAVE
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2457172890ba7b7499cdd8edfd480273, type: 2}
   m_sharedMaterial: {fileID: -2102652355757558081, guid: 2457172890ba7b7499cdd8edfd480273, type: 2}
@@ -6879,7 +6891,7 @@ MonoBehaviour:
   m_fontSizeMin: 8
   m_fontSizeMax: 15
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
+  m_HorizontalAlignment: 2
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0

@@ -36,6 +36,8 @@ public class SpawnManager : MonoBehaviour
 
         SetScreenBounds();
         GenerateRectSpawnPoints();
+
+        currentEnemyCount = 0;
     }
 
     private void Start()
