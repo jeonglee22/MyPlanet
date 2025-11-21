@@ -10,6 +10,23 @@ public class TowerInfoUI : PopUpUI
     [SerializeField] private TowerInstallControl installControl;
     [SerializeField] private TextMeshProUGUI nameText;  //no use
 
+    [Header("Left Panel - Labels")]
+    [SerializeField] private TextMeshProUGUI towerIdLabelText;
+    [SerializeField] private TextMeshProUGUI rangeLabelText;
+    [SerializeField] private TextMeshProUGUI fireRateLabelText;
+    [SerializeField] private TextMeshProUGUI hitRateLabelText;
+    [SerializeField] private TextMeshProUGUI spreadLabelText;
+
+    [Header("Right Panel - Labels")]
+    [SerializeField] private TextMeshProUGUI damageLabelText;
+    [SerializeField] private TextMeshProUGUI fixedPenLabelText;
+    [SerializeField] private TextMeshProUGUI percentPenLabelText;
+    [SerializeField] private TextMeshProUGUI targetNumLabelText;
+    [SerializeField] private TextMeshProUGUI projectileNumLabelText;
+    [SerializeField] private TextMeshProUGUI lifeTimeLabelText;
+    [SerializeField] private TextMeshProUGUI projectileSizeLabelText;
+
+
     [Header("Left Panel - Tower Data")]
     [SerializeField] private TextMeshProUGUI towerIdValueText;
     // [SerializeField] private TextMeshProUGUI rangeTypeValueText;
@@ -197,6 +214,8 @@ public class TowerInfoUI : PopUpUI
 
     private void FillAttackTowerInfo(int index, TowerAttack attackTower)
     {
+        SetupAttackLabels();
+
         var attackTowerData = attackTower.AttackTowerData;
         var buffedProjectile = attackTower.CurrentProjectileData;
 
@@ -284,6 +303,9 @@ public class TowerInfoUI : PopUpUI
 
     private void FillAmplifierTowerInfo(int index, TowerAmplifier amplifierTower)
     {
+        SetupAmplifierLabels();
+        SetText(towerIdValueText, "-");
+
         var ampData = amplifierTower.AmplifierTowerData;
         var slots = amplifierTower.BuffedSlotIndex;
 
@@ -365,6 +387,40 @@ public class TowerInfoUI : PopUpUI
         }
 
         abilityExplainText.text = sb.ToString();
+    }
+
+    private void SetupAttackLabels()
+    {
+        if (towerIdLabelText != null) towerIdLabelText.text = "타워 ID";
+        if (rangeLabelText != null) rangeLabelText.text = "사거리";
+        if (fireRateLabelText != null) fireRateLabelText.text = "공격 속도";
+        if (hitRateLabelText != null) hitRateLabelText.text = "명중률";
+        if (spreadLabelText != null) spreadLabelText.text = "정확도";
+
+        if (damageLabelText != null) damageLabelText.text = "공격력";
+        if (fixedPenLabelText != null) fixedPenLabelText.text = "고정 관통";
+        if (percentPenLabelText != null) percentPenLabelText.text = "관통률";
+        if (targetNumLabelText != null) targetNumLabelText.text = "타겟 수";
+        if (projectileNumLabelText != null) projectileNumLabelText.text = "투사체 수";
+        if (lifeTimeLabelText != null) lifeTimeLabelText.text = "수명";
+        if (projectileSizeLabelText != null) projectileSizeLabelText.text = "hitbox 크기";
+    }
+
+    private void SetupAmplifierLabels()
+    {
+        if (towerIdLabelText != null) towerIdLabelText.text = "-";
+        if (rangeLabelText != null) rangeLabelText.text = "증폭 타입";
+        if (fireRateLabelText != null) fireRateLabelText.text = "증폭 ID";
+        if (hitRateLabelText != null) hitRateLabelText.text = "버프 슬롯 수";
+        if (spreadLabelText != null) spreadLabelText.text = "buff";
+
+        if (damageLabelText != null) damageLabelText.text = "공격력+";
+        if (fixedPenLabelText != null) fixedPenLabelText.text = "공속 배율";
+        if (percentPenLabelText != null) percentPenLabelText.text = "투사체 수 +";
+        if (targetNumLabelText != null) targetNumLabelText.text = "타겟 수 +";
+        if (projectileNumLabelText != null) projectileNumLabelText.text = "hit 반경 +";
+        if (lifeTimeLabelText != null) lifeTimeLabelText.text = "관통률 배율";
+        if (projectileSizeLabelText != null) projectileSizeLabelText.text = "고정 관통 +";
     }
 
 }
