@@ -36,6 +36,8 @@ public class SpawnManager : MonoBehaviour
 
         SetScreenBounds();
         GenerateRectSpawnPoints();
+
+        currentEnemyCount = 0;
     }
 
     private void Start()
@@ -55,7 +57,7 @@ public class SpawnManager : MonoBehaviour
 
         if(currentEnemyCount == 0)
         {
-            WaveManager.Instance.OnWaveCleared().Forget();
+            //all enemies dead logic here
         }
     }
 

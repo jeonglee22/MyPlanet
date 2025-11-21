@@ -28,6 +28,11 @@ public class ProjectileData
     {
         return $"{Projectile_ID}, {ProjectileName}, {AttackType}, {TargetNum}, {HitType}, {CollisionSize}, {Attack}, {FixedPenetration}, {RatePenetration}, {ProjectileSpeed}, {ProjectileAddSpeed}, {RemainTime}, {ProjectileProperties1_ID}, {ProjectileProperties1Value}, {ProjectileProperties2_ID}, {ProjectileProperties2Value}, {ProjectileProperties3_ID}, {ProjectileProperties3Value}";
     }
+
+    public ProjectileData Clone()
+    {
+        return (ProjectileData)this.MemberwiseClone();
+    }
 }
 
 public class ProjectileTable : DataTable

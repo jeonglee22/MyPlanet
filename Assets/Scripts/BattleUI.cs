@@ -25,7 +25,7 @@ public class BattleUI : MonoBehaviour
         int minutes = Mathf.FloorToInt(battleTime / 60f);
         int seconds = Mathf.FloorToInt(battleTime % 60f);
         SetBattleTimeText(minutes, seconds);
-        SetEnemyCountText(SpawnManager.Instance.CurrentEnemyCount);
+        SetWaveText(WaveManager.Instance.WaveCount);
     }
     
     private void OnOpenInstallUIClicked()
@@ -46,8 +46,8 @@ public class BattleUI : MonoBehaviour
         timeText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
     }
 
-    public void SetEnemyCountText(int currentCount)
+    public void SetWaveText(int currentWaveCount)
     {
-        enemyCountText.text = $"{currentCount}";
+        enemyCountText.text = $"{currentWaveCount}";
     }
 }

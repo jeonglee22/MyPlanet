@@ -24,6 +24,8 @@ public class WaveManager : MonoBehaviour
     private bool isWaveInProgress = false;
 
     public bool IsWaveInProgress => isWaveInProgress;
+    private int waveGroup;
+    public int WaveCount {get; set;} = 1;
 
     private void Awake()
     {
@@ -87,6 +89,8 @@ public class WaveManager : MonoBehaviour
             return;
         }
 
+        waveGroup = waveDatas[0].WaveGroup;
+
         await PreloadWaveAssets(waveDatas[0]);
         await StartNextWave();
     }
@@ -120,6 +124,10 @@ public class WaveManager : MonoBehaviour
                 await UniTask.Delay(System.TimeSpan.FromSeconds(waveData.SpawnTerm));
             }
         }
+
+        await UniTask.Delay(System.TimeSpan.FromSeconds(waveData.SpawnTerm));
+
+        OnWaveCleared().Forget();
     }
 
     public async UniTask StartNextWave()
@@ -153,7 +161,11 @@ public class WaveManager : MonoBehaviour
 
         if(currentWaveIndex < waveDatas.Count)
         {
-            await UniTask.Delay(System.TimeSpan.FromSeconds(waveInterval));
+            if(waveGroup != waveDatas[currentWaveIndex].WaveGroup)
+            {
+                WaveCount++;
+                waveGroup = waveDatas[currentWaveIndex].WaveGroup;
+            }
             await StartNextWave();
         }
         else
