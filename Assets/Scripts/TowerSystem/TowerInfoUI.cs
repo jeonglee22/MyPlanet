@@ -183,7 +183,7 @@ public class TowerInfoUI : PopUpUI
             return;
         }
 
-        tmp.text = $"{baseValue.ToString(format)} → {finalValue.ToString(format)}{suffix}";
+        tmp.text = $"{finalValue.ToString(format)}{suffix}";
     }
 
     private void SetAllText(string value)

@@ -260,11 +260,11 @@ public class TowerAttack : MonoBehaviour
         float finalTargetNumber = currentProjectileData.TargetNum + targetNumberBuffAdd;
         addBuffProjectileData.TargetNum = Mathf.Max(1, finalTargetNumber);
         //---------------------------------------------
-        addBuffProjectileData.CollisionSize = baseData.CollisionSize * hitRadiusBuffMul;
+        addBuffProjectileData.CollisionSize = currentProjectileData.CollisionSize * hitRadiusBuffMul;
 
         //Penetration Buff
-        addBuffProjectileData.FixedPenetration = baseData.FixedPenetration + fixedPenetrationBuffAdd;
-        addBuffProjectileData.RatePenetration = baseData.RatePenetration * percentPenetrationBuffMul;
+        addBuffProjectileData.FixedPenetration = currentProjectileData.FixedPenetration + fixedPenetrationBuffAdd;
+        addBuffProjectileData.RatePenetration = currentProjectileData.RatePenetration * percentPenetrationBuffMul;
 
         //Buffed Projectile Data ----------------------
         //(Damage, Acceleration)
