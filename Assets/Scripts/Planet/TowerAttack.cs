@@ -17,18 +17,11 @@ public class TowerAttack : MonoBehaviour
 
     //test
     private ProjectilePoolManager projectilePoolManager;
+
     //------------ Amplifier Buff Field ---------------------
     private float damageBuffMul=1f; //damage = baseDamage * damageBuffMul
-    public float fireRateBuffMul=1f; //fireRate = baseFireRate * fireRateBuffMul
     private float accelerationBuffAdd=0f;  //just add
-
-    //not yet_20251117 13:52 #117
-    private float hitRadiusBuffMul=1f; //hitbox Size, Mul or Add?
-    private float percentPenetrationBuffMul=1f;
-    private float fixedPenetrationBuffAdd=0f;
-    private int targetNumberBuffAdd=0;
-    private float hitRateBuffMul=1f;
-
+    public float fireRateBuffMul = 1f; //fireRate = baseFireRate * fireRateBuffMul
     public float CurrentFireRate
     {
         get
@@ -37,6 +30,18 @@ public class TowerAttack : MonoBehaviour
             return towerData.fireRate * fireRateBuffMul;
         }
     }
+
+    private float hitRadiusBuffMul = 1f; //hitbox Size, Mul or Add?
+    private float percentPenetrationBuffMul = 1f;
+    private float fixedPenetrationBuffAdd = 0f;
+    private int targetNumberBuffAdd = 0;
+    private float hitRateBuffMul = 1f;
+
+    public float BasicFireRate => towerData.fireRate;
+    public float BasicHitRate => towerData.hitRate;
+    public float FinalHitRate => towerData.hitRate*hitRadiusBuffMul;
+    public float HitRateBuffMultiplier => fireRateBuffMul;
+
 
     //projectile Count---------------------------------------
     private int baseProjectileCount = 1; //from TargetDataSO (NOT Data Table)
@@ -49,12 +54,16 @@ public class TowerAttack : MonoBehaviour
             return Mathf.Max(1, finalCount);
         }
     }
+    public int BaseProjectileCount => baseProjectileCount;
+    public int FinalProjectileCount => CurrentProjectileCount;
     //-------------------------------------------------------
 
     //Apply Buff Version Projectile Data SO------------------
     private int projectileId = 1100003; //test
     private ProjectileData currentProjectileData; //base projectile data from Data Table
     private ProjectileData addBuffProjectileData; //making runtime once
+    public ProjectileData BaseProjectileData => currentProjectileData;
+    public ProjectileData BuffedProjectileData => CurrentProjectileData;
     public ProjectileData CurrentProjectileData 
     { 
         get 
@@ -251,6 +260,11 @@ public class TowerAttack : MonoBehaviour
         float finalTargetNumber = currentProjectileData.TargetNum + targetNumberBuffAdd;
         addBuffProjectileData.TargetNum = Mathf.Max(1, finalTargetNumber);
         //---------------------------------------------
+        addBuffProjectileData.CollisionSize = baseData.CollisionSize * hitRadiusBuffMul;
+
+        //Penetration Buff
+        addBuffProjectileData.FixedPenetration = baseData.FixedPenetration + fixedPenetrationBuffAdd;
+        addBuffProjectileData.RatePenetration = baseData.RatePenetration * percentPenetrationBuffMul;
 
         //Buffed Projectile Data ----------------------
         //(Damage, Acceleration)
