@@ -8,6 +8,7 @@ using UnityEngine.Pool;
 public class Enemy : LivingEntity, ITargetable
 {
     private ObjectPoolManager<int, Enemy> objectPoolManager;
+    public ObjectPoolManager<int, Enemy> ObjectPoolManager => objectPoolManager;
 
     private EnemyMovement movement;
     public EnemyMovement Movement => movement;
