@@ -69,6 +69,7 @@ public class TowerInfoUI : PopUpUI
             return;
         }
 
+        infoIndex = index;
         var attackTower = installControl.GetAttackTower(index); //Attack Tower Data
         var amplifierTower = installControl.GetAmplifierTower(index);
 
