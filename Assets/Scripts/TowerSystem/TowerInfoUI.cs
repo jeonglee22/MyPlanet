@@ -26,7 +26,6 @@ public class TowerInfoUI : PopUpUI
     [SerializeField] private TextMeshProUGUI lifeTimeLabelText;
     [SerializeField] private TextMeshProUGUI projectileSizeLabelText;
 
-
     [Header("Left Panel - Tower Data")]
     [SerializeField] private TextMeshProUGUI towerIdValueText;
     // [SerializeField] private TextMeshProUGUI rangeTypeValueText;
@@ -87,8 +86,7 @@ public class TowerInfoUI : PopUpUI
             return;
         }
 
-        if (nameText != null)
-            nameText.text = $"Empty Slot {index}";
+        if (nameText != null) nameText.text = $"Empty Slot {index}";
         SetAllText("-");
         SetText(abilityExplainText, "no tower");
     }
@@ -96,8 +94,8 @@ public class TowerInfoUI : PopUpUI
     protected override void Update()
     {
         touchPos = TouchManager.Instance.TouchPos;
-        if (infoIndex == -1)
-            return;
+        
+        if (infoIndex == -1) return;
 
         if (RectTransformUtility.RectangleContainsScreenPoint(
                installControl.Towers[infoIndex].GetComponent<RectTransform>(),
@@ -111,6 +109,8 @@ public class TowerInfoUI : PopUpUI
 
     private float CalculateEachAbility(int abilityId, List<int> abilities, float baseValue)
     {
+        if (abilities == null || abilities.Count == 0) return baseValue;
+
         int count = abilities.FindAll(x => x == abilityId).Count;
         return CalculateAbilityUpgradeValue(abilityId, count, baseValue);
     }
@@ -119,27 +119,28 @@ public class TowerInfoUI : PopUpUI
     {
         var ability = AbilityManager.Instance.GetAbility(abilityId);
 
-        if (count == 0 || ability == null)
-            return float.MaxValue;
-        
+        if (count == 0 || ability == null) return baseValue;
+
+        float result = baseValue;
+
         if (ability.AbilityType == AbilityApplyType.Rate)
         {
-            for(int i = 0; i < count; i++)
+            for (int i = 0; i < count; i++)
             {
-                baseValue *= ability.UpgradeAmount;
+                result *= ability.UpgradeAmount;
             }
         }
         else if (ability.AbilityType == AbilityApplyType.Fixed)
         {
-            for(int i = 0; i < count; i++)
+            for (int i = 0; i < count; i++)
             {
-                baseValue += ability.UpgradeAmount;
+                result += ability.UpgradeAmount;
             }
         }
-        
-        return baseValue;
+
+        return result;
     }
-    
+
     public void OnCloseInfoClicked()
     {
         gameObject.SetActive(false);
@@ -161,6 +162,28 @@ public class TowerInfoUI : PopUpUI
             sb.Append(value ?? "-");
         }
         tmp.text = sb.ToString();
+    }
+
+    private void SetStatText(TextMeshProUGUI tmp, float baseValue, float finalValue, string format = "0.00", string suffix = "")
+    {
+        if (tmp == null) return;
+
+        bool hasBase = !Mathf.Approximately(baseValue, 0f);
+        bool hasFinal = !Mathf.Approximately(finalValue, 0f);
+
+        if (!hasBase && !hasFinal)
+        {
+            tmp.text = "-";
+            return;
+        }
+
+        if (Mathf.Approximately(baseValue, finalValue))
+        {
+            tmp.text = $"{baseValue.ToString(format)}{suffix}";
+            return;
+        }
+
+        tmp.text = $"{finalValue.ToString(format)}{suffix}";
     }
 
     private void SetAllText(string value)
@@ -218,65 +241,81 @@ public class TowerInfoUI : PopUpUI
         SetupAttackLabels();
 
         var attackTowerData = attackTower.AttackTowerData;
-        var buffedProjectile = attackTower.CurrentProjectileData;
 
-        if (nameText != null)
-            nameText.text = $"{attackTowerData.towerId}";
+        if (nameText != null) nameText.text = $"{attackTowerData.towerId}";
 
         isSameTower = (infoIndex == index);
 
         var abilities = attackTower.Abilities;
 
-        // Left panel : Tower Data
+        // Left panel : Tower Data--------------------------------
+        //ID
         SetText(towerIdValueText, attackTowerData.towerId);
+        //Range
         SetText(rangeValueText,
             attackTowerData.rangeData != null
                 ? attackTowerData.rangeData.GetRange().ToString("0.0")
                 : null);
-        SetText(hitRateValueText, attackTowerData.hitRate.ToString("0.00") + "%");
-        SetText(spreadAccuracyValueText, attackTowerData.spreadAccuracy.ToString("0.00") + "%");
 
-        // Fire Rate
-        SetText(
-            fireRateValueText,
-            $"{attackTower.AttackTowerData.fireRate:0.00}",
-            attackTower.AttackTowerData.fireRate == attackTower.CurrentFireRate
-                ? float.MaxValue
-                : attackTower.CurrentFireRate
-        );
+        //FireRate
+        float baseFireRate = attackTower.BasicFireRate;
+        float finalFireRate = attackTower.CurrentFireRate;
+        SetStatText(fireRateValueText, baseFireRate, finalFireRate, "0.00");
 
-        // Right panel
-        var proj = attackTowerData.projectileType;
+        //Hit Rate
+        float baseHitRate = attackTowerData.hitRate;
+        float finalHitRate = attackTower.FinalHitRate;
+        SetStatText(hitRateValueText, baseHitRate, finalHitRate, "0.00", "%");
 
-        if (proj != null)
+        //Spread Accuracy
+        if (spreadAccuracyValueText != null)
+            spreadAccuracyValueText.text = attackTowerData.spreadAccuracy.ToString("0.00") + "%";
+        //----------------------------------------------------------
+
+        // Right panel----------------------------------------------
+        var baseProj = attackTower.BaseProjectileData ?? attackTowerData.projectileType;
+        var buffedProj = attackTower.BuffedProjectileData ?? baseProj;
+
+        if (baseProj != null)
         {
-            SetText(
-                damageValueText,
-                proj.Attack.ToString("0.00"),
-                CalculateEachAbility(200001, abilities, proj.Attack)
-            );
+            // Attack(base + ability + amp)
+            float baseDamage = baseProj.Attack;
+            float ampDamage = buffedProj.Attack;
+            float finalDamage = CalculateEachAbility(1102001, abilities, ampDamage);
+            SetStatText(damageValueText, baseDamage, finalDamage, "0.00");
 
-            SetText(
-                fixedPenetrationValueText,
-                proj.FixedPenetration.ToString("0.00"),
-                CalculateEachAbility(200004, abilities, proj.FixedPenetration)
-            );
+            // Fixed Penetration
+            float baseFixedPen = baseProj.FixedPenetration;
+            float ampFixedPen = buffedProj.FixedPenetration;
+            float finalFixedPen = CalculateEachAbility(1102006, abilities, ampFixedPen);
+            SetStatText(fixedPenetrationValueText, baseFixedPen, finalFixedPen, "0.00");
 
-            SetText(
-                percentPenetrationValueText,
-                proj.RatePenetration.ToString("0.00") + "%",
-                CalculateEachAbility(200003, abilities, proj.RatePenetration),
-                "%"
-            );
+            // Percent Penetration
+            float baseRatePen = baseProj.RatePenetration;
+            float ampRatePen = buffedProj.RatePenetration;
+            float finalRatePen = CalculateEachAbility(1102005, abilities, ampRatePen);
+            SetStatText(percentPenetrationValueText, baseRatePen, finalRatePen, "0.00", "%");
 
-            SetText(projectileNumberValueText, "0"); 
-            SetText(targetNumberValueText, proj.TargetNum.ToString());
-            SetText(lifeTimeValueText, proj.RemainTime.ToString("0.00"));
-            SetText(
-                projectileSizeValueText,
-                proj.CollisionSize.ToString("0.00"),
-                CalculateEachAbility(200006, abilities, proj.CollisionSize)
-            );
+            // Proejctile Count
+            float baseCount = attackTower.BaseProjectileCount;
+            float finalCount = attackTower.CurrentProjectileCount;
+            SetStatText(projectileNumberValueText, baseCount, finalCount, "0");
+
+            // Target Num
+            float baseTargets = baseProj.TargetNum;
+            float finalTargets = buffedProj.TargetNum;
+            SetStatText(targetNumberValueText, baseTargets, finalTargets, "0");
+
+            // LifeTime (NOT YET 20251121 15:40)
+            float baseLifeTime = baseProj.RemainTime;
+            float finalLifeTime = buffedProj.RemainTime;
+            SetStatText(lifeTimeValueText, baseLifeTime, finalLifeTime, "0.00");
+
+            // Hitbox Size
+            float baseSize = baseProj.CollisionSize;
+            float ampSize = buffedProj.CollisionSize;
+            float finalSize = CalculateEachAbility(1102004, abilities, ampSize);
+            SetStatText(projectileSizeValueText, baseSize, finalSize, "0.00");
         }
         else
         {
@@ -312,26 +351,24 @@ public class TowerInfoUI : PopUpUI
 
         if (ampData == null)
         {
-            if (nameText != null)
-                nameText.text = $"Amplifier {index}";
+            if (nameText != null) nameText.text = $"Amplifier {index}";
             SetAllText("no data");
             return;
         }
 
-        if (nameText != null)
-            nameText.text = ampData.AmplifierId;
+        if (nameText != null) nameText.text = ampData.AmplifierId;
 
         SetText(rangeValueText, ampData.AmplifierType.ToString());
         SetText(fireRateValueText, ampData.TargetMode.ToString());
         SetText(hitRateValueText, ampData.FixedBuffedSlotCount.ToString());
         SetText(spreadAccuracyValueText, ampData.OnlyAttackTower ? "Attack Only" : "All Towers");
 
-        SetText(damageValueText, $"x{ampData.DamageBuff:0.00}");         
+        SetText(damageValueText, $"x{ampData.DamageBuff:0.00}");
         SetText(fixedPenetrationValueText, $"x{ampData.FireRateBuff:0.00}");
-        SetText(percentPenetrationValueText, $"+{ampData.ProjectileCountBuff}"); 
-        SetText(targetNumberValueText, $"+{ampData.TargetNumberBuff}");   
-        SetText(projectileNumberValueText, $"+{ampData.HitRadiusBuff:0.00}"); 
-        SetText(lifeTimeValueText, $"x{ampData.PercentPenetrationBuff:0.00}");  
+        SetText(percentPenetrationValueText, $"+{ampData.ProjectileCountBuff}");
+        SetText(targetNumberValueText, $"+{ampData.TargetNumberBuff}");
+        SetText(projectileNumberValueText, $"+{ampData.HitRadiusBuff:0.00}");
+        SetText(lifeTimeValueText, $"x{ampData.PercentPenetrationBuff:0.00}");
         SetText(projectileSizeValueText, $"+{ampData.FixedPenetrationBuff:0.00}");
     }
 
@@ -410,10 +447,10 @@ public class TowerInfoUI : PopUpUI
     private void SetupAmplifierLabels()
     {
         if (towerIdLabelText != null) towerIdLabelText.text = "-";
-        if (rangeLabelText != null) rangeLabelText.text = "증폭 타입";
-        if (fireRateLabelText != null) fireRateLabelText.text = "증폭 ID";
+        if (rangeLabelText != null) rangeLabelText.text = "Buff Tower Name";
+        if (fireRateLabelText != null) fireRateLabelText.text = "Buff Type";
         if (hitRateLabelText != null) hitRateLabelText.text = "버프 슬롯 수";
-        if (spreadLabelText != null) spreadLabelText.text = "buff";
+        if (spreadLabelText != null) spreadLabelText.text = "Buff Target";
 
         if (damageLabelText != null) damageLabelText.text = "공격력+";
         if (fixedPenLabelText != null) fixedPenLabelText.text = "공속 배율";

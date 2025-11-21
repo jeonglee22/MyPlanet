@@ -197,7 +197,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             choices[i].ability = -1;
             choices[i].AmplifierTowerData = proejctileCoreSO;
             choices[i].BuffSlotIndex = null;
-            uiTexts[i].text = "new\nProjectile\nCore\n\nleft slot buff";
+            uiTexts[i].text = "new\nProjectile\nCore\n\nright slot buff";
         }
     }
     private void ResetUpgradeCard(int index)
