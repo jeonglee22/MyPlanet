@@ -120,6 +120,10 @@ public class WaveManager : MonoBehaviour
                 await UniTask.Delay(System.TimeSpan.FromSeconds(waveData.SpawnTerm));
             }
         }
+
+        await UniTask.Delay(System.TimeSpan.FromSeconds(waveData.SpawnTerm));
+
+        OnWaveCleared().Forget();
     }
 
     public async UniTask StartNextWave()
@@ -153,7 +157,6 @@ public class WaveManager : MonoBehaviour
 
         if(currentWaveIndex < waveDatas.Count)
         {
-            await UniTask.Delay(System.TimeSpan.FromSeconds(waveInterval));
             await StartNextWave();
         }
         else

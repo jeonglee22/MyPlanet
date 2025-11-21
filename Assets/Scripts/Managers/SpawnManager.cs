@@ -55,7 +55,7 @@ public class SpawnManager : MonoBehaviour
 
         if(currentEnemyCount == 0)
         {
-            WaveManager.Instance.OnWaveCleared().Forget();
+            //all enemies dead logic here
         }
     }
 
