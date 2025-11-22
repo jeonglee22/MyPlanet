@@ -8,6 +8,7 @@ public class GameOverUI : MonoBehaviour
 
     void Start()
     {
+        WaveManager.Instance.Cancel();
         restartButton.onClick.AddListener(() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex));
     }
 }

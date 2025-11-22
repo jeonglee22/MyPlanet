@@ -1,10 +1,11 @@
+using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.Pool;
 
 
-public class ObjectPoolManager<TKey, TValue> where TValue : Component
+public class ObjectPoolManager<TKey, TValue> where TValue : Component , IDisposable
 {
     private struct PoolData
     {
@@ -63,9 +64,10 @@ public class ObjectPoolManager<TKey, TValue> where TValue : Component
     {
         if (!pools.TryGetValue(key, out PoolData poolData))
         {
-            Object.Destroy(value.gameObject);
+            UnityEngine.Object.Destroy(value.gameObject);
             return;
         }
+        value.Dispose();
         poolData.pool.Release(value);
     }
 
@@ -107,7 +109,7 @@ public class ObjectPoolManager<TKey, TValue> where TValue : Component
 
         if (poolData.parent != null)
         {
-            Object.Destroy(poolData.parent.gameObject);
+            UnityEngine.Object.Destroy(poolData.parent.gameObject);
         }
 
         pools.Remove(key);
@@ -128,12 +130,12 @@ public class ObjectPoolManager<TKey, TValue> where TValue : Component
     //Call backs
     private TValue CreateInstance(GameObject prefab, Transform parent)
     {
-        GameObject obj = Object.Instantiate(prefab, parent);
+        GameObject obj = UnityEngine.Object.Instantiate(prefab, parent);
         TValue component = obj.GetComponent<TValue>();
 
         if (component == null)
         {
-            Object.Destroy(obj);
+            UnityEngine.Object.Destroy(obj);
             return null;
         }
 
@@ -155,6 +157,6 @@ public class ObjectPoolManager<TKey, TValue> where TValue : Component
     
     private void OnDestroy(TValue instance)
     {
-        Object.Destroy(instance.gameObject);
+        UnityEngine.Object.Destroy(instance.gameObject);
     }
 }

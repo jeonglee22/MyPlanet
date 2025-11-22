@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class PatternProjectile : MonoBehaviour
+public class PatternProjectile : MonoBehaviour , IDisposable
 {
     [SerializeField] private TrailRenderer trailRenderer;
     private float damage;
@@ -146,5 +146,9 @@ public class PatternProjectile : MonoBehaviour
             return projectile.damage;
         }
         return 0f;
+    }
+
+    public void Dispose()
+    {
     }
 }
