@@ -6,7 +6,7 @@ public class ExplosionAbility : EffectAbility
 
     public ExplosionAbility()
     {
-        upgradeAmount = 2f;
+        upgradeAmount = 0.1f;
     }
 
     public override void ApplyAbility(GameObject gameObject)
@@ -26,7 +26,7 @@ public class ExplosionAbility : EffectAbility
             newGo.AddComponent<SphereCollider>().isTrigger = true;
 
             var explosion = newGo.AddComponent<Explosion>();
-            explosion.SetInitRadius(0.1f, upgradeAmount);
+            explosion.SetInitRadius(0.01f, upgradeAmount);
         }
     }
 
