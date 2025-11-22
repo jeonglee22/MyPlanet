@@ -7,7 +7,8 @@ public class Projectile : MonoBehaviour
 {
     [SerializeField] private TrailRenderer trailRenderer;
     public ProjectileData projectileData; //Buffed Data
-    private ProjectileData poolKeyData; //BaseDataSO for Key 
+    private ProjectileData poolKeyData; //BaseDataSO for Key
+    public ProjectileData BaseData => poolKeyData;
 
     public Vector3 direction;
     public bool isHit;
@@ -21,7 +22,7 @@ public class Projectile : MonoBehaviour
     public float totalSpeed = 5f;
     public float currentPierceCount = 1;
     private float currentLifeTime;
-    public float hitRadius = 10f;
+    public float hitRadius = 1f;
     public float acceleration ;
 
     private ObjectPoolManager<ProjectileData, Projectile> objectPoolManager;
@@ -114,6 +115,7 @@ public class Projectile : MonoBehaviour
         RatePanetration = projectileData.RatePenetration;
         FixedPanetration = projectileData.FixedPenetration;
         damage = projectileData.Attack;
+        hitRadius = projectileData.CollisionSize;
 
         Cancel();
         currentLifeTime = 0f;
@@ -148,6 +150,7 @@ public class Projectile : MonoBehaviour
     
     private float CalculateTotalDamage(float enemyDef)
     {
+        Debug.Log(damage);
         var totalEnemyDef = enemyDef * (1 - RatePanetration / 100f) - FixedPanetration;
         if(totalEnemyDef < 0)
         {

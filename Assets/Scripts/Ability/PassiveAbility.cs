@@ -31,4 +31,9 @@ public class PassiveAbility : IAbility
     {
         return string.Empty;
     }
+
+    public virtual IAbility Copy()
+    {
+        return new PassiveAbility();
+    }
 }

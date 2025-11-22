@@ -798,6 +798,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1233037813224773554, guid: e422beeb38f3d85458f873802aa840fe, type: 3}
+      propertyPath: maxPoolSize
+      value: 150
+      objectReference: {fileID: 0}
+    - target: {fileID: 1233037813224773554, guid: e422beeb38f3d85458f873802aa840fe, type: 3}
+      propertyPath: defaultPoolCapacity
+      value: 50
+      objectReference: {fileID: 0}
     - target: {fileID: 5724337228310531497, guid: e422beeb38f3d85458f873802aa840fe, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -2552,7 +2560,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b8a93303d35c6c40a69b804d467922e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 200
+  maxHealth: 2000000
   towerPrefab: {fileID: 1023283278850307994, guid: 0571919fcf38eb946ae60d72aeed9ac4, type: 3}
   amplifierTowerPrefab: {fileID: 1023283278850307994, guid: 4d3d49db100941c4595d79e6f10750ec, type: 3}
   towerSlotTransform: {fileID: 824370128}

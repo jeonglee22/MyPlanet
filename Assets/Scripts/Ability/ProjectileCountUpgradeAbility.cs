@@ -1,11 +1,11 @@
 using UnityEngine;
 
-public class AttackSpeedAbility : TowerAbility
+public class ProjectileCountUpgradeAbility : TowerAbility
 {
-    public AttackSpeedAbility(float amount)
+    public ProjectileCountUpgradeAbility(float amount)
     {
-        upgradeAmount = amount / 100f;
-        abilityType = AbilityApplyType.Rate;
+        upgradeAmount = amount;
+        abilityType = AbilityApplyType.Fixed;
     }
 
     public override void ApplyAbility(GameObject gameObject)
@@ -15,8 +15,7 @@ public class AttackSpeedAbility : TowerAbility
         var towerAttack = gameObject.GetComponent<TowerAttack>();
         if (towerAttack != null)
         {
-            towerAttack.fireRateBuffMul += upgradeAmount;
-            // Debug.Log("Damage Apply");
+            towerAttack.ProjectileCountBuffAdd += Mathf.FloorToInt(upgradeAmount);
         }
     }
 
@@ -24,11 +23,10 @@ public class AttackSpeedAbility : TowerAbility
     {
         base.RemoveAbility(gameObject);
 
-        var towerAttack = gameObject.GetComponent<TowerAttack>();
+         var towerAttack = gameObject.GetComponent<TowerAttack>();
         if (towerAttack != null)
         {
-            towerAttack.fireRateBuffMul -= upgradeAmount;
-            // Debug.Log("Damage Apply");
+            towerAttack.ProjectileCountBuffAdd -= Mathf.FloorToInt(upgradeAmount);
         }
     }
 
@@ -39,11 +37,11 @@ public class AttackSpeedAbility : TowerAbility
 
     public override string ToString()
     {
-        return $"Attack Speed\n{upgradeAmount * 100}%\nUp!!";
+        return $"Projectile Count\n{upgradeAmount}\nUp!!";
     }
 
     public override IAbility Copy()
     {
-        return new AttackSpeedAbility(upgradeAmount * 100);
+        return new ProjectileCountUpgradeAbility(upgradeAmount);
     }
 }

@@ -119,7 +119,7 @@ public class Planet : LivingEntity
             else
             {
                 newTowerAttack.AddAbility(abilityId);
-                var ability = AbilityManager.Instance.GetAbility(abilityId);
+                var ability = AbilityManager.GetAbility(abilityId);
                 ability.ApplyAbility(newTowerAttack.gameObject);
             }
             if(!planetAttacks.Contains(newTowerAttack))

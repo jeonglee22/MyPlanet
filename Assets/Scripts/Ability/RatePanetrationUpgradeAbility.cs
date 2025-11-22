@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class RatePanetrationUpgradeAbility : PassiveAbility
 {
-    public RatePanetrationUpgradeAbility()
+    public RatePanetrationUpgradeAbility(float amount)
     {
-        upgradeAmount = 1.4f;
+        upgradeAmount = amount / 100f;
         abilityType = AbilityApplyType.Rate;
     }
 
@@ -15,7 +15,7 @@ public class RatePanetrationUpgradeAbility : PassiveAbility
         var projectile = gameObject.GetComponent<Projectile>();
         if (projectile != null)
         {
-            projectile.RatePanetration *= upgradeAmount;
+            projectile.RatePanetration += projectile.projectileData.RatePenetration * upgradeAmount;
         }
     }
 
@@ -26,7 +26,7 @@ public class RatePanetrationUpgradeAbility : PassiveAbility
         var projectile = gameObject.GetComponent<Projectile>();
         if (projectile != null)
         {
-            projectile.RatePanetration /= upgradeAmount;
+            projectile.RatePanetration -= projectile.projectileData.RatePenetration * upgradeAmount;
         }
     }
 
@@ -37,6 +37,11 @@ public class RatePanetrationUpgradeAbility : PassiveAbility
 
     public override string ToString()
     {
-        return $"Rate\nPanetration\n{(upgradeAmount - 1f) * 100}%\nUp!!";
+        return $"Rate\nPanetration\n{upgradeAmount * 100f}%\nUp!!";
+    }
+
+    public override IAbility Copy()
+    {
+        return new RatePanetrationUpgradeAbility(upgradeAmount * 100);
     }
 }

@@ -1,11 +1,11 @@
 using UnityEngine;
 
-public class HItSizeUpgradeAbility : PassiveAbility
+public class PierceUpgradeAbility : PassiveAbility
 {
-    public HItSizeUpgradeAbility(float amount)
+    public PierceUpgradeAbility(float amount)
     {
-        upgradeAmount = amount / 100f;
-        abilityType = AbilityApplyType.Rate;
+        upgradeAmount = amount;
+        abilityType = AbilityApplyType.Fixed;
     }
 
     public override void ApplyAbility(GameObject gameObject)
@@ -15,7 +15,7 @@ public class HItSizeUpgradeAbility : PassiveAbility
         var projectile = gameObject.GetComponent<Projectile>();
         if (projectile != null)
         {
-            projectile.gameObject.transform.localScale *= upgradeAmount;
+            projectile.currentPierceCount += upgradeAmount;
         }
     }
 
@@ -26,7 +26,7 @@ public class HItSizeUpgradeAbility : PassiveAbility
         var projectile = gameObject.GetComponent<Projectile>();
         if (projectile != null)
         {
-            projectile.gameObject.transform.localScale /= upgradeAmount;
+            projectile.currentPierceCount -= upgradeAmount;
         }
     }
 
@@ -37,11 +37,11 @@ public class HItSizeUpgradeAbility : PassiveAbility
 
     public override string ToString()
     {
-        return $"Hit\nSize\n{upgradeAmount * 100f}%\nUp!!";
+        return $"Pierce\n{upgradeAmount}\nUp!!";
     }
 
     public override IAbility Copy()
     {
-        return new HItSizeUpgradeAbility(upgradeAmount * 100);
+        return new PierceUpgradeAbility(upgradeAmount);
     }
 }

@@ -25,4 +25,9 @@ public class EffectAbility : IAbility
     {
         return string.Empty;
     }
+
+    public virtual IAbility Copy()
+    {
+        return new EffectAbility();
+    }
 }

@@ -6,9 +6,10 @@ public class ParalyzeAbility : EffectAbility
     private float initSpeed;
     public float slowPercentage = 40f;
 
-    public ParalyzeAbility()
+    public ParalyzeAbility(float amount)
     {
-        upgradeAmount = 40f;
+        upgradeAmount = amount;
+        abilityType = AbilityApplyType.Rate;
     }
 
     public override void ApplyAbility(GameObject gameObject)
@@ -52,5 +53,10 @@ public class ParalyzeAbility : EffectAbility
         sb.Append($"Paralyze\nAttack!!");
 
         return sb.ToString();
+    }
+
+    public override IAbility Copy()
+    {
+        return new ParalyzeAbility(upgradeAmount);
     }
 }

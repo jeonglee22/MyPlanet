@@ -4,9 +4,9 @@ public class ExplosionAbility : EffectAbility
 {
     private GameObject explosionEffect;
 
-    public ExplosionAbility()
+    public ExplosionAbility(float amount)
     {
-        upgradeAmount = 0.4f;
+        upgradeAmount = amount / 100f;
     }
 
     public override void ApplyAbility(GameObject gameObject)
@@ -43,5 +43,10 @@ public class ExplosionAbility : EffectAbility
     public override string ToString()
     {
         return $"Explosion\nAbility!!";
+    }
+
+    public override IAbility Copy()
+    {
+        return new ExplosionAbility(upgradeAmount * 100);
     }
 }

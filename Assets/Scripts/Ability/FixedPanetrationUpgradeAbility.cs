@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class FixedPanetrationUpgradeAbility : PassiveAbility
 {
-    public FixedPanetrationUpgradeAbility()
+    public FixedPanetrationUpgradeAbility(float amount)
     {
-        upgradeAmount = 30f;
+        upgradeAmount = amount;
         abilityType = AbilityApplyType.Fixed;
     }
 
@@ -38,5 +38,10 @@ public class FixedPanetrationUpgradeAbility : PassiveAbility
     public override string ToString()
     {
         return $"Fixed\nPanetration\n{upgradeAmount}\nUp!!";
+    }
+
+    public override IAbility Copy()
+    {
+        return new FixedPanetrationUpgradeAbility(upgradeAmount);
     }
 }
