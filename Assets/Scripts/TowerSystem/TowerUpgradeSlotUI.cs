@@ -197,7 +197,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             choices[i].ability = -1;
             choices[i].AmplifierTowerData = proejctileCoreSO;
             choices[i].BuffSlotIndex = null;
-            uiTexts[i].text = "new\nProjectile\nCore\n\nleft slot buff";
+            uiTexts[i].text = "new\nProjectile\nCore\n\nright slot buff";
         }
     }
     private void ResetUpgradeCard(int index)
@@ -263,7 +263,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         upgradeUIs[(index + 1) % 3].GetComponentInChildren<Image>().color = Color.white;
         upgradeUIs[(index + 2) % 3].GetComponentInChildren<Image>().color = Color.white;
         installControl.IsReadyInstall = true;
-        // installControl.ChoosedData = choices[index];
+        installControl.ChoosedData = choices[index];
 
         if (installControl.IsUsedSlot(numlist[index]))
         {

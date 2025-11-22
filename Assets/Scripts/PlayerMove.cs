@@ -135,6 +135,7 @@ public class PlayerMove : MonoBehaviour
         else
         {
             currentAngle += Mathf.Sign(angleDelta) * rotateAngle;
+            clockRotate = angleDelta <= 0f;
         }
 
         currentAngle = Mathf.Repeat(currentAngle + 180f, 360f) - 180f;
