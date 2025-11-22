@@ -43,8 +43,8 @@ public class Planet : LivingEntity
 
     public float MaxExp { get; internal set; } = 100f;
 
-    [SerializeField] private Color baseColor = Color.gray;
-    [SerializeField] private Color hitColor = Color.white;
+    [SerializeField] private Color baseColor = Color.white;
+    [SerializeField] private Color hitColor = Color.gray;
     private Material Material;
 
     private CancellationTokenSource colorResetCts;

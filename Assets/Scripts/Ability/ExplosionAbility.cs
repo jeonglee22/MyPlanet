@@ -6,7 +6,7 @@ public class ExplosionAbility : EffectAbility
 
     public ExplosionAbility()
     {
-        upgradeAmount = 0.1f;
+        upgradeAmount = 0.4f;
     }
 
     public override void ApplyAbility(GameObject gameObject)

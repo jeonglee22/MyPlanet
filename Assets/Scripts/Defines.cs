@@ -7,6 +7,8 @@ public static class TagName
     public static readonly string Projectile = "Projectile";
     public static readonly string DropItem = "DropItem";
     public static readonly string Enemy = "Enemy";
+    public static readonly string CenterStone = "CenterStone";
+    public static readonly string PatternLine = "PatternLine";
 }
 
 public static class ObjectName
