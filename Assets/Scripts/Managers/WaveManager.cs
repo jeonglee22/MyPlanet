@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -27,6 +28,8 @@ public class WaveManager : MonoBehaviour
     private int waveGroup;
     public int WaveCount {get; set;} = 1;
 
+    private CancellationTokenSource waveCts;
+
     private void Awake()
     {
         if (instance == null)
@@ -38,7 +41,14 @@ public class WaveManager : MonoBehaviour
             Destroy(gameObject);
         }
 
+        Cancel();
         ResetWave();
+    }
+
+    private void OnDestroy()
+    {
+        waveCts?.Cancel();
+        waveCts?.Dispose();
     }
 
     public HashSet<int> ExtractEnemyIds(CombineData combData)
@@ -55,7 +65,7 @@ public class WaveManager : MonoBehaviour
         return enemyIds;
     }
 
-    private async UniTask PreloadWaveAssets(WaveData waveData)
+    private async UniTask PreloadWaveAssets(WaveData waveData, CancellationToken cts)
     {
         var combData = DataTableManager.CombineTable.Get(waveData.Comb_Id);
         if(combData == null)
@@ -66,6 +76,7 @@ public class WaveManager : MonoBehaviour
         var enemyIds = ExtractEnemyIds(combData);
 
         await GameManager.LoadManagerInstance.LoadEnemyPrefabsAsync(enemyIds);
+        cts.ThrowIfCancellationRequested();
 
         foreach(int enemyId in enemyIds)
         {
@@ -77,6 +88,8 @@ public class WaveManager : MonoBehaviour
 
     public async UniTask InitializeStage(int stageId)
     {
+        CancellationToken cts = waveCts.Token;
+
         currentStageId = stageId;
         currentWaveIndex = 0;
         isWaveInProgress = false;
@@ -91,11 +104,11 @@ public class WaveManager : MonoBehaviour
 
         waveGroup = waveDatas[0].WaveGroup;
 
-        await PreloadWaveAssets(waveDatas[0]);
-        await StartNextWave();
+        await PreloadWaveAssets(waveDatas[0], cts);
+        await StartNextWave(cts);
     }
 
-    private async UniTask ExecuteWave(WaveData waveData)
+    private async UniTask ExecuteWave(WaveData waveData, CancellationToken cts)
     {
         Debug.Log($"Starting Wave ID: {waveData.Wave_Id}");
         var combData = DataTableManager.CombineTable.Get(waveData.Comb_Id);
@@ -125,12 +138,12 @@ public class WaveManager : MonoBehaviour
             }
         }
 
-        await UniTask.Delay(System.TimeSpan.FromSeconds(waveData.SpawnTerm));
+        await UniTask.Delay(System.TimeSpan.FromSeconds(waveData.SpawnTerm), cancellationToken: cts);
 
-        OnWaveCleared().Forget();
+        await OnWaveCleared(cts);
     }
 
-    public async UniTask StartNextWave()
+    public async UniTask StartNextWave(CancellationToken cts)
     {
         if(isWaveInProgress || currentWaveIndex >= waveDatas.Count)
         {
@@ -142,14 +155,13 @@ public class WaveManager : MonoBehaviour
 
         if(currentWaveIndex + 1 < waveDatas.Count)
         {
-            await PreloadWaveAssets(waveDatas[currentWaveIndex + 1]);
+            await PreloadWaveAssets(waveDatas[currentWaveIndex + 1], cts);
         }
 
-        await ExecuteWave(currentWave);
+        await ExecuteWave(currentWave, cts);
     }
 
-    [SerializeField] private float waveInterval = 3f;
-    public async UniTaskVoid OnWaveCleared()
+    public async UniTask OnWaveCleared(CancellationToken cts)
     {
         if(!isWaveInProgress)
         {
@@ -166,7 +178,7 @@ public class WaveManager : MonoBehaviour
                 WaveCount++;
                 waveGroup = waveDatas[currentWaveIndex].WaveGroup;
             }
-            await StartNextWave();
+            await StartNextWave(cts);
         }
         else
         {
@@ -181,12 +193,12 @@ public class WaveManager : MonoBehaviour
         waveDatas.Clear();
     }
 
-    public async UniTask RestartCurrentStage()
+    public void Cancel()
     {
+        waveCts?.Cancel();
+        waveCts?.Dispose();
+        waveCts = new CancellationTokenSource();
+
         ResetWave();
-        if(currentStageId != 0)
-        {
-            await InitializeStage(currentStageId);
-        }
     }
 }

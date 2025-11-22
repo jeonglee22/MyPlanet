@@ -5,9 +5,10 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Pool;
 
-public class Enemy : LivingEntity, ITargetable
+public class Enemy : LivingEntity, ITargetable , IDisposable
 {
     private ObjectPoolManager<int, Enemy> objectPoolManager;
+    public ObjectPoolManager<int, Enemy> ObjectPoolManager => objectPoolManager;
 
     private EnemyMovement movement;
     public EnemyMovement Movement => movement;
@@ -110,6 +111,7 @@ public class Enemy : LivingEntity, ITargetable
 
         transform.localScale = originalScale;
 
+
         objectPoolManager?.Return(enemyId, this);
     }
 
@@ -171,7 +173,7 @@ public class Enemy : LivingEntity, ITargetable
         }
     }
 
-    private void Cancel()
+    public void Cancel()
     {
         lifeTimeCts?.Cancel();
         lifeTimeCts?.Dispose();
@@ -277,5 +279,10 @@ public class Enemy : LivingEntity, ITargetable
     {
         await UniTask.Delay(TimeSpan.FromSeconds(delay), cancellationToken: colorResetCts.Token);
         Material.color = baseColor;
+    }
+
+    public void Dispose()
+    {
+        
     }
 }

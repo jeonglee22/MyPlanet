@@ -3,7 +3,7 @@ using System.Threading;
 using UnityEngine;
 using UnityEngine.Pool;
 
-public class Projectile : MonoBehaviour
+public class Projectile : MonoBehaviour , IDisposable
 {
     [SerializeField] private TrailRenderer trailRenderer;
     public ProjectileData projectileData; //Buffed Data
@@ -155,5 +155,9 @@ public class Projectile : MonoBehaviour
         var totalDamage = damage - totalEnemyDef;
         
         return totalDamage;
+    }
+
+    public void Dispose()
+    {
     }
 }
