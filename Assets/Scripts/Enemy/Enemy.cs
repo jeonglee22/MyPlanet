@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -45,7 +46,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
     private CancellationTokenSource colorResetCts;
     private int enemyId;
-    // private int patternId = 0; //test
+    private int patternId;
     public EnemySpawner Spawner { get; set; }
 
     public event Action OnLifeTimeOverEvent;
@@ -140,9 +141,11 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
         transform.localScale *= scaleData.PrefabScale;
 
-        AddMovementComponent(spawnPointIndex);
 
-        AddPatternComponent(data.EnemyGrade, data.AttackType);
+
+        AddMovementComponent((MoveType)data.MoveType, spawnPointIndex);
+
+        AddPatternComponent(data.EnemyGrade, patternId);
 
         Cancel();
 
@@ -150,22 +153,19 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
         if(pattern != null)
         {
-            ExecutionTrigger trigger = ExecutionTrigger.None;
+            ExecutionTrigger trigger = ExecutionTrigger.OnPatternLine;
             float interval = 0f; //test
             switch (data.AttackType)
             {
                 case 0:
-                    trigger = ExecutionTrigger.None;
-                    break;
-                case 1:
                     trigger = ExecutionTrigger.OnPatternLine;
                     break;
-                case 10:
+                case 1:
                     trigger = ExecutionTrigger.OnInterval;
                     interval = 2f;
                     break;
-                default:
-                    trigger = ExecutionTrigger.None;
+                case 10:
+                    trigger = ExecutionTrigger.Pattern;
                     break;
             }
 
@@ -227,11 +227,21 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         }
     }
 
-    private void AddMovementComponent(int spawnPointIndex)
+    private void AddMovementComponent(MoveType moveType, int spawnPointIndex)
     {
         if(movement == null)
         {
-            movement = gameObject.AddComponent<StraightDownMovement>();
+            switch (moveType)
+            {
+                case MoveType.Straight:
+                    movement = gameObject.AddComponent<StraightDownMovement>();
+                    break;
+                case MoveType.Homing:
+                    movement = gameObject.AddComponent<HomingMovement>();
+                    break;
+                case MoveType.Chase:
+                    break;
+            }
         }
 
         movement.Initialize(moveSpeed, Vector3.down);

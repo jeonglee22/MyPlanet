@@ -35,6 +35,20 @@ public enum ProjectileType
     Normal,
 }
 
+public enum ExecutionTrigger
+{
+    OnPatternLine,
+    OnInterval,
+    Pattern
+}
+
+public enum MoveType
+{
+    Straight,
+    Homing,
+    Chase,
+}
+
 public static class DataTableIds
 {
     public static readonly string[] StringTableIds =
