@@ -172,7 +172,7 @@ public class Enemy : LivingEntity, ITargetable
         }
     }
 
-    private void Cancel()
+    public void Cancel()
     {
         lifeTimeCts?.Cancel();
         lifeTimeCts?.Dispose();

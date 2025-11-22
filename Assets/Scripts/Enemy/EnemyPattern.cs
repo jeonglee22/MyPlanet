@@ -62,6 +62,7 @@ public abstract class EnemyPattern : MonoBehaviour
         {
             damagable.OnDamage(owner.atk);
             owner.ObjectPoolManager?.Return(owner.Data.Enemy_Id, owner);
+            owner.Cancel();
         }
 
         if(executionTrigger == ExecutionTrigger.OnPatternLine && !hasExecuted && other.CompareTag("PatternLine"))
