@@ -11,7 +11,6 @@ public class SplitUpgradeAbility : EffectAbility
     private float offsetAngle = 30f;
     private ProjectilePoolManager projectilePoolManager;
     private bool isSetup = false;
-    private int count = 1;
 
     public SplitUpgradeAbility(float amount)
     {

@@ -7,6 +7,31 @@ public class LoadManager : MonoBehaviour
 {
     private Dictionary<int, GameObject> loadedEnemyPrefabs = new Dictionary<int, GameObject>();
 
+    private static Dictionary<string, GameObject> loadedGamePrefabs = new Dictionary<string, GameObject>();
+
+    private async UniTaskVoid Start()
+    {
+        try
+        {
+            GameObject chainPrefab = await Addressables.LoadAssetAsync<GameObject>(ObjectName.ChainEffect).ToUniTask();
+            loadedGamePrefabs.Add(ObjectName.ChainEffect, chainPrefab);
+        }
+        catch(System.Exception)
+        {
+        }
+    }
+
+    public static GameObject GetLoadedGamePrefab(string prefabName)
+    {
+        if(loadedGamePrefabs.TryGetValue(prefabName, out GameObject prefab))
+        {
+            var newObj = Instantiate(prefab);
+            return newObj;
+        }
+
+        return null;
+    }
+
     private async UniTask<GameObject> LoadEnemyPrefabAsync(int enemyId)
     {
         if (loadedEnemyPrefabs.ContainsKey(enemyId))
