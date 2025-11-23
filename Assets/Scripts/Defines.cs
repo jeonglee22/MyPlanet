@@ -40,13 +40,6 @@ public enum AbilityId
     Duration,
 }
 
-public enum Languages
-{
-    Korean,
-    English,
-    Japanese,
-}
-
 public enum PrefabType
 {
     Enemy,
@@ -63,7 +56,6 @@ public enum ExecutionTrigger
 {
     OnPatternLine,
     OnInterval,
-    Pattern
 }
 
 public enum MoveType
@@ -73,16 +65,15 @@ public enum MoveType
     Chase,
 }
 
+public enum PatternIds
+{
+    None = 0,
+    MeteorCluster = 1001,
+    SimpleShot = 2001,
+}
+
 public static class DataTableIds
 {
-    public static readonly string[] StringTableIds =
-    {
-        "StringTableKr",
-        "StringTableEn",
-        "StringTableJp",
-    };
-
-    public static string String => StringTableIds[(int)Variables.Language];
     public static readonly string Item = "ItemTable";
     public static readonly string Enemy = "EnemyTable";
     public static readonly string Combine = "CombineTable";
@@ -94,7 +85,5 @@ public static class DataTableIds
 
 public static class Variables
 {
-    public static Languages Language = Languages.Korean;
-
     public static int Stage {get; set;} = 1;
 }

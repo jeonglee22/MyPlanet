@@ -5,9 +5,11 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class MeteorClusterPattern : MovementPattern
+public class MeteorClusterPattern
 {
+    /*
     private PatternSpawner spawner;
+    public override int PatternId => (int)PatternIds.MeteorCluster;
 
     private int meteorCount;
     private bool isSpawning;
@@ -224,4 +226,5 @@ public class MeteorClusterPattern : MovementPattern
     {
         returnAllPatterns();
     }
+    */
 }

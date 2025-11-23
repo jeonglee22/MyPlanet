@@ -13,7 +13,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
     private EnemyMovement movement;
     public EnemyMovement Movement => movement;
-    private EnemyPattern pattern;
+    private PatternExecutor patternExecutor;
     private EnemyTableData data;
     public EnemyTableData Data { get { return data; } }
 
@@ -46,7 +46,6 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
     private CancellationTokenSource colorResetCts;
     private int enemyId;
-    private int patternId;
     public EnemySpawner Spawner { get; set; }
 
     public event Action OnLifeTimeOverEvent;
@@ -56,6 +55,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         base.OnEnable();
 
         movement = GetComponent<EnemyMovement>();
+        patternExecutor = GetComponent<PatternExecutor>();
 
         OnDeathEvent += SpawnManager.Instance.OnEnemyDied;
         OnLifeTimeOverEvent += SpawnManager.Instance.OnEnemyDied;
@@ -72,8 +72,11 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         OnDeathEvent -= SpawnManager.Instance.OnEnemyDied;
         OnLifeTimeOverEvent -= SpawnManager.Instance.OnEnemyDied;
 
-        Destroy(pattern);
-        pattern = null;
+        if(patternExecutor != null)
+        {
+            patternExecutor.ClearPatterns();
+        }
+        
         movement = null;
     }
 
@@ -88,9 +91,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
     public override void OnDamage(float damage)
     {
-        float actualDamage = pattern != null ? pattern.CalculateDamage(damage) : damage;
-
-        base.OnDamage(actualDamage);
+        base.OnDamage(damage);
 
         ColorCancel();
 
@@ -110,7 +111,6 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         }
 
         transform.localScale = originalScale;
-
 
         objectPoolManager?.Return(enemyId, this);
     }
@@ -140,36 +140,13 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
         transform.localScale *= scaleData.PrefabScale;
 
-
-
         AddMovementComponent(data.MoveType, spawnPointIndex);
 
-        AddPatternComponent(data.EnemyGrade, patternId);
+        InitializePatterns(enemyData);
 
         Cancel();
 
         LifeTimeTask(lifeTimeCts.Token).Forget();
-
-        if(pattern != null)
-        {
-            ExecutionTrigger trigger = ExecutionTrigger.OnPatternLine;
-            float interval = 0f; //test
-            switch (data.AttackType)
-            {
-                case 0:
-                    trigger = ExecutionTrigger.OnPatternLine;
-                    break;
-                case 1:
-                    trigger = ExecutionTrigger.OnInterval;
-                    interval = 2f;
-                    break;
-                case 10:
-                    trigger = ExecutionTrigger.Pattern;
-                    break;
-            }
-
-            pattern.Initialize(this, movement, data, trigger, interval);
-        }
     }
 
     public void Cancel()
@@ -238,30 +215,32 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         movement.Initialize(moveSpeed, spawnPointIndex, movementComponent);
     }
 
-    private void AddPatternComponent(int grade, int patternId)
+    private void InitializePatterns(EnemyTableData enemyData)
     {
-        if(pattern != null)
+        if(patternExecutor == null)
         {
-            Destroy(pattern);
+            patternExecutor = gameObject.AddComponent<PatternExecutor>();
         }
 
-        switch (patternId)
+        patternExecutor.Initialize(this);
+
+        List<int> patternIds = new List<int>{2001}; //test
+
+        foreach(var patternId in patternIds)
         {
-            case 0:
-                pattern = gameObject.AddComponent<NormalPattern>();
-                break;
-            case 10:
-                pattern = gameObject.AddComponent<SimpleShotPattern>();
-                break;
-            default:
-                pattern = gameObject.AddComponent<NormalPattern>();
-                break;
+            IPattern pattern = PatternManager.Instance.GetPattern(patternId);
+            if(pattern != null)
+            {
+                pattern.Initialize(this, movement, enemyData);
+                patternExecutor.AddPattern(pattern);
+            }
         }
     }
 
     public void OnPatternLineTrigger()
     {
         movement?.OnPatternLine();
+        patternExecutor?.OnPatternLine();
     }
 
     //test
