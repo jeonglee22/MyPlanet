@@ -115,6 +115,26 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         objectPoolManager?.Return(enemyId, this);
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag(TagName.Enemy))
+        {
+            return;
+        }
+        
+        IDamagable damagable = other.gameObject.GetComponent<IDamagable>();
+        if (damagable != null)
+        {
+            damagable.OnDamage(atk);
+            Cancel();
+        }
+
+        if(other.CompareTag("PatternLine"))
+        {
+            OnPatternLineTrigger();
+        }
+    }
+
     private void OnLifeTimeOver()
     {
         OnLifeTimeOverEvent?.Invoke();
