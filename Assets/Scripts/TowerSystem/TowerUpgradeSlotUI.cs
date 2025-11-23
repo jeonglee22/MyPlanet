@@ -1,9 +1,8 @@
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 public class TowerUpgradeSlotUI : MonoBehaviour
@@ -57,8 +56,10 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         installControl.OnTowerInstalled -= SetTowerInstallText;
     }
 
-    private void OnEnable()
+    private async UniTaskVoid OnEnable()
     {
+        await UniTask.WaitUntil(() => AbilityManager.IsInitialized);
+
         if (isNotUpgradeOpen)
         {
             isNotUpgradeOpen = false;
@@ -163,7 +164,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         if(isFirstInstall) towerType = 0;
 
-        var ability = AbilityManager.Instance.GetAbility(abilities[i]);
+        var ability = AbilityManager.GetAbility(abilities[i]);
 
         if (towerType == 0) //Attack
         {
@@ -202,7 +203,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     }
     private void ResetUpgradeCard(int index)
     {
-        abilities[index] = AbilityManager.Instance.GetRandomAbility();
+        abilities[index] = AbilityManager.GetRandomAbility();
         installControl.IsReadyInstall = false;
         upgradeUIs[index].GetComponentInChildren<Image>().color = Color.white;
 
@@ -281,7 +282,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         for(int i = 0; i < upgradeUIs.Length; i++)
         {
             upgradeUIs[i].GetComponentInChildren<Image>().color = Color.white;
-            abilities[i] = AbilityManager.Instance.GetRandomAbility();
+            abilities[i] = AbilityManager.GetRandomAbility();
             choices[i] = new TowerInstallChoice();
             choices[i].BuffSlotIndex = null;
         }

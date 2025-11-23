@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class AttackSpeedAbility : TowerAbility
 {
-    public AttackSpeedAbility()
+    public AttackSpeedAbility(float amount)
     {
-        upgradeAmount = 1.6f;
+        upgradeAmount = amount / 100f;
         abilityType = AbilityApplyType.Rate;
     }
 
@@ -15,7 +15,7 @@ public class AttackSpeedAbility : TowerAbility
         var towerAttack = gameObject.GetComponent<TowerAttack>();
         if (towerAttack != null)
         {
-            towerAttack.fireRateBuffMul *= upgradeAmount;
+            towerAttack.fireRateBuffMul += upgradeAmount;
             // Debug.Log("Damage Apply");
         }
     }
@@ -27,7 +27,7 @@ public class AttackSpeedAbility : TowerAbility
         var towerAttack = gameObject.GetComponent<TowerAttack>();
         if (towerAttack != null)
         {
-            towerAttack.fireRateBuffMul /= upgradeAmount;
+            towerAttack.fireRateBuffMul -= upgradeAmount;
             // Debug.Log("Damage Apply");
         }
     }
@@ -39,6 +39,11 @@ public class AttackSpeedAbility : TowerAbility
 
     public override string ToString()
     {
-        return $"Attack Speed\n{upgradeAmount} times\nUp!!";
+        return $"Attack Speed\n{upgradeAmount * 100}%\nUp!!";
+    }
+
+    public override IAbility Copy()
+    {
+        return new AttackSpeedAbility(upgradeAmount * 100);
     }
 }

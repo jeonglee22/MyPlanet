@@ -4,9 +4,9 @@ public class ExplosionAbility : EffectAbility
 {
     private GameObject explosionEffect;
 
-    public ExplosionAbility()
+    public ExplosionAbility(float amount)
     {
-        upgradeAmount = 2f;
+        upgradeAmount = amount / 100f;
     }
 
     public override void ApplyAbility(GameObject gameObject)
@@ -26,7 +26,7 @@ public class ExplosionAbility : EffectAbility
             newGo.AddComponent<SphereCollider>().isTrigger = true;
 
             var explosion = newGo.AddComponent<Explosion>();
-            explosion.SetInitRadius(0.1f, upgradeAmount);
+            explosion.SetInitRadius(0.01f, upgradeAmount);
         }
     }
 
@@ -43,5 +43,10 @@ public class ExplosionAbility : EffectAbility
     public override string ToString()
     {
         return $"Explosion\nAbility!!";
+    }
+
+    public override IAbility Copy()
+    {
+        return new ExplosionAbility(upgradeAmount * 100);
     }
 }

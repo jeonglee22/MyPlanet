@@ -7,7 +7,8 @@ public class Projectile : MonoBehaviour , IDisposable
 {
     [SerializeField] private TrailRenderer trailRenderer;
     public ProjectileData projectileData; //Buffed Data
-    private ProjectileData poolKeyData; //BaseDataSO for Key 
+    private ProjectileData poolKeyData; //BaseDataSO for Key
+    public ProjectileData BaseData => poolKeyData;
 
     public Vector3 direction;
     public bool isHit;
@@ -21,7 +22,7 @@ public class Projectile : MonoBehaviour , IDisposable
     public float totalSpeed = 5f;
     public float currentPierceCount = 1;
     private float currentLifeTime;
-    public float hitRadius = 10f;
+    public float hitRadius = 1f;
     public float acceleration ;
 
     private ObjectPoolManager<ProjectileData, Projectile> objectPoolManager;
@@ -85,6 +86,18 @@ public class Projectile : MonoBehaviour , IDisposable
             case ProjectileType.Normal:
                 transform.position += direction.normalized * totalSpeed * Time.deltaTime;
                 break;
+            case ProjectileType.Homing:
+                if (currentTarget != null && currentTarget.gameObject.activeSelf)
+                {
+                    Vector3 targetDirection = (currentTarget.position - transform.position).normalized;
+                    direction = targetDirection;
+                }
+                else if (currentTarget != null && !currentTarget.gameObject.activeSelf)
+                {
+                    currentTarget = null;
+                }
+                transform.position += direction.normalized * totalSpeed * Time.deltaTime;
+                break;
         }
     }
 
@@ -114,6 +127,7 @@ public class Projectile : MonoBehaviour , IDisposable
         RatePanetration = projectileData.RatePenetration;
         FixedPanetration = projectileData.FixedPenetration;
         damage = projectileData.Attack;
+        hitRadius = projectileData.CollisionSize;
 
         Cancel();
         currentLifeTime = 0f;
@@ -123,7 +137,8 @@ public class Projectile : MonoBehaviour , IDisposable
     void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag(TagName.Planet) || other.gameObject.CompareTag(TagName.Projectile)
-            || other.gameObject.CompareTag(TagName.DropItem) || other.gameObject.CompareTag("PatternLine"))
+            || other.gameObject.CompareTag(TagName.DropItem) || other.gameObject.CompareTag(TagName.PatternLine)
+            || other.gameObject.CompareTag(TagName.CenterStone) || currentPierceCount <= 0)
         {
             return;
         }
@@ -145,8 +160,9 @@ public class Projectile : MonoBehaviour , IDisposable
         }
     }
     
-    private float CalculateTotalDamage(float enemyDef)
+    public float CalculateTotalDamage(float enemyDef)
     {
+        Debug.Log(damage);
         var totalEnemyDef = enemyDef * (1 - RatePanetration / 100f) - FixedPanetration;
         if(totalEnemyDef < 0)
         {
@@ -159,5 +175,14 @@ public class Projectile : MonoBehaviour , IDisposable
 
     public void Dispose()
     {
+    }
+
+    public void SetHomingTarget(ITargetable target)
+    {
+        var enemy = target as Enemy;
+        if (enemy != null)
+        {
+            currentTarget = enemy.transform;
+        }
     }
 }

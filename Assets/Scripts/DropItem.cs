@@ -4,6 +4,7 @@ using UnityEngine;
 public class DropItem : MonoBehaviour
 {
     protected Planet planet;
+    protected Transform centerStone;
     protected float movingSpeed = 10f;
     private float movingTimeTotal;
     private float movingTime = 0f;
@@ -21,11 +22,12 @@ public class DropItem : MonoBehaviour
     protected virtual void Start()
     {
         planet = GameObject.FindWithTag(TagName.Planet)?.GetComponent<Planet>();
+        centerStone = GameObject.FindWithTag(TagName.CenterStone)?.GetComponent<Transform>();
         initPos = transform.position;
         if (planet == null)
             return;
             
-        movingTimeTotal = Vector3.Distance(initPos, planet.transform.position) / movingSpeed;
+        movingTimeTotal = Vector3.Distance(initPos, centerStone.position) / movingSpeed;
 
         // particle?.Play();
     }
@@ -44,13 +46,13 @@ public class DropItem : MonoBehaviour
     protected virtual void AutoCollect()
     {
         movingTime += Time.deltaTime;
-        var nextPos = Vector3.Lerp(initPos, planet.transform.position, movingTime / movingTimeTotal);
+        var nextPos = Vector3.Lerp(initPos, centerStone.position, movingTime / movingTimeTotal);
         transform.position = nextPos;
     }
 
     private void OnTriggerEnter(Collider other) 
     {
-        if (other.CompareTag(TagName.Planet))
+        if (other.CompareTag(TagName.CenterStone))
         {
             isDestroy = true;
         }

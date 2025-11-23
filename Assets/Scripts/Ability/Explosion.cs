@@ -3,10 +3,10 @@ using UnityEngine;
 public class Explosion : MonoBehaviour
 {
     private float explosionRadius = 1f;
-    private float initRadius = 0.1f;
+    private float initRadius = 0.01f;
     private SphereCollider explosionCollider;
 
-    private float explosionTimeInterval = 0.5f;
+    private float explosionTimeInterval = 0.3f;
     private float explosionTimer = 0f;
 
     void Awake()

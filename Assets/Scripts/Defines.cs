@@ -7,6 +7,9 @@ public static class TagName
     public static readonly string Projectile = "Projectile";
     public static readonly string DropItem = "DropItem";
     public static readonly string Enemy = "Enemy";
+    public static readonly string CenterStone = "CenterStone";
+    public static readonly string PatternLine = "PatternLine";
+    public static readonly string ProjectilePoolManager = "ProjectilePoolManager";
 }
 
 public static class ObjectName
@@ -15,6 +18,26 @@ public static class ObjectName
     public static readonly string Enemy = "EnemySample";
     public static readonly string ProjectilePrefab = "Projectile_Sample";
     public static readonly string Projectile = "Projectile";
+    public static readonly string ChainEffect = "ChainEffect";
+}
+
+public enum AbilityId
+{
+    AttackDamage = 200001,
+    AttackSpeed,
+    PercentPenetration,
+    FixedPanetration,
+    Slow,
+    CollisionSize,
+    Chain,
+    Explosion,
+    Pierce,
+    Split,
+    ProjectileCount,
+    TargetCount,
+    Hitscan,
+    Homing,
+    Duration,
 }
 
 public enum Languages
@@ -33,6 +56,7 @@ public enum PrefabType
 public enum ProjectileType
 {
     Normal,
+    Homing,
 }
 
 public enum ExecutionTrigger
@@ -64,6 +88,8 @@ public static class DataTableIds
     public static readonly string Combine = "CombineTable";
     public static readonly string Wave = "WaveTable";
     public static readonly string Projectile = "ProjectileTable";
+    public static readonly string RandomAbility = "RandomAbilityTable";
+    public static readonly string RandomAbilityGroup = "RandomAbilityGroupTable";
 }
 
 public static class Variables

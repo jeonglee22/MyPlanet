@@ -25,4 +25,9 @@ public class TowerAbility : IAbility
     {
         return string.Empty;
     }
+
+    public virtual IAbility Copy()
+    {
+        return new TowerAbility();
+    }
 }

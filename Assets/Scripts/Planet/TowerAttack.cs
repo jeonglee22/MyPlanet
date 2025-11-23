@@ -20,6 +20,7 @@ public class TowerAttack : MonoBehaviour
 
     //------------ Amplifier Buff Field ---------------------
     private float damageBuffMul=1f; //damage = baseDamage * damageBuffMul
+    public float DamageBuffMMul { get { return damageBuffMul; } set { damageBuffMul = value; } }
     private float accelerationBuffAdd=0f;  //just add
     public float fireRateBuffMul = 1f; //fireRate = baseFireRate * fireRateBuffMul
     public float CurrentFireRate
@@ -31,10 +32,17 @@ public class TowerAttack : MonoBehaviour
         }
     }
 
+    private int newProjectileAttackType;
+    public int NewProjectileAttackType { get { return newProjectileAttackType; } set { newProjectileAttackType = value; } }
+
     private float hitRadiusBuffMul = 1f; //hitbox Size, Mul or Add?
+    public float HitRadiusBuffMul { get { return hitRadiusBuffMul; } set { hitRadiusBuffMul = value; } }
     private float percentPenetrationBuffMul = 1f;
+    public float PercentPenetrationBuffMul { get { return percentPenetrationBuffMul; } set { percentPenetrationBuffMul = value; } }
     private float fixedPenetrationBuffAdd = 0f;
+    public float FixedPenetrationBuffAdd { get { return fixedPenetrationBuffAdd; } set { fixedPenetrationBuffAdd = value; } }
     private int targetNumberBuffAdd = 0;
+    public int TargetNumberBuffAdd { get { return targetNumberBuffAdd; } set { targetNumberBuffAdd = value; } }
     private float hitRateBuffMul = 1f;
 
     public float BasicFireRate => towerData.fireRate;
@@ -46,6 +54,7 @@ public class TowerAttack : MonoBehaviour
     //projectile Count---------------------------------------
     private int baseProjectileCount = 1; //from TargetDataSO (NOT Data Table)
     private int projectileCountBuffAdd = 0; 
+    public int ProjectileCountBuffAdd { get { return projectileCountBuffAdd; } set { projectileCountBuffAdd = value; } }
     public int CurrentProjectileCount
     {
         get
@@ -85,7 +94,7 @@ public class TowerAttack : MonoBehaviour
         if (firePoint == null) firePoint = transform;
 
         projectilePoolManager = GameObject
-            .FindGameObjectWithTag("ProjectilePoolManager")
+            .FindGameObjectWithTag(TagName.ProjectilePoolManager)
             .GetComponent<ProjectilePoolManager>();
     }
 
@@ -169,12 +178,19 @@ public class TowerAttack : MonoBehaviour
                 projectilePoolManager.ProjectilePool
                 );
 
+            if(CurrentProjectileData.AttackType == (int)ProjectileType.Homing)
+            {
+                //Set Target for Homing
+                projectile.SetHomingTarget(target);
+            }
+
             foreach (var abilityId in abilities)
             {
-                var ability = AbilityManager.Instance.GetAbility(abilityId);
+                var ability = AbilityManager.GetAbility(abilityId);
                 ability.ApplyAbility(projectile.gameObject);
                 projectile.abilityAction += ability.ApplyAbility;
                 projectile.abilityRelease += ability.RemoveAbility;
+                ability.Setting(gameObject);
             }
         }
     }
@@ -186,7 +202,7 @@ public class TowerAttack : MonoBehaviour
 
     public void SetRandomAbility()
     {
-        var ability = AbilityManager.Instance.GetRandomAbility();
+        var ability = AbilityManager.GetRandomAbility();
         abilities.Add(ability);
         // Debug.Log(ability);
     }
@@ -207,7 +223,7 @@ public class TowerAttack : MonoBehaviour
         
         foreach (var abilityId in abilities)
         {
-            var ability = AbilityManager.Instance.GetAbility(abilityId);
+            var ability = AbilityManager.GetAbility(abilityId);
             // ability.Setting(projectile.gameObject);
             // ability.ApplyAbility(projectile.gameObject);
             ability.ApplyAbility(projectile.gameObject);
@@ -270,6 +286,8 @@ public class TowerAttack : MonoBehaviour
         //(Damage, Acceleration)
         addBuffProjectileData.Attack = currentProjectileData.Attack * damageBuffMul;
         addBuffProjectileData.ProjectileAddSpeed = currentProjectileData.ProjectileAddSpeed + accelerationBuffAdd;
+        addBuffProjectileData.AttackType = currentProjectileData.AttackType == newProjectileAttackType ? currentProjectileData.AttackType : newProjectileAttackType;
+        currentProjectileData.AttackType = addBuffProjectileData.AttackType;
         //---------------------------------------------
         return addBuffProjectileData;
     }
