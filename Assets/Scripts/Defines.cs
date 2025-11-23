@@ -56,6 +56,7 @@ public enum PrefabType
 public enum ProjectileType
 {
     Normal,
+    Homing,
 }
 
 public static class DataTableIds

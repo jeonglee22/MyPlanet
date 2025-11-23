@@ -86,6 +86,18 @@ public class Projectile : MonoBehaviour
             case ProjectileType.Normal:
                 transform.position += direction.normalized * totalSpeed * Time.deltaTime;
                 break;
+            case ProjectileType.Homing:
+                if (currentTarget != null && currentTarget.gameObject.activeSelf)
+                {
+                    Vector3 targetDirection = (currentTarget.position - transform.position).normalized;
+                    direction = targetDirection;
+                }
+                else if (currentTarget != null && !currentTarget.gameObject.activeSelf)
+                {
+                    currentTarget = null;
+                }
+                transform.position += direction.normalized * totalSpeed * Time.deltaTime;
+                break;
         }
     }
 
@@ -159,5 +171,14 @@ public class Projectile : MonoBehaviour
         var totalDamage = damage - totalEnemyDef;
         
         return totalDamage;
+    }
+
+    internal void SetHomingTarget(ITargetable target)
+    {
+        var enemy = target as Enemy;
+        if (enemy != null)
+        {
+            currentTarget = enemy.transform;
+        }
     }
 }

@@ -37,7 +37,7 @@ public class AbilityManager : MonoBehaviour
         abilityDict.Add((int)AbilityId.ProjectileCount, new ProjectileCountUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.ProjectileCount).SpecialEffectValue));
         // abilityDict.Add((int)AbilityId.TargetCount, new AttackSpeedAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.TargetCount).SpecialEffectValue));
         // abilityDict.Add((int)AbilityId.Hitscan, new AttackSpeedAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Hitscan).SpecialEffectValue));
-        // abilityDict.Add((int)AbilityId.Homing, new AttackSpeedAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Homing).SpecialEffectValue));
+        abilityDict.Add((int)AbilityId.Homing, new HomingUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Homing).SpecialEffectValue));
         abilityDict.Add((int)AbilityId.Duration, new DurationUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Duration).SpecialEffectValue));
         
     }
@@ -51,7 +51,7 @@ public class AbilityManager : MonoBehaviour
 
         var index = Random.Range(0, count);
         var keys = new List<int>(abilityDict.Keys);
-        // return (int)AbilityId.Chain;
+        // return (int)AbilityId.Homing;
         return keys[index];
     }
 
