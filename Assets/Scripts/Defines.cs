@@ -18,6 +18,7 @@ public static class ObjectName
     public static readonly string Enemy = "EnemySample";
     public static readonly string ProjectilePrefab = "Projectile_Sample";
     public static readonly string Projectile = "Projectile";
+    public static readonly string ChainEffect = "ChainEffect";
 }
 
 public enum AbilityId
@@ -55,6 +56,7 @@ public enum PrefabType
 public enum ProjectileType
 {
     Normal,
+    Homing,
 }
 
 public static class DataTableIds

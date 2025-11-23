@@ -32,6 +32,9 @@ public class TowerAttack : MonoBehaviour
         }
     }
 
+    private int newProjectileAttackType;
+    public int NewProjectileAttackType { get { return newProjectileAttackType; } set { newProjectileAttackType = value; } }
+
     private float hitRadiusBuffMul = 1f; //hitbox Size, Mul or Add?
     public float HitRadiusBuffMul { get { return hitRadiusBuffMul; } set { hitRadiusBuffMul = value; } }
     private float percentPenetrationBuffMul = 1f;
@@ -175,6 +178,12 @@ public class TowerAttack : MonoBehaviour
                 projectilePoolManager.ProjectilePool
                 );
 
+            if(CurrentProjectileData.AttackType == (int)ProjectileType.Homing)
+            {
+                //Set Target for Homing
+                projectile.SetHomingTarget(target);
+            }
+
             foreach (var abilityId in abilities)
             {
                 var ability = AbilityManager.GetAbility(abilityId);
@@ -277,6 +286,8 @@ public class TowerAttack : MonoBehaviour
         //(Damage, Acceleration)
         addBuffProjectileData.Attack = currentProjectileData.Attack * damageBuffMul;
         addBuffProjectileData.ProjectileAddSpeed = currentProjectileData.ProjectileAddSpeed + accelerationBuffAdd;
+        addBuffProjectileData.AttackType = currentProjectileData.AttackType == newProjectileAttackType ? currentProjectileData.AttackType : newProjectileAttackType;
+        currentProjectileData.AttackType = addBuffProjectileData.AttackType;
         //---------------------------------------------
         return addBuffProjectileData;
     }
