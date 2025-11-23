@@ -1,55 +1,19 @@
 using UnityEngine;
 
-public class StraightDownMovement : EnemyMovement
+public class StraightDownMovement : IMovement
 {
-    private Vector3 targetDirection;
-    private int spawnPointIndex = -1;
-
-    protected override void Move()
+    public void Initialize()
     {
-        if (!isDirectionSet)
-        {
-            SetTargetDirection();
-            isDirectionSet = true;
-        }
-        transform.position += targetDirection * moveSpeed * Time.deltaTime;
+        
     }
 
-    protected override void SetTargetDirection()
+    public Vector3 GetFinalDirection(Vector3 baseDirection, Transform ownerTransform, Transform target)
     {
-        var screenRect = SpawnManager.Instance.ScreenBounds;
-        Vector3 randomPosition;
-
-        if (spawnPointIndex == 1)
-        {
-            float quarterWidth = screenRect.width * 0.25f;
-            randomPosition = new Vector3(Random.Range(screenRect.xMin, screenRect.xMin + quarterWidth), screenRect.yMin, 0f);
-        }
-        else if (spawnPointIndex == 3)
-        {
-            float quarterWidth = screenRect.width * 0.25f;
-            randomPosition = new Vector3(Random.Range(screenRect.xMax - quarterWidth, screenRect.xMax), screenRect.yMin, 0f);
-        }
-        else
-        {
-            randomPosition = new Vector3(Random.Range(screenRect.xMin, screenRect.xMax), screenRect.yMin, 0f);
-        }
-
-        targetDirection = (randomPosition - transform.position).normalized;
+        return baseDirection;
     }
 
-    public override void SetDirection(Vector3 direction)
+    public void OnPatternLine()
     {
-        targetDirection = direction.normalized;
-    }
-
-    private void OnEnable()
-    {
-        isDirectionSet = false;
-    }
-
-    public void SetSpawnPointIndex(int index)
-    {
-        spawnPointIndex = index;
+        
     }
 }

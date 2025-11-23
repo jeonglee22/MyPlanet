@@ -44,7 +44,7 @@ public enum ExecutionTrigger
 
 public enum MoveType
 {
-    Straight,
+    StraightDown,
     Homing,
     Chase,
 }

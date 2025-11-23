@@ -1,28 +1,36 @@
 using UnityEngine;
 
-public class HomingMovement : EnemyMovement
+public class HomingMovement : IMovement
 {
-    protected override void Move()
+    private bool isPatternLine = false;
+    private bool isDirectionSet = false;
+    private Vector3 currentMoveDirection;
+
+    public void Initialize()
     {
-        base.Move();
-        if(!isDirectionSet)
+        isPatternLine = false;
+        isDirectionSet = false;
+    }
+
+    public Vector3 GetFinalDirection(Vector3 baseDirection, Transform ownerTransform, Transform target)
+    {
+        if (!isPatternLine)
         {
-            SetTargetDirection();
+            return baseDirection;
+        }
+
+        if(!isDirectionSet && target != null)
+        {
+            currentMoveDirection = (target.position - ownerTransform.position).normalized;
+            ownerTransform.LookAt(ownerTransform.position + currentMoveDirection);
             isDirectionSet = true;
         }
 
-        transform.position += moveDirection * moveSpeed * Time.deltaTime;
-        transform.LookAt(transform.position + moveDirection);
+        return currentMoveDirection;
     }
 
-    protected override void SetTargetDirection()
+    public void OnPatternLine()
     {
-        Vector3 direction = player.position - transform.position;
-        moveDirection = direction.normalized;
-    }
-
-    private void OnEnable()
-    {
-        isDirectionSet = false;
+        isPatternLine = true;
     }
 }

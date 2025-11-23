@@ -61,6 +61,8 @@ public abstract class EnemyPattern : MonoBehaviour
         {
             Execute();
             hasExecuted = true;
+
+            owner?.OnPatternLineTrigger();
         }
     }
 

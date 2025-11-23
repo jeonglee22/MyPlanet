@@ -190,8 +190,8 @@ public class MeteorClusterPattern : MovementPattern
             Destroy(movement);
         }
 
-        var homingMovement = owner.gameObject.AddComponent<HomingMovement>();
-        homingMovement.Initialize(originalSpeed, Vector3.zero);
+        //var homingMovement = owner.gameObject.AddComponent<HomingMovement>();
+        //homingMovement.Initialize(originalSpeed, Vector3.zero);
 
         Transform playerTransform = GameObject.FindGameObjectWithTag(TagName.Planet).transform;
         if(playerTransform != null)

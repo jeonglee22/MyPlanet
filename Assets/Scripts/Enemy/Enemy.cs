@@ -73,7 +73,6 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         OnLifeTimeOverEvent -= SpawnManager.Instance.OnEnemyDied;
 
         Destroy(pattern);
-        Destroy(movement);
         pattern = null;
         movement = null;
     }
@@ -231,26 +230,27 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     {
         if(movement == null)
         {
-            switch (moveType)
-            {
-                case MoveType.Straight:
-                    movement = gameObject.AddComponent<StraightDownMovement>();
-                    break;
-                case MoveType.Homing:
-                    movement = gameObject.AddComponent<HomingMovement>();
-                    break;
-                case MoveType.Chase:
-                    break;
-            }
+            movement = gameObject.AddComponent<EnemyMovement>();
         }
 
-        movement.Initialize(moveSpeed, Vector3.down);
-
-        if(movement is StraightDownMovement straightDownMovement)
+        IMovement movementComponent;
+        switch (moveType)
         {
-            straightDownMovement.SetSpawnPointIndex(spawnPointIndex);
+            case MoveType.StraightDown:
+                movementComponent = new StraightDownMovement();
+                break;
+            case MoveType.Homing:
+                movementComponent = new HomingMovement();
+                break;
+            case MoveType.Chase:
+                movementComponent = new ChaseMovement();
+                break;
+            default:
+                movementComponent = new StraightDownMovement();
+                break;
         }
-        //movement.Initialize(1f, Vector3.down);
+
+        movement.Initialize(moveSpeed, spawnPointIndex, movementComponent);
     }
 
     private void AddPatternComponent(int grade, int patternId)
@@ -265,9 +265,6 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
             case 0:
                 pattern = gameObject.AddComponent<NormalPattern>();
                 break;
-            case 1:
-                pattern = gameObject.AddComponent<HomingPattern>();
-                break;
             case 10:
                 pattern = gameObject.AddComponent<SimpleShotPattern>();
                 break;
@@ -275,6 +272,11 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
                 pattern = gameObject.AddComponent<NormalPattern>();
                 break;
         }
+    }
+
+    public void OnPatternLineTrigger()
+    {
+        movement?.OnPatternLine();
     }
 
     //test
