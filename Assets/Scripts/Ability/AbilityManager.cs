@@ -30,7 +30,7 @@ public class AbilityManager : MonoBehaviour
         abilityDict.Add((int)AbilityId.FixedPanetration, new FixedPanetrationUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.FixedPanetration).SpecialEffectValue));
         abilityDict.Add((int)AbilityId.Slow, new ParalyzeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Slow).SpecialEffectValue));
         abilityDict.Add((int)AbilityId.CollisionSize, new HItSizeUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.CollisionSize).SpecialEffectValue));
-        // abilityDict.Add((int)AbilityId.Chain, new AttackSpeedAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Chain).SpecialEffectValue));
+        abilityDict.Add((int)AbilityId.Chain, new ChainUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Chain).SpecialEffectValue));
         abilityDict.Add((int)AbilityId.Explosion, new ExplosionAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Explosion).SpecialEffectValue));
         abilityDict.Add((int)AbilityId.Pierce, new PierceUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Pierce).SpecialEffectValue));
         abilityDict.Add((int)AbilityId.Split, new SplitUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Split).SpecialEffectValue));
@@ -51,8 +51,8 @@ public class AbilityManager : MonoBehaviour
 
         var index = Random.Range(0, count);
         var keys = new List<int>(abilityDict.Keys);
-        return (int)AbilityId.Split;
-        // return keys[index];
+        // return (int)AbilityId.Chain;
+        return keys[index];
     }
 
     public static IAbility GetAbility(int id)

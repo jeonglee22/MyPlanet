@@ -18,6 +18,7 @@ public static class ObjectName
     public static readonly string Enemy = "EnemySample";
     public static readonly string ProjectilePrefab = "Projectile_Sample";
     public static readonly string Projectile = "Projectile";
+    public static readonly string ChainEffect = "ChainEffect";
 }
 
 public enum AbilityId

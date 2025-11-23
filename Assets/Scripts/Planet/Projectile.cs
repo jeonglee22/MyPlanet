@@ -126,7 +126,7 @@ public class Projectile : MonoBehaviour
     {
         if (other.gameObject.CompareTag(TagName.Planet) || other.gameObject.CompareTag(TagName.Projectile)
             || other.gameObject.CompareTag(TagName.DropItem) || other.gameObject.CompareTag(TagName.PatternLine)
-            || other.gameObject.CompareTag(TagName.CenterStone))
+            || other.gameObject.CompareTag(TagName.CenterStone) || currentPierceCount <= 0)
         {
             return;
         }
@@ -148,7 +148,7 @@ public class Projectile : MonoBehaviour
         }
     }
     
-    private float CalculateTotalDamage(float enemyDef)
+    public float CalculateTotalDamage(float enemyDef)
     {
         Debug.Log(damage);
         var totalEnemyDef = enemyDef * (1 - RatePanetration / 100f) - FixedPanetration;
