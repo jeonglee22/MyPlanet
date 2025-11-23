@@ -56,6 +56,7 @@ public enum ExecutionTrigger
 {
     OnPatternLine,
     OnInterval,
+    Immediate,
 }
 
 public enum MoveType
