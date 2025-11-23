@@ -142,7 +142,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
 
 
-        AddMovementComponent((MoveType)data.MoveType, spawnPointIndex);
+        AddMovementComponent(data.MoveType, spawnPointIndex);
 
         AddPatternComponent(data.EnemyGrade, patternId);
 
@@ -226,29 +226,14 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         }
     }
 
-    private void AddMovementComponent(MoveType moveType, int spawnPointIndex)
+    private void AddMovementComponent(int moveType, int spawnPointIndex)
     {
         if(movement == null)
         {
             movement = gameObject.AddComponent<EnemyMovement>();
         }
 
-        IMovement movementComponent;
-        switch (moveType)
-        {
-            case MoveType.StraightDown:
-                movementComponent = new StraightDownMovement();
-                break;
-            case MoveType.Homing:
-                movementComponent = new HomingMovement();
-                break;
-            case MoveType.Chase:
-                movementComponent = new ChaseMovement();
-                break;
-            default:
-                movementComponent = new StraightDownMovement();
-                break;
-        }
+        IMovement movementComponent = MovementManager.Instance.GetMovement(moveType);
 
         movement.Initialize(moveSpeed, spawnPointIndex, movementComponent);
     }
