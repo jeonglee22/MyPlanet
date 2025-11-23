@@ -29,7 +29,9 @@ public static class DataTableManager
             LoadTableAsync<EnemyTable>(DataTableIds.Enemy),
             LoadTableAsync<CombineTable>(DataTableIds.Combine),
             LoadTableAsync<WaveTable>(DataTableIds.Wave),
-            LoadTableAsync<ProjectileTable>(DataTableIds.Projectile)
+            LoadTableAsync<ProjectileTable>(DataTableIds.Projectile),
+            LoadTableAsync<RandomAbilityTable>(DataTableIds.RandomAbility),
+            LoadTableAsync<RandomAbilityGroupTable>(DataTableIds.RandomAbilityGroup),
         };
 
         await UniTask.WhenAll(tasks);
@@ -79,6 +81,22 @@ public static class DataTableManager
         get
         {
             return Get<ProjectileTable>(DataTableIds.Projectile);
+        }
+    }
+
+    public static RandomAbilityTable RandomAbilityTable
+    {
+        get
+        {
+            return Get<RandomAbilityTable>(DataTableIds.RandomAbility);
+        }
+    }
+
+    public static RandomAbilityGroupTable RandomAbilityGroupTable
+    {
+        get
+        {
+            return Get<RandomAbilityGroupTable>(DataTableIds.RandomAbilityGroup);
         }
     }
     

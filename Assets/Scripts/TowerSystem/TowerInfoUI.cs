@@ -117,7 +117,7 @@ public class TowerInfoUI : PopUpUI
 
     private float CalculateAbilityUpgradeValue(int abilityId, int count, float baseValue)
     {
-        var ability = AbilityManager.Instance.GetAbility(abilityId);
+        var ability = AbilityManager.GetAbility(abilityId);
 
         if (count == 0 || ability == null) return baseValue;
 
@@ -281,19 +281,19 @@ public class TowerInfoUI : PopUpUI
             // Attack(base + ability + amp)
             float baseDamage = baseProj.Attack;
             float ampDamage = buffedProj.Attack;
-            float finalDamage = CalculateEachAbility(1102001, abilities, ampDamage);
+            float finalDamage = CalculateEachAbility((int)AbilityId.AttackDamage, abilities, ampDamage);
             SetStatText(damageValueText, baseDamage, finalDamage, "0.00");
 
             // Fixed Penetration
             float baseFixedPen = baseProj.FixedPenetration;
             float ampFixedPen = buffedProj.FixedPenetration;
-            float finalFixedPen = CalculateEachAbility(1102006, abilities, ampFixedPen);
+            float finalFixedPen = CalculateEachAbility((int)AbilityId.FixedPanetration, abilities, ampFixedPen);
             SetStatText(fixedPenetrationValueText, baseFixedPen, finalFixedPen, "0.00");
 
             // Percent Penetration
             float baseRatePen = baseProj.RatePenetration;
             float ampRatePen = buffedProj.RatePenetration;
-            float finalRatePen = CalculateEachAbility(1102005, abilities, ampRatePen);
+            float finalRatePen = CalculateEachAbility((int)AbilityId.PercentPenetration, abilities, ampRatePen);
             SetStatText(percentPenetrationValueText, baseRatePen, finalRatePen, "0.00", "%");
 
             // Proejctile Count
@@ -314,7 +314,7 @@ public class TowerInfoUI : PopUpUI
             // Hitbox Size
             float baseSize = baseProj.CollisionSize;
             float ampSize = buffedProj.CollisionSize;
-            float finalSize = CalculateEachAbility(1102004, abilities, ampSize);
+            float finalSize = CalculateEachAbility((int)AbilityId.CollisionSize, abilities, ampSize);
             SetStatText(projectileSizeValueText, baseSize, finalSize, "0.00");
         }
         else
@@ -337,7 +337,7 @@ public class TowerInfoUI : PopUpUI
             return;
         }
 
-        var ability = AbilityManager.Instance.GetAbility(abilities[0]);
+        var ability = AbilityManager.GetAbility(abilities[0]);
         SetText(abilityExplainText, ability?.ToString() ?? "no ability");
     }
 

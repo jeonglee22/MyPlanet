@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public enum AbilityApplyType
@@ -10,38 +11,38 @@ public enum AbilityApplyType
 
 public class AbilityManager : MonoBehaviour
 {
-    private Dictionary<int, IAbility> abilityDict;
-    public Dictionary<int, IAbility> AbilityDict => abilityDict;
+    private static Dictionary<int, IAbility> abilityDict;
+    public static Dictionary<int, IAbility> AbilityDict => abilityDict;
 
-    private static AbilityManager instance;
-    public static AbilityManager Instance => instance;
+    public static bool IsInitialized => abilityDict != null;
 
-    private void Awake()
+    private async UniTaskVoid Start()
     {
-        if (instance != null)
-        {
-            Destroy(this);
-            return;
-        }
+        await UniTask.WaitUntil(() => DataTableManager.IsInitialized);
 
-        instance = this;
         abilityDict = new Dictionary<int, IAbility>();
         
         // abilityDict.Add(1, new AccelationUpgradeAbility());
         // abilityDict.Add(2, new SpeedUpgradeAbility());
-
-        abilityDict.Add(1011001, new AttackSpeedAbility());
-
-        abilityDict.Add(1102001, new AttackUpgradeAbility());
-        abilityDict.Add(1102006, new FixedPanetrationUpgradeAbility());
-        abilityDict.Add(1102005, new RatePanetrationUpgradeAbility());
-        abilityDict.Add(1102004, new HItSizeUpgradeAbility());
-
-        abilityDict.Add(1104001, new ParalyzeAbility());
-        abilityDict.Add(1104002, new ExplosionAbility());
+        abilityDict.Add((int)AbilityId.AttackDamage, new AttackUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.AttackDamage).SpecialEffectValue));
+        abilityDict.Add((int)AbilityId.AttackSpeed, new AttackSpeedAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.AttackSpeed).SpecialEffectValue));
+        abilityDict.Add((int)AbilityId.PercentPenetration, new RatePanetrationUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.PercentPenetration).SpecialEffectValue));
+        abilityDict.Add((int)AbilityId.FixedPanetration, new FixedPanetrationUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.FixedPanetration).SpecialEffectValue));
+        abilityDict.Add((int)AbilityId.Slow, new ParalyzeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Slow).SpecialEffectValue));
+        abilityDict.Add((int)AbilityId.CollisionSize, new HItSizeUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.CollisionSize).SpecialEffectValue));
+        // abilityDict.Add((int)AbilityId.Chain, new AttackSpeedAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Chain).SpecialEffectValue));
+        abilityDict.Add((int)AbilityId.Explosion, new ExplosionAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Explosion).SpecialEffectValue));
+        abilityDict.Add((int)AbilityId.Pierce, new PierceUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Pierce).SpecialEffectValue));
+        abilityDict.Add((int)AbilityId.Split, new SplitUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Split).SpecialEffectValue));
+        abilityDict.Add((int)AbilityId.ProjectileCount, new ProjectileCountUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.ProjectileCount).SpecialEffectValue));
+        // abilityDict.Add((int)AbilityId.TargetCount, new AttackSpeedAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.TargetCount).SpecialEffectValue));
+        // abilityDict.Add((int)AbilityId.Hitscan, new AttackSpeedAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Hitscan).SpecialEffectValue));
+        // abilityDict.Add((int)AbilityId.Homing, new AttackSpeedAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Homing).SpecialEffectValue));
+        abilityDict.Add((int)AbilityId.Duration, new DurationUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Duration).SpecialEffectValue));
+        
     }
 
-    public int GetRandomAbility()
+    public static int GetRandomAbility()
     {
         var count = abilityDict.Count;
 
@@ -50,13 +51,14 @@ public class AbilityManager : MonoBehaviour
 
         var index = Random.Range(0, count);
         var keys = new List<int>(abilityDict.Keys);
-        return keys[index];
+        return (int)AbilityId.Split;
+        // return keys[index];
     }
 
-    public IAbility GetAbility(int id)
+    public static IAbility GetAbility(int id)
     {
         if (abilityDict.ContainsKey(id))
-            return abilityDict[id];
+            return abilityDict[id].Copy();
         
         return null;
     }

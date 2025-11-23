@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class HItSizeUpgradeAbility : PassiveAbility
 {
-    public HItSizeUpgradeAbility()
+    public HItSizeUpgradeAbility(float amount)
     {
-        upgradeAmount = 1.5f;
+        upgradeAmount = amount / 100f;
         abilityType = AbilityApplyType.Rate;
     }
 
@@ -37,6 +37,11 @@ public class HItSizeUpgradeAbility : PassiveAbility
 
     public override string ToString()
     {
-        return $"Hit\nSize\n{(upgradeAmount - 1f) * 100}%\nUp!!";
+        return $"Hit\nSize\n{upgradeAmount * 100f}%\nUp!!";
+    }
+
+    public override IAbility Copy()
+    {
+        return new HItSizeUpgradeAbility(upgradeAmount * 100);
     }
 }
