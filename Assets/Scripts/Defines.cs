@@ -83,6 +83,7 @@ public static class DataTableIds
     public static readonly string Projectile = "ProjectileTable";
     public static readonly string RandomAbility = "RandomAbilityTable";
     public static readonly string RandomAbilityGroup = "RandomAbilityGroupTable";
+    public const string AttackTower = "AttackTower";
 }
 
 public static class Variables

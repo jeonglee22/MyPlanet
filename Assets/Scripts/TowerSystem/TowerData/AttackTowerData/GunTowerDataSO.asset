@@ -10,12 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f393b03df1280264f80673f7546c2fa3, type: 3}
-  m_Name: SniperTower
+  m_Name: GunTowerDataSO
   m_EditorClassIdentifier: 
-  rangeData: {fileID: 11400000, guid: a5bfb12a4bd0a724ab1fe7f16c8e9ef2, type: 2}
-  targetPriority: {fileID: 11400000, guid: d0c4118f256d65841a942724a0ae56ec, type: 2}
-  towerId: Sniper Tower
-  fireRate: 1
+  towerIdInt: 1000001
+  towerId: "\uAD8C\uCD1D \uD0C0\uC6CC"
+  fireType: 0
+  fireRate: 2.5
+  rangeData: {fileID: 11400000, guid: 4e74692171eec9f47aaba9f61037aeb2, type: 2}
+  Accuracy: 90
+  grouping: 0
   projectileCount: 1
-  hitRate: 95
-  spreadAccuracy: 0
+  projectileIdFromTable: 1100001
+  randomAbilityGroupId: 201001
+  targetPriority: {fileID: 11400000, guid: c6675dc07f4d21445ac9cca7c57c7a82, type: 2}
