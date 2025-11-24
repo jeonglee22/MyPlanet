@@ -263,13 +263,13 @@ public class TowerInfoUI : PopUpUI
         SetStatText(fireRateValueText, baseFireRate, finalFireRate, "0.00");
 
         //Hit Rate
-        float baseHitRate = attackTowerData.hitRate;
+        float baseHitRate = attackTowerData.Accuracy;
         float finalHitRate = attackTower.FinalHitRate;
         SetStatText(hitRateValueText, baseHitRate, finalHitRate, "0.00", "%");
 
         //Spread Accuracy
         if (spreadAccuracyValueText != null)
-            spreadAccuracyValueText.text = attackTowerData.spreadAccuracy.ToString("0.00") + "%";
+            spreadAccuracyValueText.text = attackTowerData.grouping.ToString("0.00") + "%";
         //----------------------------------------------------------
 
         // Right panel----------------------------------------------

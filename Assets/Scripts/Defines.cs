@@ -10,6 +10,7 @@ public static class TagName
     public static readonly string CenterStone = "CenterStone";
     public static readonly string PatternLine = "PatternLine";
     public static readonly string ProjectilePoolManager = "ProjectilePoolManager";
+    public static readonly string MainCanvas = "MainCanvas";
 }
 
 public static class ObjectName
@@ -84,6 +85,7 @@ public static class DataTableIds
     public static readonly string Projectile = "ProjectileTable";
     public static readonly string RandomAbility = "RandomAbilityTable";
     public static readonly string RandomAbilityGroup = "RandomAbilityGroupTable";
+    public const string AttackTower = "AttackTower";
 }
 
 public static class Variables
