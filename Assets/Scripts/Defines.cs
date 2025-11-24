@@ -83,6 +83,9 @@ public static class DataTableIds
     public static readonly string RandomAbility = "RandomAbilityTable";
     public static readonly string RandomAbilityGroup = "RandomAbilityGroupTable";
     public const string AttackTower = "AttackTower";
+    public const string BuffTower = "BuffTowerTable";
+    public const string SpecialEffectCombination = "SpecialEffectCombinationTable";
+    public const string SpecialEffect = "SpecialEffectTable";
 }
 
 public static class Variables

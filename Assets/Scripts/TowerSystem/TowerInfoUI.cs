@@ -356,8 +356,6 @@ public class TowerInfoUI : PopUpUI
             return;
         }
 
-        if (nameText != null) nameText.text = ampData.AmplifierId;
-
         SetText(rangeValueText, ampData.AmplifierType.ToString());
         SetText(fireRateValueText, ampData.TargetMode.ToString());
         SetText(hitRateValueText, ampData.FixedBuffedSlotCount.ToString());
