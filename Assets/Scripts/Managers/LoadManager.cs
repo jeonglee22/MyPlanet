@@ -9,14 +9,17 @@ public class LoadManager : MonoBehaviour
 
     private static Dictionary<string, GameObject> loadedGamePrefabs = new Dictionary<string, GameObject>();
 
-    private async UniTaskVoid Start()
+    public async UniTask LoadGamePrefabAsync(string labelName)
     {
         try
         {
-            GameObject chainPrefab = await Addressables.LoadAssetAsync<GameObject>(ObjectName.ChainEffect).ToUniTask();
-            loadedGamePrefabs.Add(ObjectName.ChainEffect, chainPrefab);
+            var prefabLoaded = await Addressables.LoadAssetsAsync<GameObject>(labelName).ToUniTask();
+            foreach (var prefab in prefabLoaded)
+            {
+                loadedGamePrefabs.Add(prefab.name, prefab);
+            }
         }
-        catch(System.Exception)
+        catch (System.Exception)
         {
         }
     }
