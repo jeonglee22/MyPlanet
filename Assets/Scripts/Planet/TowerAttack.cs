@@ -68,7 +68,6 @@ public class TowerAttack : MonoBehaviour
     //-------------------------------------------------------
 
     //Apply Buff Version Projectile Data SO------------------
-    //private int projectileId = 1100003; //test
     private ProjectileData currentProjectileData; //base projectile data from Data Table
     private ProjectileData addBuffProjectileData; //making runtime once
     public ProjectileData BaseProjectileData => currentProjectileData;

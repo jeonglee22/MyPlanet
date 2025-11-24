@@ -19,11 +19,7 @@ public class AttackTowerSyncEditor
         var table = new AttackTowerTable();
         await table.LoadAsync(DataTableIds.AttackTower);
 
-        if (table == null || table.Rows == null || table.Rows.Count == 0)
-        {
-            Debug.LogError("AttackTowerTable 로드 실패 혹은 데이터가 비어 있습니다.");
-            return;
-        }
+        if (table == null || table.Rows == null || table.Rows.Count == 0) return;
 
         //Find TowerDataSO In Project
         string[] guids = AssetDatabase.FindAssets("t:TowerDataSO");
@@ -54,7 +50,7 @@ public class AttackTowerSyncEditor
             updateCount++;
         }
         AssetDatabase.SaveAssets();
-        Debug.Log($"[AttackTowerSync] 동기화 완료. 갱신된 TowerDataSO 개수: {updateCount}");
+        //Debug.Log($"[AttackTowerSync] 동기화 완료. 갱신된 TowerDataSO 개수: {updateCount}");
     }
 }
 #endif

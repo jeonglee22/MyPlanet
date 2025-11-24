@@ -33,14 +33,6 @@ public class AttackTowerTable : DataTable
         var list = await LoadCSVAsync<AttackTowerRow>(textAsset.text);
 
         Rows.AddRange(list);
-
-        foreach (var row in list)
-        {
-            if (!rowById.TryAdd(row.AttackTower_Id, row))
-            {
-                Debug.LogError($"AttackTowerTable: 키 중복 AttackTower_Id = {row.AttackTower_Id}");
-            }
-        }
     }
 
     public AttackTowerRow GetById(int id)
@@ -49,8 +41,6 @@ public class AttackTowerTable : DataTable
         {
             return row;
         }
-
-        Debug.LogError($"AttackTowerTable: ID={id} 를 찾을 수 없습니다.");
         return null;
     }
 }
