@@ -32,6 +32,9 @@ public static class DataTableManager
             LoadTableAsync<RandomAbilityTable>(DataTableIds.RandomAbility),
             LoadTableAsync<RandomAbilityGroupTable>(DataTableIds.RandomAbilityGroup),
             LoadTableAsync<AttackTowerTable>(DataTableIds.AttackTower),
+            LoadTableAsync<BuffTowerTable>(DataTableIds.BuffTower),
+            LoadTableAsync<SpecialEffectCombinationTable>(DataTableIds.SpecialEffectCombination),
+            LoadTableAsync<SpecialEffectTable>(DataTableIds.SpecialEffect),
         };
 
         await UniTask.WhenAll(tasks);
@@ -94,6 +97,29 @@ public static class DataTableManager
     public static AttackTowerTable AttackTowerTable
     {
         get { return Get<AttackTowerTable>(DataTableIds.AttackTower); }
+    }
+    public static BuffTowerTable BuffTowerTable
+    {
+        get
+        {
+            return Get<BuffTowerTable>(DataTableIds.BuffTower);
+        }
+    }
+
+    public static SpecialEffectCombinationTable SpecialEffectCombinationTable
+    {
+        get
+        {
+            return Get<SpecialEffectCombinationTable>(DataTableIds.SpecialEffectCombination);
+        }
+    }
+
+    public static SpecialEffectTable SpecialEffectTable
+    {
+        get
+        {
+            return Get<SpecialEffectTable>(DataTableIds.SpecialEffect);
+        }
     }
 
     public static T Get<T>(string id) where T : DataTable

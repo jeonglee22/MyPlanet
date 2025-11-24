@@ -48,7 +48,7 @@ public class TowerAttack : MonoBehaviour
     public float BasicFireRate => towerData.fireRate;
     public float BasicHitRate => towerData.Accuracy;
     public float FinalHitRate => towerData.Accuracy * hitRadiusBuffMul;
-    public float HitRateBuffMultiplier => fireRateBuffMul;
+    public float HitRateBuffMultiplier => hitRateBuffMul;
 
 
     //projectile Count---------------------------------------
@@ -187,6 +187,7 @@ public class TowerAttack : MonoBehaviour
             foreach (var abilityId in abilities)
             {
                 var ability = AbilityManager.GetAbility(abilityId);
+                if (ability == null) continue;
                 ability.ApplyAbility(projectile.gameObject);
                 projectile.abilityAction += ability.ApplyAbility;
                 projectile.abilityRelease += ability.RemoveAbility;
@@ -224,6 +225,7 @@ public class TowerAttack : MonoBehaviour
         foreach (var abilityId in abilities)
         {
             var ability = AbilityManager.GetAbility(abilityId);
+            if (ability == null) continue;
             // ability.Setting(projectile.gameObject);
             // ability.ApplyAbility(projectile.gameObject);
             ability.ApplyAbility(projectile.gameObject);
@@ -241,7 +243,6 @@ public class TowerAttack : MonoBehaviour
             accelerationBuffAdd = 0f;
             projectileCountBuffAdd = 0;
 
-            //not YET(2025-11-19 19:07)
             hitRadiusBuffMul = 1f;
             percentPenetrationBuffMul = 1f;
             fixedPenetrationBuffAdd = 0f;
@@ -250,45 +251,40 @@ public class TowerAttack : MonoBehaviour
 
             return;
         }
-        else
-        {
-            damageBuffMul += amp.DamageBuff;
-            fireRateBuffMul *= amp.FireRateBuff;
-            accelerationBuffAdd *= amp.AccelerationBuff;
-            projectileCountBuffAdd += amp.ProjectileCountBuff;
-
-            //not yet_20251119 19:07
-            hitRadiusBuffMul += amp.HitRadiusBuff;
-            percentPenetrationBuffMul = amp.PercentPenetrationBuff;
-            fixedPenetrationBuffAdd = amp.FixedPenetrationBuff;
-            targetNumberBuffAdd += amp.TargetNumberBuff;
-            hitRateBuffMul *= amp.HitRateBuff;
-        }
+        //Accumulate Buff Data
+        damageBuffMul += amp.DamageBuff;
+        fireRateBuffMul *= amp.FireRateBuff;
+        accelerationBuffAdd += amp.AccelerationBuff;
+        projectileCountBuffAdd += amp.ProjectileCountBuff;
+        hitRadiusBuffMul += amp.HitRadiusBuff;
+        percentPenetrationBuffMul *= amp.PercentPenetrationBuff;
+        fixedPenetrationBuffAdd += amp.FixedPenetrationBuff;
+        targetNumberBuffAdd += amp.TargetNumberBuff;
+        hitRateBuffMul *= amp.HitRateBuff;
     }
 
     private ProjectileData GetBuffedProjectileData() //making runtime once
     {
-        if (currentProjectileData==null) return null;
+        if (currentProjectileData == null) return null;
 
         addBuffProjectileData = currentProjectileData.Clone();
 
-        //Base Projectile Data (Not YET_ 20251117 14:38)------------------------
         float finalTargetNumber = currentProjectileData.TargetNum + targetNumberBuffAdd;
         addBuffProjectileData.TargetNum = Mathf.Max(1, finalTargetNumber);
-        //---------------------------------------------
+
         addBuffProjectileData.CollisionSize = currentProjectileData.CollisionSize * hitRadiusBuffMul;
 
-        //Penetration Buff
         addBuffProjectileData.FixedPenetration = currentProjectileData.FixedPenetration + fixedPenetrationBuffAdd;
         addBuffProjectileData.RatePenetration = currentProjectileData.RatePenetration * percentPenetrationBuffMul;
 
-        //Buffed Projectile Data ----------------------
-        //(Damage, Acceleration)
         addBuffProjectileData.Attack = currentProjectileData.Attack * damageBuffMul;
         addBuffProjectileData.ProjectileAddSpeed = currentProjectileData.ProjectileAddSpeed + accelerationBuffAdd;
-        addBuffProjectileData.AttackType = currentProjectileData.AttackType == newProjectileAttackType ? currentProjectileData.AttackType : newProjectileAttackType;
+
+        addBuffProjectileData.AttackType = currentProjectileData.AttackType == newProjectileAttackType
+            ? currentProjectileData.AttackType
+            : newProjectileAttackType;
         currentProjectileData.AttackType = addBuffProjectileData.AttackType;
-        //---------------------------------------------
+
         return addBuffProjectileData;
     }
 }
