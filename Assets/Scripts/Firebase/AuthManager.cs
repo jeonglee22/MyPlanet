@@ -1,0 +1,124 @@
+using System;
+using Cysharp.Threading.Tasks;
+using Firebase.Auth;
+using Unity.Android.Gradle.Manifest;
+using UnityEngine;
+
+public class AuthManager : MonoBehaviour
+{
+    private static AuthManager instance;
+    public static AuthManager Instance => instance;
+
+    private FirebaseAuth auth;
+    private FirebaseUser currentUser;
+    private bool isInitialized = false;
+    public bool IsInitialized => isInitialized;
+
+    public FirebaseUser CurrentUser => currentUser;
+    public string UserId => currentUser != null ? currentUser.UserId : string.Empty;
+    public string UserEmail => currentUser != null ? currentUser.Email : string.Empty;
+    public bool IsSignedIn => currentUser != null;
+
+    private void Awake()
+    {
+        if(instance == null)
+        {
+            instance = this;
+        }
+    }
+
+    private async UniTaskVoid Start()
+    {
+        await FireBaseInitializer.Instance.WaitInitialization();
+
+        auth = FirebaseAuth.DefaultInstance;
+        auth.StateChanged += OnAuthStateChanged;
+
+        currentUser = auth.CurrentUser;
+
+        isInitialized = true;
+    }
+    
+    private void OnDestroy()
+    {
+        if (instance == this)
+        {
+            instance = null;
+        }
+        auth.StateChanged -= OnAuthStateChanged;
+    }
+
+    private void OnAuthStateChanged(object sender, EventArgs args)
+    {
+        if (auth.CurrentUser != currentUser) {
+            bool signedIn = currentUser != auth.CurrentUser && auth.CurrentUser != null;
+
+            if (!signedIn && currentUser != null) 
+            {
+                Debug.Log("Signed out " + currentUser.UserId);
+            }
+
+            currentUser = auth.CurrentUser;
+
+            if (signedIn) 
+            {
+                Debug.Log("Signed in " + currentUser.UserId);
+            }
+        }
+    }
+
+    public async UniTask<bool> SignInAnonymousAsync()
+    {
+        try
+        {
+            var authResult = await auth.SignInAnonymouslyAsync().AsUniTask();
+            currentUser = authResult.User;
+
+            return true;
+        }
+        catch (System.Exception ex)
+        {
+            Debug.Log($"Signed in Anonymous Error: {ex.Message}");
+            return false;
+        }
+    }
+
+    public async UniTask<bool> CreateAccountWithEmailAsync()
+    {
+        try
+        {
+            
+
+            return true;
+        }
+        catch (System.Exception ex)
+        {
+            Debug.Log($"Signed in Anonymous Error: {ex.Message}");
+            return false;
+        }
+    }
+
+    public async UniTask<bool> SignInWithEmailAsync()
+    {
+        try
+        {
+            
+
+            return true;
+        }
+        catch (System.Exception ex)
+        {
+            Debug.Log($"Signed in Anonymous Error: {ex.Message}");
+            return false;
+        }
+    }
+
+    public async UniTask SignOutAsync()
+    {
+        if(auth != null && currentUser != null)
+        {
+            auth.SignOut();
+            currentUser = null;
+        }
+    }
+}
