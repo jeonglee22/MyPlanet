@@ -51,6 +51,21 @@ public class EnemySpawner : MonoBehaviour
         return enemy;
     }
 
+    private Enemy CreateChildEnemy(int enemyId, Vector3 position, Vector3 direction, ScaleData scaleData, IMovement movementComponent)
+    {
+        Enemy enemy = objectPoolManager.Get(enemyId);
+        if (enemy == null)
+        {
+            return null;
+        }
+
+        enemy.transform.position = position;
+        enemy.Spawner = this;
+
+        enemy.InitializeAsChild(currentTableData, direction, enemyId, objectPoolManager, scaleData, movementComponent);
+        return enemy;
+    }
+
     void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
@@ -113,6 +128,8 @@ public class EnemySpawner : MonoBehaviour
 
     public Enemy SpawnEnemyWithScale(int enemyId, Vector3 spawnPosition, ScaleData scaleData)
     {
+        PreparePool(enemyId);
+
         currentTableData = DataTableManager.EnemyTable.Get(enemyId);
         if(currentTableData == null)
         {
@@ -120,5 +137,10 @@ public class EnemySpawner : MonoBehaviour
         }
 
         return CreateEnemy(enemyId, spawnPosition, Vector3.down, scaleData);
+    }
+
+    public Enemy SpawnEnemyAsChild(int enemyId, Vector3 spawnPosition, ScaleData scaleData, IMovement movementComponent)
+    {
+        return CreateChildEnemy(enemyId, spawnPosition, Vector3.down, scaleData, movementComponent);
     }
 }

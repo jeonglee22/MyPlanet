@@ -10,4 +10,5 @@ public interface IPattern
     public void Execute();
     public bool CanExecute();
     public void Reset();
+    public void PatternUpdate();
 }

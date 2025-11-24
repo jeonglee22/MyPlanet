@@ -49,6 +49,8 @@ public class PatternExecutor : MonoBehaviour
 
         foreach (var pattern in patterns)
         {
+            pattern.PatternUpdate();
+
             if (pattern.CanExecute())
             {
                 pattern.Execute();

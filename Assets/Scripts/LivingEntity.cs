@@ -34,7 +34,7 @@ public class LivingEntity : MonoBehaviour, IDamagable
         }
     }
 
-    protected virtual void Die()
+    public virtual void Die()
     {
         IsDead = true;
         OnDeathEvent?.Invoke();

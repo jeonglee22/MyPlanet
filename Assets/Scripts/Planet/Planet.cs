@@ -189,7 +189,7 @@ public class Planet : LivingEntity
         ResetColorAsync(0.2f, colorResetCts.Token).Forget();
     }
     
-    protected override void Die()
+    public override void Die()
     {
         base.Die();
         

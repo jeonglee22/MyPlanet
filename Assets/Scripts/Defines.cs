@@ -20,6 +20,7 @@ public static class ObjectName
     public static readonly string ProjectilePrefab = "Projectile_Sample";
     public static readonly string Projectile = "Projectile";
     public static readonly string ChainEffect = "ChainEffect";
+    public static readonly string MeteorChild = "MeteorChild";
 }
 
 public enum AbilityId
@@ -65,6 +66,7 @@ public enum MoveType
     StraightDown,
     Homing,
     Chase,
+    FollowParent,
 }
 
 public enum PatternIds
