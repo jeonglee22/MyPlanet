@@ -1,13 +1,6 @@
 using System.Threading;
 using UnityEngine;
 
-public enum ExecutionTrigger
-{
-    None,
-    OnPatternLine,
-    OnInterval,
-}
-
 public abstract class EnemyPattern : MonoBehaviour
 {
     protected Enemy owner;
@@ -21,7 +14,7 @@ public abstract class EnemyPattern : MonoBehaviour
     private float lastExecuteTime;
     private bool hasExecuted; //one time execute check
 
-    public virtual void Initialize(Enemy enemy, EnemyMovement movement, EnemyTableData enemyData, ExecutionTrigger trigger = ExecutionTrigger.None, float interval = 0f)
+    public virtual void Initialize(Enemy enemy, EnemyMovement movement, EnemyTableData enemyData, ExecutionTrigger trigger, float interval = 0f)
     {
         owner = enemy;
         this.movement = movement;
@@ -68,6 +61,8 @@ public abstract class EnemyPattern : MonoBehaviour
         {
             Execute();
             hasExecuted = true;
+
+            owner?.OnPatternLineTrigger();
         }
     }
 

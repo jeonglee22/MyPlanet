@@ -5,9 +5,11 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class MeteorClusterPattern : MovementPattern
+public class MeteorClusterPattern
 {
+    /*
     private PatternSpawner spawner;
+    public override int PatternId => (int)PatternIds.MeteorCluster;
 
     private int meteorCount;
     private bool isSpawning;
@@ -39,7 +41,7 @@ public class MeteorClusterPattern : MovementPattern
         }
     }
 
-    public override void Initialize(Enemy enemy, EnemyMovement movement, EnemyTableData enemyData, ExecutionTrigger trigger = ExecutionTrigger.None, float interval = 0f)
+    public override void Initialize(Enemy enemy, EnemyMovement movement, EnemyTableData enemyData, ExecutionTrigger trigger, float interval = 0f)
     {
         base.Initialize(enemy, movement, enemyData, trigger, interval);
 
@@ -190,8 +192,8 @@ public class MeteorClusterPattern : MovementPattern
             Destroy(movement);
         }
 
-        var homingMovement = owner.gameObject.AddComponent<HomingMovement>();
-        homingMovement.Initialize(originalSpeed, Vector3.zero);
+        //var homingMovement = owner.gameObject.AddComponent<HomingMovement>();
+        //homingMovement.Initialize(originalSpeed, Vector3.zero);
 
         Transform playerTransform = GameObject.FindGameObjectWithTag(TagName.Planet).transform;
         if(playerTransform != null)
@@ -224,4 +226,5 @@ public class MeteorClusterPattern : MovementPattern
     {
         returnAllPatterns();
     }
+    */
 }

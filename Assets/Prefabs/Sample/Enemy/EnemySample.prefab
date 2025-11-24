@@ -14,6 +14,8 @@ GameObject:
   - component: {fileID: 8250970014078032464}
   - component: {fileID: 4592135020993677256}
   - component: {fileID: 6242256096719299974}
+  - component: {fileID: -609195503171963458}
+  - component: {fileID: 5324873093789901520}
   m_Layer: 0
   m_Name: EnemySample
   m_TagString: Enemy
@@ -156,6 +158,32 @@ MonoBehaviour:
   - {fileID: 7868635946703768277, guid: ee7d656b900243d409db3ae78ca6a484, type: 3}
   baseColor: {r: 1, g: 0, b: 0, a: 1}
   hitColor: {r: 1, g: 1, b: 1, a: 1}
+--- !u!114 &-609195503171963458
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 440825599972160978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1492a972a91721b41b4ed1b74a25cccd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 5
+  isDebuff: 0
+--- !u!114 &5324873093789901520
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 440825599972160978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96078d24bef632d438617473de12c9c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &4807889224969300244
 PrefabInstance:
   m_ObjectHideFlags: 0
