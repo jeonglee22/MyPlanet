@@ -10,12 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f393b03df1280264f80673f7546c2fa3, type: 3}
-  m_Name: GatlingTower
+  m_Name: ShotGunTowerDataSO
   m_EditorClassIdentifier: 
-  rangeData: {fileID: 11400000, guid: 4ae0686c6b8df5944b266e504e9fec64, type: 2}
-  targetPriority: {fileID: 11400000, guid: a54b0a7f690fb6a4db8a6657e3504744, type: 2}
-  towerId: ' Gatling Tower'
+  towerIdInt: 1000002
+  towerId: "\uC0F7\uAC74 \uD0C0\uC6CC"
+  fireType: 0
   fireRate: 1
-  projectileCount: 1
-  hitRate: 80
-  spreadAccuracy: 80
+  rangeData: {fileID: 11400000, guid: 4e74692171eec9f47aaba9f61037aeb2, type: 2}
+  Accuracy: 95
+  grouping: 50
+  projectileCount: 20
+  projectileIdFromTable: 1100004
+  randomAbilityGroupId: 201004
+  targetPriority: {fileID: 0}

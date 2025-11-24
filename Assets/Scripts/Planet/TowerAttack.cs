@@ -46,8 +46,8 @@ public class TowerAttack : MonoBehaviour
     private float hitRateBuffMul = 1f;
 
     public float BasicFireRate => towerData.fireRate;
-    public float BasicHitRate => towerData.hitRate;
-    public float FinalHitRate => towerData.hitRate*hitRadiusBuffMul;
+    public float BasicHitRate => towerData.Accuracy;
+    public float FinalHitRate => towerData.Accuracy * hitRadiusBuffMul;
     public float HitRateBuffMultiplier => fireRateBuffMul;
 
 
@@ -68,7 +68,7 @@ public class TowerAttack : MonoBehaviour
     //-------------------------------------------------------
 
     //Apply Buff Version Projectile Data SO------------------
-    private int projectileId = 1100003; //test
+    //private int projectileId = 1100003; //test
     private ProjectileData currentProjectileData; //base projectile data from Data Table
     private ProjectileData addBuffProjectileData; //making runtime once
     public ProjectileData BaseProjectileData => currentProjectileData;
@@ -101,8 +101,9 @@ public class TowerAttack : MonoBehaviour
     public void SetTowerData(TowerDataSO data)
     {
         towerData = data;
+        if (towerData == null) return;
         //Connect Data Table To baseProjectileData(=currentProjectileData) 
-        currentProjectileData = DataTableManager.ProjectileTable.Get(projectileId);
+        currentProjectileData = DataTableManager.ProjectileTable.Get(towerData.projectileIdFromTable);
         //Connect Tower Data
         towerData.projectileType = currentProjectileData;
         //Set Projectile Count -> From Tower Data SO (NOT Data Table)
