@@ -89,3 +89,10 @@ public static class Variables
 {
     public static int Stage {get; set;} = 1;
 }
+
+public static class AddressLabel
+{
+    public static readonly string Prefab = "Prefab";
+    public static readonly string PoolObject = "PoolObject";
+    public static readonly string PatternProjectile = "PatternProjectile";
+}

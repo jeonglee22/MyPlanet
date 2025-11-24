@@ -10,7 +10,7 @@ public class GameManager : MonoBehaviour
     {
         LoadManagerInstance = loadManager;
 
-        await DataTableManager.InitializeAsync();
+        // await DataTableManager.InitializeAsync();
         
         //await loadManager.TestLoadEnemy();
         await WaveManager.Instance.InitializeStage(Variables.Stage);

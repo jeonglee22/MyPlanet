@@ -4,6 +4,7 @@ using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.AddressableAssets;
+using System.Threading.Tasks;
 
 public class SceneControlManager : MonoBehaviour
 {
@@ -32,10 +33,13 @@ public class SceneControlManager : MonoBehaviour
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private async UniTaskVoid Start()
     {
         Debug.Log(loadingPanelObject == null);
         loadingPanel = Instantiate(instance.loadingPanelObject, GameObject.FindWithTag(TagName.MainCanvas).transform);
+
+        await FireBaseInitializer.Instance.WaitInitialization();
+
         loadingPanel.SetActive(false);
 
         currentSceneName = SceneManager.GetActiveScene().name;
@@ -52,15 +56,13 @@ public class SceneControlManager : MonoBehaviour
     public async UniTask LoadScene(string sceneName, List<UniTask> additionalTasks = null)
     {
         loadingPanel.SetActive(true);
-        Time.timeScale = 0f;
+        // Time.timeScale = 0f;
 
         var sceneLoad = Addressables.LoadSceneAsync("LoadingScene").ToUniTask();
 
-        var tasks = new List<UniTask>() { sceneLoad, WaitSceneLoadMinimun(2000) };
+        var tasks = new List<UniTask>() { sceneLoad, WaitSceneLoadMinimun(1000) };
 
         await UniTask.WhenAll(tasks);
-
-        await UniTask.WaitForSeconds(1f);
 
         Debug.Log("LoadingScene Loaded");
 
@@ -69,11 +71,9 @@ public class SceneControlManager : MonoBehaviour
 
         await UniTask.WhenAll(tasks);
 
-        await UniTask.WaitForSeconds(1f);
-
         var newSceneLoad = Addressables.LoadSceneAsync(sceneName).ToUniTask();
 
-        tasks = new List<UniTask>() { newSceneLoad, WaitSceneLoadMinimun(2000) };
+        tasks = new List<UniTask>() { newSceneLoad, WaitSceneLoadMinimun(1000) };
 
         await UniTask.WhenAll(tasks);
 
@@ -81,7 +81,7 @@ public class SceneControlManager : MonoBehaviour
 
         currentSceneName = sceneName;
         loadingPanel.SetActive(false);
-        Time.timeScale = 1f;
+        // Time.timeScale = 1f;
     }
 
     public async UniTask WaitSceneLoadMinimun(float waitTime)
