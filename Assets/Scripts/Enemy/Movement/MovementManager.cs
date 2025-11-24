@@ -23,6 +23,7 @@ public class MovementManager : MonoBehaviour
         movementDict.Add((int)MoveType.StraightDown, () => new StraightDownMovement());
         movementDict.Add((int)MoveType.Homing, () => new HomingMovement());
         movementDict.Add((int)MoveType.Chase, () => new ChaseMovement());
+        movementDict.Add((int)MoveType.FollowParent, () => new FollowParentMovement());
     }
 
     public IMovement GetMovement(int moveType)

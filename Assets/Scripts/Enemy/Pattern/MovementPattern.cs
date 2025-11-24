@@ -41,6 +41,8 @@ public abstract class MovementPattern : IPattern
                 return executor.IsPatternLine && !isExecuteOneTime;
             case ExecutionTrigger.OnInterval:
                 return Time.time - lastExecuteTime >= TriggetValue;
+            case ExecutionTrigger.Immediate:
+                return !isExecuteOneTime;
         }
 
         return false;
@@ -64,5 +66,10 @@ public abstract class MovementPattern : IPattern
     {
         lastExecuteTime = Time.time;
         isExecuteOneTime = false;
+    }
+
+    public void PatternUpdate()
+    {
+        
     }
 }
