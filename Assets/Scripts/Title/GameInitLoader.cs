@@ -9,7 +9,7 @@ public class GameInitLoader : MonoBehaviour
     private async UniTaskVoid Start()
     {
         await DataTableManager.InitializeAsync();
-        // await loadManager.LoadGamePrefabAsync(AddressLabel.Prefab);
+        await loadManager.LoadGamePrefabAsync(AddressLabel.Prefab);
         // await loadManager.LoadGamePrefabAsync(AddressLabel.PoolObject);
     }
 }

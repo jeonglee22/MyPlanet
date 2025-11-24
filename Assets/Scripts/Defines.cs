@@ -22,6 +22,13 @@ public static class ObjectName
     public static readonly string ChainEffect = "ChainEffect";
 }
 
+public static class SceneName
+{
+    public static readonly string LoadingScene = "LoadingScene";
+    public static readonly string LoginScene = "LoginScene";
+    public static readonly string BattleScene = "BattleScene";
+}
+
 public enum AbilityId
 {
     AttackDamage = 200001,

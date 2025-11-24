@@ -58,9 +58,9 @@ public class SceneControlManager : MonoBehaviour
         loadingPanel.SetActive(true);
         // Time.timeScale = 0f;
 
-        var sceneLoad = Addressables.LoadSceneAsync("LoadingScene").ToUniTask();
+        var sceneLoad = Addressables.LoadSceneAsync(SceneName.LoadingScene).ToUniTask();
 
-        var tasks = new List<UniTask>() { sceneLoad, WaitSceneLoadMinimun(1000) };
+        var tasks = new List<UniTask>() { sceneLoad, WaitSceneLoadMinimun(500) };
 
         await UniTask.WhenAll(tasks);
 
@@ -73,7 +73,7 @@ public class SceneControlManager : MonoBehaviour
 
         var newSceneLoad = Addressables.LoadSceneAsync(sceneName).ToUniTask();
 
-        tasks = new List<UniTask>() { newSceneLoad, WaitSceneLoadMinimun(1000) };
+        tasks = new List<UniTask>() { newSceneLoad, WaitSceneLoadMinimun(500) };
 
         await UniTask.WhenAll(tasks);
 
@@ -86,6 +86,6 @@ public class SceneControlManager : MonoBehaviour
 
     public async UniTask WaitSceneLoadMinimun(float waitTime)
     {
-        await UniTask.Delay(TimeSpan.FromMilliseconds(waitTime));
+        await UniTask.Delay(TimeSpan.FromMilliseconds(waitTime), DelayType.UnscaledDeltaTime);
     }
 }

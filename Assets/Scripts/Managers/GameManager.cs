@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour
         LoadManagerInstance = loadManager;
 
         // await DataTableManager.InitializeAsync();
+        // await loadManager.LoadGamePrefabAsync(AddressLabel.Prefab);
         
         //await loadManager.TestLoadEnemy();
         await WaveManager.Instance.InitializeStage(Variables.Stage);

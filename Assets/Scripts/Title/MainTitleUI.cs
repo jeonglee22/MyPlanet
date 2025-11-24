@@ -20,6 +20,8 @@ public class MainTitleUI : MonoBehaviour
 
         await UniTask.WaitUntil(() => canvasManager.IsInitialized);
 
+        canvasManager.UpdateUIDText();
+
         gameStartButton.onClick.AddListener(() => OnStartGameButtonClicked().Forget());
         logInOutButton.onClick.AddListener(() => OnLogInOutButtonClicked());
 #if UNITY_EDITOR
@@ -40,12 +42,14 @@ public class MainTitleUI : MonoBehaviour
             AuthManager.Instance.SignOut();
             logInOutButton.GetComponentInChildren<TextMeshProUGUI>().text = "Log In";
             canvasManager.UpdateUIDText();
+            gameStartButton.interactable = false;
         }
         else
         {
             canvasManager.SwitchToTargetPopUp(MainTitleCanvasManager.PopupName.LogIn);
             logInOutButton.GetComponentInChildren<TextMeshProUGUI>().text = "Log Out";
             canvasManager.UpdateUIDText();
+            gameStartButton.interactable = true;
         }
     }
 
@@ -68,6 +72,6 @@ public class MainTitleUI : MonoBehaviour
     private async UniTaskVoid OnStartGameButtonClicked()
     {
         Debug.Log("Game Start Button Clicked");
-        await SceneControlManager.Instance.LoadScene("LoginScene");
+        await SceneControlManager.Instance.LoadScene(SceneName.BattleScene);
     }
 }

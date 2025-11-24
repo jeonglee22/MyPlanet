@@ -13,15 +13,11 @@ public class PatternManager : MonoBehaviour
     {
         if (instance != null)
         {
-            Destroy(this);
+            Destroy(gameObject);
             return;
         }
 
         instance = this;
-    }
-
-    private void Start()
-    {
         patternDict = new Dictionary<int, Func<IPattern>>();
 
         //patternDict.Add((int)PatternIds.MeteorCluster, () => new MeteorClusterPattern());

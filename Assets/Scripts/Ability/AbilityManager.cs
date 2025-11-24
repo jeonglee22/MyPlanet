@@ -51,7 +51,7 @@ public class AbilityManager : MonoBehaviour
 
         var index = Random.Range(0, count);
         var keys = new List<int>(abilityDict.Keys);
-        // return (int)AbilityId.Homing;
+        // return (int)AbilityId.Explosion;
         return keys[index];
     }
 
