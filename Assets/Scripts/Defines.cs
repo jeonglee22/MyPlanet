@@ -23,6 +23,13 @@ public static class ObjectName
     public static readonly string MeteorChild = "MeteorChild";
 }
 
+public static class SceneName
+{
+    public static readonly string LoadingScene = "LoadingScene";
+    public static readonly string LoginScene = "LoginScene";
+    public static readonly string BattleScene = "BattleScene";
+}
+
 public enum AbilityId
 {
     AttackDamage = 200001,
@@ -91,4 +98,11 @@ public static class DataTableIds
 public static class Variables
 {
     public static int Stage {get; set;} = 1;
+}
+
+public static class AddressLabel
+{
+    public static readonly string Prefab = "Prefab";
+    public static readonly string PoolObject = "PoolObject";
+    public static readonly string PatternProjectile = "PatternProjectile";
 }

@@ -1,7 +1,6 @@
 using System;
 using Cysharp.Threading.Tasks;
 using Firebase.Auth;
-using Unity.Android.Gradle.Manifest;
 using UnityEngine;
 
 public class AuthManager : MonoBehaviour
@@ -18,6 +17,8 @@ public class AuthManager : MonoBehaviour
     public string UserId => currentUser != null ? currentUser.UserId : string.Empty;
     public string UserEmail => currentUser != null ? currentUser.Email : string.Empty;
     public bool IsSignedIn => currentUser != null;
+    private string nickName = string.Empty;
+    public string UserNickName => currentUser != null ? nickName : string.Empty;
 
     private void Awake()
     {
@@ -45,7 +46,10 @@ public class AuthManager : MonoBehaviour
         {
             instance = null;
         }
-        auth.StateChanged -= OnAuthStateChanged;
+        if (auth != null)
+        {
+            auth.StateChanged -= OnAuthStateChanged;
+        }
     }
 
     private void OnAuthStateChanged(object sender, EventArgs args)
@@ -76,44 +80,47 @@ public class AuthManager : MonoBehaviour
 
             return true;
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             Debug.Log($"Signed in Anonymous Error: {ex.Message}");
             return false;
         }
     }
 
-    public async UniTask<bool> CreateAccountWithEmailAsync()
+    public async UniTask<bool> CreateAccountWithEmailAsync(string email, string password, string nickName)
     {
         try
         {
-            
+            var authResult = await auth.CreateUserWithEmailAndPasswordAsync(email, password).AsUniTask();
+            currentUser = authResult.User;
+            this.nickName = nickName;
 
             return true;
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             Debug.Log($"Signed in Anonymous Error: {ex.Message}");
             return false;
         }
     }
 
-    public async UniTask<bool> SignInWithEmailAsync()
+    public async UniTask<bool> SignInWithEmailAsync(string email, string password)
     {
         try
         {
-            
+            var authResult = await auth.SignInWithEmailAndPasswordAsync(email, password).AsUniTask();
+            currentUser = authResult.User;
 
             return true;
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             Debug.Log($"Signed in Anonymous Error: {ex.Message}");
             return false;
         }
     }
 
-    public async UniTask SignOutAsync()
+    public void SignOut()
     {
         if(auth != null && currentUser != null)
         {
