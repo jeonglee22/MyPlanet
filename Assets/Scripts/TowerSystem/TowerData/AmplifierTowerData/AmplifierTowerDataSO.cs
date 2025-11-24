@@ -74,7 +74,7 @@ public class AmplifierTowerDataSO : ScriptableObject
         hitRateBuff = 1f;
     }
 
-    public void RefreshFromTables()
+    public void RefreshFromTables() //Runtime
     {
         if (!DataTableManager.IsInitialized) return;
 
@@ -93,20 +93,48 @@ public class AmplifierTowerDataSO : ScriptableObject
         var combo = DataTableManager.SpecialEffectCombinationTable.Get(specialEffectCombinationId);
         if (combo == null) return;
 
-        ApplyCombinationFromTables(combo); //Accumulate Effect 1,2,3
+        ApplyCombinationFromTables(combo, DataTableManager.SpecialEffectTable);
     }
 
-    private void ApplyCombinationFromTables(SpecialEffectCombinationData combo)
+    public void RefreshFromTables( //Editor
+        BuffTowerTable buffTable,
+        SpecialEffectCombinationTable comboTable,
+        SpecialEffectTable effectTable)
     {
-        ApplySingleEffect(combo.SpecialEffect1_ID, combo.SpecialEffect1Value);
-        ApplySingleEffect(combo.SpecialEffect2_ID, combo.SpecialEffect2Value);
-        ApplySingleEffect(combo.SpecialEffect3_ID, combo.SpecialEffect3Value);
+        if (buffTable == null || comboTable == null || effectTable == null) return;
+
+        var buffData = buffTable.Get(buffTowerId);
+        if (buffData == null) return;
+
+        buffTowerName = buffData.BuffTowerName;
+        slotNum = Mathf.Max(1, buffData.SlotNum);
+        specialEffectCombinationId = buffData.SpecialEffectCombination_ID;
+        randomAbilityGroupId = buffData.RandomAbilityGroup_ID;
+
+        ResetBuffValuesFromTables();
+
+        if (specialEffectCombinationId <= 0) return;
+
+        var combo = comboTable.Get(specialEffectCombinationId);
+        if (combo == null) return;
+
+        ApplyCombinationFromTables(combo, effectTable);
     }
 
-    private void ApplySingleEffect(int effectId, float value)
+    private void ApplyCombinationFromTables(
+        SpecialEffectCombinationData combo,
+        SpecialEffectTable effectTable)
+    {
+        ApplySingleEffect(effectTable, combo.SpecialEffect1_ID, combo.SpecialEffect1Value);
+        ApplySingleEffect(effectTable, combo.SpecialEffect2_ID, combo.SpecialEffect2Value);
+        ApplySingleEffect(effectTable, combo.SpecialEffect3_ID, combo.SpecialEffect3Value);
+    }
+
+    private void ApplySingleEffect(SpecialEffectTable effectTable, int effectId, float value)
     {
         if (effectId == 0) return;
-        var effect = DataTableManager.SpecialEffectTable.Get(effectId);
+
+        var effect = effectTable.Get(effectId);
         if (effect == null) return;
 
         var statKind = SpecialEffectMeta.GetStatKind(effectId);

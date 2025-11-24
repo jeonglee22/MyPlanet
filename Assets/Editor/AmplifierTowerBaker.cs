@@ -8,7 +8,14 @@ public static class AmplifierTowerBaker
     [MenuItem("Tools/Amplifier/Bake All Amplifier Towers From Tables")]
     private static async void BakeAllAmplifiersFromTables()
     {
-        await DataTableManager.InitializeAsync();
+        var buffTable = new BuffTowerTable();
+        await buffTable.LoadAsync(DataTableIds.BuffTower);
+
+        var comboTable = new SpecialEffectCombinationTable();
+        await comboTable.LoadAsync(DataTableIds.SpecialEffectCombination);
+
+        var effectTable = new SpecialEffectTable();
+        await effectTable.LoadAsync(DataTableIds.SpecialEffect);
 
         string[] guids = AssetDatabase.FindAssets("t:AmplifierTowerDataSO");
         int bakeCount = 0;
@@ -19,7 +26,7 @@ public static class AmplifierTowerBaker
             var amp = AssetDatabase.LoadAssetAtPath<AmplifierTowerDataSO>(path);
             if (amp == null) continue;
 
-            amp.RefreshFromTables();
+            amp.RefreshFromTables(buffTable, comboTable, effectTable);
 
             EditorUtility.SetDirty(amp);
             bakeCount++;
@@ -33,7 +40,14 @@ public static class AmplifierTowerBaker
     [MenuItem("Tools/Amplifier/Bake Selected Amplifier(s) From Tables")]
     private static async void BakeSelectedAmplifiersFromTables()
     {
-        await DataTableManager.InitializeAsync();
+        var buffTable = new BuffTowerTable();
+        await buffTable.LoadAsync(DataTableIds.BuffTower);
+
+        var comboTable = new SpecialEffectCombinationTable();
+        await comboTable.LoadAsync(DataTableIds.SpecialEffectCombination);
+
+        var effectTable = new SpecialEffectTable();
+        await effectTable.LoadAsync(DataTableIds.SpecialEffect);
 
         Object[] selected = Selection.objects;
         int bakeCount = 0;
@@ -43,7 +57,7 @@ public static class AmplifierTowerBaker
             var amp = obj as AmplifierTowerDataSO;
             if (amp == null) continue;
 
-            amp.RefreshFromTables();
+            amp.RefreshFromTables(buffTable, comboTable, effectTable);
             EditorUtility.SetDirty(amp);
             bakeCount++;
         }

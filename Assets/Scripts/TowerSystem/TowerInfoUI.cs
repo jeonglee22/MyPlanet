@@ -210,30 +210,6 @@ public class TowerInfoUI : PopUpUI
         SetText(projectileNumberValueText, value);
         SetText(lifeTimeValueText, value);
         SetText(projectileSizeValueText, value);
-
-        //left panel_tower
-        towerIdValueText.color = Color.black;
-        // rangeTypeValueText.color = Color.black;
-        rangeValueText.color = Color.black;
-        // priorityTypeValueText.color = Color.black;
-        // priorityOrderValueText.color = Color.black;
-        fireRateValueText.color = Color.black;
-        hitRateValueText.color = Color.black;
-        spreadAccuracyValueText.color = Color.black;
-
-        //right panel_projectile
-        // projectileTypeValueText.color = Color.black;
-        // projectilePrefabValueText.color = Color.black;
-        // hitEffectValueText.color = Color.black;
-        damageValueText.color = Color.black;
-        fixedPenetrationValueText.color = Color.black;
-        percentPenetrationValueText.color = Color.black;
-        // speedValueText.color = Color.black;
-        // accelerationValueText.color = Color.black;
-        targetNumberValueText.color = Color.black;
-        projectileNumberValueText.color = Color.black;
-        lifeTimeValueText.color = Color.black;
-        projectileSizeValueText.color = Color.black;
     }
 
     private void FillAttackTowerInfo(int index, TowerAttack attackTower)
@@ -306,7 +282,7 @@ public class TowerInfoUI : PopUpUI
             float finalTargets = buffedProj.TargetNum;
             SetStatText(targetNumberValueText, baseTargets, finalTargets, "0");
 
-            // LifeTime (NOT YET 20251121 15:40)
+            // LifeTime
             float baseLifeTime = baseProj.RemainTime;
             float finalLifeTime = buffedProj.RemainTime;
             SetStatText(lifeTimeValueText, baseLifeTime, finalLifeTime, "0.00");
@@ -328,6 +304,7 @@ public class TowerInfoUI : PopUpUI
             SetText(projectileSizeValueText, "-");
         }
     }
+
     private void SetAbilityExplainForAttack(TowerAttack attackTower)
     {
         var abilities = attackTower.Abilities;
@@ -356,18 +333,60 @@ public class TowerInfoUI : PopUpUI
             return;
         }
 
-        SetText(rangeValueText, ampData.AmplifierType.ToString());
-        SetText(fireRateValueText, ampData.TargetMode.ToString());
-        SetText(hitRateValueText, ampData.FixedBuffedSlotCount.ToString());
-        SetText(spreadAccuracyValueText, ampData.OnlyAttackTower ? "Attack Only" : "All Towers");
+        if (nameText != null)
+        {
+            if (!string.IsNullOrEmpty(ampData.BuffTowerName))
+                nameText.text = ampData.BuffTowerName;
+            else
+                nameText.text = $"Amplifier {index}";
+        }
 
-        SetText(damageValueText, $"x{ampData.DamageBuff:0.00}");
-        SetText(fixedPenetrationValueText, $"x{ampData.FireRateBuff:0.00}");
-        SetText(percentPenetrationValueText, $"+{ampData.ProjectileCountBuff}");
-        SetText(targetNumberValueText, $"+{ampData.TargetNumberBuff}");
-        SetText(projectileNumberValueText, $"+{ampData.HitRadiusBuff:0.00}");
-        SetText(lifeTimeValueText, $"x{ampData.PercentPenetrationBuff:0.00}");
-        SetText(projectileSizeValueText, $"+{ampData.FixedPenetrationBuff:0.00}");
+        // 왼쪽 패널: 이름 / 타입 / 슬롯 수 / 타겟 종류
+        SetText(rangeValueText,
+            !string.IsNullOrEmpty(ampData.BuffTowerName)
+                ? ampData.BuffTowerName
+                : ampData.AmplifierType.ToString());
+
+        SetText(fireRateValueText, ampData.AmplifierType.ToString());
+        SetText(hitRateValueText, ampData.FixedBuffedSlotCount.ToString());
+        SetText(spreadAccuracyValueText,
+            ampData.OnlyAttackTower ? "공격 타워만" : "모든 타워");
+
+        // 오른쪽 패널: 수치들 (퍼센트/추가값 포맷 맞추기)
+
+        // 공격력% (DamageBuff: add, 0.4 -> +40%)
+        string dmgText = FormatPercentFromAdd(ampData.DamageBuff);
+        SetText(damageValueText, dmgText ?? "-");
+
+        // 공속% (FireRateBuff: mul, 1.2 -> +20%)
+        string fireRateText = FormatPercentFromMul(ampData.FireRateBuff);
+        SetText(fixedPenetrationValueText, fireRateText ?? "-");
+
+        // 투사체 수 +N
+        string projCountText = ampData.ProjectileCountBuff != 0
+            ? $"{ampData.ProjectileCountBuff:+0;-0}"
+            : "-";
+        SetText(percentPenetrationValueText, projCountText);
+
+        // 타겟 수 +N
+        string targetNumText = ampData.TargetNumberBuff != 0
+            ? $"{ampData.TargetNumberBuff:+0;-0}"
+            : "-";
+        SetText(targetNumberValueText, targetNumText);
+
+        // 히트 반경% (HitRadiusBuff: add, 0.25 -> +25%)
+        string hitRadiusText = FormatPercentFromAdd(ampData.HitRadiusBuff);
+        SetText(projectileNumberValueText, hitRadiusText ?? "-");
+
+        // 비율 관통력% (PercentPenetrationBuff: mul, 1.5 -> +50%)
+        string ratePenText = FormatPercentFromMul(ampData.PercentPenetrationBuff);
+        SetText(lifeTimeValueText, ratePenText ?? "-");
+
+        // 고정 관통 +N
+        string fixedPenText = !Mathf.Approximately(ampData.FixedPenetrationBuff, 0f)
+            ? $"{ampData.FixedPenetrationBuff:+0.##;-0.##}"
+            : "-";
+        SetText(projectileSizeValueText, fixedPenText);
     }
 
     private void SetAbilityExplainForAmplifier(TowerAmplifier amplifierTower)
@@ -385,6 +404,11 @@ public class TowerInfoUI : PopUpUI
 
         var sb = new StringBuilder();
 
+        // 이름
+        if (!string.IsNullOrEmpty(ampData.BuffTowerName))
+            sb.AppendLine($"이름: {ampData.BuffTowerName}");
+
+        // 버프 슬롯
         if (slots != null && slots.Count > 0)
         {
             sb.AppendLine($"버프 슬롯: {string.Join(", ", slots)}");
@@ -396,22 +420,22 @@ public class TowerInfoUI : PopUpUI
 
         var buffParts = new List<string>();
 
-        if (ampData.DamageBuff != 1f)
-            buffParts.Add($"공격력 x{ampData.DamageBuff:0.00}");
-        if (ampData.FireRateBuff != 1f)
-            buffParts.Add($"공속 x{ampData.FireRateBuff:0.00}");
+        if (!Mathf.Approximately(ampData.DamageBuff, 0f))
+            buffParts.Add($"공격력 {FormatPercentFromAdd(ampData.DamageBuff)}");
+        if (!Mathf.Approximately(ampData.FireRateBuff, 1f))
+            buffParts.Add($"공속 {FormatPercentFromMul(ampData.FireRateBuff)}");
         if (ampData.ProjectileCountBuff != 0)
-            buffParts.Add($"투사체 +{ampData.ProjectileCountBuff}");
+            buffParts.Add($"투사체 {ampData.ProjectileCountBuff:+0;-0}");
         if (ampData.TargetNumberBuff != 0)
-            buffParts.Add($"타겟수 +{ampData.TargetNumberBuff}");
-        if (ampData.HitRadiusBuff != 0f)
-            buffParts.Add($"히트 반경 +{ampData.HitRadiusBuff:0.00}");
-        if (ampData.PercentPenetrationBuff != 1f)
-            buffParts.Add($"관통률 x{ampData.PercentPenetrationBuff:0.00}");
-        if (ampData.FixedPenetrationBuff != 0f)
-            buffParts.Add($"고정 관통 +{ampData.FixedPenetrationBuff:0.00}");
-        if (ampData.HitRateBuff != 1f)
-            buffParts.Add($"명중률 x{ampData.HitRateBuff:0.00}");
+            buffParts.Add($"타겟 수 {ampData.TargetNumberBuff:+0;-0}");
+        if (!Mathf.Approximately(ampData.HitRadiusBuff, 0f))
+            buffParts.Add($"히트 반경 {FormatPercentFromAdd(ampData.HitRadiusBuff)}");
+        if (!Mathf.Approximately(ampData.PercentPenetrationBuff, 1f))
+            buffParts.Add($"관통률 {FormatPercentFromMul(ampData.PercentPenetrationBuff)}");
+        if (!Mathf.Approximately(ampData.FixedPenetrationBuff, 0f))
+            buffParts.Add($"고정 관통 {ampData.FixedPenetrationBuff:+0.##;-0.##}");
+        if (!Mathf.Approximately(ampData.HitRateBuff, 1f))
+            buffParts.Add($"명중률 {FormatPercentFromMul(ampData.HitRateBuff)}");
 
         if (buffParts.Count > 0)
         {
@@ -459,4 +483,19 @@ public class TowerInfoUI : PopUpUI
         if (projectileSizeLabelText != null) projectileSizeLabelText.text = "고정 관통 +";
     }
 
+    // 0.4 -> "+40%"
+    private string FormatPercentFromAdd(float add)
+    {
+        if (Mathf.Approximately(add, 0f)) return null;
+        float p = add * 100f;
+        return $"{p:+0.##;-0.##}%";
+    }
+
+    // 1.2 -> "+20%"
+    private string FormatPercentFromMul(float mul)
+    {
+        if (Mathf.Approximately(mul, 1f)) return null;
+        float p = (mul - 1f) * 100f;
+        return $"{p:+0.##;-0.##}%";
+    }
 }

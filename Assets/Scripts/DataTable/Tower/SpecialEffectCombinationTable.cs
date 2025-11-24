@@ -2,9 +2,11 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using CsvHelper.Configuration.Attributes;
 public class SpecialEffectCombinationData
 {
     public int SpecialEffectCombination_ID { get; set; }
+    [Ignore]
     public string Description { get; set; } //Explain Tower
     public int SpecialEffect1_ID { get; set; }
     public float SpecialEffect1Value { get; set; }
