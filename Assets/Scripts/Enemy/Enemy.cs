@@ -244,7 +244,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
         patternExecutor.Initialize(this);
 
-        List<int> patternIds = new List<int>{2001}; //test
+        List<int> patternIds = new List<int>{0}; //test
 
         foreach(var patternId in patternIds)
         {
