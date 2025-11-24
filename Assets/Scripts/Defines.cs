@@ -10,6 +10,7 @@ public static class TagName
     public static readonly string CenterStone = "CenterStone";
     public static readonly string PatternLine = "PatternLine";
     public static readonly string ProjectilePoolManager = "ProjectilePoolManager";
+    public static readonly string MainCanvas = "MainCanvas";
 }
 
 public static class ObjectName
