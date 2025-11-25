@@ -35,10 +35,13 @@ public class AbilityManager : MonoBehaviour
         abilityDict.Add((int)AbilityId.Pierce, new PierceUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Pierce).SpecialEffectValue));
         abilityDict.Add((int)AbilityId.Split, new SplitUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Split).SpecialEffectValue));
         abilityDict.Add((int)AbilityId.ProjectileCount, new ProjectileCountUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.ProjectileCount).SpecialEffectValue));
-        // abilityDict.Add((int)AbilityId.TargetCount, new AttackSpeedAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.TargetCount).SpecialEffectValue));
-        // abilityDict.Add((int)AbilityId.Hitscan, new AttackSpeedAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Hitscan).SpecialEffectValue));
         abilityDict.Add((int)AbilityId.Homing, new HomingUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Homing).SpecialEffectValue));
         abilityDict.Add((int)AbilityId.Duration, new DurationUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Duration).SpecialEffectValue));
+        
+        abilityDict.Add((int)AbilityId.TargetCount, new AttackUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.AttackDamage).SpecialEffectValue));
+        abilityDict.Add((int)AbilityId.Hitscan, new AttackUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.AttackDamage).SpecialEffectValue));
+        abilityDict.Add((int)AbilityId.Accuracy, new AttackUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.AttackDamage).SpecialEffectValue));
+        abilityDict.Add((int)AbilityId.AttackSpeedOneTarget, new AttackUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.AttackDamage).SpecialEffectValue));
         
     }
 

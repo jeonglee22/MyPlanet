@@ -47,6 +47,8 @@ public enum AbilityId
     Hitscan,
     Homing,
     Duration,
+    Accuracy,
+    AttackSpeedOneTarget,
 }
 
 public enum PrefabType
