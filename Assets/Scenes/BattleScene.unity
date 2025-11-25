@@ -533,11 +533,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6687394493264662134, guid: a3ba0402da80b294fbc9c7f3252f3bef, type: 3}
       propertyPath: m_ActionEvents.Array.data[1].m_ActionName
-      value: 'UI/UITouchPosition[/Device Simulator Touchscreen/primaryTouch/position]'
+      value: UI/UITouchPosition[/Device Simulator Touchscreen/primaryTouch/position]
       objectReference: {fileID: 0}
     - target: {fileID: 6687394493264662134, guid: a3ba0402da80b294fbc9c7f3252f3bef, type: 3}
       propertyPath: m_ActionEvents.Array.data[2].m_ActionName
-      value: 'UI/UIPressCheck[/Device Simulator Touchscreen/press]'
+      value: UI/UIPressCheck[/Device Simulator Touchscreen/press]
       objectReference: {fileID: 0}
     - target: {fileID: 6965101979763091209, guid: a3ba0402da80b294fbc9c7f3252f3bef, type: 3}
       propertyPath: m_IsActive
@@ -552,7 +552,7 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8387510778051826307, guid: a3ba0402da80b294fbc9c7f3252f3bef, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
+      propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: -2310514774154243031, guid: 9d545067f133f434bb4296a6d3e6f0ca, type: 3}
     m_RemovedComponents: []
@@ -703,23 +703,23 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1060066670136191017, guid: 4e8f4480959c9304c91fae63831304fe, type: 3}
     - target: {fileID: 7004810841361380358, guid: 798ad3db1a72670449d2bc191ce39170, type: 3}
-      propertyPath: 'spawnPoints.Array.data[0]'
+      propertyPath: spawnPoints.Array.data[0]
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 7004810841361380358, guid: 798ad3db1a72670449d2bc191ce39170, type: 3}
-      propertyPath: 'spawnPoints.Array.data[1]'
+      propertyPath: spawnPoints.Array.data[1]
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 7004810841361380358, guid: 798ad3db1a72670449d2bc191ce39170, type: 3}
-      propertyPath: 'spawnPoints.Array.data[2]'
+      propertyPath: spawnPoints.Array.data[2]
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 7004810841361380358, guid: 798ad3db1a72670449d2bc191ce39170, type: 3}
-      propertyPath: 'spawnPoints.Array.data[3]'
+      propertyPath: spawnPoints.Array.data[3]
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 7004810841361380358, guid: 798ad3db1a72670449d2bc191ce39170, type: 3}
-      propertyPath: 'spawnPoints.Array.data[4]'
+      propertyPath: spawnPoints.Array.data[4]
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 8310431769271838183, guid: 798ad3db1a72670449d2bc191ce39170, type: 3}
@@ -3640,7 +3640,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
     m_ActionId: 069954fb-d0cc-4e74-9cbb-0808a958788d
-    m_ActionName: 'UI/UIPressCheck[/Device Simulator Touchscreen/press]'
+    m_ActionName: UI/UIPressCheck[/Device Simulator Touchscreen/press]
   - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1488899773}
@@ -3656,7 +3656,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
     m_ActionId: 653474ff-24df-4d12-aa88-6cc21af0390f
-    m_ActionName: 'UI/UITouchPos[/Device Simulator Touchscreen/position]'
+    m_ActionName: UI/UITouchPos[/Device Simulator Touchscreen/position]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: UI
@@ -7253,6 +7253,63 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1001 &2053329781267974028
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 6510231616514775976, guid: 8842fcf62ad90ee4ea250c8ca5ad8c00, type: 3}
+      propertyPath: m_Name
+      value: VisibleTargetManager
+      objectReference: {fileID: 0}
+    - target: {fileID: 8093116750803543663, guid: 8842fcf62ad90ee4ea250c8ca5ad8c00, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8093116750803543663, guid: 8842fcf62ad90ee4ea250c8ca5ad8c00, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8093116750803543663, guid: 8842fcf62ad90ee4ea250c8ca5ad8c00, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8093116750803543663, guid: 8842fcf62ad90ee4ea250c8ca5ad8c00, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8093116750803543663, guid: 8842fcf62ad90ee4ea250c8ca5ad8c00, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8093116750803543663, guid: 8842fcf62ad90ee4ea250c8ca5ad8c00, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8093116750803543663, guid: 8842fcf62ad90ee4ea250c8ca5ad8c00, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8093116750803543663, guid: 8842fcf62ad90ee4ea250c8ca5ad8c00, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8093116750803543663, guid: 8842fcf62ad90ee4ea250c8ca5ad8c00, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8093116750803543663, guid: 8842fcf62ad90ee4ea250c8ca5ad8c00, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 8842fcf62ad90ee4ea250c8ca5ad8c00, type: 3}
 --- !u!224 &2081182976310034143
 RectTransform:
   m_ObjectHideFlags: 0
@@ -9189,7 +9246,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 19.6
+  m_fontSize: 20
   m_fontSizeBase: 15
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -11736,3 +11793,4 @@ SceneRoots:
   - {fileID: 961324329}
   - {fileID: 1488899774}
   - {fileID: 396343468}
+  - {fileID: 2053329781267974028}
