@@ -39,6 +39,8 @@ public class EnemyMovement : MonoBehaviour
             Debuff();
         }
 
+        ResetMovement();
+
         if (!CanMove || currentMovement == null)
         {
             return;
@@ -120,5 +122,15 @@ public class EnemyMovement : MonoBehaviour
     public void ResetSpeed()
     {
         moveSpeed = initMoveSpeed;
+    }
+
+    private void ResetMovement()
+    {
+        if(currentMovement != null && currentMovement.IsCompleted())
+        {
+            moveDirection = Vector3.zero;
+            isDirectionSet = false;
+            currentMovement = null;
+        }
     }
 }

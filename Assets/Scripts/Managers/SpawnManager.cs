@@ -21,6 +21,7 @@ public class SpawnManager : MonoBehaviour
     private Rect screenBounds;
     private Rect offSetBounds;
     public Rect ScreenBounds => screenBounds;
+    public Rect OffSetBounds => offSetBounds;
     private float offSet = 1f;
 
     private void Awake()
@@ -97,7 +98,7 @@ public class SpawnManager : MonoBehaviour
         }
     }
 
-    private EnemySpawner GetSpawner(int spawnerIndex)
+    public EnemySpawner GetSpawner(int spawnerIndex)
     {
         int index = spawnerIndex;
         if (spawnerIndex < 0 || spawnerIndex >= spawnPoints.Count)

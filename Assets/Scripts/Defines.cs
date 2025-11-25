@@ -74,6 +74,7 @@ public enum MoveType
     Homing,
     Chase,
     FollowParent,
+    DescendAndStopMovement,
 }
 
 public enum PatternIds
@@ -81,6 +82,7 @@ public enum PatternIds
     None = 0,
     MeteorCluster = 1001,
     SimpleShot = 2001,
+    MeteorClusterSummon = 3001,
 }
 
 public static class DataTableIds

@@ -16,4 +16,6 @@ public class StraightDownMovement : IMovement
     {
         
     }
+
+    public bool IsCompleted() => false;
 }

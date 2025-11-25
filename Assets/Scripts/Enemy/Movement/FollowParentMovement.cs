@@ -38,4 +38,6 @@ public class FollowParentMovement : IMovement
         localOffset = offset;
         isInitialized = true;
     }
+
+    public bool IsCompleted() => false;
 }
