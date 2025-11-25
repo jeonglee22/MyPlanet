@@ -206,6 +206,8 @@ public class TowerAttack : MonoBehaviour
     {
         var ability = AbilityManager.GetRandomAbility();
         abilities.Add(ability);
+        AbilityManager.GetAbility(ability)?.ApplyAbility(gameObject);
+        AbilityManager.GetAbility(ability)?.Setting(gameObject);
         // Debug.Log(ability);
     }
 

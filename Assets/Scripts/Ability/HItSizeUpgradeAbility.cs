@@ -15,7 +15,7 @@ public class HItSizeUpgradeAbility : PassiveAbility
         var projectile = gameObject.GetComponent<Projectile>();
         if (projectile != null)
         {
-            projectile.gameObject.transform.localScale *= upgradeAmount;
+            projectile.gameObject.transform.localScale += new Vector3(0.2f,0.2f,0.2f) * upgradeAmount;
         }
     }
 
@@ -26,7 +26,7 @@ public class HItSizeUpgradeAbility : PassiveAbility
         var projectile = gameObject.GetComponent<Projectile>();
         if (projectile != null)
         {
-            projectile.gameObject.transform.localScale /= upgradeAmount;
+            projectile.gameObject.transform.localScale -= new Vector3(0.2f,0.2f,0.2f) * upgradeAmount;
         }
     }
 
