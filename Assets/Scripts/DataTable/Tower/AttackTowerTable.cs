@@ -33,6 +33,15 @@ public class AttackTowerTable : DataTable
         var list = await LoadCSVAsync<AttackTowerRow>(textAsset.text);
 
         Rows.AddRange(list);
+
+        foreach (var row in list)
+        {
+            if (!rowById.TryAdd(row.AttackTower_Id, row))
+            {
+                Debug.LogError($"[AttackTowerTable] Duplicate Id: {row.AttackTower_Id}");
+            }
+        }
+        Debug.Log($"[AttackTowerTable] Loaded {Rows.Count} rows.");
     }
 
     public AttackTowerRow GetById(int id)
