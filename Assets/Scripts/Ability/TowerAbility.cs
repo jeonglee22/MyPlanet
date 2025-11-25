@@ -30,4 +30,9 @@ public class TowerAbility : IAbility
     {
         return new TowerAbility();
     }
+
+    public virtual void StackAbility(float amount)
+    {
+        upgradeAmount += amount;
+    }
 }

@@ -24,6 +24,7 @@ public class Projectile : MonoBehaviour , IDisposable
     private float currentLifeTime;
     public float hitRadius = 1f;
     public float acceleration ;
+    public int splitCount = 0;
 
     private ObjectPoolManager<ProjectileData, Projectile> objectPoolManager;
 
@@ -42,6 +43,7 @@ public class Projectile : MonoBehaviour , IDisposable
 
     private void OnDisable()
     {
+        abilityAction = null;
         trailRenderer.emitting = false;
         trailRenderer.Clear();
         trailRenderer.enabled = false;
@@ -49,6 +51,15 @@ public class Projectile : MonoBehaviour , IDisposable
 
     private void Update()
     {
+        if(isFinish)
+        {
+            Cancel();
+            abilityRelease?.Invoke(gameObject);
+            abilityRelease = null;
+            objectPoolManager.Return(poolKeyData, this);
+            return;
+        }
+        
         if (!isFinish && currentLifeTime < projectileData.RemainTime)
         {
             MoveProjectile();
@@ -56,6 +67,8 @@ public class Projectile : MonoBehaviour , IDisposable
         }
         else
         {
+            Debug.Log($"[Projectile] DESPAWN reason=isFinish:{isFinish}, life={currentLifeTime:0.00}/{projectileData.RemainTime:0.00}, obj={name}");
+
             Cancel();
             abilityRelease?.Invoke(gameObject);
             abilityRelease = null;
@@ -72,6 +85,7 @@ public class Projectile : MonoBehaviour , IDisposable
 
     private void Cancel()
     {
+        abilityAction = null;
         lifeTimeCts?.Cancel();
         lifeTimeCts?.Dispose();
         lifeTimeCts = new CancellationTokenSource();
@@ -149,13 +163,13 @@ public class Projectile : MonoBehaviour , IDisposable
         {
             abilityAction?.Invoke(other.gameObject);
             damagable.OnDamage(CalculateTotalDamage(enemy.Data.Defense));
-            abilityAction = null;
         }
 
         currentPierceCount--;
 
         if (currentPierceCount <= 0)
         {
+            abilityAction = null;
             isFinish = true;
         }
     }
@@ -184,5 +198,10 @@ public class Projectile : MonoBehaviour , IDisposable
         {
             currentTarget = enemy.transform;
         }
+    }
+
+    public void ForceFinish()
+    {
+        isFinish = true;
     }
 }

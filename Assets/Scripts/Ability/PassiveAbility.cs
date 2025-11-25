@@ -36,4 +36,9 @@ public class PassiveAbility : IAbility
     {
         return new PassiveAbility();
     }
+
+    public virtual void StackAbility(float amount)
+    {
+        upgradeAmount += amount;
+    }
 }

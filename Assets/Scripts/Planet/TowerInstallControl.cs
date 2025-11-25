@@ -287,7 +287,7 @@ public class TowerInstallControl : MonoBehaviour
         ChoosedData = null;
     }
 
-    private void OpenInfoUI(int index)
+    public void OpenInfoUI(int index)
     {
         if (IsReadyInstall) return;
 
@@ -327,5 +327,10 @@ public class TowerInstallControl : MonoBehaviour
     {
         if (planet == null) return null;
         return planet.GetAmplifierTower(index);
+    }
+
+    public void UpgradeMaxTowerCount()
+    {
+        maxTowerCount += 1;
     }
 }
