@@ -12,6 +12,8 @@ public abstract class MovementPattern : IPattern
     public ExecutionTrigger Trigger { get; protected set;}
     public float TriggerValue { get; protected set;}
 
+    protected PatternData patternData;
+
     protected float lastExecuteTime;
     protected bool isExecuteOneTime;
     protected float originalSpeed;
@@ -23,6 +25,8 @@ public abstract class MovementPattern : IPattern
         this.enemyData = enemyData;
         this.spawner = PatternSpawner.Instance;
         this.executor = enemy.GetComponent<PatternExecutor>();
+
+        patternData = enemy.CurrentPatternData;
 
         lastExecuteTime = Time.time;
         isExecuteOneTime = false;
@@ -72,4 +76,6 @@ public abstract class MovementPattern : IPattern
     {
         
     }
+
+    public PatternData GetPatternData() => patternData;
 }

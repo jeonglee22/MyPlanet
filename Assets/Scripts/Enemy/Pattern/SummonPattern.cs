@@ -67,6 +67,8 @@ public abstract class SummonPattern : IPattern
             return;
         }
 
+        Summon();
+
         lastExecuteTime = Time.time;
     }
 
@@ -82,4 +84,6 @@ public abstract class SummonPattern : IPattern
     }
 
     protected abstract void Summon();
+
+    public PatternData GetPatternData() => patternData;
 }

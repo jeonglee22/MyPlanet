@@ -82,7 +82,8 @@ public enum PatternIds
     None = 0,
     MeteorCluster = 1,
     SimpleShot = 2001,
-    MeteorClusterSummon = 4100001,
+    HomingMeteorClusterSummon = 4100001,
+    ChaseMeteorClusterSummon = 4100002,
 }
 
 public static class DataTableIds

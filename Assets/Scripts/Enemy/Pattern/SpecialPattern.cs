@@ -11,6 +11,8 @@ public abstract class SpecialPattern : IPattern
     public ExecutionTrigger Trigger { get; protected set;}
     public float TriggerValue { get; protected set;}
 
+    protected PatternData patternData;
+
     protected bool isExecuteOneTime;
 
     public virtual void Initialize(Enemy enemy, EnemyMovement movement, EnemyTableData data)
@@ -19,6 +21,8 @@ public abstract class SpecialPattern : IPattern
         this.movement = movement;
         this.enemyData = data;
         this.executor = enemy.GetComponent<PatternExecutor>();
+
+        patternData = enemy.CurrentPatternData;
 
         isExecuteOneTime = false;
     }
@@ -47,4 +51,6 @@ public abstract class SpecialPattern : IPattern
     {
         isExecuteOneTime = false;
     }
+
+    public PatternData GetPatternData() => patternData;
 }

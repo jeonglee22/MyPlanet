@@ -251,7 +251,12 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     {
         try
         {
+            if(data.EnemyGrade <= 2)
+            {
+                return;
+            }
             await UniTask.Delay(System.TimeSpan.FromSeconds(lifeTime), cancellationToken: token);
+            
             if(!token.IsCancellationRequested)
             {
                 OnLifeTimeOver();

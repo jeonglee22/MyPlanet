@@ -22,7 +22,8 @@ public class PatternManager : MonoBehaviour
 
         patternDict.Add((int)PatternIds.MeteorCluster, () => new MeteorClusterPattern());
         patternDict.Add((int)PatternIds.SimpleShot, () => new SimpleShotPattern());
-        patternDict.Add((int)PatternIds.MeteorClusterSummon, () => new MeteorClusterSummonPattern());
+        patternDict.Add((int)PatternIds.HomingMeteorClusterSummon, () => new MeteorClusterSummonPattern());
+        patternDict.Add((int)PatternIds.ChaseMeteorClusterSummon, () => new MeteorClusterSummonPattern());
     }
 
     public IPattern GetPattern(int patternId)

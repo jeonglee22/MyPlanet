@@ -17,11 +17,6 @@ public class MeteorClusterSummonPattern : SummonPattern
 
     public override void PatternUpdate()
     {
-        summonTimer += Time.deltaTime;
-        if(summonTimer >= TriggerValue)
-        {
-            Summon();
-            summonTimer = 0f;
-        }
+
     }
 }
