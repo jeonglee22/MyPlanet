@@ -89,8 +89,7 @@ public class PowerUpItemControlUI : MonoBehaviour
         while (abilities.Count < 3)
             {
                 int ability = DataTableManager.RandomAbilityGroupTable.GetRandomAbilityInGroup(abilityGroupId);
-                if ((!towerAbilities.Contains(ability) && DataTableManager.RandomAbilityTable.Get(ability).DuplicateType == 1)
-                    || (towerAbilities.Contains(ability) && DataTableManager.RandomAbilityTable.Get(ability).DuplicateType == 0))
+                if (!(towerAbilities.Contains(ability) && DataTableManager.RandomAbilityTable.Get(ability).DuplicateType == 1))
                 {
                     abilities.Add(ability);
                 }
@@ -121,6 +120,7 @@ public class PowerUpItemControlUI : MonoBehaviour
             towerCountUpgradeButton.gameObject.SetActive(false);
             newAbilityUpgradeButton.gameObject.SetActive(false);
             chooseTowerPanel.SetActive(false);
+            upgradeChooseUis.SetActive(false);
         }
     }
 
