@@ -6,23 +6,38 @@ public abstract class SummonPattern : IPattern
     protected EnemyMovement movement;
     protected EnemyTableData enemyData;
     protected PatternExecutor executor;
-
-    protected float lastExecuteTime;
-    protected bool isExecuteOneTime;
     
     public abstract int PatternId { get; }
     public ExecutionTrigger Trigger { get; protected set;}
     public float TriggetValue { get; protected set;} //Interval
+
+    protected PatternData patternData;
+    protected MinionSpawnData summonData;
+    protected EnemyTableData summonEnemyData;
+
+    protected float lastExecuteTime;
+    protected bool isExecuteOneTime;
 
     public void Initialize(Enemy enemy, EnemyMovement movement, EnemyTableData data)
     {
         owner = enemy;
         this.movement = movement;
         enemyData = data;
-        executor = enemy.GetComponent<PatternExecutor>();
+
+        patternData = owner.CurrentPatternData;
+        if(patternData != null)
+        {
+            summonData = DataTableManager.MinionSpawnTable.Get(patternData.Pattern_Id);
+            if(summonData != null)
+            {
+                summonEnemyData = DataTableManager.EnemyTable.Get(summonData.Enemy_Id);
+            }
+        }
 
         lastExecuteTime = Time.time;
         isExecuteOneTime = false;
+
+        TriggetValue = patternData.PatternValue;
     }
 
     public bool CanExecute()
@@ -47,14 +62,14 @@ public abstract class SummonPattern : IPattern
 
     public void Execute()
     {
+        if(owner?.Spawner == null)
+        {
+            return;
+        }
+
         Summon();
 
         lastExecuteTime = Time.time;
-
-        if(Trigger != ExecutionTrigger.OnInterval)
-        {
-            isExecuteOneTime = true;
-        }
     }
 
     public void PatternUpdate()

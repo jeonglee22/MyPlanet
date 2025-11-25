@@ -80,9 +80,9 @@ public enum MoveType
 public enum PatternIds
 {
     None = 0,
-    MeteorCluster = 1001,
+    MeteorCluster = 1,
     SimpleShot = 2001,
-    MeteorClusterSummon = 3001,
+    MeteorClusterSummon = 4100001,
 }
 
 public static class DataTableIds
@@ -92,6 +92,8 @@ public static class DataTableIds
     public static readonly string Combine = "CombineTable";
     public static readonly string Wave = "WaveTable";
     public static readonly string Projectile = "ProjectileTable";
+    public static readonly string Pattern = "PatternTable";
+    public static readonly string MinionSpawn = "MinionSpawnTable";
     public static readonly string RandomAbility = "RandomAbilityTable";
     public static readonly string RandomAbilityGroup = "RandomAbilityGroupTable";
     public const string AttackTower = "AttackTower";

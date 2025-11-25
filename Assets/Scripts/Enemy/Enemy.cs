@@ -7,6 +7,7 @@ using NUnit.Framework;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Pool;
+using UnityEngine.UIElements;
 
 public class Enemy : LivingEntity, ITargetable , IDisposable
 {
@@ -18,6 +19,9 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     private PatternExecutor patternExecutor;
     private EnemyTableData data;
     public EnemyTableData Data { get { return data; } }
+    public PatternData CurrentPatternData { get; private set; }
+
+    public ScaleData ScaleData { get; private set; }
 
     public Vector3 position => transform.position;
 
@@ -139,7 +143,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         if (damagable != null)
         {
             float damage = OnCollisionDamageCalculate?.Invoke() ?? attack;
-            damagable.OnDamage(attack);
+            damagable.OnDamage(damage);
 
             if(IsDead)
             {
@@ -184,6 +188,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         objectPoolManager = poolManager;
 
         data = enemyData;
+        ScaleData = scaleData;
         maxHealth = data.Hp * scaleData.HpScale;
         Health = maxHealth;
 
@@ -203,7 +208,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         StartLifeTime();
     }
 
-    public void InitializeAsChild(EnemyTableData enemyData, Vector3 targetDirection, int enemyId, ObjectPoolManager<int, Enemy> poolManager, ScaleData scaleData, IMovement movementComponent)
+    public void InitializeAsChild(EnemyTableData enemyData, Vector3 targetDirection, int enemyId, ObjectPoolManager<int, Enemy> poolManager, ScaleData scaleData, int moveType)
     {
         this.enemyId = enemyId;
         objectPoolManager = poolManager;
@@ -221,11 +226,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
         transform.localScale *= scaleData.PrefabScale;
 
-        if(movement == null)
-        {
-            movement = gameObject.AddComponent<EnemyMovement>();
-        }
-        movement.Initialize(moveSpeed, -1, movementComponent);
+        AddMovementComponent(moveType, -1);
 
         if(patternExecutor == null)
         {
@@ -319,11 +320,17 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
         patternExecutor.Initialize(this);
 
-        List<int> patternIds = new List<int>{0}; //test
-
-        foreach(var patternId in patternIds)
+        if(enemyData.PatternList == 0)
         {
-            IPattern pattern = PatternManager.Instance.GetPattern(patternId);
+            return;
+        }
+        List<PatternData> patterns = DataTableManager.PatternTable.GetPatternList(enemyData.PatternList);
+
+        foreach(var patternItem in patterns)
+        {
+            CurrentPatternData = patternItem;
+
+            IPattern pattern = PatternManager.Instance.GetPattern(patternItem.Pattern_Id);
             if(pattern != null)
             {
                 pattern.Initialize(this, movement, enemyData);

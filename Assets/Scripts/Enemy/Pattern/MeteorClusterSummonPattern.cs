@@ -2,17 +2,15 @@ using UnityEngine;
 
 public class MeteorClusterSummonPattern : SummonPattern
 {
-    public override int PatternId => (int)PatternIds.MeteorClusterSummon;
+    public override int PatternId => patternData.Pattern_Id;
 
-    private int summonEnemyId;
-    private IMovement summonMovement;
-    private ScaleData scaleData;
-    private ISpawnLocationProvide spawnLocationProvider;
-
-    
+    public MeteorClusterSummonPattern()
+    {
+        Trigger = ExecutionTrigger.OnInterval;
+    }
 
     protected override void Summon()
     {
-        throw new System.NotImplementedException();
+        owner.Spawner.SpawnEnemiesWithMovement(summonData.Enemy_Id, summonData.EnemyQuantity_1, owner.ScaleData, summonEnemyData.MoveType);
     }
 }

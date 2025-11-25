@@ -9,8 +9,8 @@ public class EnemySpawner : MonoBehaviour
 
     private ObjectPoolManager<int, Enemy> objectPoolManager = new ObjectPoolManager<int, Enemy>();
     [SerializeField] private bool collectionCheck = true;
-    [SerializeField] private int defaultPoolCapacity = 20;
-    [SerializeField] private int maxPoolSize = 100;
+    private int defaultPoolCapacity = 100;
+    private int maxPoolSize = 500;
 
     private float spawnRadius = 1f;
 
@@ -51,7 +51,7 @@ public class EnemySpawner : MonoBehaviour
         return enemy;
     }
 
-    private Enemy CreateChildEnemy(int enemyId, Vector3 position, Vector3 direction, ScaleData scaleData, IMovement movementComponent)
+    private Enemy CreateChildEnemy(int enemyId, Vector3 position, Vector3 direction, ScaleData scaleData, int moveType)
     {
         Enemy enemy = objectPoolManager.Get(enemyId);
         if (enemy == null)
@@ -62,7 +62,7 @@ public class EnemySpawner : MonoBehaviour
         enemy.transform.position = position;
         enemy.Spawner = this;
 
-        enemy.InitializeAsChild(currentTableData, direction, enemyId, objectPoolManager, scaleData, movementComponent);
+        enemy.InitializeAsChild(currentTableData, direction, enemyId, objectPoolManager, scaleData, moveType);
         return enemy;
     }
 
@@ -99,6 +99,10 @@ public class EnemySpawner : MonoBehaviour
         }
 
         GameObject prefab = GameManager.LoadManagerInstance.GetLoadedPrefab(enemyId);
+        if(prefab == null)
+        {
+            GameManager.LoadManagerInstance.LoadEnemyPrefabAsync(enemyId).Forget();
+        }
 
         if(prefab == null)
         {
@@ -139,8 +143,25 @@ public class EnemySpawner : MonoBehaviour
         return CreateEnemy(enemyId, spawnPosition, Vector3.down, scaleData);
     }
 
-    public Enemy SpawnEnemyAsChild(int enemyId, Vector3 spawnPosition, ScaleData scaleData, IMovement movementComponent)
+    public Enemy SpawnEnemyAsChild(int enemyId, Vector3 spawnPosition, ScaleData scaleData, int moveType)
     {
-        return CreateChildEnemy(enemyId, spawnPosition, Vector3.down, scaleData, movementComponent);
+        return CreateChildEnemy(enemyId, spawnPosition, Vector3.down, scaleData, moveType);
+    }
+
+    public void SpawnEnemiesWithMovement(int enemyId, int quantity, ScaleData scaleData, int moveType)
+    {
+        PreparePool(enemyId);
+
+        currentTableData = DataTableManager.EnemyTable.Get(enemyId);
+        if (currentTableData == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < quantity; i++)
+        {
+            Vector3 spawnPos = GetRandomPositionInCircle();
+            SpawnEnemyWithScale(enemyId, spawnPos, scaleData);
+        }
     }
 }

@@ -35,6 +35,8 @@ public static class DataTableManager
             LoadTableAsync<BuffTowerTable>(DataTableIds.BuffTower),
             LoadTableAsync<SpecialEffectCombinationTable>(DataTableIds.SpecialEffectCombination),
             LoadTableAsync<SpecialEffectTable>(DataTableIds.SpecialEffect),
+            LoadTableAsync<PatternTable>(DataTableIds.Pattern),
+            LoadTableAsync<MinionSpawnTable>(DataTableIds.MinionSpawn),
         };
 
         await UniTask.WhenAll(tasks);
@@ -119,6 +121,22 @@ public static class DataTableManager
         get
         {
             return Get<SpecialEffectTable>(DataTableIds.SpecialEffect);
+        }
+    }
+
+    public static PatternTable PatternTable
+    {
+        get
+        {
+            return Get<PatternTable>(DataTableIds.Pattern);
+        }
+    }
+
+    public static MinionSpawnTable MinionSpawnTable
+    {
+        get
+        {
+            return Get<MinionSpawnTable>(DataTableIds.MinionSpawn);
         }
     }
 

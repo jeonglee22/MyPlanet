@@ -24,7 +24,7 @@ public class MeteorClusterPattern : SpecialPattern
 
     private int moveTypeNum = (int)MoveType.FollowParent;
 
-    
+    private int childMoveType = (int)MoveType.FollowParent;
 
     public MeteorClusterPattern()
     {
@@ -97,10 +97,9 @@ public class MeteorClusterPattern : SpecialPattern
         for(int i = 0; i < childOffsets.Count; i++)
         {
             Vector3 spawnPosition = owner.transform.position + childOffsets[i];
-            
-            FollowParentMovement followMovement = MovementManager.Instance.GetMovement(moveTypeNum) as FollowParentMovement;
 
-            Enemy childMeteor = spawner.SpawnEnemyAsChild(enemyId, spawnPosition, scaleData, followMovement);
+            Enemy childMeteor = spawner.SpawnEnemyAsChild(enemyId, spawnPosition, scaleData, childMoveType);
+            var followMovement = childMeteor.Movement.CurrentMovement as FollowParentMovement;
 
             if(childMeteor != null)
             {
