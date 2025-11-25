@@ -4,9 +4,7 @@ using UnityEngine;
 using UnityEngine.UIElements.Experimental;
 
 public class TowerTargetingSystem : MonoBehaviour
-{//updateTarget->GetEnemiesInRange(consider targetPriority) -> Return currentTarget -> driven atk sys
-
-
+{
     [SerializeField] private TowerInstallControl towerInstallControl;
     [SerializeField] private Transform towerFiringPoint; //assign tower object
     public Transform FirePoint => towerFiringPoint;
@@ -15,8 +13,6 @@ public class TowerTargetingSystem : MonoBehaviour
     [SerializeField] private BaseTargetPriority targetStrategy;
 
     private TowerDataSO assignedTowerData;
-
-    // private readonly string enemyTag = "Enemy";
 
     private ITargetable currentTarget;
     public ITargetable CurrentTarget => currentTarget;
@@ -49,91 +45,73 @@ public class TowerTargetingSystem : MonoBehaviour
         if(scanTimer>= scanInterval)
         {
             scanTimer = 0f;
-            // Debug.Log($"[TTS.Update] {gameObject.name} | isAttacking: {isAttacking} | Will scan: {!isAttacking}");
             if (!isAttacking) ScanForTargets();
         }
     }
 
     private void ScanForTargets()
     {
-        if (rangeData == null||targetStrategy==null)
-        {
-            // Debug.LogWarning($"[TowerTargetingSystem] {gameObject.name}: RangeData or TargetStrategy is null.");
-            return;
-        }
+        if (rangeData == null || targetStrategy == null) return;
 
         float radius = rangeData.GetRange();
+        float radiusSqr = radius * radius;
         Vector3 firingPoint = towerFiringPoint.position;
-
-        Collider[] detects = Physics.OverlapSphere(firingPoint, radius, 
-            Physics.DefaultRaycastLayers, QueryTriggerInteraction.Collide);
-
-        // Debug.Log($"[TowerTargetingSystem] Collider count: {detects.Length}");
 
         var validTargets = new List<ITargetable>();
         int totalEnemiesInRange = 0;
 
-        foreach (var dt in detects)
+        var visibleTargets = VisibleTargetManager.Instance != null ?
+            VisibleTargetManager.Instance.VisibleTargets : null;
+
+        if(visibleTargets==null)
         {
-            if (dt.name == "Sphere") continue;
+            currentTarget = null;
+            return;
+        }
 
-            if (!dt.CompareTag("Enemy")) continue;
-            totalEnemiesInRange++;
+        Camera cam = Camera.main;
+        if (cam == null)
+        {
+            currentTarget = null;
+            return;
+        }
 
-            var targetComponent = dt.GetComponent<ITargetable>();
-
-            if (targetComponent == null)
-            {
-                // Debug.LogWarning($"[TowerTargetingSystem] {dt.name} has no ITargetable component. Skipping...");
-                continue;
-            }
+        foreach (var target in visibleTargets)
+        {
+            if (target == null) continue;
+            if (!target.isAlive) continue;
 
             //Enemy Data Null Check
-            var enemy = targetComponent as Enemy;
-            if(enemy!=null&&enemy.Data==null)
-            {
-                // Debug.LogWarning($"[TowerTargetingSystem] Enemy {dt.name} has null Data. Skipping...");
-                continue;
-            }
+            var enemy = target as Enemy;
+            if (enemy != null && enemy.Data == null) continue;
 
-            if (!targetComponent.isAlive)
-            {
-                // Debug.Log($"[TowerTargetingSystem] Enemy {dt.name} is not alive. Skipping...");
-                continue;
-            }
 
-            validTargets.Add(targetComponent);
-            
-            // Debug.Log($"[Scan] Valid Target: {dt.name} | HP:{targetComponent.maxHp} | ATK:{targetComponent.atk} | DEF:{targetComponent.def} | Pos:{targetComponent.position}");
+            //View Check
+            Vector3 vp = cam.WorldToViewportPoint(target.position);
+            bool inViewport = (vp.z > 0f &&
+                               vp.x >= 0f && vp.x <= 1f &&
+                               vp.y >= 0f && vp.y <= 1f);
+            if (!inViewport) continue;
+
+            Vector3 targetPos = target.position;
+            float distSqr = (targetPos - firingPoint).sqrMagnitude;
+            if (distSqr > radiusSqr) continue;
+
+            totalEnemiesInRange++;
+            validTargets.Add(target);
         }
 
-        currentTarget = targetStrategy != null 
+        currentTarget = (targetStrategy != null&&validTargets.Count>0) 
             ? targetStrategy.SelectTarget(validTargets) : null;
 
-        //debug 
         if (currentTarget != null)
         {
-            // Debug.Log($"[TARGET SELECTED] Tower: {gameObject.name} | Strategy: {targetStrategy.GetType().Name} | Selected: {(currentTarget as MonoBehaviour)?.name} | HP: {currentTarget.maxHp} | ATK: {currentTarget.atk} | DEF: {currentTarget.def} | (Total enemies in range: {validTargets.Count})");
+            var mb = currentTarget as MonoBehaviour;
+            string targetName = mb != null ? mb.name : "Unknown";
+
+            float dist = Vector3.Distance(currentTarget.position, firingPoint);
+            float radiuss = rangeData.GetRange();
         }
-
-
-        //Debug Log
-        string slotIndexStr = slotIndex >= 0 ? slotIndex.ToString() : "Unknown";
-        string priorityName = targetStrategy != null ? targetStrategy.name : "None";
-        string rangeName = rangeData != null ? rangeData.name : "None";
-
-        if (currentTarget != previousTarget)
-        {
-            previousTarget = currentTarget;
-            string strategyName = targetStrategy != null ? targetStrategy.name : "None";
-            string targetName = currentTarget != null ? (currentTarget as MonoBehaviour)?.name : "null";
-
-            // if (currentTarget != null)
-            //     Debug.Log($"[BestTarget] Tower '{gameObject.name}' Slot {slotIndexStr} | Priority: {priorityName} | Range: {rangeName} (Enemies in Range: {totalEnemiesInRange}) => New Best Target: {targetName} | HP:{currentTarget.maxHp} ATK:{currentTarget.atk} DEF:{currentTarget.def}");
-            // else
-            //     Debug.Log($"[BestTarget] Tower '{gameObject.name}' Slot {slotIndexStr} | Priority: {priorityName} | Range: {rangeName} (Enemies in Range: {totalEnemiesInRange}) => No valid target");
-        }
-
     }
     public ITargetable GetCurrentTarget() => currentTarget;
 
