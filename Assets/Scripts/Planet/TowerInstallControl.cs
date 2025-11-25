@@ -328,4 +328,9 @@ public class TowerInstallControl : MonoBehaviour
         if (planet == null) return null;
         return planet.GetAmplifierTower(index);
     }
+
+    public void UpgradeMaxTowerCount()
+    {
+        maxTowerCount += 1;
+    }
 }
