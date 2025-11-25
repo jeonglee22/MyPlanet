@@ -8,7 +8,7 @@ public class SimpleShotPattern : ShootingPattern
     public SimpleShotPattern()
     {
         Trigger = ExecutionTrigger.OnInterval;
-        TriggetValue = 2f;
+        TriggerValue = 2f;
     }
 
     protected override void Shoot()

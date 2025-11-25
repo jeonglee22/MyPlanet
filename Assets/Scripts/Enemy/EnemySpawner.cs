@@ -10,7 +10,7 @@ public class EnemySpawner : MonoBehaviour
     private ObjectPoolManager<int, Enemy> objectPoolManager = new ObjectPoolManager<int, Enemy>();
     [SerializeField] private bool collectionCheck = true;
     private int defaultPoolCapacity = 100;
-    private int maxPoolSize = 500;
+    private int maxPoolSize = 1000;
 
     private float spawnRadius = 1f;
 

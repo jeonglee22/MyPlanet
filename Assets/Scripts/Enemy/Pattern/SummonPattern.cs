@@ -9,7 +9,7 @@ public abstract class SummonPattern : IPattern
     
     public abstract int PatternId { get; }
     public ExecutionTrigger Trigger { get; protected set;}
-    public float TriggetValue { get; protected set;} //Interval
+    public float TriggerValue { get; protected set;} //Interval
 
     protected PatternData patternData;
     protected MinionSpawnData summonData;
@@ -37,7 +37,7 @@ public abstract class SummonPattern : IPattern
         lastExecuteTime = Time.time;
         isExecuteOneTime = false;
 
-        TriggetValue = patternData.PatternValue;
+        TriggerValue = patternData.PatternValue;
     }
 
     public bool CanExecute()
@@ -52,7 +52,7 @@ public abstract class SummonPattern : IPattern
             case ExecutionTrigger.OnPatternLine:
                 return executor.IsPatternLine && !isExecuteOneTime;
             case ExecutionTrigger.OnInterval:
-                return Time.time - lastExecuteTime >= TriggetValue;
+                return Time.time - lastExecuteTime >= TriggerValue;
             case ExecutionTrigger.Immediate:
                 return !isExecuteOneTime;
         }
@@ -60,19 +60,17 @@ public abstract class SummonPattern : IPattern
         return false;
     }
 
-    public void Execute()
+    public virtual void Execute()
     {
         if(owner?.Spawner == null)
         {
             return;
         }
 
-        Summon();
-
         lastExecuteTime = Time.time;
     }
 
-    public void PatternUpdate()
+    public virtual void PatternUpdate()
     {
         
     }

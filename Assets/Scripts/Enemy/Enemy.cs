@@ -12,7 +12,6 @@ using UnityEngine.UIElements;
 public class Enemy : LivingEntity, ITargetable , IDisposable
 {
     private ObjectPoolManager<int, Enemy> objectPoolManager;
-    public ObjectPoolManager<int, Enemy> ObjectPoolManager => objectPoolManager;
 
     private EnemyMovement movement;
     public EnemyMovement Movement => movement;
@@ -38,9 +37,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     private float ratePenetration;
     private float fixedPenetration;
     private Vector3 originalScale;
-    [SerializeField] private float lifeTime = 2f;
+    private float lifeTime = 15f;
     public float LifeTime => lifeTime;
-    public float RemainingLifeTime => remainingLifeTime > 0 ? remainingLifeTime : lifeTime;
     private CancellationTokenSource lifeTimeCts;
 
     [SerializeField] private List<DropItem> drops;
@@ -75,9 +73,6 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         originalScale = transform.localScale;
 
         OnCollisionDamageCalculate = null;
-
-        remainingLifeTime = 0f;
-        isLifeTimePaused = false;
     }
 
     protected virtual void OnDisable() 
@@ -254,15 +249,9 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
     private async UniTaskVoid LifeTimeTask(CancellationToken token)
     {
-        float timeToWait = 0f;
-        float startTime = 0f;
-
         try
         {
-            timeToWait = remainingLifeTime > 0f ? remainingLifeTime : lifeTime;
-            startTime = Time.time;
-
-            await UniTask.Delay(System.TimeSpan.FromSeconds(timeToWait), cancellationToken: token);
+            await UniTask.Delay(System.TimeSpan.FromSeconds(lifeTime), cancellationToken: token);
             if(!token.IsCancellationRequested)
             {
                 OnLifeTimeOver();
@@ -270,32 +259,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         }
         catch (System.OperationCanceledException)
         {
-            if (isLifeTimePaused)
-            {
-                float elapsed = Time.time - startTime;
-                remainingLifeTime = timeToWait - elapsed;
-            }
-        }
-    }
-
-    private float remainingLifeTime;
-    private bool isLifeTimePaused;
-    public void PauseLifeTime()
-    {
-        if(!isLifeTimePaused)
-        {
-            isLifeTimePaused = true;
-            StopLifeTime();
-        }
-    }
-
-    public void ResumeLifeTime()
-    {
-        if(isLifeTimePaused)
-        {
-            isLifeTimePaused = false;
-            StartLifeTime();
-            LifeTimeTask(lifeTimeCts.Token).Forget();
+            
         }
     }
 

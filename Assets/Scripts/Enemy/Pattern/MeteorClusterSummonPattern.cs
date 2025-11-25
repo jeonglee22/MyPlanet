@@ -3,6 +3,7 @@ using UnityEngine;
 public class MeteorClusterSummonPattern : SummonPattern
 {
     public override int PatternId => patternData.Pattern_Id;
+    private float summonTimer = 10f;
 
     public MeteorClusterSummonPattern()
     {
@@ -12,5 +13,15 @@ public class MeteorClusterSummonPattern : SummonPattern
     protected override void Summon()
     {
         owner.Spawner.SpawnEnemiesWithMovement(summonData.Enemy_Id, summonData.EnemyQuantity_1, owner.ScaleData, summonEnemyData.MoveType);
+    }
+
+    public override void PatternUpdate()
+    {
+        summonTimer += Time.deltaTime;
+        if(summonTimer >= TriggerValue)
+        {
+            Summon();
+            summonTimer = 0f;
+        }
     }
 }

@@ -22,14 +22,12 @@ public class MeteorClusterPattern : SpecialPattern
     private List<Vector3> childOffsets = new List<Vector3>();
     private List<IMovement> childMovements = new List<IMovement>();
 
-    private int moveTypeNum = (int)MoveType.FollowParent;
-
     private int childMoveType = (int)MoveType.FollowParent;
 
     public MeteorClusterPattern()
     {
         Trigger = ExecutionTrigger.Immediate;
-        TriggetValue = 0f;
+        TriggerValue = 0f;
     }
 
     public override void Initialize(Enemy enemy, EnemyMovement movement, EnemyTableData enemyData)
