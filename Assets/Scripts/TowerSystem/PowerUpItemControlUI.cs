@@ -24,6 +24,8 @@ public class PowerUpItemControlUI : MonoBehaviour
     private List<int> abilities;
 
     private bool isNotUpgradeOpen = false;
+    private int choosedTowerIndex;
+
     public bool IsNotUpgradeOpen
     {
         get { return isNotUpgradeOpen; }
@@ -35,16 +37,65 @@ public class PowerUpItemControlUI : MonoBehaviour
         towerCountUpgradeButton.onClick.AddListener(OnMaxTowerCountUpgradeClicked);
         newAbilityUpgradeButton.onClick.AddListener(OnNewAbilityUpgradeClicked);
         itemUseButton.onClick.AddListener(OnItemUseClicked);
+
+        for (int i = 0; i < upgradeUis.Length; i++)
+        {
+            int index = i;
+            var button = upgradeUis[index].GetComponent<Button>();
+            button.onClick.AddListener(() => OnNewAbilityCardClicked(index));
+        }
     }
 
     private async UniTaskVoid OnEnable()
     {
         await UniTask.WaitUntil(() => AbilityManager.IsInitialized);
 
-        towerCountUpgradeButton.gameObject.SetActive(false);
-        newAbilityUpgradeButton.gameObject.SetActive(false);   
+        itemChoosePanel.SetActive(false);
         upgradeChooseUis.SetActive(false);
-        chooseTowerPanel.SetActive(false);    
+        chooseTowerPanel.SetActive(false);
+    }
+
+    private void OnNewAbilityCardClicked(int index)
+    {
+        if(choosedTowerIndex == -1)
+            return;
+        
+        var ability = AbilityManager.GetAbility(abilities[index]);
+
+        var towerAttack = installControl.GetAttackTower(choosedTowerIndex);
+        var amplifierTower = installControl.GetAmplifierTower(choosedTowerIndex);
+        
+        if (towerAttack == null && amplifierTower == null) return;
+
+        if (towerAttack != null)
+        {
+            ability?.ApplyAbility(towerAttack.gameObject);
+            ability?.Setting(towerAttack.gameObject);
+            towerAttack.AddAbility(abilities[index]);
+        }
+        else if (amplifierTower != null)
+        {
+            ability?.ApplyAbility(amplifierTower.gameObject);
+            ability?.Setting(amplifierTower.gameObject);
+            amplifierTower.AddAbility(abilities[index]);
+        }
+
+        upgradeChooseUis.SetActive(false);
+        itemChoosePanel.SetActive(false);
+        abilities.Clear();
+
+        var towers = installControl.Towers;
+        for (int i = 0; i < installControl.TowerCount; i++)
+        {
+            int slotIndex = i;
+
+            if(!installControl.IsUsedSlot(slotIndex))
+                continue;
+
+            var button = towers[slotIndex].GetComponentInChildren<Button>();
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(() => installControl.OpenInfoUI(slotIndex));
+        }
     }
 
     private void OnTowerSelectClicked(int index)
@@ -52,14 +103,11 @@ public class PowerUpItemControlUI : MonoBehaviour
         if (!SettingAbilities(index))
             return;
 
+        choosedTowerIndex = index;
         chooseTowerPanel.SetActive(false);
         upgradeChooseUis.SetActive(true);
-        foreach (var ui in upgradeUis)
-        {
-            ui.SetActive(true);
-        }
 
-        for (int i = 0; i < upgradeUis.Length; i++)
+        for (int i = 0; i < uiTexts.Length; i++)
         {
             SetUpCard(i);
         }
@@ -67,9 +115,8 @@ public class PowerUpItemControlUI : MonoBehaviour
 
     private bool SettingAbilities(int towerIndex)
     {
-        var planet = GameObject.FindWithTag(TagName.Planet).GetComponent<Planet>();
-        var towerAttack = planet.GetAttackTowerToAmpTower(towerIndex);
-        var amplifierTower = planet.GetAmplifierTower(towerIndex);
+        var towerAttack = installControl.GetAttackTower(towerIndex);
+        var amplifierTower = installControl.GetAmplifierTower(towerIndex);
 
         if (towerAttack == null && amplifierTower == null) return false;
 
@@ -95,6 +142,7 @@ public class PowerUpItemControlUI : MonoBehaviour
                 }
             }
 
+        Debug.Log("SettingAbilities Success");
         return true;
     }
 
@@ -107,12 +155,13 @@ public class PowerUpItemControlUI : MonoBehaviour
 
     private void OnItemUseClicked()
     {
-        if (itemChoosePanel.activeSelf)
+        if (!itemChoosePanel.activeSelf)
         {
             itemChoosePanel.SetActive(true);
             towerCountUpgradeButton.gameObject.SetActive(true);
             newAbilityUpgradeButton.gameObject.SetActive(true);
             abilities = new List<int>();
+            choosedTowerIndex = -1;
         }
         else
         {
@@ -135,7 +184,12 @@ public class PowerUpItemControlUI : MonoBehaviour
         for (int i = 0; i < towers.Count; i++)
         {
             int index = i;
+
+            if(!installControl.IsUsedSlot(index))
+                continue;
+
             var button = towers[index].GetComponentInChildren<Button>();
+            button.onClick.RemoveAllListeners();
             button.onClick.AddListener(() => OnTowerSelectClicked(index));
         }
     }
@@ -148,9 +202,6 @@ public class PowerUpItemControlUI : MonoBehaviour
 
     private void OnDisable()
     {
-        foreach (var ui in upgradeUis)
-            ui.SetActive(false);
-
         Time.timeScale = 1f;
         numlist = null;
     }
@@ -160,17 +211,5 @@ public class PowerUpItemControlUI : MonoBehaviour
         var ability = AbilityManager.GetAbility(abilities[i]);
         uiTexts[i].text = $"new\n{ability}";
         return;
-    }
-
-    public void OnClickUpgradeUIClicked(int index)
-    {    
-        installControl.IsReadyInstall = true;
-
-        if (installControl.IsUsedSlot(numlist[index]))
-        {
-            installControl.UpgradeTower(numlist[index]);
-            towerInfoUI.gameObject.SetActive(false);
-            gameObject.SetActive(false);
-        }
     }
 }

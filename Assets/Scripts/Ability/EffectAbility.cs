@@ -30,4 +30,9 @@ public class EffectAbility : IAbility
     {
         return new EffectAbility();
     }
+
+    public virtual void StackAbility(float amount)
+    {
+        upgradeAmount += amount;
+    }
 }

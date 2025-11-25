@@ -17,6 +17,11 @@ public class TowerAmplifier : MonoBehaviour
     private List<int> abilities = new List<int>();
     public List<int> Abilities => abilities;
 
+    public void AddAbility(int ability)
+    {
+        abilities.Add(ability);
+    }
+
     public void SetData(AmplifierTowerDataSO data)
     {
         amplifierTowerData = data;
