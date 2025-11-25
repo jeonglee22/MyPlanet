@@ -49,6 +49,15 @@ public class Projectile : MonoBehaviour , IDisposable
 
     private void Update()
     {
+        if(isFinish)
+        {
+            Cancel();
+            abilityRelease?.Invoke(gameObject);
+            abilityRelease = null;
+            objectPoolManager.Return(poolKeyData, this);
+            return;
+        }
+        
         if (!isFinish && currentLifeTime < projectileData.RemainTime)
         {
             MoveProjectile();
