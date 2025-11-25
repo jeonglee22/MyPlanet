@@ -4,6 +4,7 @@ using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class TowerInfoUI : PopUpUI
 {
@@ -52,19 +53,39 @@ public class TowerInfoUI : PopUpUI
 
     [Header("Bottom Panel - Ability Explain")]
     [SerializeField] private TextMeshProUGUI abilityExplainText;
+    [SerializeField] private Button openAbilityInfoButton;
+    [SerializeField] private GameObject abilityInfoPanel;
+    [SerializeField] private ScrollRect scrollRect;
+    [SerializeField] private GameObject abilityExplainContent;
+    private RectTransform contentRect;
 
     private int infoIndex = -1;
     private bool isSameTower;
 
+    private void Start()
+    {
+        abilityInfoPanel.SetActive(false);
+        openAbilityInfoButton.onClick.AddListener(() => abilityInfoPanel.SetActive(!abilityInfoPanel.activeSelf));
+    }
+
+    private void OnEnable()
+    {
+        contentRect = scrollRect?.content;
+        abilityInfoPanel.SetActive(false);
+    }
+
     public void SetInfo(int index)
     {
         nameText.text = $"Tower {index}";
+        contentRect.DetachChildren();
 
         if (installControl == null)
         {
             nameText.text = "No data";
             SetAllText(null);
-            SetText(abilityExplainText, "no tower");
+            
+            var textNull = Instantiate(abilityExplainContent, contentRect);
+            SetText(textNull.GetComponent<TextMeshProUGUI>(), "no tower");
             return;
         }
 
@@ -88,7 +109,9 @@ public class TowerInfoUI : PopUpUI
 
         if (nameText != null) nameText.text = $"Empty Slot {index}";
         SetAllText("-");
-        SetText(abilityExplainText, "no tower");
+        
+        var textEmpty = Instantiate(abilityExplainContent, contentRect);
+        SetText(textEmpty.GetComponent<TextMeshProUGUI>(), "no tower");
     }
 
     protected override void Update()
@@ -99,6 +122,13 @@ public class TowerInfoUI : PopUpUI
 
         if (RectTransformUtility.RectangleContainsScreenPoint(
                installControl.Towers[infoIndex].GetComponent<RectTransform>(),
+               touchPos))
+        {
+            return;
+        }
+
+        if (RectTransformUtility.RectangleContainsScreenPoint(
+               scrollRect.gameObject.GetComponent<RectTransform>(),
                touchPos))
         {
             return;
@@ -310,12 +340,17 @@ public class TowerInfoUI : PopUpUI
         var abilities = attackTower.Abilities;
         if (abilities == null || abilities.Count == 0)
         {
-            SetText(abilityExplainText, "no ability");
+            var text = Instantiate(abilityExplainContent, contentRect);
+            SetText(text.GetComponent<TextMeshProUGUI>(), "no ability");
             return;
         }
 
-        var ability = AbilityManager.GetAbility(abilities[0]);
-        SetText(abilityExplainText, ability?.ToString() ?? "no ability");
+        foreach (var abilityId in abilities)
+        {
+            var ability = AbilityManager.GetAbility(abilityId);
+            var text = Instantiate(abilityExplainContent, contentRect);
+            SetText(text.GetComponent<TextMeshProUGUI>(), ability?.ToString() ?? "no ability");
+        }
     }
 
     private void FillAmplifierTowerInfo(int index, TowerAmplifier amplifierTower)
@@ -398,7 +433,8 @@ public class TowerInfoUI : PopUpUI
 
         if (ampData == null)
         {
-            abilityExplainText.text = "no buff";
+            var textEmpty = Instantiate(abilityExplainContent, contentRect);
+            SetText(textEmpty.GetComponent<TextMeshProUGUI>(), "no buff");
             return;
         }
 
@@ -446,7 +482,8 @@ public class TowerInfoUI : PopUpUI
             sb.Append("추가 버프 없음");
         }
 
-        abilityExplainText.text = sb.ToString();
+        var text = Instantiate(abilityExplainContent, contentRect);
+        SetText(text.GetComponent<TextMeshProUGUI>(), sb.ToString());
     }
 
     private void SetupAttackLabels()
