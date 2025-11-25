@@ -4,7 +4,6 @@ public class DescendAndStopMovement : IMovement
 {
     private Vector3 targetPosition;
     private bool isArrived;
-    private float arrivalThreshold = 0.01f;
     private float colliderRadius;
 
     public void Initialize()

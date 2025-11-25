@@ -98,7 +98,7 @@ public class SpawnManager : MonoBehaviour
         }
     }
 
-    private EnemySpawner GetSpawner(int spawnerIndex)
+    public EnemySpawner GetSpawner(int spawnerIndex)
     {
         int index = spawnerIndex;
         if (spawnerIndex < 0 || spawnerIndex >= spawnPoints.Count)
