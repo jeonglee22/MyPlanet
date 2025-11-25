@@ -56,6 +56,8 @@ public class Projectile : MonoBehaviour , IDisposable
         }
         else
         {
+            Debug.Log($"[Projectile] DESPAWN reason=isFinish:{isFinish}, life={currentLifeTime:0.00}/{projectileData.RemainTime:0.00}, obj={name}");
+
             Cancel();
             abilityRelease?.Invoke(gameObject);
             abilityRelease = null;
@@ -184,5 +186,10 @@ public class Projectile : MonoBehaviour , IDisposable
         {
             currentTarget = enemy.transform;
         }
+    }
+
+    public void ForceFinish()
+    {
+        isFinish = true;
     }
 }

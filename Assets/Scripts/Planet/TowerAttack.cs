@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -130,9 +130,19 @@ public class TowerAttack : MonoBehaviour
     private void ShootAtTarget()
     {
         var target = targetingSystem.CurrentTarget;
-        if (target == null || !target.isAlive) return;
+        if (target == null) return;
+        if (!target.isAlive) return;
 
-        Vector3 direction = (target.position - transform.position).normalized;
+        Camera cam = Camera.main;
+        if (cam == null) return;
+
+        Vector3 vp = cam.WorldToViewportPoint(target.position);
+        bool inViewport = (vp.z > 0f &&
+                           vp.x >= 0f && vp.x <= 1f &&
+                           vp.y >= 0f && vp.y <= 1f);
+        if (!inViewport) return;
+
+        Vector3 direction = (target.position - firePoint.position).normalized;
 
         //Buffed Tower Data
         ProjectileData buffedData = CurrentProjectileData; //Buffed Data
@@ -154,16 +164,8 @@ public class TowerAttack : MonoBehaviour
 
         for (int i = 0; i < shotCount; i++)
         {
-            //add projectile debug-------------------
             float offsetIndex = i - centerIndex;
-            // Quaternion spreadRot = Quaternion.AngleAxis(offsetIndex * spreadAngle, Vector3.up);
-            // Vector3 shotDir = spreadRot * direction;
-            //Vector3 shotDir = direction; 
-            //---------------------------------------
-
-            //Pool (Using BaseData For Recycle)
             var projectile = ProjectilePoolManager.Instance.GetProjectile(baseData);
-
             var verticalDirection = new Vector3(-direction.y, direction.x, direction.z).normalized;
 
             projectile.transform.position = firePoint.position + verticalDirection * projectileOffset * offsetIndex;
@@ -178,7 +180,7 @@ public class TowerAttack : MonoBehaviour
                 projectilePoolManager.ProjectilePool
                 );
 
-            if(CurrentProjectileData.AttackType == (int)ProjectileType.Homing)
+            if (CurrentProjectileData.AttackType == (int)ProjectileType.Homing)
             {
                 //Set Target for Homing
                 projectile.SetHomingTarget(target);
@@ -195,7 +197,6 @@ public class TowerAttack : MonoBehaviour
             }
         }
     }
-
     public void AddAbility(int ability)
     {
         abilities.Add(ability);
