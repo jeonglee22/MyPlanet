@@ -12,6 +12,9 @@ public class SplitUpgradeAbility : EffectAbility
     private ProjectilePoolManager projectilePoolManager;
     private bool isSetup = false;
 
+    private int pierceCount;
+    private Projectile projectile;
+
     public SplitUpgradeAbility(float amount)
     {
         upgradeAmount = amount;
@@ -28,11 +31,13 @@ public class SplitUpgradeAbility : EffectAbility
             SetProjectile(projectile);
         }
         var enemy = gameObject.GetComponent<Enemy>();
-        if (enemy != null && isSetup)
+        if (enemy != null && isSetup && upgradeAmount > 0 && this.projectile.splitCount > 0)
         {
+            upgradeAmount--;
             MakeSplit(offsetAngle);
             MakeSplit(-offsetAngle);
             isSetup = false;
+            this.projectile.splitCount = 0;
         }
     }
 
@@ -62,6 +67,8 @@ public class SplitUpgradeAbility : EffectAbility
             buffedData = projectile.projectileData;
             direction = projectile.direction;
             firePoint = projectile.transform;
+            this.projectile = projectile;
+            projectile.splitCount = (int)upgradeAmount;
             isSetup = true;
         }
     }
@@ -80,7 +87,7 @@ public class SplitUpgradeAbility : EffectAbility
             baseData,
             newDirection,
             true,
-            projectilePoolManager.ProjectilePool
+            ProjectilePoolManager.Instance.ProjectilePool
             );
 
         var abilities = towerAttack?.Abilities;
@@ -88,7 +95,14 @@ public class SplitUpgradeAbility : EffectAbility
         foreach (var abilityId in abilities)
         {
             if(abilityId == (int)AbilityId.Split)
+            {
+                var splitAbility = Copy();
+                splitAbility.ApplyAbility(newProjectiles.gameObject);
+                splitAbility.Setting(towerAttack.gameObject);
+                newProjectiles.abilityAction += splitAbility.ApplyAbility;
+                newProjectiles.abilityRelease += splitAbility.RemoveAbility;
                 continue;
+            }
 
             var ability = AbilityManager.GetAbility(abilityId);
 
@@ -96,6 +110,9 @@ public class SplitUpgradeAbility : EffectAbility
             newProjectiles.abilityAction += ability.ApplyAbility;
             newProjectiles.abilityRelease += ability.RemoveAbility;
         }
+
+        Debug.Log(newProjectiles.projectileData.AttackType);
+        newProjectiles.currentPierceCount = 1;
     }
 
     public override IAbility Copy()

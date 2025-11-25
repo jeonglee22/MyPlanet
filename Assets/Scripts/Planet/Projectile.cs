@@ -24,6 +24,7 @@ public class Projectile : MonoBehaviour , IDisposable
     private float currentLifeTime;
     public float hitRadius = 1f;
     public float acceleration ;
+    public int splitCount = 0;
 
     private ObjectPoolManager<ProjectileData, Projectile> objectPoolManager;
 
@@ -42,6 +43,7 @@ public class Projectile : MonoBehaviour , IDisposable
 
     private void OnDisable()
     {
+        abilityAction = null;
         trailRenderer.emitting = false;
         trailRenderer.Clear();
         trailRenderer.enabled = false;
@@ -72,6 +74,7 @@ public class Projectile : MonoBehaviour , IDisposable
 
     private void Cancel()
     {
+        abilityAction = null;
         lifeTimeCts?.Cancel();
         lifeTimeCts?.Dispose();
         lifeTimeCts = new CancellationTokenSource();
@@ -149,13 +152,13 @@ public class Projectile : MonoBehaviour , IDisposable
         {
             abilityAction?.Invoke(other.gameObject);
             damagable.OnDamage(CalculateTotalDamage(enemy.Data.Defense));
-            abilityAction = null;
         }
 
         currentPierceCount--;
 
         if (currentPierceCount <= 0)
         {
+            abilityAction = null;
             isFinish = true;
         }
     }
