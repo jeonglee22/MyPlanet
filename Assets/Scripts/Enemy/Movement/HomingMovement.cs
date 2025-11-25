@@ -33,4 +33,6 @@ public class HomingMovement : IMovement
     {
         isPatternLine = true;
     }
+
+    public bool IsCompleted() => false;
 }

@@ -26,4 +26,6 @@ public class ChaseMovement : IMovement
     {
         isPatternLine = true;
     }
+
+    public bool IsCompleted() => false;
 }
