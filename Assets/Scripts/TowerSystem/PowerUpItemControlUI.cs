@@ -70,11 +70,13 @@ public class PowerUpItemControlUI : MonoBehaviour
         if (towerAttack != null)
         {
             ability?.ApplyAbility(towerAttack.gameObject);
+            ability?.Setting(towerAttack.gameObject);
             towerAttack.AddAbility(abilities[index]);
         }
         else if (amplifierTower != null)
         {
             ability?.ApplyAbility(amplifierTower.gameObject);
+            ability?.Setting(amplifierTower.gameObject);
             amplifierTower.AddAbility(abilities[index]);
         }
 
@@ -83,12 +85,16 @@ public class PowerUpItemControlUI : MonoBehaviour
         abilities.Clear();
 
         var towers = installControl.Towers;
-        for (int i = 0; i < towers.Count; i++)
+        for (int i = 0; i < installControl.TowerCount; i++)
         {
             int slotIndex = i;
+
+            if(!installControl.IsUsedSlot(slotIndex))
+                continue;
+
             var button = towers[slotIndex].GetComponentInChildren<Button>();
             button.onClick.RemoveAllListeners();
-            button.onClick.AddListener(() => towerInfoUI.SetInfo(slotIndex));
+            button.onClick.AddListener(() => installControl.OpenInfoUI(slotIndex));
         }
     }
 
@@ -178,6 +184,10 @@ public class PowerUpItemControlUI : MonoBehaviour
         for (int i = 0; i < towers.Count; i++)
         {
             int index = i;
+
+            if(!installControl.IsUsedSlot(index))
+                continue;
+
             var button = towers[index].GetComponentInChildren<Button>();
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(() => OnTowerSelectClicked(index));

@@ -287,7 +287,7 @@ public class TowerInstallControl : MonoBehaviour
         ChoosedData = null;
     }
 
-    private void OpenInfoUI(int index)
+    public void OpenInfoUI(int index)
     {
         if (IsReadyInstall) return;
 
