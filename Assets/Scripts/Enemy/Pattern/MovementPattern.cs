@@ -10,7 +10,7 @@ public abstract class MovementPattern : IPattern
 
     public abstract int PatternId { get; }
     public ExecutionTrigger Trigger { get; protected set;}
-    public float TriggetValue { get; protected set;}
+    public float TriggerValue { get; protected set;}
 
     protected float lastExecuteTime;
     protected bool isExecuteOneTime;
@@ -40,7 +40,7 @@ public abstract class MovementPattern : IPattern
             case ExecutionTrigger.OnPatternLine:
                 return executor.IsPatternLine && !isExecuteOneTime;
             case ExecutionTrigger.OnInterval:
-                return Time.time - lastExecuteTime >= TriggetValue;
+                return Time.time - lastExecuteTime >= TriggerValue;
             case ExecutionTrigger.Immediate:
                 return !isExecuteOneTime;
         }

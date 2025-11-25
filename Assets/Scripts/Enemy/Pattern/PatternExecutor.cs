@@ -5,6 +5,7 @@ public class PatternExecutor : MonoBehaviour
 {
     private Enemy owner;
     private List<IPattern> patterns = new List<IPattern>();
+    public PatternData CurrentPatternData { get; private set; }
 
     public bool IsPatternLine { get; set; } = false;
 

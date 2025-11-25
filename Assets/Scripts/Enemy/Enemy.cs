@@ -7,17 +7,20 @@ using NUnit.Framework;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Pool;
+using UnityEngine.UIElements;
 
 public class Enemy : LivingEntity, ITargetable , IDisposable
 {
     private ObjectPoolManager<int, Enemy> objectPoolManager;
-    public ObjectPoolManager<int, Enemy> ObjectPoolManager => objectPoolManager;
 
     private EnemyMovement movement;
     public EnemyMovement Movement => movement;
     private PatternExecutor patternExecutor;
     private EnemyTableData data;
     public EnemyTableData Data { get { return data; } }
+    public PatternData CurrentPatternData { get; private set; }
+
+    public ScaleData ScaleData { get; private set; }
 
     public Vector3 position => transform.position;
 
@@ -34,9 +37,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     private float ratePenetration;
     private float fixedPenetration;
     private Vector3 originalScale;
-    [SerializeField] private float lifeTime = 2f;
+    private float lifeTime = 15f;
     public float LifeTime => lifeTime;
-    public float RemainingLifeTime => remainingLifeTime > 0 ? remainingLifeTime : lifeTime;
     private CancellationTokenSource lifeTimeCts;
 
     [SerializeField] private List<DropItem> drops;
@@ -71,9 +73,6 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         originalScale = transform.localScale;
 
         OnCollisionDamageCalculate = null;
-
-        remainingLifeTime = 0f;
-        isLifeTimePaused = false;
     }
 
     protected virtual void OnDisable() 
@@ -139,7 +138,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         if (damagable != null)
         {
             float damage = OnCollisionDamageCalculate?.Invoke() ?? attack;
-            damagable.OnDamage(attack);
+            damagable.OnDamage(damage);
 
             if(IsDead)
             {
@@ -184,6 +183,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         objectPoolManager = poolManager;
 
         data = enemyData;
+        ScaleData = scaleData;
         maxHealth = data.Hp * scaleData.HpScale;
         Health = maxHealth;
 
@@ -203,7 +203,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         StartLifeTime();
     }
 
-    public void InitializeAsChild(EnemyTableData enemyData, Vector3 targetDirection, int enemyId, ObjectPoolManager<int, Enemy> poolManager, ScaleData scaleData, IMovement movementComponent)
+    public void InitializeAsChild(EnemyTableData enemyData, Vector3 targetDirection, int enemyId, ObjectPoolManager<int, Enemy> poolManager, ScaleData scaleData, int moveType)
     {
         this.enemyId = enemyId;
         objectPoolManager = poolManager;
@@ -221,11 +221,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
         transform.localScale *= scaleData.PrefabScale;
 
-        if(movement == null)
-        {
-            movement = gameObject.AddComponent<EnemyMovement>();
-        }
-        movement.Initialize(moveSpeed, -1, movementComponent);
+        AddMovementComponent(moveType, -1);
 
         if(patternExecutor == null)
         {
@@ -253,15 +249,9 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
     private async UniTaskVoid LifeTimeTask(CancellationToken token)
     {
-        float timeToWait = 0f;
-        float startTime = 0f;
-
         try
         {
-            timeToWait = remainingLifeTime > 0f ? remainingLifeTime : lifeTime;
-            startTime = Time.time;
-
-            await UniTask.Delay(System.TimeSpan.FromSeconds(timeToWait), cancellationToken: token);
+            await UniTask.Delay(System.TimeSpan.FromSeconds(lifeTime), cancellationToken: token);
             if(!token.IsCancellationRequested)
             {
                 OnLifeTimeOver();
@@ -269,32 +259,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         }
         catch (System.OperationCanceledException)
         {
-            if (isLifeTimePaused)
-            {
-                float elapsed = Time.time - startTime;
-                remainingLifeTime = timeToWait - elapsed;
-            }
-        }
-    }
-
-    private float remainingLifeTime;
-    private bool isLifeTimePaused;
-    public void PauseLifeTime()
-    {
-        if(!isLifeTimePaused)
-        {
-            isLifeTimePaused = true;
-            StopLifeTime();
-        }
-    }
-
-    public void ResumeLifeTime()
-    {
-        if(isLifeTimePaused)
-        {
-            isLifeTimePaused = false;
-            StartLifeTime();
-            LifeTimeTask(lifeTimeCts.Token).Forget();
+            
         }
     }
 
@@ -319,11 +284,17 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
         patternExecutor.Initialize(this);
 
-        List<int> patternIds = new List<int>{0}; //test
-
-        foreach(var patternId in patternIds)
+        if(enemyData.PatternList == 0)
         {
-            IPattern pattern = PatternManager.Instance.GetPattern(patternId);
+            return;
+        }
+        List<PatternData> patterns = DataTableManager.PatternTable.GetPatternList(enemyData.PatternList);
+
+        foreach(var patternItem in patterns)
+        {
+            CurrentPatternData = patternItem;
+
+            IPattern pattern = PatternManager.Instance.GetPattern(patternItem.Pattern_Id);
             if(pattern != null)
             {
                 pattern.Initialize(this, movement, enemyData);

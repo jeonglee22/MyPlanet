@@ -9,7 +9,7 @@ public abstract class SpecialPattern : IPattern
 
     public abstract int PatternId { get; }
     public ExecutionTrigger Trigger { get; protected set;}
-    public float TriggetValue { get; protected set;}
+    public float TriggerValue { get; protected set;}
 
     protected bool isExecuteOneTime;
 

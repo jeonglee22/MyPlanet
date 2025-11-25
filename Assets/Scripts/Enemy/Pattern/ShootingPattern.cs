@@ -10,7 +10,7 @@ public abstract class ShootingPattern : IPattern
 
     public abstract int PatternId { get; }
     public ExecutionTrigger Trigger { get; protected set;}
-    public float TriggetValue { get; protected set;} //Interval
+    public float TriggerValue { get; protected set;} //Interval
 
     protected float lastExecuteTime;
     protected bool isExecuteOneTime;
@@ -39,7 +39,7 @@ public abstract class ShootingPattern : IPattern
             case ExecutionTrigger.OnPatternLine:
                 return executor.IsPatternLine && !isExecuteOneTime;
             case ExecutionTrigger.OnInterval:
-                return Time.time - lastExecuteTime >= TriggetValue;
+                return Time.time - lastExecuteTime >= TriggerValue;
             case ExecutionTrigger.Immediate:
                 return !isExecuteOneTime;
         }
