@@ -176,13 +176,14 @@ public class Projectile : MonoBehaviour , IDisposable
     
     public float CalculateTotalDamage(float enemyDef)
     {
+        var RatePanetration = Mathf.Clamp(this.RatePanetration, 0f, 100f);
         // Debug.Log(damage);
         var totalEnemyDef = enemyDef * (1 - RatePanetration / 100f) - FixedPanetration;
         if(totalEnemyDef < 0)
         {
             totalEnemyDef = 0;
         }
-        var totalDamage = damage - totalEnemyDef;
+        var totalDamage = damage * 100f / (100f + totalEnemyDef);
         
         return totalDamage;
     }

@@ -172,7 +172,7 @@ public class AmplifierTowerDataSO : ScriptableObject
                 break;
 
             case AmplifierStatKind.PercentPenetration:
-                percentPenetrationBuff *= (1f + asRate);
+                percentPenetrationBuff = percentPenetrationBuff + (1 - percentPenetrationBuff) * asRate;
                 break;
 
             case AmplifierStatKind.FixedPenetration:

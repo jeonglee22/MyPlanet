@@ -12,10 +12,11 @@ public class RatePanetrationUpgradeAbility : PassiveAbility
     {
         base.ApplyAbility(gameObject);
 
-        var projectile = gameObject.GetComponent<Projectile>();
-        if (projectile != null)
+        var towerAttack = gameObject.GetComponent<TowerAttack>();
+        if (towerAttack != null)
         {
-            projectile.RatePanetration += projectile.projectileData.RatePenetration * upgradeAmount;
+            towerAttack.PercentPenetrationBuffMul = towerAttack.PercentPenetrationBuffMul + 
+            (1 - towerAttack.PercentPenetrationBuffMul) * upgradeAmount;
         }
     }
 
@@ -23,11 +24,11 @@ public class RatePanetrationUpgradeAbility : PassiveAbility
     {
         base.RemoveAbility(gameObject);
 
-        var projectile = gameObject.GetComponent<Projectile>();
-        if (projectile != null)
-        {
-            projectile.RatePanetration -= projectile.projectileData.RatePenetration * upgradeAmount;
-        }
+        // var projectile = gameObject.GetComponent<Projectile>();
+        // if (projectile != null)
+        // {
+        //     projectile.RatePanetration -= projectile.projectileData.RatePenetration * upgradeAmount;
+        // }
     }
 
     public override void Setting(GameObject gameObject)
