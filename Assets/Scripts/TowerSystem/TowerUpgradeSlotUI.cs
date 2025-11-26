@@ -78,9 +78,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             refreshButton.gameObject.SetActive(true);
             refreshButton.interactable = true;
         }
-
         SettingUpgradeCards();
-        
     }
 
     private void SetTowerInstallText()
@@ -167,15 +165,16 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         if(isFirstInstall) towerType = 0;
 
-        var ability = AbilityManager.GetAbility(abilities[i]);
+        int attackAbilityId = abilities[i];
+        string attackAbilityName = GetAbilityName(attackAbilityId);
 
         if (towerType == 0) //Attack
         {
             choices[i].InstallType = TowerInstallType.Attack;
-            choices[i].ability = abilities[i];
+            choices[i].ability = attackAbilityId;
             choices[i].AmplifierTowerData = null;
             choices[i].BuffSlotIndex = null;
-            uiTexts[i].text = $"new\nAttack\nTower\n\n{ability}";
+            uiTexts[i].text = $"new\nAttack\nTower\n\n{attackAbilityName}";
             return;
         }
 
@@ -184,15 +183,19 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         if (ampData == null)
         {
             choices[i].InstallType = TowerInstallType.Attack;
-            choices[i].ability = abilities[i];
+            choices[i].ability = attackAbilityId;
             choices[i].AmplifierTowerData = null;
             choices[i].BuffSlotIndex = null;
-            uiTexts[i].text = $"new\nAttack\nTower\n\n{ability}";
+            uiTexts[i].text = $"new\nAttack\nTower\n\n{attackAbilityName}";
             return;
         }
         choices[i].InstallType = TowerInstallType.Amplifier;
-        choices[i].ability = -1;
         choices[i].AmplifierTowerData = ampData;
+
+        //AmpTower Random Ability
+        int ampAbilityId = GetRandomAbilityForAmplifier(ampData);
+        choices[i].ability = ampAbilityId;  // using in Planet.SetAmplifierTower ¡æ TowerAmplifier
+        string ampAbilityName = GetAbilityName(ampAbilityId);
 
         int[] buffOffsets = null;
 
@@ -219,11 +222,30 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             slotText = string.Join(",", parts);
         }
 
-        string name = string.IsNullOrEmpty(ampData.BuffTowerName)
+        string ampName = string.IsNullOrEmpty(ampData.BuffTowerName)
             ? ampData.AmplifierType.ToString()
             : ampData.BuffTowerName;
 
-        uiTexts[i].text = $"new\n{name}\n\nbuff slots: {slotText}";
+        uiTexts[i].text = $"new\n{ampName}\n\n{ampAbilityName}\nslots: {slotText}";
+    }
+
+    private int GetRandomAbilityForAmplifier(AmplifierTowerDataSO ampData)
+    {
+        if (ampData == null) return -1;
+
+        int groupId = ampData.RandomAbilityGroupId;
+        if (groupId <= 0) return -1;
+
+        return AbilityManager.GetRandomAbilityFromGroup(
+            groupId,
+            requiredTowerType: 1,
+            useWeight: true);
+    }
+
+    private string GetAbilityName(int abilityId)
+    {
+        var row = DataTableManager.RandomAbilityTable.Get(abilityId);
+        return row.RandomAbilityName;
     }
 
     private void ResetUpgradeCard(int index)
@@ -253,7 +275,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         if (!installControl.IsUsedSlot(number))
         {
-
             SetUpCard(index, number);
         }
         else
@@ -431,6 +452,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             return null;
 
         int idx = Random.Range(0, allAmplifierTowers.Length);
+
         return allAmplifierTowers[idx];
     }
 }

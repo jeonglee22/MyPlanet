@@ -7,6 +7,7 @@ public class RandomAbilityGroupData
 {
     public int RandomAbilityGroup_ID { get; set; }
     public string RandomAbilityGroup {get; set; }
+    public int TowerType { get; set; }
 
     public List<int> RandomAbilityGroupList { get; set; }
 
