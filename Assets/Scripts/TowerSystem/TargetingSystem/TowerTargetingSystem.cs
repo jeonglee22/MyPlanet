@@ -14,9 +14,14 @@ public class TowerTargetingSystem : MonoBehaviour
 
     private TowerDataSO assignedTowerData;
 
+    //Single Target
     private ITargetable currentTarget;
     public ITargetable CurrentTarget => currentTarget;
-    private ITargetable previousTarget; //only debug
+
+    //Multi Target
+    private readonly List<ITargetable> currentTargets = new List<ITargetable>();
+    public IReadOnlyList<ITargetable> CurrentTargets => currentTargets;
+
 
     [SerializeField] private float scanInterval = 0.2f; // Multiple Interval Scan System
     private float scanTimer = 0f;
@@ -28,6 +33,11 @@ public class TowerTargetingSystem : MonoBehaviour
     public void SetSlotIndex(int index) => slotIndex = index;
 
     public TowerDataSO GetTowerData() => assignedTowerData;
+
+    //Target Number
+    private int baseMaxTargetCount = 1; //only Var
+    private int extraTargetCount = 0; //Add Buffed Data
+    public int MaxTargetCount => Mathf.Max(1, baseMaxTargetCount + extraTargetCount);
 
     private void Awake()
     {
@@ -51,30 +61,30 @@ public class TowerTargetingSystem : MonoBehaviour
 
     private void ScanForTargets()
     {
-        if (rangeData == null || targetStrategy == null) return;
+        if (rangeData == null || targetStrategy == null)
+        {
+            currentTarget = null;
+            currentTargets.Clear();
+            return;
+        }
 
         float radius = rangeData.GetRange();
         float radiusSqr = radius * radius;
         Vector3 firingPoint = towerFiringPoint.position;
 
-        var validTargets = new List<ITargetable>();
-        int totalEnemiesInRange = 0;
+        var visibleTargets = VisibleTargetManager.Instance != null
+            ? VisibleTargetManager.Instance.VisibleTargets
+            : null;
 
-        var visibleTargets = VisibleTargetManager.Instance != null ?
-            VisibleTargetManager.Instance.VisibleTargets : null;
+        currentTargets.Clear();
+        currentTarget = null;
 
-        if(visibleTargets==null)
-        {
-            currentTarget = null;
-            return;
-        }
+        if (visibleTargets == null) return;
 
         Camera cam = Camera.main;
-        if (cam == null)
-        {
-            currentTarget = null;
-            return;
-        }
+        if (cam == null) return;
+
+        List<ITargetable> validTargets = new List<ITargetable>();
 
         foreach (var target in visibleTargets)
         {
@@ -84,7 +94,6 @@ public class TowerTargetingSystem : MonoBehaviour
             //Enemy Data Null Check
             var enemy = target as Enemy;
             if (enemy != null && enemy.Data == null) continue;
-
 
             //View Check
             Vector3 vp = cam.WorldToViewportPoint(target.position);
@@ -97,21 +106,24 @@ public class TowerTargetingSystem : MonoBehaviour
             float distSqr = (targetPos - firingPoint).sqrMagnitude;
             if (distSqr > radiusSqr) continue;
 
-            totalEnemiesInRange++;
             validTargets.Add(target);
         }
 
-        currentTarget = (targetStrategy != null&&validTargets.Count>0) 
-            ? targetStrategy.SelectTarget(validTargets) : null;
-
-        if (currentTarget != null)
+        if (validTargets.Count == 0)
         {
-            var mb = currentTarget as MonoBehaviour;
-            string targetName = mb != null ? mb.name : "Unknown";
-
-            float dist = Vector3.Distance(currentTarget.position, firingPoint);
-            float radiuss = rangeData.GetRange();
+            currentTarget = null;
+            return;
         }
+
+        int maxTargets = MaxTargetCount;
+        for(int i=0; i<maxTargets&& validTargets.Count>0; i++)
+        {
+            ITargetable best = targetStrategy.SelectTarget(validTargets);
+            if (best == null) break;
+            currentTargets.Add(best);
+            validTargets.Remove(best);
+        }
+        currentTarget = currentTargets.Count > 0 ? currentTargets[0] : null;
     }
     public ITargetable GetCurrentTarget() => currentTarget;
 
@@ -127,5 +139,14 @@ public class TowerTargetingSystem : MonoBehaviour
         {
             closest.Initialize(towerFiringPoint);
         }
+    }
+    public void SetExtraTargetCount(int extra)
+    {
+        extraTargetCount = extra;
+    }
+    public void SetMaxTargetCount(int maxCount)
+    {
+        baseMaxTargetCount = Mathf.Max(1, maxCount);
+        extraTargetCount = 0; 
     }
 }

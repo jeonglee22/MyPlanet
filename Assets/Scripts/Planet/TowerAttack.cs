@@ -21,7 +21,7 @@ public class TowerAttack : MonoBehaviour
     //------------ Amplifier Buff Field ---------------------
     private float damageBuffMul=1f; //damage = baseDamage * damageBuffMul
     public float DamageBuffMMul { get { return damageBuffMul; } set { damageBuffMul = value; } }
-    private float accelerationBuffAdd=0f;  //just add
+    private float accelerationBuffAdd=0f;  // +=
     public float fireRateBuffMul = 1f; //fireRate = baseFireRate * fireRateBuffMul
     public float CurrentFireRate
     {
@@ -35,7 +35,7 @@ public class TowerAttack : MonoBehaviour
     private int newProjectileAttackType;
     public int NewProjectileAttackType { get { return newProjectileAttackType; } set { newProjectileAttackType = value; } }
 
-    private float hitRadiusBuffMul = 1f; //hitbox Size, Mul or Add?
+    private float hitRadiusBuffMul = 1f; // +=
     public float HitRadiusBuffMul { get { return hitRadiusBuffMul; } set { hitRadiusBuffMul = value; } }
     private float percentPenetrationBuffMul = 1f;
     public float PercentPenetrationBuffMul { get { return percentPenetrationBuffMul; } set { percentPenetrationBuffMul = value; } }
@@ -52,7 +52,7 @@ public class TowerAttack : MonoBehaviour
 
 
     //projectile Count---------------------------------------
-    private int baseProjectileCount = 1; //from TargetDataSO (NOT Data Table)
+    private int baseProjectileCount = 1; //Only Var
     private int projectileCountBuffAdd = 0; 
     public int ProjectileCountBuffAdd { get { return projectileCountBuffAdd; } set { projectileCountBuffAdd = value; } }
     public int CurrentProjectileCount
@@ -105,7 +105,7 @@ public class TowerAttack : MonoBehaviour
         currentProjectileData = DataTableManager.ProjectileTable.Get(towerData.projectileIdFromTable);
         //Connect Tower Data
         towerData.projectileType = currentProjectileData;
-        //Set Projectile Count -> From Tower Data SO (NOT Data Table)
+        //Set Projectile Count -> From Tower Data SO (NOT Data Table) -> check
         baseProjectileCount = Mathf.Max(1, towerData.projectileCount);
     }
 
@@ -129,12 +129,44 @@ public class TowerAttack : MonoBehaviour
 
     private void ShootAtTarget()
     {
-        var target = targetingSystem.CurrentTarget;
-        if (target == null) return;
-        if (!target.isAlive) return;
-
         Camera cam = Camera.main;
         if (cam == null) return;
+
+        // Buffed Tower Data
+        ProjectileData buffedData = CurrentProjectileData; // Buffed Data
+        if (buffedData == null) return;
+
+        // Projectile Count
+        int shotCount = CurrentProjectileCount; // From TowerDataSO
+        var baseData = towerData.projectileType; // Pooling Key
+        if (baseData == null) return;
+
+        var attackType = buffedData.AttackType;
+
+        var targets = targetingSystem.CurrentTargets;
+
+        if (targets == null || targets.Count == 0)
+        {
+            var single = targetingSystem.CurrentTarget;
+            FireToTarget(single, buffedData, baseData, shotCount, attackType, cam);
+            return;
+        }
+
+        foreach (var target in targets)
+        {
+            FireToTarget(target, buffedData, baseData, shotCount, attackType, cam);
+        }
+    }
+
+    private void FireToTarget(
+        ITargetable target,
+        ProjectileData buffedData,
+        ProjectileData baseData,
+        int shotCount,
+        float attackType,
+        Camera cam)
+    {
+        if (target == null || !target.isAlive) return;
 
         Vector3 vp = cam.WorldToViewportPoint(target.position);
         bool inViewport = (vp.z > 0f &&
@@ -143,24 +175,7 @@ public class TowerAttack : MonoBehaviour
         if (!inViewport) return;
 
         Vector3 direction = (target.position - firePoint.position).normalized;
-
-        //Buffed Tower Data
-        ProjectileData buffedData = CurrentProjectileData; //Buffed Data
-        if (buffedData == null) return;
-
-        //Enemy Debug---------------------------------------
-        var targetEnemy = target as Enemy;
-        string strategyName = targetingSystem.GetTowerData()?.targetPriority?.GetType().Name ?? "Unknown";
-        // Debug.Log($"[SHOOT] Tower: {gameObject.name} | Strategy: {strategyName} | Target: {(target as MonoBehaviour)?.name} | HP: {target.maxHp} | ATK: {target.atk} | DEF: {target.def} | Distance: {Vector3.Distance(transform.position, target.position):F2}");
-        //--------------------------------------------
-
-        int shotCount = CurrentProjectileCount; //From TowerDataSO (NO DataTable)
-        var baseData = towerData.projectileType; //Pooling Key
-
-        //add projectile debug-----------------------
-        // float spreadAngle = 10f;
         float centerIndex = (shotCount - 1) * 0.5f;
-        //-------------------------------------------
 
         for (int i = 0; i < shotCount; i++)
         {
@@ -168,21 +183,20 @@ public class TowerAttack : MonoBehaviour
             var projectile = ProjectilePoolManager.Instance.GetProjectile(baseData);
             var verticalDirection = new Vector3(-direction.y, direction.x, direction.z).normalized;
 
-            projectile.transform.position = firePoint.position + verticalDirection * projectileOffset * offsetIndex;
+            projectile.transform.position =
+                firePoint.position + verticalDirection * projectileOffset * offsetIndex;
             projectile.transform.rotation = Quaternion.LookRotation(direction);
 
-            //Initialize Buffed Data
             projectile.Initialize(
                 buffedData,
                 baseData,
                 direction,
                 true,
                 projectilePoolManager.ProjectilePool
-                );
+            );
 
-            if (CurrentProjectileData.AttackType == (int)ProjectileType.Homing)
+            if (attackType == (int)ProjectileType.Homing)
             {
-                //Set Target for Homing
                 projectile.SetHomingTarget(target);
             }
 
@@ -197,6 +211,7 @@ public class TowerAttack : MonoBehaviour
             }
         }
     }
+
     public void AddAbility(int ability)
     {
         abilities.Add(ability);
@@ -252,6 +267,8 @@ public class TowerAttack : MonoBehaviour
             targetNumberBuffAdd = 0;
             hitRateBuffMul = 1f;
 
+            if (targetingSystem != null) targetingSystem.SetMaxTargetCount(1);
+
             return;
         }
         //Accumulate Buff Data
@@ -264,6 +281,12 @@ public class TowerAttack : MonoBehaviour
         fixedPenetrationBuffAdd += amp.FixedPenetrationBuff;
         targetNumberBuffAdd += amp.TargetNumberBuff;
         hitRateBuffMul *= amp.HitRateBuff;
+
+        if (targetingSystem != null)
+        {
+            int finalTargetCount = 1 + targetNumberBuffAdd;
+            targetingSystem.SetMaxTargetCount(finalTargetCount);
+        }
     }
 
     private ProjectileData GetBuffedProjectileData() //making runtime once
