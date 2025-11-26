@@ -9,15 +9,22 @@ public class Explosion : MonoBehaviour
     private float explosionTimeInterval = 0.3f;
     private float explosionTimer = 0f;
 
+    private float FixedPanetration = 0f;
+    private float RatePanetration = 0f;
+    private float damage = 0f;
+
     void Awake()
     {
         explosionCollider = GetComponent<SphereCollider>();
     }
 
-    public void SetInitRadius(float initRadius, float explosionRadius)
+    public void SetInit(float initRadius, float explosionRadius, Projectile projectileData)
     {
         this.initRadius = initRadius;
         this.explosionRadius = explosionRadius;
+        damage = projectileData.damage;
+        FixedPanetration = projectileData.FixedPanetration;
+        RatePanetration = projectileData.RatePanetration;
     }
 
     // Update is called once per frame
@@ -38,7 +45,21 @@ public class Explosion : MonoBehaviour
         var enemy = other.gameObject.GetComponent<Enemy>();
         if (damagable != null && enemy != null)
         {
-            damagable.OnDamage(100f);
+            damagable.OnDamage(CalculateTotalDamage(enemy.Data.Defense));
         }
+    }
+
+    public float CalculateTotalDamage(float enemyDef)
+    {
+        var RatePanetration = Mathf.Clamp(this.RatePanetration, 0f, 100f);
+        // Debug.Log(damage);
+        var totalEnemyDef = enemyDef * (1 - RatePanetration / 100f) - FixedPanetration;
+        if(totalEnemyDef < 0)
+        {
+            totalEnemyDef = 0;
+        }
+        var totalDamage = damage * 100f / (100f + totalEnemyDef);
+        
+        return totalDamage;
     }
 }
