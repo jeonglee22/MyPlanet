@@ -8,6 +8,7 @@ public class PatternExecutor : MonoBehaviour
     
     private Dictionary<IPattern, float> patternCooldowns = new Dictionary<IPattern, float>();
     private Dictionary<IPattern, int> patternRepeatExecutions = new Dictionary<IPattern, int>();
+    private Dictionary<IPattern, float> patternWeights = new Dictionary<IPattern, float>();
 
     private float patternTimer = 0f;
     private float patternInterval = 3f;
@@ -20,6 +21,8 @@ public class PatternExecutor : MonoBehaviour
         patterns.Clear();
         patternCooldowns.Clear();
         patternRepeatExecutions.Clear();
+        patternWeights.Clear();
+        patternTimer = 0f;
         IsPatternLine = false;
     }
 
@@ -33,6 +36,12 @@ public class PatternExecutor : MonoBehaviour
         patterns.Add(pattern);
         patternCooldowns[pattern] = 0f;
         patternRepeatExecutions[pattern] = owner.CurrentPatternData.PatternValue;
+
+        var patternData = pattern.GetPatternData();
+        if(patternData != null)
+        {
+            patternWeights[pattern] = patternData.Weight;
+        }
     }
 
     public void RemovePattern(IPattern pattern)
@@ -45,6 +54,7 @@ public class PatternExecutor : MonoBehaviour
         patterns.Remove(pattern);
         patternCooldowns.Remove(pattern);
         patternRepeatExecutions.Remove(pattern);
+        patternWeights.Remove(pattern);
     }
 
     public void ClearPatterns()
@@ -86,15 +96,7 @@ public class PatternExecutor : MonoBehaviour
             {
                 availablePatterns.Add(pattern);
 
-                var patternData = pattern.GetPatternData();
-                if(patternData != null)
-                {
-                    weights.Add(patternData.Weight);
-                }
-                else
-                {
-                    weights.Add(1f);
-                }
+                weights.Add(patternWeights[pattern]);
             }
         }
 

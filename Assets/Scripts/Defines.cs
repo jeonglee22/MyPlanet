@@ -76,7 +76,7 @@ public enum MoveType
     Homing,
     Chase,
     FollowParent,
-    DescendAndStopMovement,
+    DescendAndStopMovement = 10,
 }
 
 public enum PatternIds
