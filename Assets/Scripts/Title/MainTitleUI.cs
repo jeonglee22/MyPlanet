@@ -9,6 +9,7 @@ public class MainTitleUI : MonoBehaviour
     [SerializeField] private Button gameStartButton;
     [SerializeField] private Button logInOutButton;
     [SerializeField] private Button exitButton;
+    [SerializeField] private Button enemyTestButton;
     [SerializeField] private MainTitleCanvasManager canvasManager;
 
     [SerializeField] private TextMeshProUGUI uidText;
@@ -24,6 +25,8 @@ public class MainTitleUI : MonoBehaviour
 
         gameStartButton.onClick.AddListener(() => OnStartGameButtonClicked().Forget());
         logInOutButton.onClick.AddListener(() => OnLogInOutButtonClicked());
+        enemyTestButton.onClick.AddListener(() => OnEnemyTestButtonClicked().Forget());
+
 #if UNITY_EDITOR
         exitButton.onClick.AddListener(() => UnityEditor.EditorApplication.isPlaying = false);
 #elif UNITY_ANDROID
@@ -73,5 +76,10 @@ public class MainTitleUI : MonoBehaviour
     {
         Debug.Log("Game Start Button Clicked");
         await SceneControlManager.Instance.LoadScene(SceneName.BattleScene);
+    }
+
+    private async UniTaskVoid OnEnemyTestButtonClicked()
+    {
+        await SceneControlManager.Instance.LoadScene(SceneName.EnemyTestScene);
     }
 }

@@ -105,7 +105,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
     private void Update()
     {
-        if (towerInfoUI.gameObject.activeSelf) return;
+        if (towerInfoUI != null && towerInfoUI.gameObject.activeSelf) return;
 
         OnTouchStateCheck();
         OnTouchMakeDrageImage();
@@ -294,7 +294,8 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         if (installControl.IsUsedSlot(numlist[index]))
         {
             installControl.UpgradeTower(numlist[index]);
-            towerInfoUI.gameObject.SetActive(false);
+            if (towerInfoUI != null)
+                towerInfoUI.gameObject.SetActive(false);
             gameObject.SetActive(false);
         }
     }
