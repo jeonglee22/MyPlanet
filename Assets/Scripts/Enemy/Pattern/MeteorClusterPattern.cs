@@ -96,7 +96,7 @@ public class MeteorClusterPattern : SpecialPattern
         {
             Vector3 spawnPosition = owner.transform.position + childOffsets[i];
 
-            Enemy childMeteor = spawner.SpawnEnemyAsChild(enemyId, spawnPosition, scaleData, childMoveType);
+            Enemy childMeteor = spawner.SpawnEnemyAsChild(enemyId, spawnPosition, scaleData, childMoveType, owner.ShouldDropItems);
             var followMovement = childMeteor.Movement.CurrentMovement as FollowParentMovement;
 
             if(childMeteor != null)

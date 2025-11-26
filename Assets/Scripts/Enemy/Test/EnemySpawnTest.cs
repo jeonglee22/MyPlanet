@@ -14,7 +14,8 @@ public class EnemySpawnTest : MonoBehaviour
         DefScale = 1f,
         MoveSpeedScale = 1f,
         PenetScale = 1f,
-        PrefabScale = 1f
+        PrefabScale = 1f,
+        ExpScale = 1f
     };
 
     void OnEnable()

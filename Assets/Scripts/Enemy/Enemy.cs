@@ -57,6 +57,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
     public Func<float> OnCollisionDamageCalculate { get; set; }
 
+    public bool ShouldDropItems { get; set; } = true;
+
     protected override void OnEnable()
     {
         base.OnEnable();
@@ -119,12 +121,15 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
         StopLifeTime();
 
-        foreach (var drop in drops)
+        if (ShouldDropItems)
         {
-            var dropInstance = Instantiate(drop, transform.position, Quaternion.identity);
-            if(dropInstance is ExpItem expItem)
+            foreach (var drop in drops)
             {
-                expItem.SetExp(exp);
+                var dropInstance = Instantiate(drop, transform.position, Quaternion.identity);
+                if(dropInstance is ExpItem expItem)
+                {
+                    expItem.SetExp(exp);
+                }
             }
         }
 

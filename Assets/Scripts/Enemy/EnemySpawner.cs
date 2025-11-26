@@ -143,12 +143,17 @@ public class EnemySpawner : MonoBehaviour
         return CreateEnemy(enemyId, spawnPosition, Vector3.down, scaleData);
     }
 
-    public Enemy SpawnEnemyAsChild(int enemyId, Vector3 spawnPosition, ScaleData scaleData, int moveType)
+    public Enemy SpawnEnemyAsChild(int enemyId, Vector3 spawnPosition, ScaleData scaleData, int moveType, bool ShouldDropItems = true)
     {
-        return CreateChildEnemy(enemyId, spawnPosition, Vector3.down, scaleData, moveType);
+        var enemy = CreateChildEnemy(enemyId, spawnPosition, Vector3.down, scaleData, moveType);
+        if(enemy != null)
+        {
+            enemy.ShouldDropItems = ShouldDropItems;
+        }
+        return enemy;
     }
 
-    public void SpawnEnemiesWithMovement(int enemyId, int quantity, ScaleData scaleData, int moveType)
+    public void SpawnEnemiesWithMovement(int enemyId, int quantity, ScaleData scaleData, int moveType, bool ShouldDropItems = true)
     {
         PreparePool(enemyId);
 
@@ -161,7 +166,11 @@ public class EnemySpawner : MonoBehaviour
         for (int i = 0; i < quantity; i++)
         {
             Vector3 spawnPos = GetRandomPositionInCircle();
-            SpawnEnemyWithScale(enemyId, spawnPos, scaleData);
+            var enemy = SpawnEnemyWithScale(enemyId, spawnPos, scaleData);
+            if(enemy != null)
+            {
+                enemy.ShouldDropItems = ShouldDropItems;
+            }
         }
     }
 }

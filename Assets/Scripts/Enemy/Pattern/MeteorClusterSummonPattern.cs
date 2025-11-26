@@ -11,7 +11,7 @@ public class MeteorClusterSummonPattern : SummonPattern
 
     protected override void Summon()
     {
-        owner.Spawner.SpawnEnemiesWithMovement(summonData.Enemy_Id, summonData.EnemyQuantity_1, owner.ScaleData, summonEnemyData.MoveType);
+        owner.Spawner.SpawnEnemiesWithMovement(summonData.Enemy_Id, summonData.EnemyQuantity_1, owner.ScaleData, summonEnemyData.MoveType, false);
     }
 
     public override void PatternUpdate()
