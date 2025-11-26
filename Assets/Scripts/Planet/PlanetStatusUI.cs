@@ -49,6 +49,9 @@ public class PlanetStatusUI : MonoBehaviour
 
      private void ChangeLevelText()
     {
+        if(levelText==null) 
+            return;
+        
         levelText.text = $"Level : {planet.Level}";
     }
 

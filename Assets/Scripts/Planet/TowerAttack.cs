@@ -183,6 +183,12 @@ public class TowerAttack : MonoBehaviour
             var projectile = ProjectilePoolManager.Instance.GetProjectile(baseData);
             var verticalDirection = new Vector3(-direction.y, direction.x, direction.z).normalized;
 
+            // ApplyAccuracyOffset(
+            //     ref direction,
+            //     towerData.Accuracy,
+            //     offsetIndex
+            // );
+
             projectile.transform.position =
                 firePoint.position + verticalDirection * projectileOffset * offsetIndex;
             projectile.transform.rotation = Quaternion.LookRotation(direction);
@@ -210,6 +216,11 @@ public class TowerAttack : MonoBehaviour
                 ability.Setting(gameObject);
             }
         }
+    }
+
+    private void ApplyAccuracyOffset(ref Vector3 direction, float accuracy, float offsetIndex)
+    {
+        
     }
 
     public void AddAbility(int ability)
