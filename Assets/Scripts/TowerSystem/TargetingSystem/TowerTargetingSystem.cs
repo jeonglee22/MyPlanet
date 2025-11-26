@@ -35,7 +35,7 @@ public class TowerTargetingSystem : MonoBehaviour
     public TowerDataSO GetTowerData() => assignedTowerData;
 
     //Target Number
-    private int baseMaxTargetCount = 3; //only Var
+    private int baseMaxTargetCount = 1; //only Var
     private int extraTargetCount = 0; //Add Buffed Data
     public int MaxTargetCount => Mathf.Max(1, baseMaxTargetCount + extraTargetCount);
 
