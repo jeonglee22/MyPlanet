@@ -38,7 +38,8 @@ public class PlanetTowerUI : MonoBehaviour
     
     private void OnStartBattelClicked()
     {
-        towerInfoUI.gameObject.SetActive(false);
+        if (towerInfoUI != null)
+            towerInfoUI.gameObject.SetActive(false);
         gameObject.SetActive(false);
         Time.timeScale = 1f;
     }

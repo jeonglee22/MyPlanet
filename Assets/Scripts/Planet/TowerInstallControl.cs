@@ -86,7 +86,9 @@ public class TowerInstallControl : MonoBehaviour
         planet = planetObj.GetComponent<Planet>();
 
         ResetTowerSlot(towerCount);
-        towerInfoObj.SetActive(false);
+
+        if (towerInfoObj != null)
+            towerInfoObj.SetActive(false);
         CurrentTowerCount = 0;
     }
 
@@ -293,7 +295,7 @@ public class TowerInstallControl : MonoBehaviour
 
     public void OpenInfoUI(int index)
     {
-        if (IsReadyInstall) return;
+        if (IsReadyInstall || towerInfoObj == null) return;
 
         towerInfoObj.SetActive(true);
         towerInfoObj.GetComponent<TowerInfoUI>().SetInfo(index);
