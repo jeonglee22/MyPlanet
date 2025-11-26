@@ -38,8 +38,8 @@ public class AbilityManager : MonoBehaviour
         abilityDict.Add((int)AbilityId.Homing, new HomingUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Homing).SpecialEffectValue));
         abilityDict.Add((int)AbilityId.Duration, new DurationUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Duration).SpecialEffectValue));
         abilityDict.Add((int)AbilityId.TargetCount, new TargetCountUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.TargetCount).SpecialEffectValue));
+        abilityDict.Add((int)AbilityId.Hitscan, new HitScanUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Hitscan).SpecialEffectValue));
         
-        abilityDict.Add((int)AbilityId.Hitscan, new AttackUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.AttackDamage).SpecialEffectValue));
         abilityDict.Add((int)AbilityId.Accuracy, new AttackUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.AttackDamage).SpecialEffectValue));
         abilityDict.Add((int)AbilityId.AttackSpeedOneTarget, new AttackUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.AttackDamage).SpecialEffectValue));
         
@@ -54,8 +54,8 @@ public class AbilityManager : MonoBehaviour
 
         var index = Random.Range(0, count);
         var keys = new List<int>(abilityDict.Keys);
-        // return (int)AbilityId.Explosion;
-        return keys[index];
+        return (int)AbilityId.Hitscan;
+        // return keys[index];
     }
 
     public static IAbility GetAbility(int id)

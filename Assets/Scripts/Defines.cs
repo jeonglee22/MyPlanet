@@ -22,6 +22,7 @@ public static class ObjectName
     public static readonly string ChainEffect = "ChainEffect";
     public static readonly string MeteorChild = "MeteorChild";
     public static readonly string Explosion = "Explosion";
+    public static readonly string HitScan = "HitScan";
 }
 
 public static class SceneName

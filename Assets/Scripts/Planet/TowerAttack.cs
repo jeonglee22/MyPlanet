@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class TowerAttack : MonoBehaviour
 {
@@ -75,6 +76,12 @@ public class TowerAttack : MonoBehaviour
     //Apply Buff Version Projectile Data SO------------------
     private ProjectileData currentProjectileData; //base projectile data from Data Table
     private ProjectileData addBuffProjectileData; //making runtime once
+    private float hitScanTimer;
+    private bool isHitScanActive = false;
+    public bool IsHitScanActive => isHitScanActive;
+
+    public bool IsHaveHitScanAbility {get ; set;} = false;
+
     public ProjectileData BaseProjectileData => currentProjectileData;
     public ProjectileData BuffedProjectileData => CurrentProjectileData;
     public ProjectileData CurrentProjectileData 
@@ -125,10 +132,33 @@ public class TowerAttack : MonoBehaviour
         if (finalFireRate <= 0) return;
         float shootInterval = 1f / finalFireRate;
 
+        float hitScanInterval = shootInterval * 0.5f;
+
+        if(shootTimer >= hitScanInterval && !isHitScanActive && IsHaveHitScanAbility)
+        {
+            StartHitscan(hitScanInterval);
+        }
+
         if(shootTimer>=shootInterval)
         {
             ShootAtTarget();
             shootTimer = 0f;
+            hitScanTimer = 0f;
+            isHitScanActive = false;
+        }
+    }
+
+    private void StartHitscan(float hitScanInterval)
+    {
+        isHitScanActive = true;
+        
+        foreach (var target in targetingSystem.CurrentTargets)
+        {
+            if (target == null || !target.isAlive) continue;
+
+            var obj = LoadManager.GetLoadedGamePrefab(ObjectName.HitScan);
+            var hitScan = obj.GetComponent<HitScan>();
+            hitScan.SetHitScan(target as Enemy, hitScanInterval);
         }
     }
 
