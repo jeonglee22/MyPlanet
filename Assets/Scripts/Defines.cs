@@ -119,6 +119,7 @@ public static class DataTableIds
 public static class Variables
 {
     public static int Stage {get; set;} = 1;
+    public static Enemy LastBossEnemy {get; set;} = null;
 }
 
 public static class AddressLabel
