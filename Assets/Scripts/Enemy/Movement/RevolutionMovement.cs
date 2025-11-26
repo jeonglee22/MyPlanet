@@ -1,8 +1,10 @@
+using System;
 using UnityEngine;
 
 public class RevolutionMovement : IMovement
 {
     private float offSet = 2f;
+    private float angleSpeed = 0.5f;
 
     private bool isPatternLine = false;
     public bool IsPatternLine => isPatternLine;
@@ -36,9 +38,17 @@ public class RevolutionMovement : IMovement
             }
         }
 
-        //currentAngle += 
+        currentAngle += angleSpeed * Time.deltaTime;
 
-        return Vector3.zero;
+        Vector3 centerPosition = lastBoss.position;
+        float x = Mathf.Cos(currentAngle) * revolutionRadius;
+        float y = Mathf.Sin(currentAngle) * revolutionRadius;
+
+        Vector3 targetPosition = new Vector3(centerPosition.x + x, centerPosition.y + y, ownerTransform.position.z);
+
+        Vector3 direction = targetPosition - ownerTransform.position;
+
+        return direction.normalized;
     }
 
     public void Initialize()
