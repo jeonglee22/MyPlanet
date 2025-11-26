@@ -86,4 +86,10 @@ public abstract class SummonPattern : IPattern
     protected abstract void Summon();
 
     public PatternData GetPatternData() => patternData;
+
+    protected EnemySpawner GetRandomSpawner()
+    {
+        int index = Random.Range(1, SpawnManager.Instance.Spawners.Count - 1);
+        return SpawnManager.Instance.Spawners[index];
+    }
 }
