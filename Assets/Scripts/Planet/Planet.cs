@@ -31,7 +31,7 @@ public class Planet : LivingEntity
         set
         {
             exp = value;
-            if (exp >= MaxExp)
+            while (exp >= MaxExp)
             {
                 level++;
                 levelUpEvent?.Invoke();
@@ -56,16 +56,17 @@ public class Planet : LivingEntity
         planetAttacks = new List<TowerAttack>();
         InitPlanet();
         exp = 0f;
+        MaxExp = DataTableManager.PlanetLevelUpTable.Get(level).Exp;
 
         if (towerSlotTransform == null) towerSlotTransform = transform;
     }
 
-    private async UniTaskVoid Start()
-    {
-        await UniTask.WaitUntil(() => DataTableManager.IsInitialized);
+    // private async UniTaskVoid Start()
+    // {
+    //     await UniTask.WaitUntil(() => DataTableManager.IsInitialized);
         
-        MaxExp = DataTableManager.PlanetLevelUpTable.Get(level).Exp;
-    }
+    //     MaxExp = DataTableManager.PlanetLevelUpTable.Get(level).Exp;
+    // }
 
     protected override void OnEnable()
     {
