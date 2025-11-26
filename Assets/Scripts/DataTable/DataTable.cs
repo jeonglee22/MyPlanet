@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using CsvHelper;
 using Cysharp.Threading.Tasks;
-using UnityEngine;
 
 public abstract class DataTable
 {

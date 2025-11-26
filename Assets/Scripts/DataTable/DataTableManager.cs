@@ -37,6 +37,7 @@ public static class DataTableManager
             LoadTableAsync<SpecialEffectTable>(DataTableIds.SpecialEffect),
             LoadTableAsync<PatternTable>(DataTableIds.Pattern),
             LoadTableAsync<MinionSpawnTable>(DataTableIds.MinionSpawn),
+            LoadTableAsync<PlanetLevelUpTable>(DataTableIds.PlanetLevelUp),
         };
 
         await UniTask.WhenAll(tasks);
@@ -137,6 +138,14 @@ public static class DataTableManager
         get
         {
             return Get<MinionSpawnTable>(DataTableIds.MinionSpawn);
+        }
+    }
+
+    public static PlanetLevelUpTable PlanetLevelUpTable
+    {
+        get
+        {
+            return Get<PlanetLevelUpTable>(DataTableIds.PlanetLevelUp);
         }
     }
 

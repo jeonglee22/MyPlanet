@@ -1,6 +1,4 @@
-using System;
-using System.IO;
-using Unity.VisualScripting;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,6 +9,7 @@ public class PlanetStatusUI : MonoBehaviour
     [SerializeField] private Slider hpSlider;
     [SerializeField] private Slider expSlider;
     [SerializeField] private GameObject towerSettingUi;
+    [SerializeField] private TextMeshProUGUI levelText;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -18,6 +17,7 @@ public class PlanetStatusUI : MonoBehaviour
         planet.HpDecreseEvent += HpValueChanged;
         planet.expUpEvent += ExpValueChange;
         planet.levelUpEvent += OpenTowerUpgradeUI;
+        planet.levelUpEvent += ChangeLevelText;
 
         towerSettingUi.SetActive(true);
         Initialize();
@@ -35,12 +35,19 @@ public class PlanetStatusUI : MonoBehaviour
         planet.expUpEvent -= ExpValueChange;
         planet.HpDecreseEvent -= HpValueChanged;
         planet.levelUpEvent -= OpenTowerUpgradeUI;
+        planet.levelUpEvent -= ChangeLevelText;
     }
 
     private void Initialize()
     {
         HpValueChanged(planet.Health);
         ExpValueChange(planet.CurrentExp);
+        ChangeLevelText();
+    }
+
+     private void ChangeLevelText()
+    {
+        levelText.text = $"Level : {planet.Level}";
     }
 
     private void OpenTowerUpgradeUI()
@@ -59,8 +66,8 @@ public class PlanetStatusUI : MonoBehaviour
         expSlider.value = exp / planet.MaxExp;
     }
 
-    public void AddExp()
+    public void AddExp(float exp = 10f)
     {
-        planet.CurrentExp += 10f;
+        planet.CurrentExp += exp;
     }
 }

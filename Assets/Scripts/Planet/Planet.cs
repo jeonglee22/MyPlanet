@@ -19,7 +19,8 @@ public class Planet : LivingEntity
     private int towerCount;
     public int TowerCount => towers?.Count ?? 0;
     private float exp;
-    private float level;
+    private int level = 1;
+    public int Level => level;
 
     public event Action levelUpEvent;
     public event Action<float> expUpEvent;
@@ -34,14 +35,15 @@ public class Planet : LivingEntity
             {
                 level++;
                 levelUpEvent?.Invoke();
-                exp = 0f;
-                MaxExp *= 1.2f;
+                exp -= MaxExp;
+                MaxExp = DataTableManager.PlanetLevelUpTable.Get(level).Exp;
+                Debug.Log($"Next Level Exp : {MaxExp}");
             }
             expUpEvent?.Invoke(exp);
         }
     }
 
-    public float MaxExp { get; internal set; } = 100f;
+    public float MaxExp { get; private set; }
 
     [SerializeField] private Color baseColor = Color.white;
     [SerializeField] private Color hitColor = Color.gray;
@@ -54,13 +56,15 @@ public class Planet : LivingEntity
         planetAttacks = new List<TowerAttack>();
         InitPlanet();
         exp = 0f;
-        MaxExp = 100f;
 
         if (towerSlotTransform == null) towerSlotTransform = transform;
     }
 
-    private void Start()
+    private async UniTaskVoid Start()
     {
+        await UniTask.WaitUntil(() => DataTableManager.IsInitialized);
+        
+        MaxExp = DataTableManager.PlanetLevelUpTable.Get(level).Exp;
     }
 
     protected override void OnEnable()
