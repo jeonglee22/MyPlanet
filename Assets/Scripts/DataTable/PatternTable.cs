@@ -15,6 +15,8 @@ public class PatternData
     public float PatternDamageRate { get; set; }
     public float Weight { get; set; }
     public float Cooltime { get; set; }
+    public float PatternDelay { get; set; }
+    public float RepeatDelay { get; set; }
 
     public override string ToString()
     {

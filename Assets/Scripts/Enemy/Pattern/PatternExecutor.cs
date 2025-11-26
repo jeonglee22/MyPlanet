@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public class PatternExecutor : MonoBehaviour
@@ -10,10 +12,18 @@ public class PatternExecutor : MonoBehaviour
     private Dictionary<IPattern, int> patternRepeatExecutions = new Dictionary<IPattern, int>();
     private Dictionary<IPattern, float> patternWeights = new Dictionary<IPattern, float>();
 
+    public bool IsPatternLine { get; set; } = false;
+
+    private bool isExecutePattern = false;
+    private CancellationTokenSource patternCts;
+
     private float patternTimer = 0f;
     private float patternInterval = 3f;
 
-    public bool IsPatternLine { get; set; } = false;
+    private void OnDestroy()
+    {
+        Cancel();
+    }
 
     public void Initialize(Enemy enemy)
     {
@@ -22,8 +32,12 @@ public class PatternExecutor : MonoBehaviour
         patternCooldowns.Clear();
         patternRepeatExecutions.Clear();
         patternWeights.Clear();
-        patternTimer = 0f;
         IsPatternLine = false;
+
+
+        isExecutePattern = false;
+
+        Cancel();
     }
 
     public void AddPattern(IPattern pattern)
@@ -55,19 +69,27 @@ public class PatternExecutor : MonoBehaviour
         patternCooldowns.Remove(pattern);
         patternRepeatExecutions.Remove(pattern);
         patternWeights.Remove(pattern);
+
+        Cancel();
     }
 
     public void ClearPatterns()
     {
+        Cancel();
+
         patterns.Clear();
         patternCooldowns.Clear();
         patternRepeatExecutions.Clear();
+        patternWeights.Clear();
+
+        isExecutePattern = false;
     }
 
     private void Update()
     {
         if(owner == null || owner.IsDead)
         {
+            Cancel();
             return;
         }
 
@@ -84,6 +106,11 @@ public class PatternExecutor : MonoBehaviour
             {
                 pattern.Execute();
             }
+        }
+
+        if(isExecutePattern)
+        {
+            return;
         }
 
         //Can execute patterns
@@ -104,13 +131,9 @@ public class PatternExecutor : MonoBehaviour
         if(patternTimer > patternInterval && availablePatterns.Count > 0)
         {
             IPattern selectedPattern = SelectPatternWeight(availablePatterns, weights);
-            if(GetPatternData(selectedPattern).Pattern_Id == (int)PatternIds.TitanEleteMeteorClusterSummon)
-            {
-                Debug.Log("Titan");
-            }
             if(selectedPattern != null)
             {
-                ExecutePattern(selectedPattern);
+                ExecutePatternAsync(selectedPattern, patternCts.Token).Forget();
             }
             patternTimer = 0f;
         }
@@ -129,7 +152,7 @@ public class PatternExecutor : MonoBehaviour
         IsPatternLine = true;
     }
 
-    private void ExecutePattern(IPattern pattern)
+    private async UniTaskVoid ExecutePatternAsync(IPattern pattern, CancellationToken token)
     {
         var patternData = pattern.GetPatternData();
         if(patternData == null)
@@ -137,12 +160,37 @@ public class PatternExecutor : MonoBehaviour
             return;
         }
 
-        for(int i = 0; i < patternRepeatExecutions[pattern]; i++)
-        {
-            pattern.Execute();
-        }
+        isExecutePattern = true;
 
-        patternCooldowns[pattern] = patternData.Cooltime;
+        try
+        {
+            for(int i = 0; i < patternRepeatExecutions[pattern]; i++)
+            {
+                token.ThrowIfCancellationRequested();
+
+                pattern.Execute();
+
+                if(i < patternRepeatExecutions[pattern] - 1 && patternData.RepeatDelay > 0f)
+                {
+                    await UniTask.Delay(System.TimeSpan.FromSeconds(patternData.RepeatDelay), cancellationToken: token);
+                }
+            }
+
+            if(patternData.PatternDelay > 0f)
+            {
+                await UniTask.Delay(System.TimeSpan.FromSeconds(patternData.PatternDelay), cancellationToken: token);
+            }
+
+            patternCooldowns[pattern] = patternData.Cooltime;
+        }
+        catch(System.OperationCanceledException)
+        {
+            
+        }
+        finally
+        {
+            isExecutePattern = false;
+        }
     }
 
     private PatternData GetPatternData(IPattern pattern)
@@ -176,5 +224,12 @@ public class PatternExecutor : MonoBehaviour
         }
 
         return patterns[patterns.Count - 1];
+    }
+
+    public void Cancel()
+    {
+        patternCts?.Cancel();
+        patternCts?.Dispose();
+        patternCts = new CancellationTokenSource();
     }
 }
