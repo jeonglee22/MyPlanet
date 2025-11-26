@@ -15,11 +15,13 @@ public class Planet : LivingEntity
     [SerializeField] private GameObject towerPrefab; //Attack Tower
     [SerializeField] private GameObject amplifierTowerPrefab; //Amplier Tower
     [SerializeField] private Transform towerSlotTransform;
+    [SerializeField] private TowerInstallControl towerInstallControl;
 
     private int towerCount;
     public int TowerCount => towers?.Count ?? 0;
     private float exp;
-    private float level;
+    private int level = 1;
+    public int Level => level;
 
     public event Action levelUpEvent;
     public event Action<float> expUpEvent;
@@ -30,18 +32,21 @@ public class Planet : LivingEntity
         set
         {
             exp = value;
-            if (exp >= MaxExp)
+            int levelUpCount = 0;
+            while (exp >= MaxExp)
             {
                 level++;
-                levelUpEvent?.Invoke();
-                exp = 0f;
-                MaxExp *= 1.2f;
+                exp -= MaxExp;
+                MaxExp = DataTableManager.PlanetLevelUpTable.Get(level).Exp;
+                Debug.Log($"Next Level Exp : {MaxExp}");
+                levelUpCount++;
             }
+            levelUps(levelUpCount).Forget();
             expUpEvent?.Invoke(exp);
         }
     }
 
-    public float MaxExp { get; internal set; } = 100f;
+    public float MaxExp { get; private set; }
 
     [SerializeField] private Color baseColor = Color.white;
     [SerializeField] private Color hitColor = Color.gray;
@@ -54,14 +59,17 @@ public class Planet : LivingEntity
         planetAttacks = new List<TowerAttack>();
         InitPlanet();
         exp = 0f;
-        MaxExp = 100f;
+        MaxExp = DataTableManager.PlanetLevelUpTable.Get(level).Exp;
 
         if (towerSlotTransform == null) towerSlotTransform = transform;
     }
 
-    private void Start()
-    {
-    }
+    // private async UniTaskVoid Start()
+    // {
+    //     await UniTask.WaitUntil(() => DataTableManager.IsInitialized);
+        
+    //     MaxExp = DataTableManager.PlanetLevelUpTable.Get(level).Exp;
+    // }
 
     protected override void OnEnable()
     {
@@ -88,6 +96,16 @@ public class Planet : LivingEntity
         }
         shootTime += Time.deltaTime;*/
 #endif
+    }
+
+    private async UniTaskVoid levelUps(int count)
+    {
+        Debug.Log("LevelUpCount" + count);
+        for (int i = 0; i < count; i++)
+        {
+            levelUpEvent?.Invoke();
+            await UniTask.WaitUntil(() => !towerInstallControl.isInstall);
+        }
     }
     
     public void InitPlanet(int towerCount = 12)
