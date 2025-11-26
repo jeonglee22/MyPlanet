@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class StraightDownMovement : IMovement
 {
+    private bool isPatternLine = false;
+    public bool IsPatternLine => isPatternLine;
+
     public void Initialize()
     {
         

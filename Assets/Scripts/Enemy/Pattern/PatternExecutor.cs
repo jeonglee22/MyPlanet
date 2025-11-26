@@ -7,7 +7,10 @@ public class PatternExecutor : MonoBehaviour
     private List<IPattern> patterns = new List<IPattern>();
     
     private Dictionary<IPattern, float> patternCooldowns = new Dictionary<IPattern, float>();
-    private Dictionary<IPattern, int> patternRemainingExecutions = new Dictionary<IPattern, int>();
+    private Dictionary<IPattern, int> patternRepeatExecutions = new Dictionary<IPattern, int>();
+
+    private float patternTimer = 0f;
+    private float patternInterval = 3f;
 
     public bool IsPatternLine { get; set; } = false;
 
@@ -16,7 +19,7 @@ public class PatternExecutor : MonoBehaviour
         owner = enemy;
         patterns.Clear();
         patternCooldowns.Clear();
-        patternRemainingExecutions.Clear();
+        patternRepeatExecutions.Clear();
         IsPatternLine = false;
     }
 
@@ -29,7 +32,7 @@ public class PatternExecutor : MonoBehaviour
 
         patterns.Add(pattern);
         patternCooldowns[pattern] = 0f;
-        patternRemainingExecutions[pattern] = 0;
+        patternRepeatExecutions[pattern] = owner.CurrentPatternData.PatternValue;
     }
 
     public void RemovePattern(IPattern pattern)
@@ -41,14 +44,14 @@ public class PatternExecutor : MonoBehaviour
 
         patterns.Remove(pattern);
         patternCooldowns.Remove(pattern);
-        patternRemainingExecutions.Remove(pattern);
+        patternRepeatExecutions.Remove(pattern);
     }
 
     public void ClearPatterns()
     {
         patterns.Clear();
         patternCooldowns.Clear();
-        patternRemainingExecutions.Clear();
+        patternRepeatExecutions.Clear();
     }
 
     private void Update()
@@ -65,6 +68,11 @@ public class PatternExecutor : MonoBehaviour
             if (patternCooldowns.ContainsKey(pattern) && patternCooldowns[pattern] > 0f)
             {
                 patternCooldowns[pattern] -= Time.deltaTime;
+            }
+
+            if(pattern.Trigger == ExecutionTrigger.Immediate)
+            {
+                pattern.Execute();
             }
         }
 
@@ -90,13 +98,19 @@ public class PatternExecutor : MonoBehaviour
             }
         }
 
-        if(availablePatterns.Count > 0)
+        patternTimer += Time.deltaTime;
+        if(patternTimer > patternInterval && availablePatterns.Count > 0)
         {
             IPattern selectedPattern = SelectPatternWeight(availablePatterns, weights);
+            if(GetPatternData(selectedPattern).Pattern_Id == (int)PatternIds.TitanEleteMeteorClusterSummon)
+            {
+                Debug.Log("Titan");
+            }
             if(selectedPattern != null)
             {
                 ExecutePattern(selectedPattern);
             }
+            patternTimer = 0f;
         }
     }
 
@@ -121,10 +135,10 @@ public class PatternExecutor : MonoBehaviour
             return;
         }
 
-        patternRemainingExecutions[pattern] = patternData.PatternValue;
-
-        pattern.Execute();
-        patternRemainingExecutions[pattern]--; //first execution
+        for(int i = 0; i < patternRepeatExecutions[pattern]; i++)
+        {
+            pattern.Execute();
+        }
 
         patternCooldowns[pattern] = patternData.Cooltime;
     }

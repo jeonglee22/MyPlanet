@@ -6,7 +6,7 @@ public class EnemyMovement : MonoBehaviour
     private float initMoveSpeed;
 
     private IMovement currentMovement;
-    public IMovement CurrentMovement  => currentMovement;
+    public IMovement CurrentMovement { get => currentMovement; set => currentMovement = value; }
 
     protected Vector3 moveDirection;
     public Vector3 MoveDirection { get => moveDirection; set => moveDirection = value; }

@@ -18,8 +18,6 @@ public class ExpItem : DropItem
     public override void Initialize()
     {
         base.Initialize();
-
-        exp = 20f;
     }
 
     protected override void Update()
@@ -50,5 +48,10 @@ public class ExpItem : DropItem
         {
             isStartMove = true;
         }
+    }
+
+    public void SetExp(float exp)
+    {
+        this.exp = exp;
     }
 }

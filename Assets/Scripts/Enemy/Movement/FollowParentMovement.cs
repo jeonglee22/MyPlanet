@@ -6,6 +6,9 @@ public class FollowParentMovement : IMovement
     private Vector3 localOffset;
     private bool isInitialized = false;
 
+    private bool isPatternLine = false;
+    public bool IsPatternLine => isPatternLine;
+
     public void Initialize()
     {
         if(!isInitialized)

@@ -14,7 +14,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     private ObjectPoolManager<int, Enemy> objectPoolManager;
 
     private EnemyMovement movement;
-    public EnemyMovement Movement => movement;
+    public EnemyMovement Movement { get => movement; set => movement = value; }
     private PatternExecutor patternExecutor;
     private EnemyTableData data;
     public EnemyTableData Data { get { return data; } }
@@ -40,6 +40,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     private float lifeTime = 15f;
     public float LifeTime => lifeTime;
     private CancellationTokenSource lifeTimeCts;
+    private float exp;
 
     [SerializeField] private List<DropItem> drops;
 
@@ -63,14 +64,15 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         movement = GetComponent<EnemyMovement>();
         patternExecutor = GetComponent<PatternExecutor>();
 
+        movement?.Initialize(moveSpeed, -1, movement.CurrentMovement);
+        patternExecutor?.Initialize(this);
+
         OnDeathEvent += SpawnManager.Instance.OnEnemyDied;
         OnLifeTimeOverEvent += SpawnManager.Instance.OnEnemyDied;
 
         Material = GetComponent<Renderer>().material;
         Material.color = baseColor;
         ColorCancel();
-
-        originalScale = transform.localScale;
 
         OnCollisionDamageCalculate = null;
     }
@@ -119,7 +121,11 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
         foreach (var drop in drops)
         {
-            Instantiate(drop, transform.position, Quaternion.identity);
+            var dropInstance = Instantiate(drop, transform.position, Quaternion.identity);
+            if(dropInstance is ExpItem expItem)
+            {
+                expItem.SetExp(exp);
+            }
         }
 
         transform.localScale = originalScale;
@@ -129,6 +135,11 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
     private void OnTriggerEnter(Collider other)
     {
+        if(other.CompareTag("PatternLine"))
+        {
+            OnPatternLineTrigger();
+        }
+
         if (other.gameObject.CompareTag(TagName.Enemy))
         {
             return;
@@ -148,13 +159,9 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
             IsDead = true;
             StopLifeTime();
             OnLifeTimeOverEvent?.Invoke();
+            transform.localScale = originalScale;
             ReturnToPool();
             return;
-        }
-
-        if(other.CompareTag("PatternLine"))
-        {
-            OnPatternLineTrigger();
         }
     }
 
@@ -194,7 +201,11 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         ratePenetration = data.UniqueRatePenetration * scaleData.PenetScale;
         fixedPenetration = data.FixedPenetration * scaleData.PenetScale;
 
+        originalScale = transform.localScale;
+
         transform.localScale *= scaleData.PrefabScale;
+
+        exp = data.Exp * scaleData.ExpScale;
 
         AddMovementComponent(data.MoveType, spawnPointIndex);
 
@@ -218,6 +229,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
         ratePenetration = enemyData.UniqueRatePenetration * scaleData.PenetScale;
         fixedPenetration = enemyData.FixedPenetration * scaleData.PenetScale;
+
+        originalScale = transform.localScale;
 
         transform.localScale *= scaleData.PrefabScale;
 

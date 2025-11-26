@@ -9,11 +9,11 @@ using UnityEngine.UIElements;
 public class MeteorClusterPattern : SpecialPattern
 {
     private EnemySpawner spawner;
-    public override int PatternId => (int)PatternIds.MeteorCluster;
+    public override int PatternId => patternData.Pattern_Id;
 
     private int meteorCount = 6;
     private float damage = 10f;
-    private float spawnRadius = 1f;
+    private float spawnRadius = 0.5f;
 
     private Enemy currentLeader;
     private IMovement leaderMovement;
@@ -229,15 +229,28 @@ public class MeteorClusterPattern : SpecialPattern
         if(oldLeader != null && oldLeader.Movement != null)
         {
             IMovement oldLeaderMovement = oldLeader.Movement.CurrentMovement;
-        }
+            newLeader.Movement.CurrentMovement = oldLeaderMovement;
+            newLeader.Movement.MoveDirection = oldLeaderMovement.GetFinalDirection(currentDirection, oldLeader.transform, null);
 
+            if(oldLeaderMovement is ChaseMovement chaseMovement)
+            {
+                chaseMovement.OnPatternLine();
+            }
+        }
+        
+        /*
         if(newLeader.Movement != null)
         {
             IMovement leaderMovementCopy = CopyMovement(leaderMovement);
             float moveSpeed = oldLeader != null ? oldLeader.Data.MoveSpeed : owner.Data.MoveSpeed;
             newLeader.Movement.Initialize(moveSpeed, -1, leaderMovementCopy);
-        }
 
+            if(leaderMovementCopy is ChaseMovement chaseMovement)
+            {
+                chaseMovement.OnPatternLine();
+            }
+        }
+        */
         newLeader.OnDeathEvent += OnLeaderDeath;
         currentLeader.OnLifeTimeOverEvent += OnLeaderDeath;
 

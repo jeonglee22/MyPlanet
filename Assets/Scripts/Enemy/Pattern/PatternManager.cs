@@ -20,10 +20,13 @@ public class PatternManager : MonoBehaviour
         instance = this;
         patternDict = new Dictionary<int, Func<IPattern>>();
 
-        patternDict.Add((int)PatternIds.MeteorCluster, () => new MeteorClusterPattern());
+        patternDict.Add((int)PatternIds.HomingMeteorCluster, () => new MeteorClusterPattern());
+        patternDict.Add((int)PatternIds.ChaseMeteorCluster, () => new MeteorClusterPattern());
         patternDict.Add((int)PatternIds.SimpleShot, () => new SimpleShotPattern());
-        patternDict.Add((int)PatternIds.HomingMeteorClusterSummon, () => new MeteorClusterSummonPattern());
-        patternDict.Add((int)PatternIds.ChaseMeteorClusterSummon, () => new MeteorClusterSummonPattern());
+        patternDict.Add((int)PatternIds.DaphnisMeteorClusterSummon, () => new MeteorClusterSummonPattern());
+        patternDict.Add((int)PatternIds.DaphnisEleteMeteorClusterSummon, () => new MeteorClusterSummonPattern());
+        patternDict.Add((int)PatternIds.TitanMeteorClusterSummon, () => new MeteorClusterSummonPattern());
+        patternDict.Add((int)PatternIds.TitanEleteMeteorClusterSummon, () => new MeteorClusterSummonPattern());
     }
 
     public IPattern GetPattern(int patternId)

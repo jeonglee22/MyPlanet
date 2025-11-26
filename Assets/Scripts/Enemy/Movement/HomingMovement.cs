@@ -3,6 +3,7 @@ using UnityEngine;
 public class HomingMovement : IMovement
 {
     private bool isPatternLine = false;
+    public bool IsPatternLine => isPatternLine;
     private bool isDirectionSet = false;
     private Vector3 currentMoveDirection;
 
