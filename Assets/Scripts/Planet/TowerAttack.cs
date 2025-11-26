@@ -46,9 +46,13 @@ public class TowerAttack : MonoBehaviour
     private float hitRateBuffMul = 1f;
 
     public float BasicFireRate => towerData.fireRate;
+
+    private float accuracyBuffAdd = 0f;
+    public float AccuracyBuffAdd { get { return accuracyBuffAdd; } set { accuracyBuffAdd = value; } }
+    public float HitRateBuffMultiplier => hitRateBuffMul;
+
     public float BasicHitRate => towerData.Accuracy;
     public float FinalHitRate => towerData.Accuracy * hitRadiusBuffMul;
-    public float HitRateBuffMultiplier => hitRateBuffMul;
 
 
     //projectile Count---------------------------------------
@@ -183,11 +187,10 @@ public class TowerAttack : MonoBehaviour
             var projectile = ProjectilePoolManager.Instance.GetProjectile(baseData);
             var verticalDirection = new Vector3(-direction.y, direction.x, direction.z).normalized;
 
-            // ApplyAccuracyOffset(
-            //     ref direction,
-            //     towerData.Accuracy,
-            //     offsetIndex
-            // );
+            ApplyAccuracyOffset(
+                ref direction,
+                towerData.Accuracy
+            );
 
             projectile.transform.position =
                 firePoint.position + verticalDirection * projectileOffset * offsetIndex;
@@ -218,9 +221,26 @@ public class TowerAttack : MonoBehaviour
         }
     }
 
-    private void ApplyAccuracyOffset(ref Vector3 direction, float accuracy, float offsetIndex)
+    private void ApplyAccuracyOffset(ref Vector3 direction, float accuracy)
     {
+        var rand01 = UnityEngine.Random.Range(0f, 1f);
+
+        var finalAccuracy = accuracy * (1 + accuracyBuffAdd / 100f);
+
+        if (rand01 < finalAccuracy / 100f)
+        {
+            return;
+        }
+
+        Debug.Log("Accuracy Missed");
+
+        float offAngleMinus = UnityEngine.Random.Range(-1f,-0.5f) * 30f;
+        float offAnglePlus = UnityEngine.Random.Range(0.5f,1f) * 30f;
+        float[] angle = { offAngleMinus, offAnglePlus };
+        float offAngle = angle[UnityEngine.Random.Range(0, 2)];
         
+        Quaternion rot = Quaternion.Euler(0f, 0f, offAngle);
+        direction = rot * direction;
     }
 
     public void AddAbility(int ability)
