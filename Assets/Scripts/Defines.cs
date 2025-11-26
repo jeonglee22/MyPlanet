@@ -82,9 +82,19 @@ public enum MoveType
 public enum PatternIds
 {
     None = 0,
-    MeteorCluster = 1,
     SimpleShot = 2001,
-    MeteorClusterSummon = 4100001,
+    DaphnisMeteorClusterSummon = 4100001,
+    DaphnisEleteMeteorClusterSummon,
+    TitanMeteorClusterSummon,
+    TitanEleteMeteorClusterSummon,
+    TitanLazer,
+    SaturnLazer,
+    SaturnMeteorClusterSummon,
+    SaturnEleteMeteorClusterSummon,
+    SaturnMeteorCircleSummon,
+    TitanRevolution,
+    HomingMeteorCluster,
+    ChaseMeteorCluster
 }
 
 public static class DataTableIds

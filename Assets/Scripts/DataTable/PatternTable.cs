@@ -11,7 +11,7 @@ public class PatternData
     public int PatternList { get; set; }
     public int PatternTrigger { get; set; }
     public int PatternType { get; set; }
-    public float PatternValue { get; set; }
+    public int PatternValue { get; set; }
     public float PatternDamageRate { get; set; }
     public float Weight { get; set; }
     public float Cooltime { get; set; }

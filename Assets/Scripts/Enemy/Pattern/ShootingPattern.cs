@@ -12,6 +12,8 @@ public abstract class ShootingPattern : IPattern
     public ExecutionTrigger Trigger { get; protected set;}
     public float TriggerValue { get; protected set;} //Interval
 
+    protected PatternData patternData;
+
     protected float lastExecuteTime;
     protected bool isExecuteOneTime;
 
@@ -22,6 +24,8 @@ public abstract class ShootingPattern : IPattern
         this.enemyData = enemyData;
         this.spawner = PatternSpawner.Instance;
         this.executor = enemy.GetComponent<PatternExecutor>();
+
+        patternData = enemy.CurrentPatternData;
 
         lastExecuteTime = Time.time;
         isExecuteOneTime = false;
@@ -71,4 +75,6 @@ public abstract class ShootingPattern : IPattern
     {
         
     }
+
+    public PatternData GetPatternData() => patternData;
 }

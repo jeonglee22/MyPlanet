@@ -6,6 +6,9 @@ public class DescendAndStopMovement : IMovement
     private bool isArrived;
     private float colliderRadius;
 
+    private bool isPatternLine = false;
+    public bool IsPatternLine => isPatternLine;
+
     public void Initialize()
     {
         isArrived = false;

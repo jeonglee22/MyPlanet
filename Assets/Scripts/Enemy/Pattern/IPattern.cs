@@ -11,4 +11,5 @@ public interface IPattern
     public bool CanExecute();
     public void Reset();
     public void PatternUpdate();
+    public PatternData GetPatternData();
 }

@@ -3,7 +3,6 @@ using UnityEngine;
 public class MeteorClusterSummonPattern : SummonPattern
 {
     public override int PatternId => patternData.Pattern_Id;
-    private float summonTimer = 10f;
 
     public MeteorClusterSummonPattern()
     {
@@ -17,11 +16,6 @@ public class MeteorClusterSummonPattern : SummonPattern
 
     public override void PatternUpdate()
     {
-        summonTimer += Time.deltaTime;
-        if(summonTimer >= TriggerValue)
-        {
-            Summon();
-            summonTimer = 0f;
-        }
+
     }
 }

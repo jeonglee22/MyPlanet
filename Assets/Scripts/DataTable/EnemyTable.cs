@@ -6,7 +6,7 @@ using UnityEngine.AddressableAssets;
 public class EnemyTableData
 {
     public int Enemy_Id { get; set; }
-    public string Name { get; set; }
+    public string EnemyName { get; set; }
     public int EnemyType { get; set; }
     public int EnemyGrade { get; set; }
     public int AttackType { get; set; }
@@ -23,7 +23,7 @@ public class EnemyTableData
 
     public override string ToString()
     {
-        return $"Enemy_Id: {Enemy_Id}, Name: {Name}, EnemyType: {EnemyType}, EnemyGrade: {EnemyGrade}, AttackType: {AttackType}, MoveType: {MoveType}, Hp: {Hp}, Defense: {Defense}, Shield: {Shield}, MoveSpeed: {MoveSpeed}, Attack: {Attack}, UniqueRatePenetration: {UniqueRatePenetration}, FixedPenetration: {FixedPenetration}, Exp: {Exp}";
+        return $"Enemy_Id: {Enemy_Id}, Name: {EnemyName}, EnemyType: {EnemyType}, EnemyGrade: {EnemyGrade}, AttackType: {AttackType}, MoveType: {MoveType}, Hp: {Hp}, Defense: {Defense}, Shield: {Shield}, MoveSpeed: {MoveSpeed}, Attack: {Attack}, UniqueRatePenetration: {UniqueRatePenetration}, FixedPenetration: {FixedPenetration}, Exp: {Exp}";
     }
 }
 
