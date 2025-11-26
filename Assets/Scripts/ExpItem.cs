@@ -19,7 +19,7 @@ public class ExpItem : DropItem
     {
         base.Initialize();
 
-        exp = 20f;
+        exp = 2f;
     }
 
     protected override void Update()
