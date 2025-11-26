@@ -15,6 +15,7 @@ public class Planet : LivingEntity
     [SerializeField] private GameObject towerPrefab; //Attack Tower
     [SerializeField] private GameObject amplifierTowerPrefab; //Amplier Tower
     [SerializeField] private Transform towerSlotTransform;
+    [SerializeField] private TowerInstallControl towerInstallControl;
 
     private int towerCount;
     public int TowerCount => towers?.Count ?? 0;
@@ -31,14 +32,16 @@ public class Planet : LivingEntity
         set
         {
             exp = value;
+            int levelUpCount = 0;
             while (exp >= MaxExp)
             {
                 level++;
-                levelUpEvent?.Invoke();
                 exp -= MaxExp;
                 MaxExp = DataTableManager.PlanetLevelUpTable.Get(level).Exp;
                 Debug.Log($"Next Level Exp : {MaxExp}");
+                levelUpCount++;
             }
+            levelUps(levelUpCount).Forget();
             expUpEvent?.Invoke(exp);
         }
     }
@@ -93,6 +96,16 @@ public class Planet : LivingEntity
         }
         shootTime += Time.deltaTime;*/
 #endif
+    }
+
+    private async UniTaskVoid levelUps(int count)
+    {
+        Debug.Log("LevelUpCount" + count);
+        for (int i = 0; i < count; i++)
+        {
+            levelUpEvent?.Invoke();
+            await UniTask.WaitUntil(() => !towerInstallControl.isInstall);
+        }
     }
     
     public void InitPlanet(int towerCount = 12)

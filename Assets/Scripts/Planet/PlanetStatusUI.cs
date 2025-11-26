@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,6 +11,7 @@ public class PlanetStatusUI : MonoBehaviour
     [SerializeField] private Slider expSlider;
     [SerializeField] private GameObject towerSettingUi;
     [SerializeField] private TextMeshProUGUI levelText;
+    [SerializeField] private TowerInstallControl towerInstallControl;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -54,6 +56,7 @@ public class PlanetStatusUI : MonoBehaviour
     {
         towerSettingUi.SetActive(true);
             Time.timeScale = 0f;
+        towerInstallControl.isInstall = false;
     }
 
     private void HpValueChanged(float hp)
@@ -66,7 +69,7 @@ public class PlanetStatusUI : MonoBehaviour
         expSlider.value = exp / planet.MaxExp;
     }
 
-    public void AddExp(float exp = 10f)
+    public async UniTaskVoid AddExp(float exp = 10f)
     {
         planet.CurrentExp += exp;
     }
