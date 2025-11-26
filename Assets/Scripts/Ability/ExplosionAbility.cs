@@ -3,6 +3,7 @@ using UnityEngine;
 public class ExplosionAbility : EffectAbility
 {
     private GameObject explosionEffect;
+    private Projectile projectile;
 
     public ExplosionAbility(float amount)
     {
@@ -12,6 +13,12 @@ public class ExplosionAbility : EffectAbility
     public override void ApplyAbility(GameObject gameObject)
     {
         base.ApplyAbility(gameObject);
+
+        var projectile = gameObject.GetComponent<Projectile>();
+        if(projectile != null)
+        {
+            this.projectile = projectile;
+        }
 
         var enemy = gameObject.GetComponent<Enemy>();
         if(enemy != null)
@@ -26,7 +33,7 @@ public class ExplosionAbility : EffectAbility
             newGo.AddComponent<SphereCollider>().isTrigger = true;
 
             var explosion = newGo.AddComponent<Explosion>();
-            explosion.SetInitRadius(0.01f, upgradeAmount);
+            explosion.SetInit(0.01f, upgradeAmount, this.projectile);
         }
     }
 

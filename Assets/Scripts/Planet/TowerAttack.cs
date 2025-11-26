@@ -37,7 +37,7 @@ public class TowerAttack : MonoBehaviour
 
     private float hitRadiusBuffMul = 1f; // +=
     public float HitRadiusBuffMul { get { return hitRadiusBuffMul; } set { hitRadiusBuffMul = value; } }
-    private float percentPenetrationBuffMul = 1f;
+    private float percentPenetrationBuffMul = 0f;
     public float PercentPenetrationBuffMul { get { return percentPenetrationBuffMul; } set { percentPenetrationBuffMul = value; } }
     private float fixedPenetrationBuffAdd = 0f;
     public float FixedPenetrationBuffAdd { get { return fixedPenetrationBuffAdd; } set { fixedPenetrationBuffAdd = value; } }
@@ -178,18 +178,25 @@ public class TowerAttack : MonoBehaviour
                            vp.y >= 0f && vp.y <= 1f);
         if (!inViewport) return;
 
-        Vector3 direction = (target.position - firePoint.position).normalized;
+        Vector3 baseDirection = (target.position - firePoint.position).normalized;
         float centerIndex = (shotCount - 1) * 0.5f;
 
         for (int i = 0; i < shotCount; i++)
         {
             float offsetIndex = i - centerIndex;
             var projectile = ProjectilePoolManager.Instance.GetProjectile(baseData);
-            var verticalDirection = new Vector3(-direction.y, direction.x, direction.z).normalized;
+            var verticalDirection = new Vector3(-baseDirection.y, baseDirection.x, baseDirection.z).normalized;
+
+            var direction = new Vector3(baseDirection.x, baseDirection.y, baseDirection.z);
 
             ApplyAccuracyOffset(
                 ref direction,
                 towerData.Accuracy
+            );
+
+            ApplyGroupOffset(
+                ref direction,
+                towerData.grouping
             );
 
             projectile.transform.position =
@@ -219,6 +226,18 @@ public class TowerAttack : MonoBehaviour
                 ability.Setting(gameObject);
             }
         }
+    }
+
+    private void ApplyGroupOffset(ref Vector3 direction, float grouping)
+    {
+        if (grouping <= 0f) return;
+
+        var groupingClamp = Mathf.Min(grouping, 100f);
+        var angleReverse = 90f - (grouping * 0.9f);
+
+        float offAngle = UnityEngine.Random.Range(-angleReverse, angleReverse);
+        Quaternion rot = Quaternion.Euler(0f, 0f, offAngle);
+        direction = rot * direction;
     }
 
     private void ApplyAccuracyOffset(ref Vector3 direction, float accuracy)
@@ -332,7 +351,7 @@ public class TowerAttack : MonoBehaviour
         addBuffProjectileData.CollisionSize = currentProjectileData.CollisionSize * hitRadiusBuffMul;
 
         addBuffProjectileData.FixedPenetration = currentProjectileData.FixedPenetration + fixedPenetrationBuffAdd;
-        addBuffProjectileData.RatePenetration = currentProjectileData.RatePenetration * percentPenetrationBuffMul;
+        addBuffProjectileData.RatePenetration = currentProjectileData.RatePenetration + (100f - currentProjectileData.RatePenetration) * percentPenetrationBuffMul;
 
         addBuffProjectileData.Attack = currentProjectileData.Attack * damageBuffMul;
         addBuffProjectileData.ProjectileAddSpeed = currentProjectileData.ProjectileAddSpeed + accelerationBuffAdd;
