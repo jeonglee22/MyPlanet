@@ -34,6 +34,12 @@ public class EnemySpawner : MonoBehaviour
         return transform.position + new Vector3(randomCircle.x, randomCircle.y, 0f);
     }
 
+    private Vector3 GetRandomPositionInCircleWithPos(Vector3 pos)
+    {
+        Vector2 randomCircle = Random.insideUnitCircle * spawnRadius;
+        return pos + new Vector3(randomCircle.x, randomCircle.y, 0f);
+    }
+
     private Enemy CreateEnemy(int enemyId, Vector3 position, Vector3 direction, ScaleData scaleData)
     {
         Enemy enemy = objectPoolManager.Get(enemyId);
@@ -153,7 +159,7 @@ public class EnemySpawner : MonoBehaviour
         return enemy;
     }
 
-    public void SpawnEnemiesWithMovement(int enemyId, int quantity, ScaleData scaleData, int moveType, bool ShouldDropItems = true)
+    public void SpawnEnemiesWithSummon(int enemyId, int quantity, ScaleData scaleData, bool ShouldDropItems = true, Vector3 spawnPos = default)
     {
         PreparePool(enemyId);
 
@@ -165,8 +171,8 @@ public class EnemySpawner : MonoBehaviour
 
         for (int i = 0; i < quantity; i++)
         {
-            Vector3 spawnPos = GetRandomPositionInCircle();
-            var enemy = SpawnEnemyWithScale(enemyId, spawnPos, scaleData);
+            var pos = spawnPos == default ? GetRandomPositionInCircle() : GetRandomPositionInCircleWithPos(spawnPos);
+            var enemy = SpawnEnemyWithScale(enemyId, pos, scaleData);
             if(enemy != null)
             {
                 enemy.ShouldDropItems = ShouldDropItems;

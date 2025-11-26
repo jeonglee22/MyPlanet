@@ -9,6 +9,7 @@ public class SpawnManager : MonoBehaviour
     public static SpawnManager Instance { get { return instance; } }
 
     private List<EnemySpawner> spawnPoints = new List<EnemySpawner>();
+    public List<EnemySpawner> Spawners => spawnPoints;
 
     [SerializeField] private GameObject spawnPointSample;
     [SerializeField] private int spawnPointCount = 5;
