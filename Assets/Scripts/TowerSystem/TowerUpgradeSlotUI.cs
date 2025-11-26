@@ -194,13 +194,13 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         choices[i].ability = -1;
         choices[i].AmplifierTowerData = ampData;
 
-        int[] buffSlots = null;
+        int[] buffOffsets = null;
 
         if (ampData.TargetMode == AmplifierTargetMode.RandomSlots)
         {
             int buffCount = Mathf.Max(1, ampData.FixedBuffedSlotCount);
-            buffSlots = GetRandomBuffSlot(buffCount);
-            choices[i].BuffSlotIndex = buffSlots;
+            buffOffsets = GetRandomBuffSlot(buffCount);
+            choices[i].BuffSlotIndex = buffOffsets;
         }
         else
         {
@@ -208,8 +208,16 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         }
 
         string slotText = "-";
-        if (buffSlots != null && buffSlots.Length > 0) 
-            slotText = string.Join(",", buffSlots);
+        if (buffOffsets != null && buffOffsets.Length > 0)
+        {
+            var parts = new string[buffOffsets.Length];
+            for (int k = 0; k < buffOffsets.Length; k++)
+            {
+                int offset = buffOffsets[k];
+                parts[k] = offset > 0 ? $"+{offset}" : offset.ToString();
+            }
+            slotText = string.Join(",", parts);
+        }
 
         string name = string.IsNullOrEmpty(ampData.BuffTowerName)
             ? ampData.AmplifierType.ToString()
@@ -383,24 +391,38 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     private int[] GetRandomBuffSlot(int count) //Seperate Pick Random Slots Logic Method
     {
         int towerCount = installControl.TowerCount;
-        if (towerCount <=0 || count <= 0) return new int[0];
+        if (towerCount <= 1 || count <= 0) return new int[0];
 
-        count = Mathf.Clamp(count, 1, towerCount);
+        count = Mathf.Max(1, count);
 
-        List<int> available = new List<int>(towerCount);
-        for(int i=0; i<towerCount; i++)
+        List<int> candidates = new List<int>();
+        int leftMax = towerCount / 2;
+        int rightMax = towerCount - leftMax;
+
+        for (int offset = -leftMax + 1; offset <= -1; offset++)
         {
-            available.Add(i);
+            candidates.Add(offset);
         }
+
+        for (int offset = 1; offset <= rightMax; offset++)
+        {
+            candidates.Add(offset);
+        }
+
+        if (candidates.Count == 0)
+            return new int[0];
+
+        count = Mathf.Clamp(count, 1, candidates.Count);
 
         int[] results = new int[count];
 
-        for(int n=0; n<count; n++)
+        for (int n = 0; n < count; n++)
         {
-            int randIndex = UnityEngine.Random.Range(0, available.Count);
-            results[n] = available[randIndex];
-            available.RemoveAt(randIndex);
+            int randIndex = UnityEngine.Random.Range(0, candidates.Count);
+            results[n] = candidates[randIndex];
+            candidates.RemoveAt(randIndex);
         }
+
         return results;
     }
     private AmplifierTowerDataSO GetRandomAmplifier()

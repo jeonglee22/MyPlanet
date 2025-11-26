@@ -98,27 +98,42 @@ public class TowerAmplifier : MonoBehaviour
             case AmplifierTargetMode.RandomSlots:
                 {
                     //Card Random Pick
-                    if(presetBuffSlots!=null&&presetBuffSlots.Length>0)
+                    if(presetBuffSlots != null && presetBuffSlots.Length > 0)
                     {
-                        foreach(var slotIndex in presetBuffSlots)
+                        List<int> resolvedTargets = new List<int>();
+
+                        for (int i = 0; i < presetBuffSlots.Length; i++)
                         {
-                            if (slotIndex < 0 || slotIndex >= towerCount) continue;
-                            if (slotIndex == selfIndex) continue;
-                            if(!filteredBuffTowers.Contains(slotIndex))
+                            int offset = presetBuffSlots[i];
+
+                            int targetIndex = selfIndex + offset;
+
+                            targetIndex %= towerCount;
+                            if (targetIndex < 0)
+                                targetIndex += towerCount;
+
+                            if (targetIndex == selfIndex) continue;
+                            if (!filteredBuffTowers.Contains(targetIndex))
                             {
-                                filteredBuffTowers.Add(slotIndex);
+                                filteredBuffTowers.Add(targetIndex);
+                                resolvedTargets.Add(targetIndex);
+
+                                Debug.Log($"[Amp] self={selfIndex}, offset={offset}, targetIndex={targetIndex}");
                             }
                         }
+
+                        string offsetStr = string.Join(",", presetBuffSlots);
+                        string resolvedStr = string.Join(",", resolvedTargets);
+                        Debug.Log($"[Amp] self={selfIndex} | offsets=[{offsetStr}] -> targets=[{resolvedStr}]");
                     }
 
-                    //No Empty Slots
-                    if(filteredBuffTowers.Count==0&&buffAbleTowers.Count>0)
+                    //No preset or no choose
+                    if (filteredBuffTowers.Count == 0 && buffAbleTowers.Count > 0)
                     {
                         int finalBuffedSlotCount = Mathf.Min(
-                            ampData.FixedBuffedSlotCount, 
-                            buffAbleTowers.Count,
+                            ampData.FixedBuffedSlotCount,
                             buffAbleTowers.Count
-                            );
+                        );
 
                         for (int n = 0; n < finalBuffedSlotCount; n++)
                         {
@@ -134,7 +149,6 @@ public class TowerAmplifier : MonoBehaviour
             case AmplifierTargetMode.LeftNeighbor:
                 {
                     int leftIndex = (selfIndex - 1 + towerCount) % towerCount;
-                    //
                     if(buffAbleTowers.Contains(leftIndex)) filteredBuffTowers.Add(leftIndex);
                     break;
                 }
@@ -153,7 +167,7 @@ public class TowerAmplifier : MonoBehaviour
             ApplyBuff(attackTower);
         }
         //--------------------------------------------------------
-        Debug.Log($"[Amp] self={selfIndex}, targets={string.Join(",", filteredBuffTowers)}");
+        Debug.Log($"[Amp] self={selfIndex}, final buffed slots = [{string.Join(",", filteredBuffTowers)}]");
     }
     public void ApplyBuffForNewTower(int slotIndex, TowerAttack newTower)
     {
@@ -161,9 +175,9 @@ public class TowerAmplifier : MonoBehaviour
         if (AmplifierTowerData == null) return;
         if (!buffedSlotIndex.Contains(slotIndex)) return;
 
-        var attackTower = planet.GetAttackTowerToAmpTower(slotIndex);
-        if (attackTower == null) return;
-        
+        //var attackTower = planet.GetAttackTowerToAmpTower(slotIndex);
+        //if (attackTower == null) return;
+
         ApplyBuff(newTower);
     }
 }
