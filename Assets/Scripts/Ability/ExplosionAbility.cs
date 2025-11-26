@@ -23,16 +23,9 @@ public class ExplosionAbility : EffectAbility
         var enemy = gameObject.GetComponent<Enemy>();
         if(enemy != null)
         {
-            var newGo = new GameObject("ExplosionEffect");
-
-            newGo.AddComponent<MeshFilter>().mesh = Resources.GetBuiltinResource<Mesh>("Sphere.fbx");
-            var renderer = newGo.AddComponent<MeshRenderer>();
-            renderer.material.color = new Color(0f, 1f, 0f, 0.2f);
-
-            newGo.transform.position = gameObject.transform.position;
-            newGo.AddComponent<SphereCollider>().isTrigger = true;
-
-            var explosion = newGo.AddComponent<Explosion>();
+            var obj = LoadManager.GetLoadedGamePrefab(ObjectName.Explosion);
+            obj.transform.position = enemy.transform.position;
+            var explosion = obj.GetComponent<Explosion>();
             explosion.SetInit(0.01f, upgradeAmount, this.projectile);
         }
     }

@@ -8,6 +8,7 @@ public class TowerAttack : MonoBehaviour
     [SerializeField] private Transform firePoint;
     [SerializeField] private float projectileOffset = 0.05f;
     private TowerTargetingSystem targetingSystem;
+    public TowerTargetingSystem TargetingSystem => targetingSystem;
     private TowerDataSO towerData;
     public TowerDataSO AttackTowerData => towerData;
     private float shootTimer;

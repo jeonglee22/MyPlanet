@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.UI;
 
 public class MainTitleUI : MonoBehaviour
@@ -13,6 +15,8 @@ public class MainTitleUI : MonoBehaviour
     [SerializeField] private MainTitleCanvasManager canvasManager;
 
     [SerializeField] private TextMeshProUGUI uidText;
+
+    [SerializeField] private LoadManager loadManager;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private async UniTaskVoid Start()
@@ -74,12 +78,19 @@ public class MainTitleUI : MonoBehaviour
 
     private async UniTaskVoid OnStartGameButtonClicked()
     {
+        // List<UniTask> loadTasks = new List<UniTask>
+        // {
+        //     loadManager.LoadGamePrefabAsync(AddressLabel.Prefab),
+        // };
+
         Debug.Log("Game Start Button Clicked");
         await SceneControlManager.Instance.LoadScene(SceneName.BattleScene);
     }
 
     private async UniTaskVoid OnEnemyTestButtonClicked()
     {
+
+
         await SceneControlManager.Instance.LoadScene(SceneName.EnemyTestScene);
     }
 }
