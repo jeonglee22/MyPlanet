@@ -11,6 +11,7 @@ public static class TagName
     public static readonly string PatternLine = "PatternLine";
     public static readonly string ProjectilePoolManager = "ProjectilePoolManager";
     public static readonly string MainCanvas = "MainCanvas";
+    public static readonly string Boss = "Boss";
 }
 
 public static class ObjectName
@@ -129,4 +130,5 @@ public static class AddressLabel
     public static readonly string Prefab = "Prefab";
     public static readonly string PoolObject = "PoolObject";
     public static readonly string PatternProjectile = "PatternProjectile";
+    public static readonly string Lazer = "Lazer";
 }
