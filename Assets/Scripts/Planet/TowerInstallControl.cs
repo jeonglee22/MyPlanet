@@ -304,6 +304,8 @@ public class TowerInstallControl : MonoBehaviour
 
     public void OpenInfoUI(int index)
     {
+        Debug.Log($"[OpenInfoUI] clicked index={index}, IsReadyInstall={IsReadyInstall}, towerInfoObj={towerInfoObj}");
+
         if (IsReadyInstall || towerInfoObj == null) return;
 
         towerInfoObj.SetActive(true);
