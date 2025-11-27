@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class TowerAttack : MonoBehaviour
 {
     [SerializeField] private Transform firePoint;
     [SerializeField] private float projectileOffset = 0.05f;
     private TowerTargetingSystem targetingSystem;
+    public TowerTargetingSystem TargetingSystem => targetingSystem;
     private TowerDataSO towerData;
     public TowerDataSO AttackTowerData => towerData;
     private float shootTimer;
@@ -74,6 +76,12 @@ public class TowerAttack : MonoBehaviour
     //Apply Buff Version Projectile Data SO------------------
     private ProjectileData currentProjectileData; //base projectile data from Data Table
     private ProjectileData addBuffProjectileData; //making runtime once
+    private float hitScanTimer;
+    private bool isHitScanActive = false;
+    public bool IsHitScanActive => isHitScanActive;
+
+    public bool IsHaveHitScanAbility {get ; set;} = false;
+
     public ProjectileData BaseProjectileData => currentProjectileData;
     public ProjectileData BuffedProjectileData => CurrentProjectileData;
     public ProjectileData CurrentProjectileData 
@@ -124,10 +132,36 @@ public class TowerAttack : MonoBehaviour
         if (finalFireRate <= 0) return;
         float shootInterval = 1f / finalFireRate;
 
+        float hitScanInterval = shootInterval * 0.5f;
+
+        if(shootTimer >= hitScanInterval && !isHitScanActive && IsHaveHitScanAbility)
+        {
+            StartHitscan(hitScanInterval);
+        }
+
         if(shootTimer>=shootInterval)
         {
             ShootAtTarget();
             shootTimer = 0f;
+            hitScanTimer = 0f;
+            isHitScanActive = false;
+            targetingSystem.SetAttacking(false);
+        }
+    }
+
+    private void StartHitscan(float hitScanInterval)
+    {
+        isHitScanActive = true;
+
+        targetingSystem.SetAttacking(true);
+        
+        foreach (var target in targetingSystem.CurrentTargets)
+        {
+            if (target == null || !target.isAlive) continue;
+
+            var obj = LoadManager.GetLoadedGamePrefab(ObjectName.HitScan);
+            var hitScan = obj.GetComponent<HitScan>();
+            hitScan.SetHitScan(target as Enemy, hitScanInterval);
         }
     }
 
@@ -189,42 +223,58 @@ public class TowerAttack : MonoBehaviour
 
             var direction = new Vector3(baseDirection.x, baseDirection.y, baseDirection.z);
 
-            ApplyAccuracyOffset(
-                ref direction,
-                towerData.Accuracy
-            );
-
             ApplyGroupOffset(
                 ref direction,
                 towerData.grouping
+            );
+
+            if (isHitScanActive && IsHaveHitScanAbility)
+            {
+                projectile.transform.position = target.position;
+                projectile.transform.rotation = Quaternion.LookRotation(direction);
+                Debug.Log(direction);
+
+                SettingProjectile(projectile, buffedData, baseData, direction, attackType, target);
+                continue;
+            }
+
+            ApplyAccuracyOffset(
+                ref direction,
+                towerData.Accuracy
             );
 
             projectile.transform.position =
                 firePoint.position + verticalDirection * projectileOffset * offsetIndex;
             projectile.transform.rotation = Quaternion.LookRotation(direction);
 
-            projectile.Initialize(
-                buffedData,
-                baseData,
-                direction,
-                true,
-                projectilePoolManager.ProjectilePool
-            );
+            SettingProjectile(projectile, buffedData, baseData, direction, attackType, target);
+        }
+    }
 
-            if (attackType == (int)ProjectileType.Homing)
-            {
-                projectile.SetHomingTarget(target);
-            }
+    private void SettingProjectile(Projectile projectile, ProjectileData buffedData, ProjectileData baseData, Vector3 direction, float attackType, ITargetable target)
+    {
+        projectile.Initialize(
+                    buffedData,
+                    baseData,
+                    direction,
+                    true,
+                    projectilePoolManager.ProjectilePool
+        );
 
-            foreach (var abilityId in abilities)
-            {
-                var ability = AbilityManager.GetAbility(abilityId);
-                if (ability == null) continue;
-                ability.ApplyAbility(projectile.gameObject);
-                projectile.abilityAction += ability.ApplyAbility;
-                projectile.abilityRelease += ability.RemoveAbility;
-                ability.Setting(gameObject);
-            }
+        if (attackType == (int)ProjectileType.Homing)
+        {
+            projectile.SetHomingTarget(target);
+        }
+
+        foreach (var abilityId in abilities)
+        {
+            var ability = AbilityManager.GetAbility(abilityId);
+            if (ability == null) continue;
+
+            ability.ApplyAbility(projectile.gameObject);
+            projectile.abilityAction += ability.ApplyAbility;
+            projectile.abilityRelease += ability.RemoveAbility;
+            ability.Setting(gameObject);
         }
     }
 
