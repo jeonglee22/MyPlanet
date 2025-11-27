@@ -8,7 +8,7 @@ public class LazerPattern : ShootingPattern
     private GameObject lazerObject;
 
     private float duration = 2f;
-    private float laserWidth = 0.2f;
+    private float laserWidth = 4f;
     private float tickInterval = 0.1f;
 
 

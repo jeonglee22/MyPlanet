@@ -6,13 +6,14 @@ using UnityEngine;
 
 public class Lazer : MonoBehaviour
 {
-    [SerializeField] private float duration = 2f;
-    [SerializeField] private float laserLength = 10f;
-    [SerializeField] private float laserWidth = 0.2f;
-    [SerializeField] private float tickInterval = 0.1f;
+    private float chargeTime = 3f;
+    private float duration = 2f;
+    private float laserLength = 10f;
+    private float laserWidth = 0.2f;
+    private float tickInterval = 0.1f;
 
-    private BoxCollider boxCollider;
     private LineRenderer lineRenderer;
+    private SpriteRenderer fieldRenderer;
     
     private float damage;
     private Vector3 direction;
@@ -21,14 +22,14 @@ public class Lazer : MonoBehaviour
 
     private CancellationTokenSource lazerCts;
 
-    private IDamagable damageTarget;
-
     public Action OnLazerEnd;
 
     private void Awake()
     {
-        boxCollider = GetComponent<BoxCollider>();
         lineRenderer = GetComponent<LineRenderer>();
+        fieldRenderer = GetComponent<SpriteRenderer>();
+
+        fieldRenderer.sortingOrder = -1;
     }
 
     private void OnEnable()
@@ -39,18 +40,11 @@ public class Lazer : MonoBehaviour
     private void OnDisable()
     {
         Cancel();
-
-        damageTarget = null;
     }
 
     private void OnDestroy()
     {
         Cancel();
-    }
-
-    private void Update()
-    {
-        
     }
 
     private void Setup()
@@ -72,10 +66,11 @@ public class Lazer : MonoBehaviour
 
         endPoint = startPoint + this.direction * laserLength;
 
+        lineRenderer.enabled = false;
         lineRenderer.SetPosition(0, startPoint);
         lineRenderer.SetPosition(1, endPoint);
 
-        SetupCollider();
+        SetupField();
 
         Cancel();
 
@@ -93,24 +88,9 @@ public class Lazer : MonoBehaviour
     {
         try
         {
-            float elapsedTime = 0f;
-            float tickTimer = 0f;
+            await ChargePhaseAsync(token);
 
-            while (elapsedTime < duration)
-            {
-                token.ThrowIfCancellationRequested();
-
-                elapsedTime += Time.deltaTime;
-                tickTimer += Time.deltaTime;
-
-                if(tickTimer >= tickInterval && damageTarget != null)
-                {
-                    damageTarget.OnDamage(damage);
-                    tickTimer = 0f;
-                }
-
-                await UniTask.Yield(cancellationToken: token);
-            }
+            await AttackPhaseAsync(token);
         }
         catch(System.OperationCanceledException)
         {
@@ -125,34 +105,6 @@ public class Lazer : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter(Collider other)
-    {
-        if(other.CompareTag(TagName.Enemy) || other.CompareTag(TagName.Boss) || other.CompareTag(TagName.Projectile) || other.CompareTag(TagName.CenterStone) || other.CompareTag(TagName.PatternLine))
-        {
-            return;
-        }
-
-        var damagable = other.GetComponent<IDamagable>();
-        if(damagable != null)
-        {
-            damageTarget = damagable;
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        if(other.CompareTag(TagName.Enemy))
-        {
-            return;
-        }
-
-        var damagable = other.GetComponent<IDamagable>();
-        if(damagable != null && damagable == damageTarget)
-        {
-            damageTarget = null;
-        }
-    }
-
     private float CalculateDistance()
     {
         Rect screenBounds = SpawnManager.Instance.ScreenBounds;
@@ -163,22 +115,94 @@ public class Lazer : MonoBehaviour
         return Mathf.Max(0.1f, distanceBottom);
     }
 
-    private void SetupCollider()
+    private void SetupField()
     {
-        Vector3 midPoint = (startPoint + endPoint) / 2f;
-
-        transform.position = midPoint;
+        transform.position = startPoint;
 
         if(direction != Vector3.zero)
         {
             transform.rotation = Quaternion.LookRotation(Vector3.forward, direction);
         }
 
-        boxCollider.size = new Vector3(laserWidth, laserLength, 0.1f);
-        boxCollider.center = Vector3.zero;
+        fieldRenderer.transform.localScale = new Vector3(laserWidth, laserLength, 1f);
+        fieldRenderer.transform.localPosition = new Vector3(startPoint.x, startPoint.y - laserLength / 2f, 0f);
+        fieldRenderer.transform.localRotation = Quaternion.identity;
     }
 
     public void SetDuration(float duration) => this.duration = duration;
     public void SetTickInterval(float interval) => this.tickInterval = interval;
     public void SetLazerWidth(float width) => this.laserWidth = width;
+
+    private async UniTask ChargePhaseAsync(CancellationToken token)
+    {
+        float elapsedTime = 0f;
+
+        fieldRenderer.enabled = true;
+
+        Color startColor = new Color(1f, 0f, 0f, 0f);
+        Color endColor = new Color(1f, 0f, 0f, 1f);
+
+        while(elapsedTime < chargeTime)
+        {
+            token.ThrowIfCancellationRequested();
+
+            elapsedTime += Time.deltaTime;
+            float t = elapsedTime / chargeTime;
+
+            fieldRenderer.color = Color.Lerp(startColor, endColor, t);
+
+            await UniTask.Yield(cancellationToken: token);
+        }
+    }
+
+    private async UniTask AttackPhaseAsync(CancellationToken token)
+    {
+        fieldRenderer.enabled = false;
+
+        lineRenderer.enabled = true;
+
+        float elapsedTime = 0f;
+        float tickTimer = 0f;
+
+        while (elapsedTime < duration)
+        {
+            token.ThrowIfCancellationRequested();
+
+            elapsedTime += Time.deltaTime;
+            tickTimer += Time.deltaTime;
+
+            if(tickTimer >= tickInterval)
+            {
+                CheckLazerCollision();
+                tickTimer = 0f;
+            }
+
+            await UniTask.Yield(cancellationToken: token);
+        }
+
+        lineRenderer.enabled = false;
+    }
+
+    private void CheckLazerCollision()
+    {
+        RaycastHit[] hits = Physics.RaycastAll(startPoint, direction, laserLength);
+
+        foreach(RaycastHit hit in hits)
+        {
+            if(hit.collider.CompareTag(TagName.Enemy) || 
+            hit.collider.CompareTag(TagName.Boss) ||
+            hit.collider.CompareTag(TagName.CenterStone) ||
+            hit.collider.CompareTag(TagName.Projectile) ||
+            hit.collider.CompareTag(TagName.PatternLine))
+            {
+                continue;
+            }
+
+            var damagable = hit.collider.GetComponent<IDamagable>();
+            if(damagable != null)
+            {
+                damagable.OnDamage(damage);
+            }
+        }
+    }
 }
