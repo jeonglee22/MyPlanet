@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Unity.VisualScripting;
@@ -21,6 +22,8 @@ public class Lazer : MonoBehaviour
     private CancellationTokenSource lazerCts;
 
     private IDamagable damageTarget;
+
+    public Action OnLazerEnd;
 
     private void Awake()
     {
@@ -58,11 +61,12 @@ public class Lazer : MonoBehaviour
         lineRenderer.useWorldSpace = true;
     }
 
-    public void Initialize(Vector3 startPosition, Vector3 direction, float damage)
+    public void Initialize(Vector3 startPosition, Vector3 direction, float damage, Action onEnd = null)
     {
         this.startPoint = startPosition;
         this.direction = direction.normalized;
         this.damage = damage;
+        OnLazerEnd = onEnd;
 
         laserLength = CalculateDistance();
 
@@ -114,6 +118,9 @@ public class Lazer : MonoBehaviour
         }
         finally
         {
+            OnLazerEnd?.Invoke();
+            OnLazerEnd = null;
+
             gameObject.SetActive(false);
         }
     }

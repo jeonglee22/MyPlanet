@@ -71,7 +71,7 @@ public abstract class ShootingPattern : IPattern
         isExecuteOneTime = false;
     }
 
-    public void PatternUpdate()
+    public virtual void PatternUpdate()
     {
         
     }

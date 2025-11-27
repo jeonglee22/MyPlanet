@@ -42,7 +42,13 @@ public class LazerPattern : ShootingPattern
         lazer.SetTickInterval(tickInterval);
 
         float damage = owner.atk;
-        lazer.Initialize(shootPosition, shootDirection, damage);
+
+        if(movement != null)
+        {
+            movement.CanMove = false;
+        }
+
+        lazer.Initialize(shootPosition, shootDirection, damage, OnLazerComplete);
 
         lazerObject.SetActive(true);
     }
@@ -59,5 +65,13 @@ public class LazerPattern : ShootingPattern
         duration = 2f;
         laserWidth = 0.2f;
         tickInterval = 0.1f;
+    }
+
+    private void OnLazerComplete()
+    {
+        if(movement != null)
+        {
+            movement.CanMove = true;
+        }
     }
 }

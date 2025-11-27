@@ -17,9 +17,6 @@ public class PatternExecutor : MonoBehaviour
     private bool isExecutePattern = false;
     private CancellationTokenSource patternCts;
 
-    private float patternTimer = 0f;
-    private float patternInterval = 3f;
-
     private void OnDestroy()
     {
         Cancel();
