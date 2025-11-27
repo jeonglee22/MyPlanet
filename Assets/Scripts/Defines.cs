@@ -137,4 +137,5 @@ public static class AddressLabel
     public static readonly string PoolObject = "PoolObject";
     public static readonly string PatternProjectile = "PatternProjectile";
     public static readonly string Lazer = "Lazer";
+    public static readonly string EnemyLazer = "EnemyLazer";
 }

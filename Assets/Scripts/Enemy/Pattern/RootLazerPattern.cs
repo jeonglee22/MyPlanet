@@ -38,7 +38,7 @@ public class RootLazerPattern : LazerPattern
 
         foreach(var segment in segments)
         {
-            GameObject lazerObject = LoadManager.GetLoadedGamePrefab(AddressLabel.Lazer);
+            GameObject lazerObject = LoadManager.GetLoadedGamePrefab(AddressLabel.EnemyLazer);
             Lazer lazer = lazerObject.GetComponent<Lazer>();
 
             Vector3 direction = (segment.End - segment.Start).normalized;
