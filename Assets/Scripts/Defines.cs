@@ -31,6 +31,7 @@ public static class SceneName
     public static readonly string LoginScene = "LoginScene";
     public static readonly string BattleScene = "BattleScene";
     public static readonly string EnemyTestScene = "EnemyTestScene";
+    public static readonly string CameraTestScene = "CameraTestScene";
 }
 
 public enum AbilityId

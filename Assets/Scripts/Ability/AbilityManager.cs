@@ -54,8 +54,8 @@ public class AbilityManager : MonoBehaviour
 
         var index = Random.Range(0, count);
         var keys = new List<int>(abilityDict.Keys);
-        return (int)AbilityId.Hitscan;
-        // return keys[index];
+        // return (int)AbilityId.Chain;
+        return keys[index];
     }
 
     public static IAbility GetAbility(int id)
