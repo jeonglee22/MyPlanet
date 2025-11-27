@@ -403,7 +403,13 @@ public class TowerAttack : MonoBehaviour
         percentPenetrationBuffMul *= amp.PercentPenetrationBuff;
         fixedPenetrationBuffAdd += amp.FixedPenetrationBuff;
         targetNumberBuffAdd += amp.TargetNumberBuff;
-        hitRateBuffMul *= amp.HitRateBuff;
+
+        float delta = amp.HitRadiusBuff;
+        if (!Mathf.Approximately(delta, 0f))
+        {
+            float mul = 1f + delta;   
+            hitRadiusBuffMul *= mul;    
+        }
 
         if (targetingSystem != null)
         {
@@ -418,10 +424,12 @@ public class TowerAttack : MonoBehaviour
 
         addBuffProjectileData = currentProjectileData.Clone();
 
+        float beforeSize = currentProjectileData.CollisionSize;
         float finalTargetNumber = currentProjectileData.TargetNum + targetNumberBuffAdd;
         addBuffProjectileData.TargetNum = Mathf.Max(1, finalTargetNumber);
 
         addBuffProjectileData.CollisionSize = currentProjectileData.CollisionSize * hitRadiusBuffMul;
+        Debug.Log($"[BuffedProj] {gameObject.name} baseSize={beforeSize}, mul={hitRadiusBuffMul}, buffedSize={addBuffProjectileData.CollisionSize}");
 
         addBuffProjectileData.FixedPenetration = currentProjectileData.FixedPenetration + fixedPenetrationBuffAdd;
         addBuffProjectileData.RatePenetration = currentProjectileData.RatePenetration + (100f - currentProjectileData.RatePenetration) * percentPenetrationBuffMul;
