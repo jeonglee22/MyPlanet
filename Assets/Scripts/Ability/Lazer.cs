@@ -10,10 +10,12 @@ public class Lazer : MonoBehaviour
     private int pointCount = 40;
     private Transform target;
     private Transform tower;
+    private Vector3 finalDirection;
     private Vector3 finalPoint;
     private float duration;
     private TowerAttack towerAttack;
     private bool isHoming;
+    private List<int> abilities;
     private float durationTimer;
     private float attackDelayTimer;
     private float attackDelay = 0.5f;
@@ -49,7 +51,7 @@ public class Lazer : MonoBehaviour
             attackDelayTimer = 0f;
         }
 
-        ChangeTarget();
+        CheckTarget();
         
         if (durationTimer >= duration)
         {
@@ -59,7 +61,7 @@ public class Lazer : MonoBehaviour
         }
     }
 
-    private void ChangeTarget()
+    private void CheckTarget()
     {
         if (target == null)
             return;
@@ -67,22 +69,30 @@ public class Lazer : MonoBehaviour
         var enemy = target.gameObject.GetComponent<Enemy>();
         if(enemy.IsDead)
         {
-            var newTargets = towerAttack.TargetingSystem.CurrentTargets;
-            if(newTargets.Count > 0)
-            {
-                var newEnemy = newTargets[0] as Enemy;
-                target = newEnemy.transform;
-            }
+            target = null;
         }
     }
 
     private void UpdateLazerPositions()
     {
         lineRenderer.SetPosition(0, tower.position);
-        var direction = (target.position - tower.position).normalized;
+        Vector3 startPoint, endPoint, direction;
+        if (target != null)
+        {
+            direction = (target.position - tower.position).normalized;
 
-        Vector3 startPoint = lineRenderer.GetPosition(0);
-        Vector3 endPoint = startPoint + direction * 10f;
+            startPoint = lineRenderer.GetPosition(0);
+            endPoint = startPoint + direction * 10f;
+            finalDirection = direction;
+        }
+        else
+        {
+            direction = finalDirection.normalized;
+
+            startPoint = lineRenderer.GetPosition(0);
+            endPoint = startPoint + direction * 10f;
+        }
+        
 
         for (int i = 0; i < pointCount; i++)
         {

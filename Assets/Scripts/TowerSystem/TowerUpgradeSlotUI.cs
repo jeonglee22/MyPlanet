@@ -42,6 +42,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     private GameObject dragImage = null;
     private int choosedIndex = -1;
     private bool isFirstInstall = true;
+    public bool IsFirstInstall => isFirstInstall;
     [SerializeField] private Button[] refreshButtons;
 
     private void Start()
@@ -209,7 +210,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         //AmpTower Random Ability
         int ampAbilityId = GetRandomAbilityForAmplifier(ampData);
-        choices[i].ability = ampAbilityId;  // using in Planet.SetAmplifierTower ¡æ TowerAmplifier
+        choices[i].ability = ampAbilityId;  // using in Planet.SetAmplifierTower ï¿½ï¿½ TowerAmplifier
         string ampAbilityName = GetAbilityName(ampAbilityId);
 
         // ---------- PlaceType / RandonSlotNum / AddSlotNum ----------
@@ -278,8 +279,8 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         string randomSlotText = FormatOffsetArray(randomOffsets);
         uiTexts[i].text = $"new\n{ampName}\n" 
-            + $"¹öÇÁ ½½·Ô: {buffSlotText}\n" 
-            + $"·£´ý ½½·Ô: {randomSlotText}\n" 
+            + $"ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½: {buffSlotText}\n" 
+            + $"ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½: {randomSlotText}\n" 
             + $"{ampAbilityName}";
     }
     private string FormatOffsetArray(int[] offsets)

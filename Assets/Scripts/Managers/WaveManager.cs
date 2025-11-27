@@ -28,6 +28,9 @@ public class WaveManager : MonoBehaviour
     private int waveGroup;
     public int WaveCount {get; set;} = 1;
 
+    private bool isCleared = false;
+    public bool IsCleared => isCleared;
+
     private CancellationTokenSource waveCts;
 
     private void Awake()
@@ -182,6 +185,7 @@ public class WaveManager : MonoBehaviour
         }
         else
         {
+            isCleared = true;
             Debug.Log($"Stage {currentStageId} completed!");
         }
     }
