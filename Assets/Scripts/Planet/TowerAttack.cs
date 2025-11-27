@@ -125,6 +125,11 @@ public class TowerAttack : MonoBehaviour
         towerData.projectileType = currentProjectileData;
         //Set Projectile Count -> From Tower Data SO (NOT Data Table) -> check
         baseProjectileCount = Mathf.Max(1, towerData.projectileCount);
+
+        if (towerData.towerIdInt == missleTowerId)
+        {
+            abilities.Add((int)AbilityId.Explosion);
+        }
     }
 
     private void Update()
@@ -294,11 +299,6 @@ public class TowerAttack : MonoBehaviour
         if (attackType == (int)ProjectileType.Homing)
         {
             projectile.SetHomingTarget(target);
-        }
-
-        if (towerData.towerIdInt == missleTowerId)
-        {
-            abilities.Add((int)AbilityId.Explosion);
         }
 
         foreach (var abilityId in abilities)
