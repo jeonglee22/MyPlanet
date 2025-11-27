@@ -65,13 +65,21 @@ public class TowerAmplifier : MonoBehaviour
         ClearAllbuffs();
     }
 
-    internal void AddAmpTower(AmplifierTowerDataSO ampData, int index, Planet planet, int[] presetBuffSlots=null)
+    internal void AddAmpTower(
+        AmplifierTowerDataSO ampData, 
+        int index, 
+        Planet planet,
+        int randomAbilityId,
+        int[] presetBuffSlots=null)
     {
         if (ampData == null || planet == null) return;
 
         amplifierTowerData = ampData;
         selfIndex = index;
         this.planet = planet;
+
+        abilities.Clear();
+        if (randomAbilityId > 0) abilities.Add(randomAbilityId);
 
         int towerCount = planet.TowerCount;
         if (towerCount <= 0) return;

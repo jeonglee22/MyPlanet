@@ -13,9 +13,11 @@ public enum TowerInstallType
 public class TowerInstallChoice
 {
     public TowerInstallType InstallType;
+    public TowerDataSO AttackTowerData;
     public AmplifierTowerDataSO AmplifierTowerData;
     public int ability;
-    public int[] BuffSlotIndex;
+    public int[] BuffSlotIndex; //basic buff
+    public int[] RandomAbilitySlotIndex; //ability buff
 }
 
 public class TowerInstallControl : MonoBehaviour
@@ -224,9 +226,8 @@ public class TowerInstallControl : MonoBehaviour
             newTower = Instantiate(towerUIBasePrefab, PlanetTransform);
             towers[index] = newTower;
 
-            var chosenData = PickRandomTowerData(); // Pick Attack Tower: Random
+            TowerDataSO chosenData = ChoosedData.AttackTowerData;
             assignedTowerDatas[index] = chosenData;
-
             //UI
             TryAssignDataToTower(newTower, chosenData);
 
@@ -239,7 +240,10 @@ public class TowerInstallControl : MonoBehaviour
             }
 
             //Set Attack Tower In Planet
-            planet?.SetAttackTower(assignedTowerDatas[index], index, ChoosedData.ability);
+            planet?.SetAttackTower(
+                assignedTowerDatas[index], 
+                index,
+                ChoosedData.ability);
         }
         else if(ChoosedData.InstallType == TowerInstallType.Amplifier)
         {
@@ -255,6 +259,7 @@ public class TowerInstallControl : MonoBehaviour
                 planet?.SetAmplifierTower(
                     ChoosedData.AmplifierTowerData, 
                     index,
+                    ChoosedData.ability,
                     ChoosedData.BuffSlotIndex
                     );
             }
@@ -338,5 +343,9 @@ public class TowerInstallControl : MonoBehaviour
     public void UpgradeMaxTowerCount()
     {
         maxTowerCount += 1;
+    }
+    public TowerDataSO GetRandomAttackTowerDataForCard() //For Pick Card
+    {
+        return PickRandomTowerData();
     }
 }
