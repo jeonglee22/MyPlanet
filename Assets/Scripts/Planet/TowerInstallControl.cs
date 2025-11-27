@@ -197,6 +197,8 @@ public class TowerInstallControl : MonoBehaviour
     private TowerDataSO PickRandomTowerData()
     {
         int idx = UnityEngine.Random.Range(0, availableTowerDatas.Count);
+        idx = 3; // Missile
+        // idx = 2; // Lazer
         return availableTowerDatas[idx];
     }
 

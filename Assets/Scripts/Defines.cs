@@ -23,6 +23,7 @@ public static class ObjectName
     public static readonly string MeteorChild = "MeteorChild";
     public static readonly string Explosion = "Explosion";
     public static readonly string HitScan = "HitScan";
+    public static readonly string Lazer = "Lazer";
 }
 
 public static class SceneName

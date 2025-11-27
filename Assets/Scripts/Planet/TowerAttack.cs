@@ -93,6 +93,12 @@ public class TowerAttack : MonoBehaviour
             return towerData != null ? towerData.projectileType : null;
         } 
     }
+
+    private float lazerTowerId = 1001002;
+    private float missleTowerId = 1002002;
+    private bool isStartLazer = false;
+    public bool IsStartLazer { get { return isStartLazer; } set { isStartLazer = value; } }
+
     //-------------------------------------------------------
 
     private void Awake()
@@ -137,6 +143,11 @@ public class TowerAttack : MonoBehaviour
         if(shootTimer >= hitScanInterval && !isHitScanActive && IsHaveHitScanAbility)
         {
             StartHitscan(hitScanInterval);
+        }
+
+        if(towerData.towerIdInt == lazerTowerId && isStartLazer)
+        {
+            return;
         }
 
         if(shootTimer>=shootInterval)
@@ -223,6 +234,25 @@ public class TowerAttack : MonoBehaviour
 
             var direction = new Vector3(baseDirection.x, baseDirection.y, baseDirection.z);
 
+            if (towerData.towerIdInt == lazerTowerId)
+            {
+                var lazerObj = LoadManager.GetLoadedGamePrefab(ObjectName.Lazer);
+                var lazer = lazerObj.GetComponent<Lazer>();
+                lazer.SetLazer(transform, (target as Enemy).gameObject.transform, this, attackType == (int)ProjectileType.Homing, buffedData.RemainTime);
+                isStartLazer = true;
+                
+                projectile.Initialize(
+                    buffedData,
+                    baseData,
+                    direction,
+                    true,
+                    ProjectilePoolManager.Instance.ProjectilePool
+                );
+                projectile.GetComponent<Projectile>().IsFinish = true;
+
+                continue;
+            }
+
             ApplyGroupOffset(
                 ref direction,
                 towerData.grouping
@@ -264,6 +294,11 @@ public class TowerAttack : MonoBehaviour
         if (attackType == (int)ProjectileType.Homing)
         {
             projectile.SetHomingTarget(target);
+        }
+
+        if (towerData.towerIdInt == missleTowerId)
+        {
+            abilities.Add((int)AbilityId.Explosion);
         }
 
         foreach (var abilityId in abilities)
