@@ -49,14 +49,7 @@ public abstract class SummonPattern : IPattern
             return false;
         }
 
-        switch (Trigger)
-        {
-            case ExecutionTrigger.OnInterval:
-                return Time.time - lastExecuteTime >= TriggerValue;
-            
-        }
-
-        return false;
+        return true;
     }
 
     public virtual void Execute()

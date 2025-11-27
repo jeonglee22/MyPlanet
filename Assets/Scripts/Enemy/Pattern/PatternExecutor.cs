@@ -127,15 +127,10 @@ public class PatternExecutor : MonoBehaviour
             }
         }
 
-        patternTimer += Time.deltaTime;
-        if(patternTimer > patternInterval && availablePatterns.Count > 0)
+        IPattern selectedPattern = SelectPatternWeight(availablePatterns, weights);
+        if(selectedPattern != null)
         {
-            IPattern selectedPattern = SelectPatternWeight(availablePatterns, weights);
-            if(selectedPattern != null)
-            {
-                ExecutePatternAsync(selectedPattern, patternCts.Token).Forget();
-            }
-            patternTimer = 0f;
+            ExecutePatternAsync(selectedPattern, patternCts.Token).Forget();
         }
     }
 

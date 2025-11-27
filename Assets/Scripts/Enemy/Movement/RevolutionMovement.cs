@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class RevolutionMovement : IMovement
 {
-    private float offSet = 2f;
-    private float angleSpeed = 0.5f;
+    private float offSet = 10f;
+    private float angleSpeed = 2f;
 
     private bool isPatternLine = false;
     public bool IsPatternLine => isPatternLine;
@@ -15,7 +15,7 @@ public class RevolutionMovement : IMovement
 
     public Vector3 GetFinalDirection(Vector3 baseDirection, Transform ownerTransform, Transform target)
     {
-        if(lastBoss == null)
+        if(lastBoss == null && lastBoss == null)
         {
             var boss = Variables.LastBossEnemy;
             if(boss == null)
@@ -25,11 +25,11 @@ public class RevolutionMovement : IMovement
 
             lastBoss = boss.transform;
 
-            var bossCollider = lastBoss.GetComponent<CircleCollider2D>();
+            var bossCollider = lastBoss.GetComponent<Collider>();
             if(bossCollider != null)
             {
                 var extents = bossCollider.bounds.extents;
-                float colliderRadius = Mathf.Max(extents.x, extents.y);
+                float colliderRadius = extents.magnitude;
                 revolutionRadius = colliderRadius + offSet;
             }
             else
@@ -47,11 +47,6 @@ public class RevolutionMovement : IMovement
         Vector3 targetPosition = new Vector3(centerPosition.x + x, centerPosition.y + y, ownerTransform.position.z);
 
         Vector3 direction = targetPosition - ownerTransform.position;
-
-        if(direction.sqrMagnitude < 0.01f)
-        {
-            return Vector3.zero;
-        }
 
         return direction.normalized;
     }

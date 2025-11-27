@@ -94,7 +94,7 @@ public enum PatternIds
     SaturnLazer,
     SaturnMeteorClusterSummon,
     SaturnEleteMeteorClusterSummon,
-    SaturnMeteorCircleSummon,
+    SaturnMeteorRingSummon,
     TitanRevolution,
     HomingMeteorCluster,
     ChaseMeteorCluster

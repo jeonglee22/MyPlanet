@@ -185,6 +185,28 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
+    public void SpawnEnemiesInCircle(int enemyId, int quantity, float radius, ScaleData scaleData, bool ShouldDropItems = true, Vector3 centerPos = default)
+    {
+        PreparePool(enemyId);
+
+        currentTableData = DataTableManager.EnemyTable.Get(enemyId);
+        if (currentTableData == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < quantity; i++)
+        {
+            float angle = i * Mathf.PI * 2f / quantity;
+            Vector3 spawnPos = centerPos + new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0f) * radius;
+            var enemy = SpawnEnemyWithScale(enemyId, spawnPos, scaleData);
+            if(enemy != null)
+            {
+                enemy.ShouldDropItems = ShouldDropItems;
+            }
+        }
+    }
+
     public void DespawnAllEnemies()
     {
         foreach(var enemy in spawnedEnemies)
