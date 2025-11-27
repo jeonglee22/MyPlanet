@@ -13,9 +13,13 @@ public class Explosion : MonoBehaviour
     private float RatePanetration = 0f;
     private float damage = 0f;
 
+    private ParticleSystem[] explosionParticles;
+
+
     void Awake()
     {
         explosionCollider = GetComponent<SphereCollider>();
+        explosionParticles = GetComponentsInChildren<ParticleSystem>();
     }
 
     public void SetInit(float initRadius, float explosionRadius, Projectile projectileData)
@@ -25,6 +29,14 @@ public class Explosion : MonoBehaviour
         damage = projectileData.damage;
         FixedPanetration = projectileData.FixedPanetration;
         RatePanetration = projectileData.RatePanetration;
+    }
+
+    private void Start()
+    {
+        foreach(var particle in explosionParticles)
+        {
+            particle.Play();
+        }
     }
 
     // Update is called once per frame

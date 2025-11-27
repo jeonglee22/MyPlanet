@@ -144,6 +144,22 @@ public class TowerTargetingSystem : MonoBehaviour
     {
         extraTargetCount = extra;
     }
+
+    public void AddExtraTargetCount(int extra)
+    {
+        extraTargetCount += extra;
+    }
+
+    public void ClearExtraTargetCount()
+    {
+        extraTargetCount = 0;
+    }
+
+    public void RemoveExtraTargetCount(int extra)
+    {
+        extraTargetCount = Mathf.Max(0, extraTargetCount - extra);
+    }
+
     public void SetMaxTargetCount(int maxCount)
     {
         baseMaxTargetCount = Mathf.Max(1, maxCount);

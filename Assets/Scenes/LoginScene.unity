@@ -959,12 +959,12 @@ GameObject:
   - component: {fileID: 159247506}
   - component: {fileID: 159247507}
   m_Layer: 5
-  m_Name: LogOutButton
+  m_Name: CameraTest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &159247506
 RectTransform:
   m_ObjectHideFlags: 0
@@ -980,10 +980,10 @@ RectTransform:
   - {fileID: 1452885466}
   m_Father: {fileID: 1637690916}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 139.89636, y: -39.90909}
-  m_SizeDelta: {x: 100, y: 21.272726}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &159247507
 MonoBehaviour:
@@ -7437,7 +7437,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uB85C\uADF8\uC544\uC6C3"
+  m_text: "\uCE74\uBA54\uB77C \uD14C\uC2A4\uD2B8 "
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2457172890ba7b7499cdd8edfd480273, type: 2}
   m_sharedMaterial: {fileID: -2102652355757558081, guid: 2457172890ba7b7499cdd8edfd480273, type: 2}
@@ -8433,8 +8433,10 @@ MonoBehaviour:
   logInOutButton: {fileID: 940493466}
   exitButton: {fileID: 228392904}
   enemyTestButton: {fileID: 1868458365}
+  cameraTestButton: {fileID: 1452885467}
   canvasManager: {fileID: 1480105479}
   uidText: {fileID: 0}
+  loadManager: {fileID: 0}
 --- !u!1001 &2034520298
 PrefabInstance:
   m_ObjectHideFlags: 0
