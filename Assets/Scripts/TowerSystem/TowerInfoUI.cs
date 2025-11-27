@@ -76,6 +76,8 @@ public class TowerInfoUI : PopUpUI
 
     public void SetInfo(int index)
     {
+        Debug.Log($"[TowerInfoUI.SetInfo] index={index}, installControl={(installControl != null)}");
+
         nameText.text = $"Tower {index}";
         contentRect.DetachChildren();
 
@@ -247,16 +249,21 @@ public class TowerInfoUI : PopUpUI
         SetupAttackLabels();
 
         var attackTowerData = attackTower.AttackTowerData;
+        int level = attackTower.ReinforceLevel;
 
-        if (nameText != null) nameText.text = $"{attackTowerData.towerId}";
+        if (nameText != null)
+        {
+            nameText.text = $"{attackTowerData.towerId} (Lv.{level})";
+        }
 
         isSameTower = (infoIndex == index);
-
         var abilities = attackTower.Abilities;
 
-        // Left panel : Tower Data--------------------------------
-        //ID
-        SetText(towerIdValueText, attackTowerData.towerId);
+        SetText(
+            towerIdValueText,
+            $"{attackTowerData.towerId} (Lv.{level})"
+        );
+
         //Range
         SetText(rangeValueText,
             attackTowerData.rangeData != null
@@ -360,7 +367,6 @@ public class TowerInfoUI : PopUpUI
     private void FillAmplifierTowerInfo(int index, TowerAmplifier amplifierTower)
     {
         SetupAmplifierLabels();
-        SetText(towerIdValueText, "-");
 
         var ampData = amplifierTower.AmplifierTowerData;
         var slots = amplifierTower.BuffedSlotIndex;
@@ -372,13 +378,19 @@ public class TowerInfoUI : PopUpUI
             return;
         }
 
+        string baseName = !string.IsNullOrEmpty(ampData.BuffTowerName)
+            ? ampData.BuffTowerName
+            : $"Amplifier {index}";
+
+        int level = amplifierTower.ReinforceLevel;
+
         if (nameText != null)
-        {
-            if (!string.IsNullOrEmpty(ampData.BuffTowerName))
-                nameText.text = ampData.BuffTowerName;
-            else
-                nameText.text = $"Amplifier {index}";
-        }
+            nameText.text = $"{baseName} (Lv.{level})";
+
+        SetText(
+            towerIdValueText,
+            $"{baseName} (Lv.{level})"
+        );
 
         // 왼쪽 패널: 이름 / 타입 / 슬롯 수 / 타겟 종류
         SetText(rangeValueText,
@@ -513,7 +525,6 @@ public class TowerInfoUI : PopUpUI
             sb.AppendLine();
             sb.Append("추가 버프 없음");
         }
-
         var text = Instantiate(abilityExplainContent, contentRect);
         SetText(text.GetComponent<TextMeshProUGUI>(), sb.ToString());
     }

@@ -32,7 +32,7 @@ public class AttackTowerSyncEditor
             if (so == null) continue;
             if (so.towerIdInt == 0) continue;
 
-            AttackTowerRow row = table.GetById(so.towerIdInt);
+            AttackTowerTableRow row = table.GetById(so.towerIdInt);
             if (row == null) continue;
 
             so.towerId = row.AttackTowerName;       

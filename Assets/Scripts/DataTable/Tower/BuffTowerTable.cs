@@ -9,6 +9,7 @@ public class BuffTowerData
     public int SlotNum { get; set; }
     public int SpecialEffectCombination_ID { get; set; }
     public int RandomAbilityGroup_ID { get; set; }
+    public int[] BuffTowerReinforceUpgrade_ID { get; set; }
 
     public override string ToString()
     {

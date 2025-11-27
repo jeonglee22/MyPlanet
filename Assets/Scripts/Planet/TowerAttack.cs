@@ -54,8 +54,24 @@ public class TowerAttack : MonoBehaviour
     public float HitRateBuffMultiplier => hitRateBuffMul;
 
     public float BasicHitRate => towerData.Accuracy;
-    public float FinalHitRate => towerData.Accuracy * hitRadiusBuffMul;
+    public float FinalHitRate
+    {
+        get
+        {
+            if (towerData == null) return 0f;
 
+            float final = towerData.Accuracy * hitRateBuffMul;
+            final += accuracyBuffAdd; 
+
+            return final;
+        }
+    }
+
+    //------------ Reinforce Field ---------------------
+    [SerializeField] private int reinforceLevel = 0; //current level
+    public int ReinforceLevel => reinforceLevel;
+    [SerializeField] private float reinforceAttackScale = 1f; //balance
+    private ProjectileData originalProjectileData; //original
 
     //projectile Count---------------------------------------
     private int baseProjectileCount = 1; //Only Var
@@ -114,11 +130,18 @@ public class TowerAttack : MonoBehaviour
         towerData = data;
         if (towerData == null) return;
         //Connect Data Table To baseProjectileData(=currentProjectileData) 
-        currentProjectileData = DataTableManager.ProjectileTable.Get(towerData.projectileIdFromTable);
+        originalProjectileData = DataTableManager.ProjectileTable.Get(towerData.projectileIdFromTable);
         //Connect Tower Data
-        towerData.projectileType = currentProjectileData;
+        towerData.projectileType = originalProjectileData;
+        //apply reinforce
+        if (originalProjectileData != null)
+        {
+            currentProjectileData = originalProjectileData.Clone();
+        }
         //Set Projectile Count -> From Tower Data SO (NOT Data Table) -> check
         baseProjectileCount = Mathf.Max(1, towerData.projectileCount);
+        //reinforce calculator
+        RecalculateReinforcedBase();
     }
 
     private void Update()
@@ -412,5 +435,66 @@ public class TowerAttack : MonoBehaviour
         currentProjectileData.AttackType = addBuffProjectileData.AttackType;
 
         return addBuffProjectileData;
+    }
+
+    //Reinforce ----------------------------------------------------
+    public void SetReinforceLevel(int newLevel)
+    {
+        newLevel = Math.Max(0, newLevel);
+
+        if (reinforceLevel == newLevel) return;
+        reinforceLevel = newLevel;
+        RecalculateReinforcedBase();
+    }
+
+    private void RecalculateReinforcedBase()
+    {
+        if (originalProjectileData == null || towerData == null)
+        {
+            Debug.LogWarning("[AtkReinforce] originalProjectileData or towerData is null");
+            return;
+        }
+
+        // copy to base
+        currentProjectileData = originalProjectileData.Clone();
+
+        // 1) AttackTowerTable Row 찾기
+        var attackRow = DataTableManager.AttackTowerTable.GetById(towerData.towerIdInt);
+        if (attackRow == null)
+        {
+            Debug.LogWarning($"[AtkReinforce] No AttackTowerTableRow for towerIdInt={towerData.towerIdInt}");
+            return;
+        }
+
+        if (attackRow.TowerReinforceUpgrade_ID == null || attackRow.TowerReinforceUpgrade_ID.Length == 0)
+        {
+            Debug.LogWarning(
+                $"[AtkReinforce] TowerReinforceUpgrade_ID is null/empty for towerIdInt={towerData.towerIdInt}");
+            return;
+        }
+
+        // 강화를 위한 ID 리스트 로그
+        Debug.Log($"[AtkReinforce] towerId={towerData.towerIdInt}, " +
+                  $"ids=[{string.Join(",", attackRow.TowerReinforceUpgrade_ID)}], " +
+                  $"currLevel={reinforceLevel}");
+
+        float addValue = 0f;
+        if (TowerReinforceManager.Instance != null)
+        {
+            addValue = TowerReinforceManager.Instance.GetAttackAddValueByIds(
+                attackRow.TowerReinforceUpgrade_ID,
+                reinforceLevel
+            );
+        }
+        else
+        {
+            Debug.LogWarning("[AtkReinforce] TowerReinforceManager.Instance is null");
+        }
+
+        float finalAttack = (originalProjectileData.Attack + addValue) * reinforceAttackScale;
+        currentProjectileData.Attack = finalAttack;
+
+        Debug.Log($"[AtkReinforce] towerId={towerData.towerIdInt}, level={reinforceLevel}, " +
+                  $"baseAtk={originalProjectileData.Attack}, add={addValue}, final={finalAttack}");
     }
 }

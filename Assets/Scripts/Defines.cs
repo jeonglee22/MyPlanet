@@ -119,6 +119,8 @@ public static class DataTableIds
     public const string SpecialEffectCombination = "SpecialEffectCombinationTable";
     public const string SpecialEffect = "SpecialEffectTable";
     public static readonly string PlanetLevelUp = "PlanetLevelUpTable";
+    public const string TowerReinforceUpgrade = "TowerReinforceUpgradeTable";
+    public static readonly string BuffTowerReinforceUpgrade = "BuffTowerReinforceUpgradeTable";
 }
 
 public static class Variables

@@ -153,7 +153,26 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 choices[i].ability = abilities[i];
                 choices[i].AmplifierTowerData = null;
                 choices[i].BuffSlotIndex = null;
-                uiTexts[i].text = $"Upgrade\n{number}";
+                choices[i].RandomAbilitySlotIndex = null;
+                choices[i].AttackTowerData = null;
+
+                var towerData = installControl.GetTowerData(number);
+                var ampTower = installControl.GetAmplifierTower(number);
+
+                string towerName = "-";
+
+                if (towerData != null)
+                {
+                    towerName = towerData.towerId;
+                }
+                else if (ampTower != null && ampTower.AmplifierTowerData != null)
+                {
+                    var ampData = ampTower.AmplifierTowerData;
+                    towerName = !string.IsNullOrEmpty(ampData.BuffTowerName)
+                        ? ampData.BuffTowerName
+                        : ampData.AmplifierType.ToString();
+                }
+                uiTexts[i].text = $"Upgrade\n{number}\n{towerName}";
             }
         }
     }
@@ -351,7 +370,24 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             choices[index].BuffSlotIndex = null;
             choices[index].RandomAbilitySlotIndex = null;
             choices[index].AttackTowerData = null;
-            uiTexts[index].text = $"Upgrade\n{number}";
+
+            var towerData = installControl.GetTowerData(number);
+            var ampTower = installControl.GetAmplifierTower(number);
+
+            string towerName = "-";
+
+            if (towerData != null)
+            {
+                towerName = towerData.towerId;
+            }
+            else if (ampTower != null && ampTower.AmplifierTowerData != null)
+            {
+                var ampData = ampTower.AmplifierTowerData;
+                towerName = !string.IsNullOrEmpty(ampData.BuffTowerName)
+                    ? ampData.BuffTowerName
+                    : ampData.AmplifierType.ToString();
+            }
+            uiTexts[index].text = $"Upgrade\n{number}\n{towerName}";
         }
     }
 
