@@ -12,6 +12,7 @@ using UnityEngine.UIElements;
 public class Enemy : LivingEntity, ITargetable , IDisposable
 {
     private ObjectPoolManager<int, Enemy> objectPoolManager;
+    public ObjectPoolManager<int, Enemy> ObjectPoolManager => objectPoolManager;
 
     private EnemyMovement movement;
     public EnemyMovement Movement { get => movement; set => movement = value; }

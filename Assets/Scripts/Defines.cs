@@ -69,6 +69,7 @@ public enum ExecutionTrigger
     OnPatternLine,
     OnInterval,
     Immediate,
+    OnHealthPercentage,
 }
 
 public enum MoveType
@@ -78,6 +79,7 @@ public enum MoveType
     Chase,
     FollowParent,
     DescendAndStopMovement = 10,
+    Revolution = 11,
 }
 
 public enum PatternIds
@@ -92,7 +94,7 @@ public enum PatternIds
     SaturnLazer,
     SaturnMeteorClusterSummon,
     SaturnEleteMeteorClusterSummon,
-    SaturnMeteorCircleSummon,
+    SaturnMeteorRingSummon,
     TitanRevolution,
     HomingMeteorCluster,
     ChaseMeteorCluster
@@ -119,6 +121,7 @@ public static class DataTableIds
 public static class Variables
 {
     public static int Stage {get; set;} = 1;
+    public static GameObject LastBossEnemy {get; set;} = null;
 }
 
 public static class AddressLabel

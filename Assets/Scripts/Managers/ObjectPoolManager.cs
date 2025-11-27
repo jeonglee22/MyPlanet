@@ -47,7 +47,7 @@ public class ObjectPoolManager<TKey, TValue> where TValue : Component , IDisposa
         PoolData poolData = new PoolData(pool, prefab, parent, maxSize, collectionCheck);
         pools.Add(key, poolData);
 
-        Preload(key, initialSize);
+        //Preload(key, initialSize);
     }
 
     public TValue Get(TKey key)
@@ -67,10 +67,17 @@ public class ObjectPoolManager<TKey, TValue> where TValue : Component , IDisposa
             UnityEngine.Object.Destroy(value.gameObject);
             return;
         }
+
+        if(!value.gameObject.activeSelf)
+        {
+            return;
+        }
+
         value.Dispose();
         poolData.pool.Release(value);
     }
 
+    /*
     public void Preload(TKey key, int count)
     {
         if (!pools.ContainsKey(key))
@@ -95,6 +102,7 @@ public class ObjectPoolManager<TKey, TValue> where TValue : Component , IDisposa
 
         tempList.Clear();
     }
+    */
 
     public bool HasPool(TKey key) => pools.ContainsKey(key);
 

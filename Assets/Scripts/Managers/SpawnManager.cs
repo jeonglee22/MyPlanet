@@ -155,4 +155,14 @@ public class SpawnManager : MonoBehaviour
         Gizmos.DrawLine(new Vector3(screenBounds.xMax, screenBounds.yMax, 0f), new Vector3(screenBounds.xMax, screenBounds.yMin, 0f));
         Gizmos.DrawLine(new Vector3(screenBounds.xMax, screenBounds.yMin, 0f), new Vector3(screenBounds.xMin, screenBounds.yMin, 0f));
     }
+
+    public void DespawnAllEnemies()
+    {
+        foreach(var spawner in spawnPoints)
+        {
+            spawner.DespawnAllEnemies();
+        }
+
+        currentEnemyCount = 0;
+    }
 }
