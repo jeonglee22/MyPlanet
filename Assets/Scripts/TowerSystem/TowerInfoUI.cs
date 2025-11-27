@@ -309,7 +309,11 @@ public class TowerInfoUI : PopUpUI
 
             // Target Num
             float baseTargets = baseProj.TargetNum;
-            float finalTargets = buffedProj.TargetNum;
+            float ampTargets = buffedProj.TargetNum;
+            float finalTargets = CalculateEachAbility(
+                (int)AbilityId.TargetCount, 
+                abilities, 
+                ampTargets);
             SetStatText(targetNumberValueText, baseTargets, finalTargets, "0");
 
             // LifeTime
@@ -440,20 +444,46 @@ public class TowerInfoUI : PopUpUI
 
         var sb = new StringBuilder();
 
-        // 이름
+        // ── 기본 정보 ───────────────────────────────
         if (!string.IsNullOrEmpty(ampData.BuffTowerName))
             sb.AppendLine($"이름: {ampData.BuffTowerName}");
 
-        // 버프 슬롯
         if (slots != null && slots.Count > 0)
-        {
             sb.AppendLine($"버프 슬롯: {string.Join(", ", slots)}");
-        }
         else
-        {
             sb.AppendLine("버프 슬롯: 없음");
+
+        // ── 랜덤능력 정보 ───────────────────────────
+        var ampAbilities = amplifierTower.Abilities;
+        if (ampAbilities != null && ampAbilities.Count > 0)
+        {
+            int randAbilityId = ampAbilities[0];
+            var raRow = DataTableManager.RandomAbilityTable.Get(randAbilityId);
+            if (raRow != null)
+            {
+                sb.AppendLine();
+                sb.AppendLine($"랜덤 능력: {raRow.RandomAbilityName} (ID: {randAbilityId})");
+
+                // ⚠️ 여기서부터는 RandomAbility 테이블에
+                // PlaceType, AddSlotNum, DuplicateType 프로퍼티가 있다고 가정하고 쓴다.
+                int placeType = raRow.PlaceType;
+                int addSlotNum = raRow.AddSlotNum;
+                int duplicateType = raRow.DuplicateType;
+
+                string placeDesc = placeType switch
+                {
+                    0 => "배치타입 0: 증폭 버프 슬롯과 별도 슬롯에 랜덤능력 배치",
+                    1 => "배치타입 1: 기존 증폭 버프 슬롯 중 하나에 랜덤능력 집중",
+                    2 => $"배치타입 2: 기본 버프 슬롯 수가 {addSlotNum}개 증가",
+                    _ => $"배치타입 {placeType}"
+                };
+
+                sb.AppendLine(placeDesc);
+                sb.AppendLine($"중복 타입: {(duplicateType == 0 ? "중첩 가능" : "중첩 불가")}");
+            }
         }
 
+        // ── 증폭 수치 설명 (기존 코드 기반) ───────────
         var buffParts = new List<string>();
 
         if (!Mathf.Approximately(ampData.DamageBuff, 0f))
@@ -475,10 +505,12 @@ public class TowerInfoUI : PopUpUI
 
         if (buffParts.Count > 0)
         {
+            sb.AppendLine();
             sb.Append(string.Join(", ", buffParts));
         }
         else
         {
+            sb.AppendLine();
             sb.Append("추가 버프 없음");
         }
 

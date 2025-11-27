@@ -65,4 +65,63 @@ public class AbilityManager : MonoBehaviour
         
         return null;
     }
+
+    //Pick Random with Weight Helper------------------------------------------
+    private static int PickRandomFromList(List<int> candidateIds, List<float> weights = null)
+    {
+        if (candidateIds == null || candidateIds.Count == 0) return -1;
+        if(weights==null||weights.Count!=candidateIds.Count) //no weight
+        {
+            int idx = Random.Range(0, candidateIds.Count);
+            return candidateIds[idx];
+        }
+
+        float totalWeight = 0;
+        for(int i=0; i<weights.Count; i++)
+        {
+            totalWeight += Mathf.Max(0, weights[i]);
+        }
+
+        float rand = Random.Range(0, totalWeight);
+        float cumulative = 0;
+
+        for(int i=0; i<candidateIds.Count; i++)
+        {
+            cumulative += Mathf.Max(0, weights[i]);
+            if (rand < cumulative) return candidateIds[i];
+        }
+        return candidateIds[candidateIds.Count - 1];
+    }
+    //------------------------------------------------------------------
+
+    //RandomAbilitygroup + TowerType + Weight---------------------------
+    public static int GetRandomAbilityFromGroup(int randomAbilityGroupId, int requiredTowerType, bool useWeight = false)
+    {
+        var groupRow = DataTableManager.RandomAbilityGroupTable.Get(randomAbilityGroupId);
+        
+        string idListString = groupRow.RandomAbilityGroup;
+        string[] tokens = idListString.Split(',');
+        List<int> candidateIds = new List<int>();
+        List<float> weights = useWeight ? new List<float>() : null;
+
+        foreach(var raw in tokens)
+        {
+            if (string.IsNullOrWhiteSpace(raw)) continue;
+            if (!int.TryParse(raw.Trim(), out int abilityId)) continue;
+
+            var raRow = DataTableManager.RandomAbilityTable.Get(abilityId);
+            if (raRow == null) continue;
+
+            candidateIds.Add(abilityId);
+
+            if(useWeight&&weights!=null)
+            {
+                float w = raRow.Weight;
+                if (w <= 0) w = 1;
+                weights.Add(w);
+            }
+        }
+        return PickRandomFromList(candidateIds, weights);
+    }
+    //------------------------------------------------------------------
 }
