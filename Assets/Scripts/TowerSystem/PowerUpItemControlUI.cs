@@ -32,6 +32,14 @@ public class PowerUpItemControlUI : MonoBehaviour
         set { isNotUpgradeOpen = value; }
     }
 
+    private bool isUsedItem = false;
+    private bool isInfiniteItem = false;
+    public bool IsInfiniteItem
+    {
+        get { return isInfiniteItem; }
+        set { isInfiniteItem = value; }
+    }
+
     private void Start()
     {
         towerCountUpgradeButton.onClick.AddListener(OnMaxTowerCountUpgradeClicked);
@@ -85,6 +93,7 @@ public class PowerUpItemControlUI : MonoBehaviour
         abilities.Clear();
 
         SetTowerOpenInfoTouch();
+        SetActiveItemUseButton(false);
     }
 
     private void SetTowerOpenInfoTouch()
@@ -156,10 +165,26 @@ public class PowerUpItemControlUI : MonoBehaviour
         installControl.UpgradeMaxTowerCount();
         SetTowerInstallText();
         itemChoosePanel.SetActive(false);
+        SetActiveItemUseButton(false);
+    }
+
+    public void SetActiveItemUseButton(bool isActive)
+    {
+        itemUseButton.interactable = isActive;
+        isUsedItem = isActive;
+
+        if(isInfiniteItem)
+        {
+            itemUseButton.interactable = true;
+            isUsedItem = false;
+        }
     }
 
     private void OnItemUseClicked()
     {
+        if (isUsedItem)
+            return;
+
         if (!itemChoosePanel.activeSelf)
         {
             itemChoosePanel.SetActive(true);
