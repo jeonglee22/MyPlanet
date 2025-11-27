@@ -180,10 +180,14 @@ public class TowerInstallControl : MonoBehaviour
     public void UpgradeTower(int index)
     {
         if (!IsReadyInstall) return;
-        planet?.UpgradeTower(index);
+        if (ChoosedData == null) return;
+
+        planet?.UpgradeTower(index);   
+
         IsReadyInstall = false;
         isInstall = true;
     }
+
 
     private void TryAssignDataToTower(GameObject towerObj, TowerDataSO data)
     {

@@ -513,7 +513,6 @@ public class TowerInfoUI : PopUpUI
             sb.AppendLine();
             sb.Append("추가 버프 없음");
         }
-
         var text = Instantiate(abilityExplainContent, contentRect);
         SetText(text.GetComponent<TextMeshProUGUI>(), sb.ToString());
     }

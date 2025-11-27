@@ -17,6 +17,16 @@ public class TowerAmplifier : MonoBehaviour
     private List<int> abilities = new List<int>();
     public List<int> Abilities => abilities;
 
+    //Reinforce Field --------------------------------------
+    [Header("Reinforce (Buff Tower)")]
+    [SerializeField] private int reinforceLevel = 0;
+    public int ReinforceLevel => reinforceLevel;
+
+    [SerializeField] private float reinforceScale = 1f;
+
+    private AmplifierTowerDataSO baseAmpData;
+    private AmplifierTowerDataSO runtimeAmpData;
+    //------------------------------------------------------
     public void AddAbility(int ability)
     {
         abilities.Add(ability);
@@ -24,7 +34,67 @@ public class TowerAmplifier : MonoBehaviour
 
     public void SetData(AmplifierTowerDataSO data)
     {
-        amplifierTowerData = data;
+        baseAmpData = data;
+
+        if (baseAmpData == null)
+        {
+            runtimeAmpData = null;
+            amplifierTowerData = null;
+            return;
+        }
+
+        runtimeAmpData = ScriptableObject.Instantiate(baseAmpData);
+        amplifierTowerData = runtimeAmpData;
+
+        RecalculateReinforceBuff();
+    }
+
+    public void SetReinforceLevel(int newLevel)
+    {
+        newLevel = Mathf.Max(0, newLevel);
+        if (newLevel == reinforceLevel) return;
+        reinforceLevel = newLevel;
+        RecalculateReinforceBuff();
+
+        foreach (var t in buffedTargets)
+        {
+            if (t == null) continue;
+            t.SetUpBuff(amplifierTowerData);
+        }
+        Debug.Log($"[BuffReinforce] level={reinforceLevel}, " +
+          $"damageBuff={amplifierTowerData.DamageBuff}, " +
+          $"fireRateBuff={amplifierTowerData.FireRateBuff}, " +
+          $"projCountBuff={amplifierTowerData.ProjectileCountBuff}");
+
+    }
+
+    private void RecalculateReinforceBuff()
+    {
+        if (!DataTableManager.IsInitialized) return;
+
+        if (baseAmpData == null || runtimeAmpData == null) return;
+
+        //base
+        runtimeAmpData.RefreshFromTables();
+        if (reinforceLevel <= 0) return;
+
+        //Reinforce
+        //get id
+        int[] reinforceIds = runtimeAmpData.BuffTowerReinforceUpgrade_ID;
+        if (reinforceIds == null || reinforceIds.Length == 0) return;
+
+        //get add value
+        var extraEffects =
+            TowerReinforceManager.GetBuffAddValuesByIdsStatic(reinforceIds, reinforceLevel);
+
+        if (extraEffects == null || extraEffects.Count == 0) return;
+
+        //add Reinforce Data
+        runtimeAmpData.ApplyReinforceEffects(extraEffects, reinforceScale);
+
+        Debug.Log(
+            $"[BuffReinforce] slot={selfIndex}, level={reinforceLevel}, " +
+            $"effects={extraEffects.Count}");
     }
 
     public void ApplyBuff(TowerAttack target) //single target(apply buff)
@@ -65,6 +135,7 @@ public class TowerAmplifier : MonoBehaviour
         ClearAllbuffs();
     }
 
+    //Planet.SetAmplifierTower -> AddAmpTower
     internal void AddAmpTower(
         AmplifierTowerDataSO ampData, 
         int index, 
@@ -74,9 +145,10 @@ public class TowerAmplifier : MonoBehaviour
     {
         if (ampData == null || planet == null) return;
 
-        amplifierTowerData = ampData;
         selfIndex = index;
         this.planet = planet;
+
+        SetData(ampData);
 
         abilities.Clear();
         if (randomAbilityId > 0) abilities.Add(randomAbilityId);
@@ -182,9 +254,6 @@ public class TowerAmplifier : MonoBehaviour
         if (newTower == null) return;
         if (AmplifierTowerData == null) return;
         if (!buffedSlotIndex.Contains(slotIndex)) return;
-
-        //var attackTower = planet.GetAttackTowerToAmpTower(slotIndex);
-        //if (attackTower == null) return;
 
         ApplyBuff(newTower);
     }

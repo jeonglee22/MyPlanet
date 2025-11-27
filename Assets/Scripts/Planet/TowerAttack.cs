@@ -54,7 +54,18 @@ public class TowerAttack : MonoBehaviour
     public float HitRateBuffMultiplier => hitRateBuffMul;
 
     public float BasicHitRate => towerData.Accuracy;
-    public float FinalHitRate => towerData.Accuracy * hitRadiusBuffMul;
+    public float FinalHitRate
+    {
+        get
+        {
+            if (towerData == null) return 0f;
+
+            float final = towerData.Accuracy * hitRateBuffMul;
+            final += accuracyBuffAdd; 
+
+            return final;
+        }
+    }
 
     //------------ Reinforce Field ---------------------
     [SerializeField] private int reinforceLevel = 0; //current level
@@ -438,24 +449,52 @@ public class TowerAttack : MonoBehaviour
 
     private void RecalculateReinforcedBase()
     {
-        if (originalProjectileData == null || towerData == null) return;
+        if (originalProjectileData == null || towerData == null)
+        {
+            Debug.LogWarning("[AtkReinforce] originalProjectileData or towerData is null");
+            return;
+        }
 
-        //copy to base
+        // copy to base
         currentProjectileData = originalProjectileData.Clone();
 
-        //get attack tower table row
+        // 1) AttackTowerTable Row 찾기
         var attackRow = DataTableManager.AttackTowerTable.GetById(towerData.towerIdInt);
-        if (attackRow == null || attackRow.TowerReinforceUpgrade_ID == null || attackRow.TowerReinforceUpgrade_ID.Length == 0)
+        if (attackRow == null)
+        {
+            Debug.LogWarning($"[AtkReinforce] No AttackTowerTableRow for towerIdInt={towerData.towerIdInt}");
             return;
+        }
 
-        //reinforce id with level => calculate Addvalue
-        float addValue = TowerReinforceManager.GetAttackAddValueByIdsStatic(
-        attackRow.TowerReinforceUpgrade_ID,
-        reinforceLevel
-        );
+        if (attackRow.TowerReinforceUpgrade_ID == null || attackRow.TowerReinforceUpgrade_ID.Length == 0)
+        {
+            Debug.LogWarning(
+                $"[AtkReinforce] TowerReinforceUpgrade_ID is null/empty for towerIdInt={towerData.towerIdInt}");
+            return;
+        }
 
-        //base value + reinforce value
+        // 강화를 위한 ID 리스트 로그
+        Debug.Log($"[AtkReinforce] towerId={towerData.towerIdInt}, " +
+                  $"ids=[{string.Join(",", attackRow.TowerReinforceUpgrade_ID)}], " +
+                  $"currLevel={reinforceLevel}");
+
+        float addValue = 0f;
+        if (TowerReinforceManager.Instance != null)
+        {
+            addValue = TowerReinforceManager.Instance.GetAttackAddValueByIds(
+                attackRow.TowerReinforceUpgrade_ID,
+                reinforceLevel
+            );
+        }
+        else
+        {
+            Debug.LogWarning("[AtkReinforce] TowerReinforceManager.Instance is null");
+        }
+
         float finalAttack = (originalProjectileData.Attack + addValue) * reinforceAttackScale;
         currentProjectileData.Attack = finalAttack;
+
+        Debug.Log($"[AtkReinforce] towerId={towerData.towerIdInt}, level={reinforceLevel}, " +
+                  $"baseAtk={originalProjectileData.Attack}, add={addValue}, final={finalAttack}");
     }
 }

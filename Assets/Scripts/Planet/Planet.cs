@@ -165,11 +165,25 @@ public class Planet : LivingEntity
 
     public void UpgradeTower(int index)
     {
-        var tower = towers[index];
-        var towerAttack = tower.GetComponent<TowerAttack>();
-        if (towerAttack == null) return; //If AmplifierTower||null -> return
-        // towerAttack.AddAbility(101);
+        var go = towers[index];
+        if (go == null) return;
+
+        var attack = go.GetComponent<TowerAttack>();
+        if (attack != null)
+        {
+            attack.SetReinforceLevel(attack.ReinforceLevel + 1);
+            Debug.Log($"[Planet.UpgradeTower] Slot {index} AttackTower => Lv {attack.ReinforceLevel}");
+            return;
+        }
+
+        var amp = go.GetComponent<TowerAmplifier>();
+        if (amp != null)
+        {
+            amp.SetReinforceLevel(amp.ReinforceLevel + 1);
+            Debug.Log($"[Planet.UpgradeTower] Slot {index} BuffTower => Lv {amp.ReinforceLevel}");
+        }
     }
+
 
     public void SetAmplifierTower(
         AmplifierTowerDataSO ampData, 

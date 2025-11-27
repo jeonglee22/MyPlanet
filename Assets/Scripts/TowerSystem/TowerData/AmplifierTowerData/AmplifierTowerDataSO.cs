@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public enum AmplifierType
@@ -42,13 +43,14 @@ public class AmplifierTowerDataSO : ScriptableObject
     //Buff Numbers
     [SerializeField] private float damageBuff = 0f;
     [SerializeField] private float fireRateBuff = 1f;
-    [SerializeField] private float accelerationBuff = 1f;
+    [SerializeField] private float accelerationBuff = 0f;
     [SerializeField] private float hitRadiusBuff = 0f;
     [SerializeField] private float percentPenetrationBuff = 1f;
     [SerializeField] private float fixedPenetrationBuff = 0f;
     [SerializeField] private int projectileCountBuff = 0;
     [SerializeField] private int targetNumberBuff = 0;
     [SerializeField] private float hitRateBuff = 1f;
+    private int[] buffTowerReinforceUpgradeIds;
 
     public float DamageBuff => damageBuff;
     public float FireRateBuff => fireRateBuff;
@@ -59,13 +61,14 @@ public class AmplifierTowerDataSO : ScriptableObject
     public int ProjectileCountBuff => projectileCountBuff;
     public int TargetNumberBuff => targetNumberBuff;
     public float HitRateBuff => hitRateBuff;
+    public int[] BuffTowerReinforceUpgrade_ID => buffTowerReinforceUpgradeIds;
 
     //Calculate Buff Tables
     public void ResetBuffValuesFromTables()
     {
         damageBuff = 0f;
         fireRateBuff = 1f;
-        accelerationBuff = 1f;
+        accelerationBuff = 0f;
         hitRadiusBuff = 0f;
         percentPenetrationBuff = 1f;
         fixedPenetrationBuff = 0f;
@@ -85,6 +88,7 @@ public class AmplifierTowerDataSO : ScriptableObject
         slotNum = Mathf.Max(1, buffData.SlotNum);
         specialEffectCombinationId = buffData.SpecialEffectCombination_ID;
         randomAbilityGroupId = buffData.RandomAbilityGroup_ID;
+        buffTowerReinforceUpgradeIds = buffData.BuffTowerReinforceUpgrade_ID;
 
         ResetBuffValuesFromTables();
 
@@ -110,6 +114,7 @@ public class AmplifierTowerDataSO : ScriptableObject
         slotNum = Mathf.Max(1, buffData.SlotNum);
         specialEffectCombinationId = buffData.SpecialEffectCombination_ID;
         randomAbilityGroupId = buffData.RandomAbilityGroup_ID;
+        buffTowerReinforceUpgradeIds = buffData.BuffTowerReinforceUpgrade_ID;
 
         ResetBuffValuesFromTables();
 
@@ -178,6 +183,24 @@ public class AmplifierTowerDataSO : ScriptableObject
             case AmplifierStatKind.FixedPenetration:
                 fixedPenetrationBuff += value;
                 break;
+        }
+    }
+    public void ApplyReinforceEffects(
+    Dictionary<int, float> effectAddValues,
+    float localScale)
+    {
+        if (effectAddValues == null || effectAddValues.Count == 0) return;
+        if (!DataTableManager.IsInitialized) return;
+
+        var effectTable = DataTableManager.SpecialEffectTable;
+        if (effectTable == null) return;
+
+        foreach (var kvp in effectAddValues)
+        {
+            int effectId = kvp.Key;
+            float value = kvp.Value * localScale; 
+
+            ApplySingleEffect(effectTable, effectId, value);
         }
     }
 }
