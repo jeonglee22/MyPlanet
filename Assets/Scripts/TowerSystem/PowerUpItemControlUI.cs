@@ -84,6 +84,11 @@ public class PowerUpItemControlUI : MonoBehaviour
         itemChoosePanel.SetActive(false);
         abilities.Clear();
 
+        SetTowerOpenInfoTouch();
+    }
+
+    private void SetTowerOpenInfoTouch()
+    {
         var towers = installControl.Towers;
         for (int i = 0; i < installControl.TowerCount; i++)
         {
@@ -170,6 +175,7 @@ public class PowerUpItemControlUI : MonoBehaviour
             newAbilityUpgradeButton.gameObject.SetActive(false);
             chooseTowerPanel.SetActive(false);
             upgradeChooseUis.SetActive(false);
+            SetTowerOpenInfoTouch();
         }
     }
 

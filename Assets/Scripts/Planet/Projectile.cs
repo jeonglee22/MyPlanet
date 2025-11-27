@@ -33,6 +33,7 @@ public class Projectile : MonoBehaviour , IDisposable
     public event Action<GameObject> abilityRelease;
 
     private bool isFinish = false;
+    public bool IsFinish { get => isFinish; set => isFinish = value; }
 
     private void OnEnable()
     {
