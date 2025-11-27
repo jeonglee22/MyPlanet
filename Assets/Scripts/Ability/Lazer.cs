@@ -20,12 +20,15 @@ public class Lazer : MonoBehaviour
     private float attackDelayTimer;
     private float attackDelay = 0.5f;
     private List<Enemy> attackObject;
+    private List<Enemy> removeObject;
+    private float lazerLength = 10f;
 
     void Awake()
     {
         lineRenderer = GetComponentInChildren<LineRenderer>();
         boxCollider = GetComponent<BoxCollider>();
         attackObject = new List<Enemy>();
+        removeObject = new List<Enemy>();
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -46,7 +49,15 @@ public class Lazer : MonoBehaviour
             Debug.Log(attackObject.Count);
             foreach (var enemy in attackObject)
             {
-                enemy.OnDamage(10f); // Example damage value
+                enemy.OnDeathEvent += () => {
+                    removeObject.Add(enemy);
+                };
+                enemy.OnDamage(10f);
+            }
+
+            foreach (var rem in removeObject)
+            {
+                attackObject.Remove(rem);
             }
             attackDelayTimer = 0f;
         }
@@ -82,7 +93,7 @@ public class Lazer : MonoBehaviour
             direction = (target.position - tower.position).normalized;
 
             startPoint = lineRenderer.GetPosition(0);
-            endPoint = startPoint + direction * 10f;
+            endPoint = startPoint + direction * lazerLength;
             finalDirection = direction;
         }
         else
@@ -90,7 +101,7 @@ public class Lazer : MonoBehaviour
             direction = finalDirection.normalized;
 
             startPoint = lineRenderer.GetPosition(0);
-            endPoint = startPoint + direction * 10f;
+            endPoint = startPoint + direction * lazerLength;
         }
         
 
@@ -112,7 +123,7 @@ public class Lazer : MonoBehaviour
         // var lerpAngle = Mathf.LerpAngle(transform.rotation.z, angle - 90f, 0.1f);
         // var clampAngle = Mathf.Abs(angle - 90f - lerpAngle) < 1f ? angle - 90f : lerpAngle;
 
-        transform.rotation = Quaternion.Euler(0, 0, angle- 90f);
+        transform.rotation = Quaternion.Euler(0, 0, angle - 90f);
         transform.position = tower.position;
     }
 
@@ -123,7 +134,7 @@ public class Lazer : MonoBehaviour
 
         this.tower = tower;
         this.target = target;
-        finalPoint = tower.position + direction * 10f;
+        finalPoint = tower.position + direction * lazerLength;
         this.duration = duration;
         this.towerAttack = towerAttack;
         this.isHoming = isHoming;
