@@ -6,7 +6,7 @@ public class MeteorRingSummonPattern : SummonPattern
 
     public MeteorRingSummonPattern()
     {
-        Trigger = ExecutionTrigger.OnInterval;
+        Trigger = ExecutionTrigger.OnHealthPercentage;
     }
 
     protected override void Summon()

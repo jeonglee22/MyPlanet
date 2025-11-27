@@ -4,12 +4,11 @@ public class LazerPattern : ShootingPattern
 {
     public override int PatternId => patternData.Pattern_Id;
 
-    private Transform target;
     private GameObject lazerObject;
 
-    private float duration = 2f;
-    private float laserWidth = 4f;
-    private float tickInterval = 0.1f;
+    protected float duration = 2f;
+    protected float laserWidth = 1f;
+    protected float tickInterval = 0.1f;
 
 
     public override void Initialize(Enemy enemy, EnemyMovement movement, EnemyTableData enemyData)
@@ -17,12 +16,6 @@ public class LazerPattern : ShootingPattern
         base.Initialize(enemy, movement, enemyData);
 
         Trigger = ExecutionTrigger.OnInterval;
-
-        var player = GameObject.FindGameObjectWithTag(TagName.Planet);
-        if (player != null)
-        {
-            target = player.transform;
-        }
     }
 
     protected override void Shoot()

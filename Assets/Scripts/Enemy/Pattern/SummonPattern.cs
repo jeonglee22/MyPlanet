@@ -49,6 +49,13 @@ public abstract class SummonPattern : IPattern
             return false;
         }
 
+        switch (Trigger)
+        {
+            case ExecutionTrigger.OnHealthPercentage:
+                float healthPercentage = owner.Health / owner.MaxHealth;
+                return healthPercentage <= HEALTHPERCENTAGE_THRESHOLD && !isExecuteOneTime;
+        }
+
         return true;
     }
 

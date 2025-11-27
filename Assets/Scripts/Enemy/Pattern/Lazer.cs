@@ -55,14 +55,14 @@ public class Lazer : MonoBehaviour
         lineRenderer.useWorldSpace = true;
     }
 
-    public void Initialize(Vector3 startPosition, Vector3 direction, float damage, Action onEnd = null)
+    public void Initialize(Vector3 startPosition, Vector3 direction, float damage, Action onEnd = null, float? customLength = null)
     {
         this.startPoint = startPosition;
         this.direction = direction.normalized;
         this.damage = damage;
         OnLazerEnd = onEnd;
 
-        laserLength = CalculateDistance();
+        laserLength = customLength ?? CalculateDistance();
 
         endPoint = startPoint + this.direction * laserLength;
 
@@ -101,7 +101,10 @@ public class Lazer : MonoBehaviour
             OnLazerEnd?.Invoke();
             OnLazerEnd = null;
 
-            gameObject.SetActive(false);
+            if(this != null && gameObject != null)
+            {
+                gameObject.SetActive(false);
+            }
         }
     }
 
