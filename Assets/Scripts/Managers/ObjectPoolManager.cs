@@ -67,6 +67,12 @@ public class ObjectPoolManager<TKey, TValue> where TValue : Component , IDisposa
             UnityEngine.Object.Destroy(value.gameObject);
             return;
         }
+
+        if(!value.gameObject.activeSelf)
+        {
+            return;
+        }
+
         value.Dispose();
         poolData.pool.Release(value);
     }

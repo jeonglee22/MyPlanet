@@ -61,4 +61,10 @@ public class EnemySpawnTest : MonoBehaviour
 
         }
     }
+
+    public void ClearAllEnemies()
+    {
+        SpawnManager.Instance.DespawnAllEnemies();
+        spawner.DespawnAllEnemies();
+    }
 }

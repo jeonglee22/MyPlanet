@@ -69,6 +69,7 @@ public enum ExecutionTrigger
     OnPatternLine,
     OnInterval,
     Immediate,
+    OnHealthPercentage,
 }
 
 public enum MoveType

@@ -17,6 +17,7 @@ public class EnemySpawner : MonoBehaviour
     //test
     private EnemyTableData currentTableData;
     private int spawnPointIndex = -1;
+    private List<Enemy> spawnedEnemies = new List<Enemy>();
 
     private void Start()
     {
@@ -52,6 +53,8 @@ public class EnemySpawner : MonoBehaviour
         Quaternion rotation = Quaternion.LookRotation(Vector3.forward, direction);
         enemy.transform.rotation = rotation;
 
+        spawnedEnemies.Add(enemy);
+
         enemy.Spawner = this;
         enemy.Initialize(currentTableData, direction, enemyId, objectPoolManager, scaleData, spawnPointIndex);
         return enemy;
@@ -64,6 +67,8 @@ public class EnemySpawner : MonoBehaviour
         {
             return null;
         }
+
+        spawnedEnemies.Add(enemy);
 
         enemy.transform.position = position;
         enemy.Spawner = this;
@@ -176,6 +181,17 @@ public class EnemySpawner : MonoBehaviour
             if(enemy != null)
             {
                 enemy.ShouldDropItems = ShouldDropItems;
+            }
+        }
+    }
+
+    public void DespawnAllEnemies()
+    {
+        foreach(var enemy in spawnedEnemies)
+        {
+            if(enemy != null && (!enemy.IsDead || enemy.gameObject.activeSelf))
+            {
+                enemy.ObjectPoolManager.Return(enemy.Data.Enemy_Id, enemy);
             }
         }
     }

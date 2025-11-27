@@ -26,7 +26,13 @@ public class FollowParentMovement : IMovement
         }
 
         Vector3 targetPosition = parentTransform.position + localOffset;
-        Vector3 direction = (targetPosition - ownerTransform.position).normalized;
+        Vector3 direction = targetPosition - ownerTransform.position;
+
+        if(direction.sqrMagnitude < 0.01f)
+        {
+            return Vector3.zero;
+        }
+
         return direction;
     }
 

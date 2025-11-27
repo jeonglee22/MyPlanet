@@ -18,6 +18,8 @@ public abstract class SummonPattern : IPattern
     protected float lastExecuteTime;
     protected bool isExecuteOneTime;
 
+    protected float HEALTHPERCENTAGE_THRESHOLD = 0.3f;
+
     public void Initialize(Enemy enemy, EnemyMovement movement, EnemyTableData data)
     {
         owner = enemy;
@@ -37,7 +39,7 @@ public abstract class SummonPattern : IPattern
         lastExecuteTime = Time.time;
         isExecuteOneTime = false;
 
-        TriggerValue = patternData.PatternValue;
+        TriggerValue = patternData.Cooltime;
     }
 
     public bool CanExecute()
@@ -49,12 +51,9 @@ public abstract class SummonPattern : IPattern
 
         switch (Trigger)
         {
-            case ExecutionTrigger.OnPatternLine:
-                return executor.IsPatternLine && !isExecuteOneTime;
             case ExecutionTrigger.OnInterval:
                 return Time.time - lastExecuteTime >= TriggerValue;
-            case ExecutionTrigger.Immediate:
-                return !isExecuteOneTime;
+            
         }
 
         return false;

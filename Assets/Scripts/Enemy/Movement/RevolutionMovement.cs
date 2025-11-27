@@ -48,6 +48,11 @@ public class RevolutionMovement : IMovement
 
         Vector3 direction = targetPosition - ownerTransform.position;
 
+        if(direction.sqrMagnitude < 0.01f)
+        {
+            return Vector3.zero;
+        }
+
         return direction.normalized;
     }
 
