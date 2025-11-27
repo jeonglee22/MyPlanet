@@ -157,8 +157,21 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 choices[i].AttackTowerData = null;
 
                 var towerData = installControl.GetTowerData(number);
-                string towerName = towerData != null ? towerData.towerId : "-";
+                var ampTower = installControl.GetAmplifierTower(number);
 
+                string towerName = "-";
+
+                if (towerData != null)
+                {
+                    towerName = towerData.towerId;
+                }
+                else if (ampTower != null && ampTower.AmplifierTowerData != null)
+                {
+                    var ampData = ampTower.AmplifierTowerData;
+                    towerName = !string.IsNullOrEmpty(ampData.BuffTowerName)
+                        ? ampData.BuffTowerName
+                        : ampData.AmplifierType.ToString();
+                }
                 uiTexts[i].text = $"Upgrade\n{number}\n{towerName}";
             }
         }
@@ -359,8 +372,21 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             choices[index].AttackTowerData = null;
 
             var towerData = installControl.GetTowerData(number);
-            string towerName = towerData != null ? towerData.towerId : "-";
+            var ampTower = installControl.GetAmplifierTower(number);
 
+            string towerName = "-";
+
+            if (towerData != null)
+            {
+                towerName = towerData.towerId;
+            }
+            else if (ampTower != null && ampTower.AmplifierTowerData != null)
+            {
+                var ampData = ampTower.AmplifierTowerData;
+                towerName = !string.IsNullOrEmpty(ampData.BuffTowerName)
+                    ? ampData.BuffTowerName
+                    : ampData.AmplifierType.ToString();
+            }
             uiTexts[index].text = $"Upgrade\n{number}\n{towerName}";
         }
     }
