@@ -170,16 +170,16 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         if (towerType == 0) //Attack
         {
+            var towerData = installControl.GetRandomAttackTowerDataForCard();
+
             choices[i].InstallType = TowerInstallType.Attack;
             choices[i].ability = attackAbilityId;
+            choices[i].AttackTowerData = towerData;
             choices[i].AmplifierTowerData = null;
             choices[i].BuffSlotIndex = null;
             choices[i].RandomAbilitySlotIndex = null;
 
-            var attackData = installControl.GetRandomAttackTowerDataForCard();
-            choices[i].AttackTowerData = attackData;
-
-            string towerName = attackData != null ? attackData.towerId :"New Attack Tower";
+            string towerName = towerData != null ? towerData.towerId : "AttackTower";
             uiTexts[i].text = $"new\n{towerName}\n\n{attackAbilityName}";
             return;
         }

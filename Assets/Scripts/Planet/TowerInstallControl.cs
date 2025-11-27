@@ -221,9 +221,8 @@ public class TowerInstallControl : MonoBehaviour
             newTower = Instantiate(towerUIBasePrefab, PlanetTransform);
             towers[index] = newTower;
 
-            var chosenData = PickRandomTowerData(); // Pick Attack Tower: Random
+            TowerDataSO chosenData = ChoosedData.AttackTowerData;
             assignedTowerDatas[index] = chosenData;
-
             //UI
             TryAssignDataToTower(newTower, chosenData);
 
