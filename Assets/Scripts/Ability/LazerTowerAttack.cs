@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks.Triggers;
 using UnityEngine;
 
-public class Lazer : MonoBehaviour
+public class LazertowerAttack : MonoBehaviour
 {
     private LineRenderer lineRenderer;
     private BoxCollider boxCollider;

@@ -133,7 +133,7 @@ public class WaveManager : MonoBehaviour
 
         for(int i = 0; i < waveData.RepeatCount; i++)
         {
-            //SpawnManager.Instance.SpawnCombination(combData, scaleData);
+            SpawnManager.Instance.SpawnCombination(combData, scaleData);
             
             if(i < waveData.RepeatCount - 1)
             {
