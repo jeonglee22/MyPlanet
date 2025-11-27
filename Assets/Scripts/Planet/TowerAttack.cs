@@ -109,6 +109,12 @@ public class TowerAttack : MonoBehaviour
             return towerData != null ? towerData.projectileType : null;
         } 
     }
+
+    private float lazerTowerId = 1001002;
+    private float missleTowerId = 1002002;
+    private bool isStartLazer = false;
+    public bool IsStartLazer { get { return isStartLazer; } set { isStartLazer = value; } }
+
     //-------------------------------------------------------
 
     private void Awake()
@@ -140,6 +146,11 @@ public class TowerAttack : MonoBehaviour
         }
         //Set Projectile Count -> From Tower Data SO (NOT Data Table) -> check
         baseProjectileCount = Mathf.Max(1, towerData.projectileCount);
+
+        if (towerData.towerIdInt == missleTowerId)
+        {
+            abilities.Add((int)AbilityId.Explosion);
+        }
         //reinforce calculator
         RecalculateReinforcedBase();
     }
@@ -160,6 +171,11 @@ public class TowerAttack : MonoBehaviour
         if(shootTimer >= hitScanInterval && !isHitScanActive && IsHaveHitScanAbility)
         {
             StartHitscan(hitScanInterval);
+        }
+
+        if(towerData.towerIdInt == lazerTowerId && isStartLazer)
+        {
+            return;
         }
 
         if(shootTimer>=shootInterval)
@@ -245,6 +261,25 @@ public class TowerAttack : MonoBehaviour
             var verticalDirection = new Vector3(-baseDirection.y, baseDirection.x, baseDirection.z).normalized;
 
             var direction = new Vector3(baseDirection.x, baseDirection.y, baseDirection.z);
+
+            if (towerData.towerIdInt == lazerTowerId)
+            {
+                var lazerObj = LoadManager.GetLoadedGamePrefab(ObjectName.Lazer);
+                var lazer = lazerObj.GetComponent<LazertowerAttack>();
+                lazer.SetLazer(transform, (target as Enemy).gameObject.transform, this, attackType == (int)ProjectileType.Homing, buffedData.RemainTime);
+                isStartLazer = true;
+                
+                projectile.Initialize(
+                    buffedData,
+                    baseData,
+                    direction,
+                    true,
+                    ProjectilePoolManager.Instance.ProjectilePool
+                );
+                projectile.IsFinish = true;
+
+                continue;
+            }
 
             ApplyGroupOffset(
                 ref direction,
