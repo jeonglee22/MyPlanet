@@ -146,7 +146,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
             OnPatternLineTrigger();
         }
 
-        if (other.gameObject.CompareTag(TagName.Enemy))
+        if(other.CompareTag(TagName.Enemy) || other.CompareTag(TagName.Boss) || other.CompareTag(TagName.CenterStone))
         {
             return;
         }

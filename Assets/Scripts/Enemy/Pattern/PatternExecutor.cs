@@ -17,9 +17,6 @@ public class PatternExecutor : MonoBehaviour
     private bool isExecutePattern = false;
     private CancellationTokenSource patternCts;
 
-    private float patternTimer = 0f;
-    private float patternInterval = 3f;
-
     private void OnDestroy()
     {
         Cancel();
@@ -95,16 +92,9 @@ public class PatternExecutor : MonoBehaviour
 
         foreach (var pattern in patterns)
         {
-            pattern.PatternUpdate();
-
-            if (patternCooldowns.ContainsKey(pattern) && patternCooldowns[pattern] > 0f)
-            {
-                patternCooldowns[pattern] -= Time.deltaTime;
-            }
-
             if(pattern.Trigger == ExecutionTrigger.Immediate)
             {
-                pattern.Execute();
+                ExecutePatternAsync(pattern, patternCts.Token).Forget();
             }
         }
 
@@ -119,6 +109,11 @@ public class PatternExecutor : MonoBehaviour
 
         foreach(var pattern in patterns)
         {
+            if (patternCooldowns.ContainsKey(pattern) && patternCooldowns[pattern] > 0f)
+            {
+                patternCooldowns[pattern] -= Time.deltaTime;
+            }
+
             if(patternCooldowns[pattern] <= 0f && pattern.CanExecute())
             {
                 availablePatterns.Add(pattern);
