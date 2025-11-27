@@ -153,7 +153,13 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 choices[i].ability = abilities[i];
                 choices[i].AmplifierTowerData = null;
                 choices[i].BuffSlotIndex = null;
-                uiTexts[i].text = $"Upgrade\n{number}";
+                choices[i].RandomAbilitySlotIndex = null;
+                choices[i].AttackTowerData = null;
+
+                var towerData = installControl.GetTowerData(number);
+                string towerName = towerData != null ? towerData.towerId : "-";
+
+                uiTexts[i].text = $"Upgrade\n{number}\n{towerName}";
             }
         }
     }
@@ -351,7 +357,11 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             choices[index].BuffSlotIndex = null;
             choices[index].RandomAbilitySlotIndex = null;
             choices[index].AttackTowerData = null;
-            uiTexts[index].text = $"Upgrade\n{number}";
+
+            var towerData = installControl.GetTowerData(number);
+            string towerName = towerData != null ? towerData.towerId : "-";
+
+            uiTexts[index].text = $"Upgrade\n{number}\n{towerName}";
         }
     }
 

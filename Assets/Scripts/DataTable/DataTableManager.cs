@@ -38,6 +38,8 @@ public static class DataTableManager
             LoadTableAsync<PatternTable>(DataTableIds.Pattern),
             LoadTableAsync<MinionSpawnTable>(DataTableIds.MinionSpawn),
             LoadTableAsync<PlanetLevelUpTable>(DataTableIds.PlanetLevelUp),
+            LoadTableAsync<TowerReinforceUpgradeTable>(DataTableIds.TowerReinforceUpgrade),
+            LoadTableAsync<BuffTowerReinforceUpgradeTable>(DataTableIds.BuffTowerReinforceUpgrade),
         };
 
         await UniTask.WhenAll(tasks);
@@ -147,6 +149,16 @@ public static class DataTableManager
         {
             return Get<PlanetLevelUpTable>(DataTableIds.PlanetLevelUp);
         }
+    }
+
+    public static TowerReinforceUpgradeTable TowerReinforceUpgradeTable
+    {
+        get { return Get<TowerReinforceUpgradeTable>(DataTableIds.TowerReinforceUpgrade); }
+    }
+
+    public static BuffTowerReinforceUpgradeTable BuffTowerReinforceUpgradeTable
+    {
+        get { return Get<BuffTowerReinforceUpgradeTable>(DataTableIds.BuffTowerReinforceUpgrade); }
     }
 
     public static T Get<T>(string id) where T : DataTable

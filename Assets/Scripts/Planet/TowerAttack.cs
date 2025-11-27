@@ -56,6 +56,11 @@ public class TowerAttack : MonoBehaviour
     public float BasicHitRate => towerData.Accuracy;
     public float FinalHitRate => towerData.Accuracy * hitRadiusBuffMul;
 
+    //------------ Reinforce Field ---------------------
+    [SerializeField] private int reinforceLevel = 0; //current level
+    public int ReinforceLevel => reinforceLevel;
+    [SerializeField] private float reinforceAttackScale = 1f; //balance
+    private ProjectileData originalProjectileData; //original
 
     //projectile Count---------------------------------------
     private int baseProjectileCount = 1; //Only Var
@@ -114,11 +119,18 @@ public class TowerAttack : MonoBehaviour
         towerData = data;
         if (towerData == null) return;
         //Connect Data Table To baseProjectileData(=currentProjectileData) 
-        currentProjectileData = DataTableManager.ProjectileTable.Get(towerData.projectileIdFromTable);
+        originalProjectileData = DataTableManager.ProjectileTable.Get(towerData.projectileIdFromTable);
         //Connect Tower Data
-        towerData.projectileType = currentProjectileData;
+        towerData.projectileType = originalProjectileData;
+        //apply reinforce
+        if (originalProjectileData != null)
+        {
+            currentProjectileData = originalProjectileData.Clone();
+        }
         //Set Projectile Count -> From Tower Data SO (NOT Data Table) -> check
         baseProjectileCount = Mathf.Max(1, towerData.projectileCount);
+        //reinforce calculator
+        RecalculateReinforcedBase();
     }
 
     private void Update()
@@ -412,5 +424,38 @@ public class TowerAttack : MonoBehaviour
         currentProjectileData.AttackType = addBuffProjectileData.AttackType;
 
         return addBuffProjectileData;
+    }
+
+    //Reinforce ----------------------------------------------------
+    public void SetReinforceLevel(int newLevel)
+    {
+        newLevel = Math.Max(0, newLevel);
+
+        if (reinforceLevel == newLevel) return;
+        reinforceLevel = newLevel;
+        RecalculateReinforcedBase();
+    }
+
+    private void RecalculateReinforcedBase()
+    {
+        if (originalProjectileData == null || towerData == null) return;
+
+        //copy to base
+        currentProjectileData = originalProjectileData.Clone();
+
+        //get attack tower table row
+        var attackRow = DataTableManager.AttackTowerTable.GetById(towerData.towerIdInt);
+        if (attackRow == null || attackRow.TowerReinforceUpgrade_ID == null || attackRow.TowerReinforceUpgrade_ID.Length == 0)
+            return;
+
+        //reinforce id with level => calculate Addvalue
+        float addValue = TowerReinforceManager.GetAttackAddValueByIdsStatic(
+        attackRow.TowerReinforceUpgrade_ID,
+        reinforceLevel
+        );
+
+        //base value + reinforce value
+        float finalAttack = (originalProjectileData.Attack + addValue) * reinforceAttackScale;
+        currentProjectileData.Attack = finalAttack;
     }
 }
