@@ -153,7 +153,11 @@ public class Planet : LivingEntity
         // towerAttack.AddAbility(101);
     }
 
-    public void SetAmplifierTower(AmplifierTowerDataSO ampData, int index, int[] presetBuffSlots=null)
+    public void SetAmplifierTower(
+        AmplifierTowerDataSO ampData, 
+        int index, 
+        int randomAbilityId,
+        int[] presetBuffSlots=null)
     {
         //Install Amplifier Tower
         GameObject ampTower = Instantiate(amplifierTowerPrefab, towerSlotTransform);
@@ -167,7 +171,7 @@ public class Planet : LivingEntity
         if (amplifier != null)
         {
             amplifiersSlots[index] = amplifier;
-            amplifier.AddAmpTower(ampData, index, this, presetBuffSlots);
+            amplifier.AddAmpTower(ampData, index, this, randomAbilityId, presetBuffSlots);
         }
     }
 
