@@ -332,6 +332,7 @@ public class TowerInfoUI : PopUpUI
             float baseSize = baseProj.CollisionSize;
             float ampSize = buffedProj.CollisionSize;
             float finalSize = CalculateEachAbility((int)AbilityId.CollisionSize, abilities, ampSize);
+            Debug.Log($"[TowerInfoUI] size slot={index}, base={baseSize}, buffed={ampSize}, final={finalSize}");
             SetStatText(projectileSizeValueText, baseSize, finalSize, "0.00");
         }
         else
@@ -426,7 +427,7 @@ public class TowerInfoUI : PopUpUI
         SetText(targetNumberValueText, targetNumText);
 
         // 히트 반경% (HitRadiusBuff: add, 0.25 -> +25%)
-        string hitRadiusText = FormatPercentFromAdd(ampData.HitRadiusBuff);
+        string hitRadiusText = FormatPercentFromMul(ampData.HitRadiusBuff);
         SetText(projectileNumberValueText, hitRadiusText ?? "-");
 
         // 비율 관통력% (PercentPenetrationBuff: mul, 1.5 -> +50%)
@@ -506,8 +507,8 @@ public class TowerInfoUI : PopUpUI
             buffParts.Add($"투사체 {ampData.ProjectileCountBuff:+0;-0}");
         if (ampData.TargetNumberBuff != 0)
             buffParts.Add($"타겟 수 {ampData.TargetNumberBuff:+0;-0}");
-        if (!Mathf.Approximately(ampData.HitRadiusBuff, 0f))
-            buffParts.Add($"히트 반경 {FormatPercentFromAdd(ampData.HitRadiusBuff)}");
+        if (!Mathf.Approximately(ampData.HitRadiusBuff, 1f))
+            buffParts.Add($"히트 반경 {FormatPercentFromMul(ampData.HitRadiusBuff)}");
         if (!Mathf.Approximately(ampData.PercentPenetrationBuff, 1f))
             buffParts.Add($"관통률 {FormatPercentFromMul(ampData.PercentPenetrationBuff)}");
         if (!Mathf.Approximately(ampData.FixedPenetrationBuff, 0f))
