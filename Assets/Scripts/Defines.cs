@@ -129,6 +129,7 @@ public static class Variables
 {
     public static int Stage {get; set;} = 3;
     public static GameObject LastBossEnemy {get; set;} = null;
+    public static GameObject MiddleBossEnemy {get; set;} = null;
 }
 
 public static class AddressLabel

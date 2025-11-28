@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -33,6 +34,12 @@ public class WaveManager : MonoBehaviour
 
     private CancellationTokenSource waveCts;
 
+    private float waveGroupDuration = 60f;
+    private float waveGroupStartTime;
+    private CancellationTokenSource groupCts;
+    public float CurrentWaveGroupElapsedTime => Time.time - waveGroupStartTime;
+    public float CurrentWaveGroupRemainingTime => Mathf.Max(0f, waveGroupDuration - CurrentWaveGroupElapsedTime);
+
     private void Awake()
     {
         if (instance == null)
@@ -50,8 +57,7 @@ public class WaveManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        waveCts?.Cancel();
-        waveCts?.Dispose();
+        Cancel();
     }
 
     public HashSet<int> ExtractEnemyIds(CombineData combData)
@@ -89,15 +95,35 @@ public class WaveManager : MonoBehaviour
         Debug.Log($"Preloaded assets for Wave ID: {waveData.Wave_Id}");
     }
 
+    private void StartWaveGroupTimer()
+    {
+        waveGroupStartTime = Time.time;
+        groupCts?.Cancel();
+        groupCts?.Dispose();
+        groupCts = new CancellationTokenSource();
+    }
+
+    private bool IsWaveGroupTimeExpired() => (Time.time - waveGroupStartTime) >= waveGroupDuration;
+
+    private async UniTask WaitForWaveGroupCompletion(CancellationToken cts)
+    {
+        float elapsed = Time.time - waveGroupStartTime;
+        float remainingTime = waveGroupDuration - elapsed;
+
+        if(remainingTime > 0)
+        {
+            await UniTask.Delay(System.TimeSpan.FromSeconds(remainingTime), cancellationToken: cts);
+        }
+    }
+
     public async UniTask InitializeStage(int stageId)
     {
+        Cancel();
+
         CancellationToken cts = waveCts.Token;
 
         currentStageId = stageId;
-        currentWaveIndex = 0;
-        isWaveInProgress = false;
 
-        waveDatas.Clear();
         waveDatas = DataTableManager.WaveTable.GetCurrentStageWaveData(stageId);
 
         if(waveDatas.Count == 0)
@@ -106,6 +132,7 @@ public class WaveManager : MonoBehaviour
         }
 
         waveGroup = waveDatas[0].WaveGroup;
+        StartWaveGroupTimer();
 
         await PreloadWaveAssets(waveDatas[0], cts);
         await StartNextWave(cts);
@@ -131,17 +158,27 @@ public class WaveManager : MonoBehaviour
             ExpScale = waveData.ExpScale
         };
 
-        for(int i = 0; i < waveData.RepeatCount; i++)
+        using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cts, groupCts.Token))
         {
-            SpawnManager.Instance.SpawnCombination(combData, scaleData);
-            
-            if(i < waveData.RepeatCount - 1)
+            try
             {
-                await UniTask.Delay(System.TimeSpan.FromSeconds(waveData.SpawnTerm));
+                for(int i = 0; i < waveData.RepeatCount; i++)
+                {
+                    SpawnManager.Instance.SpawnCombination(combData, scaleData);
+                    
+                    if(i < waveData.RepeatCount - 1)
+                    {
+                        await UniTask.Delay(System.TimeSpan.FromSeconds(waveData.SpawnTerm), cancellationToken: linkedCts.Token);
+                    }
+                }
+
+                await UniTask.Delay(System.TimeSpan.FromSeconds(1f), cancellationToken: linkedCts.Token);
+            }
+            catch (System.OperationCanceledException)
+            {
+                
             }
         }
-
-        await UniTask.Delay(System.TimeSpan.FromSeconds(waveData.SpawnTerm), cancellationToken: cts);
 
         await OnWaveCleared(cts);
     }
@@ -151,6 +188,18 @@ public class WaveManager : MonoBehaviour
         if(isWaveInProgress || currentWaveIndex >= waveDatas.Count)
         {
             return;
+        }
+
+        if(currentWaveIndex > 0 && waveGroup != waveDatas[currentWaveIndex].WaveGroup)
+        {
+            if (!IsWaveGroupTimeExpired())
+            {
+                await WaitForWaveGroupCompletion(cts);
+            }
+
+            WaveCount++;
+            waveGroup = waveDatas[currentWaveIndex].WaveGroup;
+            StartWaveGroupTimer();
         }
         
         isWaveInProgress = true;
@@ -174,13 +223,16 @@ public class WaveManager : MonoBehaviour
         isWaveInProgress = false;
         currentWaveIndex++;
 
+        if(IsWaveGroupTimeExpired())
+        {
+            while(currentWaveIndex < waveDatas.Count && waveGroup == waveDatas[currentWaveIndex].WaveGroup)
+            {
+                currentWaveIndex++;
+            }
+        }
+
         if(currentWaveIndex < waveDatas.Count)
         {
-            if(waveGroup != waveDatas[currentWaveIndex].WaveGroup)
-            {
-                WaveCount++;
-                waveGroup = waveDatas[currentWaveIndex].WaveGroup;
-            }
             await StartNextWave(cts);
         }
         else
@@ -202,6 +254,10 @@ public class WaveManager : MonoBehaviour
         waveCts?.Cancel();
         waveCts?.Dispose();
         waveCts = new CancellationTokenSource();
+
+        groupCts?.Cancel();
+        groupCts?.Dispose();
+        groupCts = new CancellationTokenSource();
 
         ResetWave();
     }
