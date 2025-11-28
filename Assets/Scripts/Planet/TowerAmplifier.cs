@@ -11,6 +11,9 @@ public class TowerAmplifier : MonoBehaviour
     private readonly List<int> buffedSlotIndex = new List<int>();
     public IReadOnlyList<int> BuffedSlotIndex => buffedSlotIndex;
 
+    private readonly List<int> randomAbilitySlotIndex = new List<int>();
+    public IReadOnlyList<int> RandomAbilitySlotIndex => randomAbilitySlotIndex;
+
     private int selfIndex;
     private Planet planet;
 
@@ -61,11 +64,6 @@ public class TowerAmplifier : MonoBehaviour
             if (t == null) continue;
             t.SetUpBuff(amplifierTowerData);
         }
-        Debug.Log($"[BuffReinforce] level={reinforceLevel}, " +
-          $"damageBuff={amplifierTowerData.DamageBuff}, " +
-          $"fireRateBuff={amplifierTowerData.FireRateBuff}, " +
-          $"projCountBuff={amplifierTowerData.ProjectileCountBuff}");
-
     }
 
     private void RecalculateReinforceBuff()
@@ -91,20 +89,34 @@ public class TowerAmplifier : MonoBehaviour
 
         //add Reinforce Data
         runtimeAmpData.ApplyReinforceEffects(extraEffects, reinforceScale);
-
-        Debug.Log(
-            $"[BuffReinforce] slot={selfIndex}, level={reinforceLevel}, " +
-            $"effects={extraEffects.Count}");
     }
 
-    public void ApplyBuff(TowerAttack target) //single target(apply buff)
+    public void ApplyBuff(TowerAttack target, int slotIndex) //single target(apply buff)
     {
         if (target == null) return;
         if (amplifierTowerData == null) return;
 
-        target.SetUpBuff(amplifierTowerData); //allow overlap
-        
-        if(!buffedTargets.Contains(target)) //detect targets
+        bool isBuffSlot = buffedSlotIndex.Contains(slotIndex);
+        bool isAbilitySlot = randomAbilitySlotIndex.Contains(slotIndex);
+
+        if (!isBuffSlot && !isAbilitySlot) return;
+
+        //buff slot
+        if (isBuffSlot)
+        {
+            target.SetUpBuff(amplifierTowerData); //allow overlap
+        }
+
+        //random ability slot
+        if (isAbilitySlot && abilities != null && abilities.Count > 0)
+        {
+            foreach (var abilityId in abilities)
+            {
+                target.AddAbility(abilityId);
+            }
+        }
+
+        if (!buffedTargets.Contains(target)) //detect targets
         {
             buffedTargets.Add(target);
         }
@@ -114,6 +126,14 @@ public class TowerAmplifier : MonoBehaviour
     {
         if (target == null) return;
         if (!buffedTargets.Contains(target)) return;
+
+        if (abilities != null && abilities.Count > 0)
+        {
+            foreach (var abilityId in abilities)
+            {
+                target.RemoveAbility(abilityId);  
+            }
+        }
 
         //Remove All Buff In Slot
         target.SetUpBuff(null);
@@ -141,7 +161,9 @@ public class TowerAmplifier : MonoBehaviour
         int index, 
         Planet planet,
         int randomAbilityId,
-        int[] presetBuffSlots=null)
+        int[] presetBuffSlots=null,
+        int[] presetRandomSlots = null
+        )
     {
         if (ampData == null || planet == null) return;
 
@@ -152,12 +174,13 @@ public class TowerAmplifier : MonoBehaviour
 
         abilities.Clear();
         if (randomAbilityId > 0) abilities.Add(randomAbilityId);
-
+ 
         int towerCount = planet.TowerCount;
         if (towerCount <= 0) return;
 
         buffedTargets.Clear();
         buffedSlotIndex.Clear();
+        randomAbilitySlotIndex.Clear();
 
         //Candidate Buffed Tower: Attack Tower-------------------
         List<int> buffAbleTowers = new List<int>();
@@ -197,14 +220,10 @@ public class TowerAmplifier : MonoBehaviour
                             {
                                 filteredBuffTowers.Add(targetIndex);
                                 resolvedTargets.Add(targetIndex);
-
-                                Debug.Log($"[Amp] self={selfIndex}, offset={offset}, targetIndex={targetIndex}");
                             }
                         }
-
                         string offsetStr = string.Join(",", presetBuffSlots);
                         string resolvedStr = string.Join(",", resolvedTargets);
-                        Debug.Log($"[Amp] self={selfIndex} | offsets=[{offsetStr}] -> targets=[{resolvedStr}]");
                     }
 
                     //No preset or no choose
@@ -239,22 +258,60 @@ public class TowerAmplifier : MonoBehaviour
         //Remember Buffed Slots
         buffedSlotIndex.AddRange(filteredBuffTowers);
 
-        //Go Buff-------------------------------------------------
-        foreach (int slotIndex in filteredBuffTowers)
+        //RandomBuff----------------------------------------------
+        if (presetRandomSlots != null && presetRandomSlots.Length > 0)
         {
-            var attackTower = planet.GetAttackTowerToAmpTower(slotIndex);
-            if (attackTower == null) continue;
-            ApplyBuff(attackTower);
+            List<int> resolvedRandom = new List<int>();
+
+            for (int i = 0; i < presetRandomSlots.Length; i++)
+            {
+                int offset = presetRandomSlots[i];
+                int targetIndex = selfIndex + offset;
+
+                targetIndex %= towerCount;
+                if (targetIndex < 0)
+                    targetIndex += towerCount;
+
+                if (targetIndex == selfIndex) continue;
+                if (!resolvedRandom.Contains(targetIndex))
+                    resolvedRandom.Add(targetIndex);
+            }
+
+            randomAbilitySlotIndex.AddRange(resolvedRandom);
         }
         //--------------------------------------------------------
-        Debug.Log($"[Amp] self={selfIndex}, final buffed slots = [{string.Join(",", filteredBuffTowers)}]");
+        //Go Buff-------------------------------------------------
+        //Buff
+        foreach (int slotIndex in buffedSlotIndex)
+        {
+            var attackTower = planet.GetAttackTowerToAmpTower(slotIndex);
+
+            if (attackTower == null) continue;
+
+            ApplyBuff(attackTower, slotIndex);   
+        }
+        //Random Ability
+        foreach (int slotIndex in randomAbilitySlotIndex)
+        {
+            if (buffedSlotIndex.Contains(slotIndex))
+                continue;
+
+            var attackTower = planet.GetAttackTowerToAmpTower(slotIndex);
+            if (attackTower == null) continue;
+            ApplyBuff(attackTower, slotIndex);   
+        }
+        //--------------------------------------------------------
     }
     public void ApplyBuffForNewTower(int slotIndex, TowerAttack newTower)
     {
         if (newTower == null) return;
         if (AmplifierTowerData == null) return;
-        if (!buffedSlotIndex.Contains(slotIndex)) return;
 
-        ApplyBuff(newTower);
+        bool isBuffSlot = buffedSlotIndex.Contains(slotIndex);
+        bool isAbilitySlot = randomAbilitySlotIndex.Contains(slotIndex);
+
+        if (!isBuffSlot && !isAbilitySlot) return;
+
+        ApplyBuff(newTower, slotIndex);
     }
 }

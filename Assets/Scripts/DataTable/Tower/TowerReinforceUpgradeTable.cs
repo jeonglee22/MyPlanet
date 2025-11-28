@@ -34,7 +34,6 @@ public class TowerReinforceUpgradeTable : DataTable
                 Debug.LogError($"[TowerReinforceUpgradeTable] Duplicate Id: {row.TowerReinforceUpgrade_ID}");
             }
         }
-        Debug.Log($"[TowerReinforceUpgradeTable] Loaded {Rows.Count} rows.");
     }
 
     public TowerReinforceUpgradeRow GetById(int id)

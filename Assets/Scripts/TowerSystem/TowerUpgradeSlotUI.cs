@@ -586,5 +586,4 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         }
         return abilityId;
     }
-
 }
