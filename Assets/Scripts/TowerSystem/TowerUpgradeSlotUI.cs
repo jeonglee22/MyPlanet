@@ -150,30 +150,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             }
             else
             {
-                choices[i].InstallType = TowerInstallType.Attack;
-                choices[i].ability = abilities[i];
-                choices[i].AmplifierTowerData = null;
-                choices[i].BuffSlotIndex = null;
-                choices[i].RandomAbilitySlotIndex = null;
-                choices[i].AttackTowerData = null;
-
-                var towerData = installControl.GetTowerData(number);
-                var ampTower = installControl.GetAmplifierTower(number);
-
-                string towerName = "-";
-
-                if (towerData != null)
-                {
-                    towerName = towerData.towerId;
-                }
-                else if (ampTower != null && ampTower.AmplifierTowerData != null)
-                {
-                    var ampData = ampTower.AmplifierTowerData;
-                    towerName = !string.IsNullOrEmpty(ampData.BuffTowerName)
-                        ? ampData.BuffTowerName
-                        : ampData.AmplifierType.ToString();
-                }
-                uiTexts[i].text = $"Upgrade\n{number}\n{towerName}";
+                SetUpgradeCardForUsedSlot(i, number);
             }
         }
     }
@@ -185,122 +162,112 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         if(isFirstInstall) towerType = 0;
 
-        int attackAbilityId = abilities[i];
-        string attackAbilityName = GetAbilityName(attackAbilityId);
-
         if (towerType == 0) //Attack
         {
             var towerData = installControl.GetRandomAttackTowerDataForCard();
 
             choices[i].InstallType = TowerInstallType.Attack;
-            choices[i].ability = attackAbilityId;
             choices[i].AttackTowerData = towerData;
             choices[i].AmplifierTowerData = null;
             choices[i].BuffSlotIndex = null;
             choices[i].RandomAbilitySlotIndex = null;
 
+            int abilityId = GetAbilityIdForAttackTower(towerData);
+            abilities[i] = abilityId;
+            choices[i].ability = abilityId;
+
             string towerName = towerData != null ? towerData.towerId : "AttackTower";
-            uiTexts[i].text = $"new\n{towerName}\n\n{attackAbilityName}";
+            string abilityName = GetAbilityName(abilityId);
+
+            uiTexts[i].text = $"new\n{towerName}\n\n{abilityName}";
             return;
         }
 
-        var ampData = GetRandomAmplifier();
-
-        if (ampData == null)
+        if(towerType==1)
         {
-            choices[i].InstallType = TowerInstallType.Attack;
-            choices[i].ability = attackAbilityId;
-            choices[i].AmplifierTowerData = null;
-            choices[i].BuffSlotIndex = null;
-            choices[i].RandomAbilitySlotIndex = null;
-            choices[i].AttackTowerData = installControl.GetRandomAttackTowerDataForCard();
+            var ampData = GetRandomAmplifier();
 
-            string fallbackName = choices[i].AttackTowerData != null
-                ? choices[i].AttackTowerData.towerId
-                : "New Attack Tower";
+            choices[i].InstallType = TowerInstallType.Amplifier;
+            choices[i].AmplifierTowerData = ampData;
+            choices[i].AttackTowerData = null;
 
-            uiTexts[i].text = $"new\n{fallbackName}\n\n{attackAbilityName}";
-            return;
-        }
+            //AmpTower Random Ability
+            int ampAbilityId = GetRandomAbilityForAmplifier(ampData);
+            choices[i].ability = ampAbilityId;  // using in Planet.SetAmplifierTower �� TowerAmplifier
+            abilities[i] = ampAbilityId;
 
-        choices[i].InstallType = TowerInstallType.Amplifier;
-        choices[i].AmplifierTowerData = ampData;
-        choices[i].AttackTowerData = null;
+            string ampAbilityName = GetAbilityName(ampAbilityId);
 
-        //AmpTower Random Ability
-        int ampAbilityId = GetRandomAbilityForAmplifier(ampData);
-        choices[i].ability = ampAbilityId;  // using in Planet.SetAmplifierTower �� TowerAmplifier
-        string ampAbilityName = GetAbilityName(ampAbilityId);
+            // ---------- PlaceType / RandonSlotNum / AddSlotNum ----------
+            int[] buffOffsets = null;
+            int[] randomOffsets = null;
 
-        // ---------- PlaceType / RandonSlotNum / AddSlotNum ----------
-        int[] buffOffsets = null;
-        int[] randomOffsets = null;
+            int placeType = 0;
+            int randomSlotNum = 0;
+            int addSlotNum = 0;
 
-        int placeType = 0;
-        int randomSlotNum = 0;
-        int addSlotNum = 0;
+            var raRow = DataTableManager.RandomAbilityTable.Get(ampAbilityId);
+            if (raRow != null)
+            {
+                placeType = raRow.PlaceType;
+                randomSlotNum = Mathf.Max(0, raRow.RandonSlotNum);
+                addSlotNum = Mathf.Max(0, raRow.AddSlotNum);
+            }
 
-        var raRow = DataTableManager.RandomAbilityTable.Get(ampAbilityId);
-        if (raRow != null)
-        {
-            placeType = raRow.PlaceType;
-            randomSlotNum = Mathf.Max(0, raRow.RandonSlotNum);
-            addSlotNum = Mathf.Max(0, raRow.AddSlotNum);
-        }
+            int baseBuffCount = Mathf.Max(1, ampData.FixedBuffedSlotCount);
+            int effectiveBuffCount = baseBuffCount;
 
-        int baseBuffCount = Mathf.Max(1, ampData.FixedBuffedSlotCount);
-        int effectiveBuffCount = baseBuffCount;
-
-        switch (placeType)
-        {
-            case 0:
-            default:
-                {
-                    effectiveBuffCount = baseBuffCount;
-                    buffOffsets = GetRandomBuffSlot(effectiveBuffCount);
-
-                    if (randomSlotNum > 0) 
-                        randomOffsets = GetRandomBuffSlot(randomSlotNum);
-                    break;
-                }
-            case 1:
-                {
-                    effectiveBuffCount = baseBuffCount;
-                    buffOffsets = GetRandomBuffSlot(effectiveBuffCount);
-
-                    if (buffOffsets != null && buffOffsets.Length > 0)
+            switch (placeType)
+            {
+                case 0:
+                default:
                     {
-                        int idx = Random.Range(0, buffOffsets.Length);
-                        randomOffsets = new int[] { buffOffsets[idx] };
+                        effectiveBuffCount = baseBuffCount;
+                        buffOffsets = GetRandomBuffSlot(effectiveBuffCount);
+
+                        if (randomSlotNum > 0)
+                            randomOffsets = GetRandomBuffSlot(randomSlotNum);
+                        break;
                     }
-                    break;
-                }
-            case 2:
-                {
-                    effectiveBuffCount = baseBuffCount + addSlotNum;
-                    buffOffsets = GetRandomBuffSlot(effectiveBuffCount);
+                case 1:
+                    {
+                        effectiveBuffCount = baseBuffCount;
+                        buffOffsets = GetRandomBuffSlot(effectiveBuffCount);
 
-                    if (randomSlotNum > 0)
-                        randomOffsets = GetRandomBuffSlot(randomSlotNum);
-                    break;
-                }
+                        if (buffOffsets != null && buffOffsets.Length > 0)
+                        {
+                            int idx = Random.Range(0, buffOffsets.Length);
+                            randomOffsets = new int[] { buffOffsets[idx] };
+                        }
+                        break;
+                    }
+                case 2:
+                    {
+                        effectiveBuffCount = baseBuffCount + addSlotNum;
+                        buffOffsets = GetRandomBuffSlot(effectiveBuffCount);
+
+                        if (randomSlotNum > 0)
+                            randomOffsets = GetRandomBuffSlot(randomSlotNum);
+                        break;
+                    }
+            }
+
+            choices[i].BuffSlotIndex = buffOffsets;
+            choices[i].RandomAbilitySlotIndex = randomOffsets;
+
+            //Card Text Info ------------------------------------
+            string ampName = string.IsNullOrEmpty(ampData.BuffTowerName)
+            ? ampData.AmplifierType.ToString()
+            : ampData.BuffTowerName;
+
+            string buffSlotText = FormatOffsetArray(buffOffsets);
+
+            string randomSlotText = FormatOffsetArray(randomOffsets);
+            uiTexts[i].text = $"new\n{ampName}\n"
+                + $"Buff Slot: {buffSlotText}\n"
+                + $"Random Slot: {randomSlotText}\n"
+                + $"{ampAbilityName}";
         }
-
-        choices[i].BuffSlotIndex = buffOffsets;
-        choices[i].RandomAbilitySlotIndex = randomOffsets;
-
-        //Card Text Info ------------------------------------
-        string ampName = string.IsNullOrEmpty(ampData.BuffTowerName)
-        ? ampData.AmplifierType.ToString()
-        : ampData.BuffTowerName;
-
-        string buffSlotText = FormatOffsetArray(buffOffsets);
-
-        string randomSlotText = FormatOffsetArray(randomOffsets);
-        uiTexts[i].text = $"new\n{ampName}\n" 
-            + $"Buff Slot: {buffSlotText}\n" 
-            + $"Random Slot: {randomSlotText}\n" 
-            + $"{ampAbilityName}";
     }
     private string FormatOffsetArray(int[] offsets)
     {
@@ -336,7 +303,8 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
     private void ResetUpgradeCard(int index)
     {
-        abilities[index] = AbilityManager.GetRandomAbility();
+        //abilities[index] = AbilityManager.GetRandomAbility();
+        abilities[index] = -1;
         installControl.IsReadyInstall = false;
         upgradeUIs[index].GetComponentInChildren<Image>().color = Color.white;
 
@@ -365,31 +333,55 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         }
         else
         {
+            SetUpgradeCardForUsedSlot(index, number);
+        }
+    }
+
+    private void SetUpgradeCardForUsedSlot(int index, int number)
+    {
+        var towerData = installControl.GetTowerData(number);
+        var ampTower = installControl.GetAmplifierTower(number);
+
+        int abilityId = 0;
+
+        if (towerData != null)
+        {
             choices[index].InstallType = TowerInstallType.Attack;
-            choices[index].ability = abilities[index];
+            choices[index].AttackTowerData = towerData;
             choices[index].AmplifierTowerData = null;
             choices[index].BuffSlotIndex = null;
             choices[index].RandomAbilitySlotIndex = null;
-            choices[index].AttackTowerData = null;
 
-            var towerData = installControl.GetTowerData(number);
-            var ampTower = installControl.GetAmplifierTower(number);
-
-            string towerName = "-";
-
-            if (towerData != null)
-            {
-                towerName = towerData.towerId;
-            }
-            else if (ampTower != null && ampTower.AmplifierTowerData != null)
-            {
-                var ampData = ampTower.AmplifierTowerData;
-                towerName = !string.IsNullOrEmpty(ampData.BuffTowerName)
-                    ? ampData.BuffTowerName
-                    : ampData.AmplifierType.ToString();
-            }
-            uiTexts[index].text = $"Upgrade\n{number}\n{towerName}";
+            abilityId = GetAbilityIdForAttackTower(towerData);
         }
+        else if (ampTower != null && ampTower.AmplifierTowerData != null)
+        {
+            choices[index].InstallType = TowerInstallType.Amplifier;
+            choices[index].AttackTowerData = null;
+            choices[index].AmplifierTowerData = ampTower.AmplifierTowerData;
+            choices[index].BuffSlotIndex = null;
+            choices[index].RandomAbilitySlotIndex = null;
+
+            abilityId = GetRandomAbilityForAmplifier(ampTower.AmplifierTowerData);
+        }
+
+        abilities[index] = abilityId;
+        choices[index].ability = abilityId;
+
+        string towerName = "-";
+
+        if (towerData != null)
+        {
+            towerName = towerData.towerId;
+        }
+        else if (ampTower != null && ampTower.AmplifierTowerData != null)
+        {
+            var ampData = ampTower.AmplifierTowerData;
+            towerName = !string.IsNullOrEmpty(ampData.BuffTowerName)
+                ? ampData.BuffTowerName
+                : ampData.AmplifierType.ToString();
+        }
+        uiTexts[index].text = $"Upgrade\n{number}\n{towerName}";
     }
 
     public void OnClickRefreshButton(int index)
@@ -434,11 +426,13 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         for (int i = 0; i < upgradeUIs.Length; i++)
         {
             upgradeUIs[i].GetComponentInChildren<Image>().color = Color.white;
-            abilities[i] = AbilityManager.GetRandomAbility();
+            //abilities[i] = AbilityManager.GetRandomAbility();
+            abilities[i] = -1;
             choices[i] = new TowerInstallChoice();
             choices[i].BuffSlotIndex = null;
             choices[i].RandomAbilitySlotIndex = null;
             choices[i].AttackTowerData = null;
+            choices[i].AmplifierTowerData = null;
         }
     }
 
@@ -563,4 +557,19 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         return allAmplifierTowers[idx];
     }
+
+    private int GetAbilityIdForAttackTower(TowerDataSO towerData)
+    {
+        int abilityId = -1;
+
+        if (towerData != null && towerData.randomAbilityGroupId > 0)
+        {
+            abilityId = AbilityManager.GetRandomAbilityFromGroup(
+                towerData.randomAbilityGroupId,
+                requiredTowerType: 0,    // 0: Attack Tower
+                useWeight: true);
+        }
+        return abilityId;
+    }
+
 }
