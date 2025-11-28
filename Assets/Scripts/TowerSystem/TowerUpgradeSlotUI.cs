@@ -41,6 +41,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
     private GameObject dragImage = null;
     private int choosedIndex = -1;
+    private int firstTouchIndex = -1;
     private bool isFirstInstall = true;
     public bool IsFirstInstall => isFirstInstall;
     [SerializeField] private Button[] refreshButtons;
@@ -442,24 +443,25 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         if(!TouchManager.Instance.IsTouching || towerImageIsDraging)
             return;
-        
+
         if(!isStartTouch)
         {
             isStartTouch = true;
             initTouchPos = touchPos;
 
             bool isTouchOnUpgradeCard = false;
-            foreach (var upgradeUi in upgradeUIs)
+            for (int i = 0; i < upgradeUIs.Length; i++)
             {
-                if(RectTransformUtility.RectangleContainsScreenPoint(upgradeUi.GetComponent<RectTransform>(), initTouchPos))
+                if(RectTransformUtility.RectangleContainsScreenPoint(upgradeUIs[i].GetComponent<RectTransform>(), initTouchPos))
                 {
                     isTouchOnUpgradeCard = true;
+                    firstTouchIndex = i;
+                    break;
                 }
             }
 
             if(!isTouchOnUpgradeCard)
             {
-                isNewTouch = false;
                 return;
             }
         }
@@ -468,11 +470,16 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             return;
 
         choosedIndex = -1;
-        foreach (var upgradeUi in upgradeUIs)
+        for (int i = 0; i < upgradeUIs.Length; i++)
         {
-            if(RectTransformUtility.RectangleContainsScreenPoint(upgradeUi.GetComponent<RectTransform>(), touchPos))
+            if(RectTransformUtility.RectangleContainsScreenPoint(upgradeUIs[i].GetComponent<RectTransform>(), touchPos))
             {
-                choosedIndex = System.Array.IndexOf(upgradeUIs, upgradeUi);
+                choosedIndex = i;
+                Debug.Log(firstTouchIndex + " / " + choosedIndex);
+                if(firstTouchIndex != choosedIndex)
+                {
+                    return;
+                }
             }
         }
 
@@ -509,6 +516,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             dragImage = null;
 
             choosedIndex = -1;
+            firstTouchIndex = -1;
         }
     }
 
