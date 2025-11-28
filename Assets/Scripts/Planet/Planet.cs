@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -38,7 +38,6 @@ public class Planet : LivingEntity
                 level++;
                 exp -= MaxExp;
                 MaxExp = DataTableManager.PlanetLevelUpTable.Get(level).Exp;
-                Debug.Log($"Next Level Exp : {MaxExp}");
                 levelUpCount++;
             }
             levelUps(levelUpCount).Forget();
@@ -165,31 +164,54 @@ public class Planet : LivingEntity
 
     public void UpgradeTower(int index)
     {
+        UpgradeTower(index, -1);
+    }
+
+    public void UpgradeTower(int index, int abilityId)
+    {
         var go = towers[index];
         if (go == null) return;
 
+        // Attack Tower
         var attack = go.GetComponent<TowerAttack>();
         if (attack != null)
         {
             attack.SetReinforceLevel(attack.ReinforceLevel + 1);
-            Debug.Log($"[Planet.UpgradeTower] Slot {index} AttackTower => Lv {attack.ReinforceLevel}");
+
+            if (abilityId > 0)
+            {
+                attack.AddAbility(abilityId);
+
+                var ability = AbilityManager.GetAbility(abilityId);
+                if (ability != null)
+                {
+                    ability.ApplyAbility(attack.gameObject);
+                    ability.Setting(attack.gameObject);
+                }
+            }
             return;
         }
 
+        // Buff Tower
         var amp = go.GetComponent<TowerAmplifier>();
         if (amp != null)
         {
             amp.SetReinforceLevel(amp.ReinforceLevel + 1);
-            Debug.Log($"[Planet.UpgradeTower] Slot {index} BuffTower => Lv {amp.ReinforceLevel}");
+
+            if (abilityId > 0)
+            {
+                amp.AddAbility(abilityId);
+            }
         }
     }
-
 
     public void SetAmplifierTower(
         AmplifierTowerDataSO ampData, 
         int index, 
         int randomAbilityId,
-        int[] presetBuffSlots=null)
+        int[] presetBuffSlots=null,
+        int[] presetRandomAbilitySlots = null
+        )
     {
         //Install Amplifier Tower
         GameObject ampTower = Instantiate(amplifierTowerPrefab, towerSlotTransform);
@@ -199,11 +221,18 @@ public class Planet : LivingEntity
         SetSlotRotation(index);
 
         //Enroll Tower Amlifier System
-        var amplifier=ampTower.GetComponent<TowerAmplifier>();
+        var amplifier = ampTower.GetComponent<TowerAmplifier>();
         if (amplifier != null)
         {
             amplifiersSlots[index] = amplifier;
-            amplifier.AddAmpTower(ampData, index, this, randomAbilityId, presetBuffSlots);
+            amplifier.AddAmpTower(
+                ampData,
+                index,
+                this,
+                randomAbilityId,
+                presetBuffSlots,
+                presetRandomAbilitySlots 
+            );
         }
     }
 

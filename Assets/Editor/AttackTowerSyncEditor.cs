@@ -50,7 +50,6 @@ public class AttackTowerSyncEditor
             updateCount++;
         }
         AssetDatabase.SaveAssets();
-        //Debug.Log($"[AttackTowerSync] 동기화 완료. 갱신된 TowerDataSO 개수: {updateCount}");
     }
 }
 #endif

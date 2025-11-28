@@ -39,7 +39,6 @@ public class BuffTowerReinforceUpgradeTable : DataTable
                 Debug.LogError($"[BuffTowerReinforceUpgradeTable] Duplicate Id: {row.BuffTowerReinforceUpgrade_ID}");
             }
         }
-        Debug.Log($"[BuffTowerReinforceUpgradeTable] Loaded {Rows.Count} rows.");
     }
 
     public BuffTowerReinforceUpgradeRow GetById(int id)

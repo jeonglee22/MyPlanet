@@ -456,7 +456,6 @@ public class TowerInfoUI : PopUpUI
 
         var sb = new StringBuilder();
 
-        // ── 기본 정보 ───────────────────────────────
         if (!string.IsNullOrEmpty(ampData.BuffTowerName))
             sb.AppendLine($"이름: {ampData.BuffTowerName}");
 
@@ -465,7 +464,7 @@ public class TowerInfoUI : PopUpUI
         else
             sb.AppendLine("버프 슬롯: 없음");
 
-        // ── 랜덤능력 정보 ───────────────────────────
+        //random ability
         var ampAbilities = amplifierTower.Abilities;
         if (ampAbilities != null && ampAbilities.Count > 0)
         {
@@ -476,8 +475,6 @@ public class TowerInfoUI : PopUpUI
                 sb.AppendLine();
                 sb.AppendLine($"랜덤 능력: {raRow.RandomAbilityName} (ID: {randAbilityId})");
 
-                // ⚠️ 여기서부터는 RandomAbility 테이블에
-                // PlaceType, AddSlotNum, DuplicateType 프로퍼티가 있다고 가정하고 쓴다.
                 int placeType = raRow.PlaceType;
                 int addSlotNum = raRow.AddSlotNum;
                 int duplicateType = raRow.DuplicateType;
@@ -495,7 +492,7 @@ public class TowerInfoUI : PopUpUI
             }
         }
 
-        // ── 증폭 수치 설명 (기존 코드 기반) ───────────
+        //buff data
         var buffParts = new List<string>();
 
         if (!Mathf.Approximately(ampData.DamageBuff, 0f))

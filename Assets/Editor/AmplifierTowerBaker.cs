@@ -33,8 +33,6 @@ public static class AmplifierTowerBaker
         }
 
         AssetDatabase.SaveAssets();
-
-        Debug.Log($"[AmplifierTowerBaker] Baked {bakeCount} AmplifierTowerDataSO assets from tables.");
     }
 
     [MenuItem("Tools/Amplifier/Bake Selected Amplifier(s) From Tables")]
@@ -66,8 +64,6 @@ public static class AmplifierTowerBaker
         {
             AssetDatabase.SaveAssets();
         }
-
-        Debug.Log($"[AmplifierTowerBaker] Baked {bakeCount} selected AmplifierTowerDataSO assets from tables.");
     }
 }
 #endif

@@ -258,7 +258,7 @@ public class TowerInstallControl : MonoBehaviour
             towers[index] = newTower;
 
             assignedTowerDatas[index] = null; //(assignedTowerDatas: only attack tower)
-
+            
             //Set Amplifier Tower In Planet
             if (ChoosedData.AmplifierTowerData != null)
             {
@@ -266,7 +266,8 @@ public class TowerInstallControl : MonoBehaviour
                     ChoosedData.AmplifierTowerData, 
                     index,
                     ChoosedData.ability,
-                    ChoosedData.BuffSlotIndex
+                    ChoosedData.BuffSlotIndex,
+                    ChoosedData.RandomAbilitySlotIndex
                     );
             }
         }
@@ -306,8 +307,6 @@ public class TowerInstallControl : MonoBehaviour
 
     public void OpenInfoUI(int index)
     {
-        Debug.Log($"[OpenInfoUI] clicked index={index}, IsReadyInstall={IsReadyInstall}, towerInfoObj={towerInfoObj}");
-
         if (IsReadyInstall || towerInfoObj == null) return;
 
         towerInfoObj.SetActive(true);

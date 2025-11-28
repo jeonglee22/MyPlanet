@@ -47,6 +47,5 @@ public class SpecialEffectTable : DataTable
         }
         return data;
     }
-
     public IReadOnlyDictionary<int, SpecialEffectData> GetAll() => dictionary;
 }

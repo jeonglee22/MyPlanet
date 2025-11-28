@@ -372,7 +372,14 @@ public class TowerAttack : MonoBehaviour
 
     public void AddAbility(int ability)
     {
-        abilities.Add(ability);
+        if (abilities == null) abilities = new List<int>();
+        if(!abilities.Contains(ability)) //preventing all duplication
+            abilities.Add(ability);
+    }
+    public void RemoveAbility(int ability)
+    {
+        if (abilities == null) return;
+        abilities.Remove(ability);
     }
 
     public void SetRandomAbility()
@@ -397,7 +404,7 @@ public class TowerAttack : MonoBehaviour
         projectile.transform.position = transform.position;
         projectile.transform.rotation = Quaternion.LookRotation(direction);
         projectile.Initialize(buffedData,baseData, direction, IsHit, projectilePoolManager.ProjectilePool);
-        
+      
         foreach (var abilityId in abilities)
         {
             var ability = AbilityManager.GetAbility(abilityId);
@@ -485,33 +492,17 @@ public class TowerAttack : MonoBehaviour
     private void RecalculateReinforcedBase()
     {
         if (originalProjectileData == null || towerData == null)
-        {
-            Debug.LogWarning("[AtkReinforce] originalProjectileData or towerData is null");
             return;
-        }
 
         // copy to base
         currentProjectileData = originalProjectileData.Clone();
 
-        // 1) AttackTowerTable Row 찾기
+        // find AttackTowerTable Row 
         var attackRow = DataTableManager.AttackTowerTable.GetById(towerData.towerIdInt);
-        if (attackRow == null)
-        {
-            Debug.LogWarning($"[AtkReinforce] No AttackTowerTableRow for towerIdInt={towerData.towerIdInt}");
-            return;
-        }
+        if (attackRow == null) return;
 
-        if (attackRow.TowerReinforceUpgrade_ID == null || attackRow.TowerReinforceUpgrade_ID.Length == 0)
-        {
-            Debug.LogWarning(
-                $"[AtkReinforce] TowerReinforceUpgrade_ID is null/empty for towerIdInt={towerData.towerIdInt}");
+        if (attackRow.TowerReinforceUpgrade_ID == null || attackRow.TowerReinforceUpgrade_ID.Length == 0) 
             return;
-        }
-
-        // 강화를 위한 ID 리스트 로그
-        Debug.Log($"[AtkReinforce] towerId={towerData.towerIdInt}, " +
-                  $"ids=[{string.Join(",", attackRow.TowerReinforceUpgrade_ID)}], " +
-                  $"currLevel={reinforceLevel}");
 
         float addValue = 0f;
         if (TowerReinforceManager.Instance != null)
@@ -528,8 +519,5 @@ public class TowerAttack : MonoBehaviour
 
         float finalAttack = (originalProjectileData.Attack + addValue) * reinforceAttackScale;
         currentProjectileData.Attack = finalAttack;
-
-        Debug.Log($"[AtkReinforce] towerId={towerData.towerIdInt}, level={reinforceLevel}, " +
-                  $"baseAtk={originalProjectileData.Attack}, add={addValue}, final={finalAttack}");
     }
 }

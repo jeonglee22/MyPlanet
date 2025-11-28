@@ -86,7 +86,6 @@ public class AttackTowerTable : DataTable
                 Debug.LogError($"[AttackTowerTable] Duplicate Id: {row.AttackTower_Id}");
             }
         }
-        Debug.Log($"[AttackTowerTable] Loaded {Rows.Count} rows.");
     }
 
     public AttackTowerTableRow GetById(int id)
