@@ -6,7 +6,7 @@ public class Explosion : MonoBehaviour
     private float initRadius = 0.01f;
     private SphereCollider explosionCollider;
 
-    private float explosionTimeInterval = 0.3f;
+    private float explosionTimeInterval = 0.1f;
     private float explosionTimer = 0f;
 
     private float FixedPanetration = 0f;
