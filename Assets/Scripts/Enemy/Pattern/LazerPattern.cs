@@ -53,7 +53,7 @@ public class LazerPattern : ShootingPattern
 
     private void LoadLaserSettings()
     {
-        lazerObject = LoadManager.GetLoadedGamePrefab(AddressLabel.Lazer);
+        lazerObject = LoadManager.GetLoadedGamePrefab(AddressLabel.EnemyLazer);
 
         duration = 2f;
         laserWidth = 0.2f;

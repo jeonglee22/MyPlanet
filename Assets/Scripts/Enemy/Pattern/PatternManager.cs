@@ -27,9 +27,11 @@ public class PatternManager : MonoBehaviour
         patternDict.Add((int)PatternIds.DaphnisEleteMeteorClusterSummon, () => new MeteorClusterSummonPattern());
         patternDict.Add((int)PatternIds.TitanMeteorClusterSummon, () => new MeteorClusterSummonPattern());
         patternDict.Add((int)PatternIds.TitanEleteMeteorClusterSummon, () => new MeteorClusterSummonPattern());
-        patternDict.Add((int)PatternIds.SaturnMeteorRingSummon, () => new MeteorRingSummonPattern());
         patternDict.Add((int)PatternIds.TitanLazer, () => new LazerPattern());
+        patternDict.Add((int)PatternIds.SaturnMeteorRingSummon, () => new MeteorRingSummonPattern());
         patternDict.Add((int)PatternIds.SaturnLazer, () => new RootLazerPattern());
+        patternDict.Add((int)PatternIds.SaturnMeteorClusterSummon, () => new MeteorClusterSummonPattern());
+        patternDict.Add((int)PatternIds.SaturnEleteMeteorClusterSummon, () => new MeteorClusterSummonPattern());
     }
 
     public IPattern GetPattern(int patternId)

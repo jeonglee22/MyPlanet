@@ -10,7 +10,7 @@ public class GameInitLoader : MonoBehaviour
     {
         await DataTableManager.InitializeAsync();
         await loadManager.LoadGamePrefabAsync(AddressLabel.Prefab);
-        await loadManager.LoadGamePrefabAsync(AddressLabel.Lazer);
+        await loadManager.LoadGamePrefabAsync(AddressLabel.EnemyLazer);
         // await loadManager.LoadGamePrefabAsync(AddressLabel.PoolObject);
     }
 }
