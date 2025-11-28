@@ -141,8 +141,6 @@ public class WaveManager : MonoBehaviour
             }
         }
 
-        await UniTask.Delay(System.TimeSpan.FromSeconds(waveData.SpawnTerm), cancellationToken: cts);
-
         await OnWaveCleared(cts);
     }
 
