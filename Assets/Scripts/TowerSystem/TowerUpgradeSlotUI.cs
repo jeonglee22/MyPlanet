@@ -298,8 +298,8 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         string randomSlotText = FormatOffsetArray(randomOffsets);
         uiTexts[i].text = $"new\n{ampName}\n" 
-            + $"���� ����: {buffSlotText}\n" 
-            + $"���� ����: {randomSlotText}\n" 
+            + $"Buff Slot: {buffSlotText}\n" 
+            + $"Random Slot: {randomSlotText}\n" 
             + $"{ampAbilityName}";
     }
     private string FormatOffsetArray(int[] offsets)
