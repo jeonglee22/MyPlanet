@@ -453,6 +453,21 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         {
             isStartTouch = true;
             initTouchPos = touchPos;
+
+            bool isTouchOnUpgradeCard = false;
+            foreach (var upgradeUi in upgradeUIs)
+            {
+                if(RectTransformUtility.RectangleContainsScreenPoint(upgradeUi.GetComponent<RectTransform>(), initTouchPos))
+                {
+                    isTouchOnUpgradeCard = true;
+                }
+            }
+
+            if(!isTouchOnUpgradeCard)
+            {
+                isNewTouch = false;
+                return;
+            }
         }
 
         if(Vector2.Distance(initTouchPos, touchPos) < 5f || !isNewTouch)
