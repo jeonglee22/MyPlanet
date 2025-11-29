@@ -203,6 +203,7 @@ public class TowerInstallControl : MonoBehaviour
         int idx = UnityEngine.Random.Range(0, availableTowerDatas.Count);
         // idx = 3; // Missile
         // idx = 2; // Lazer
+        // idx = 4; // ShootGun
         return availableTowerDatas[idx];
     }
 

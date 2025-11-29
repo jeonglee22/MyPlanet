@@ -109,9 +109,6 @@ public class TowerAttack : MonoBehaviour
             return towerData != null ? towerData.projectileType : null;
         } 
     }
-
-    private float lazerTowerId = 1001002;
-    private float missleTowerId = 1002002;
     private bool isStartLazer = false;
     public bool IsStartLazer { get { return isStartLazer; } set { isStartLazer = value; } }
 
@@ -147,7 +144,7 @@ public class TowerAttack : MonoBehaviour
         //Set Projectile Count -> From Tower Data SO (NOT Data Table) -> check
         baseProjectileCount = Mathf.Max(1, towerData.projectileCount);
 
-        if (towerData.towerIdInt == missleTowerId)
+        if (towerData.towerIdInt == (int)AttackTowerId.Missile)
         {
             abilities.Add((int)AbilityId.Explosion);
         }
@@ -173,7 +170,7 @@ public class TowerAttack : MonoBehaviour
             StartHitscan(hitScanInterval);
         }
 
-        if(towerData.towerIdInt == lazerTowerId && isStartLazer)
+        if(towerData.towerIdInt == (int)AttackTowerId.Lazer && isStartLazer)
         {
             return;
         }
@@ -254,6 +251,12 @@ public class TowerAttack : MonoBehaviour
         Vector3 baseDirection = (target.position - firePoint.position).normalized;
         float centerIndex = (shotCount - 1) * 0.5f;
 
+        List<bool> innerIndex = new List<bool>(shotCount);
+        if (towerData.towerIdInt == (int)AttackTowerId.ShootGun)
+        {
+            innerIndex = GetInnerShotCount(shotCount, towerData.grouping);
+        }
+
         for (int i = 0; i < shotCount; i++)
         {
             float offsetIndex = i - centerIndex;
@@ -262,7 +265,7 @@ public class TowerAttack : MonoBehaviour
 
             var direction = new Vector3(baseDirection.x, baseDirection.y, baseDirection.z);
 
-            if (towerData.towerIdInt == lazerTowerId)
+            if (towerData.towerIdInt == (int)AttackTowerId.Lazer)
             {
                 var lazerObj = LoadManager.GetLoadedGamePrefab(ObjectName.Lazer);
                 var lazer = lazerObj.GetComponent<LazertowerAttack>();
@@ -281,10 +284,10 @@ public class TowerAttack : MonoBehaviour
                 continue;
             }
 
-            ApplyGroupOffset(
-                ref direction,
-                towerData.grouping
-            );
+            if(towerData.towerIdInt == (int)AttackTowerId.ShootGun && innerIndex != null && innerIndex.Count == shotCount)
+            {
+                ApplyGroupOffset(ref direction, innerIndex[i], towerData.grouping);
+            }
 
             if (isHitScanActive && IsHaveHitScanAbility)
             {
@@ -307,6 +310,34 @@ public class TowerAttack : MonoBehaviour
 
             SettingProjectile(projectile, buffedData, baseData, direction, attackType, target);
         }
+    }
+
+    private List<bool> GetInnerShotCount(int shotCount, float grouping)
+    {
+        if (grouping <= 0f) return null;
+
+        List<bool> innerIndex = new List<bool>();
+        
+        for (int i = 0; i < shotCount; i++)
+        {
+            innerIndex.Add(false);
+        }
+
+        int count = 0;
+        while (count < shotCount * (grouping / 100f))
+        {
+            var index = UnityEngine.Random.Range(0, shotCount);
+
+            if (innerIndex[index] == false)
+            {
+                innerIndex[index] = true;
+                count++;
+            }
+        }
+
+        Debug.Log(string.Join(",", innerIndex));
+
+        return innerIndex;
     }
 
     private void SettingProjectile(Projectile projectile, ProjectileData buffedData, ProjectileData baseData, Vector3 direction, float attackType, ITargetable target)
@@ -336,15 +367,26 @@ public class TowerAttack : MonoBehaviour
         }
     }
 
-    private void ApplyGroupOffset(ref Vector3 direction, float grouping)
+    private void ApplyGroupOffset(ref Vector3 direction, bool isInner, float grouping)
     {
         if (grouping <= 0f) return;
 
-        var groupingClamp = Mathf.Min(grouping, 100f);
-        var angleReverse = 90f - (grouping * 0.9f);
+        var outerAngle = 45f;
+        var innerAngle = 10f;
 
-        float offAngle = UnityEngine.Random.Range(-angleReverse, angleReverse);
-        Quaternion rot = Quaternion.Euler(0f, 0f, offAngle);
+        float shootAngle = 0f;
+        if (isInner)
+        {
+            shootAngle = UnityEngine.Random.Range(-innerAngle, innerAngle);
+        }
+        else
+        {
+            shootAngle = UnityEngine.Random.Range(0f, 1f) <= 0.5f ?
+            UnityEngine.Random.Range(-outerAngle, -innerAngle) :
+            UnityEngine.Random.Range(innerAngle, outerAngle);
+        }
+
+        Quaternion rot = Quaternion.Euler(0f, 0f, shootAngle);
         direction = rot * direction;
     }
 
@@ -358,8 +400,6 @@ public class TowerAttack : MonoBehaviour
         {
             return;
         }
-
-        Debug.Log("Accuracy Missed");
 
         float offAngleMinus = UnityEngine.Random.Range(-1f,-0.5f) * 30f;
         float offAnglePlus = UnityEngine.Random.Range(0.5f,1f) * 30f;
