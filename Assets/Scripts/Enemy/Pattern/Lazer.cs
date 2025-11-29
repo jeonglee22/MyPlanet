@@ -24,6 +24,8 @@ public class Lazer : MonoBehaviour
 
     public Action OnLazerEnd;
 
+    private IDamagable damageTarget;
+
     private void Awake()
     {
         lineRenderer = GetComponent<LineRenderer>();
@@ -61,6 +63,8 @@ public class Lazer : MonoBehaviour
         this.direction = direction.normalized;
         this.damage = damage;
         OnLazerEnd = onEnd;
+
+        damageTarget = null;
 
         laserLength = customLength ?? CalculateDistance();
 
@@ -188,6 +192,11 @@ public class Lazer : MonoBehaviour
 
     private void CheckLazerCollision()
     {
+        if(damageTarget != null)
+        {
+            return;
+        }
+
         RaycastHit[] hits = Physics.RaycastAll(startPoint, direction, laserLength);
 
         foreach(RaycastHit hit in hits)
@@ -205,6 +214,7 @@ public class Lazer : MonoBehaviour
             if(damagable != null)
             {
                 damagable.OnDamage(damage);
+                damageTarget = damagable;
             }
         }
     }
