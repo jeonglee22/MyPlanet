@@ -23,14 +23,16 @@ public class EnemySpawnTest : MonoBehaviour
         enemyDropdown.onValueChanged.AddListener((i) => SetEnemyId(i));
         enemyId = 400102;
 
-        Variables.LastBossEnemy = GameObject.FindGameObjectWithTag("Boss");
+        var bossObject = GameObject.FindGameObjectWithTag("Boss");
+        Variables.TestBossEnemyObject = bossObject;
+        Debug.Log($"{bossObject.transform.position}");
     }
 
     public void SpawnEnemy()
     {
         Vector3 spawnPosition = spawner.transform.position + new Vector3(0f, 2f, 0f);
         
-        Enemy enemy = spawner.SpawnEnemyWithScale(enemyId, spawnPosition, scaleData);
+        spawner.SpawnEnemiesWithScale(enemyId, 1, scaleData);
     }
 
     public void SetEnemyId(int id)

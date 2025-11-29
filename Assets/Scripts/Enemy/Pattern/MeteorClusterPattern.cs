@@ -34,7 +34,7 @@ public class MeteorClusterPattern : SpecialPattern
     {
         base.Initialize(enemy, movement, enemyData);
 
-        damage = enemy.atk;
+        damage = patternData.PatternDamageRate > 0 ? enemy.atk * patternData.PatternDamageRate : enemy.atk;
         spawner = enemy.Spawner;
 
         currentLeader = enemy;

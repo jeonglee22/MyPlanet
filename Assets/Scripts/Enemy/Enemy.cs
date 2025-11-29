@@ -12,7 +12,6 @@ using UnityEngine.UIElements;
 public class Enemy : LivingEntity, ITargetable , IDisposable
 {
     private ObjectPoolManager<int, Enemy> objectPoolManager;
-    public ObjectPoolManager<int, Enemy> ObjectPoolManager => objectPoolManager;
 
     private EnemyMovement movement;
     public EnemyMovement Movement { get => movement; set => movement = value; }
@@ -108,6 +107,11 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
     public override void OnDamage(float damage)
     {
+        if(data.EnemyType == 4 && Variables.MiddleBossEnemy != null)
+        {
+            return;
+        }
+
         base.OnDamage(damage);
 
         ColorCancel();
@@ -136,7 +140,24 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
         transform.localScale = originalScale;
 
+        BossDie(data.EnemyType);
+
         objectPoolManager?.Return(enemyId, this);
+    }
+
+    public void BossDie(int enemyType)
+    {
+        switch (enemyType)
+        {
+            case 3:
+                Variables.MiddleBossEnemy = null;
+                WaveManager.Instance.OnBossDefeated(false);
+                break;
+            case 4:
+                Variables.LastBossEnemy = null;
+                WaveManager.Instance.OnBossDefeated(true);
+                break;
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -183,14 +204,14 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         }
     }
 
-    private void OnLifeTimeOver()
+    public void OnLifeTimeOver()
     {
         OnLifeTimeOverEvent?.Invoke();
         transform.localScale = originalScale;
         objectPoolManager?.Return(enemyId, this);
     }
 
-    public void Initialize(EnemyTableData enemyData, Vector3 targetDirection, int enemyId, ObjectPoolManager<int, Enemy> poolManager, ScaleData scaleData, int spawnPointIndex)
+    public void Initialize(EnemyTableData enemyData, int enemyId, ObjectPoolManager<int, Enemy> poolManager, ScaleData scaleData, int spawnPointIndex)
     {
         this.enemyId = enemyId;
         objectPoolManager = poolManager;
@@ -213,6 +234,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
         exp = data.Exp * scaleData.ExpScale;
 
+        BossAppearance(enemyData.EnemyType);
+
         AddMovementComponent(data.MoveType, spawnPointIndex);
 
         InitializePatterns(enemyData);
@@ -220,7 +243,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         StartLifeTime();
     }
 
-    public void InitializeAsChild(EnemyTableData enemyData, Vector3 targetDirection, int enemyId, ObjectPoolManager<int, Enemy> poolManager, ScaleData scaleData, int moveType)
+    public void InitializeAsChild(EnemyTableData enemyData, int enemyId, ObjectPoolManager<int, Enemy> poolManager, ScaleData scaleData, int moveType)
     {
         this.enemyId = enemyId;
         objectPoolManager = poolManager;
@@ -239,6 +262,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         originalScale = transform.localScale;
 
         transform.localScale *= scaleData.PrefabScale;
+
+        exp = data.Exp * scaleData.ExpScale;
 
         AddMovementComponent(moveType, -1);
 
@@ -284,6 +309,26 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         catch (System.OperationCanceledException)
         {
             
+        }
+    }
+
+    private void BossAppearance(int enemyType)
+    {
+        switch (enemyType)
+        {
+            case 3:
+                Variables.MiddleBossEnemy = this;
+                WaveManager.Instance.OnBossSpawned(false);
+                break;
+            case 4:
+                Variables.LastBossEnemy = this;
+                WaveManager.Instance.OnBossSpawned(true);
+                break;
+        }
+
+        if(enemyType == 3 || enemyType == 4)
+        {
+            SpawnManager.Instance.DespawnAllEnemiesExceptBoss();
         }
     }
 

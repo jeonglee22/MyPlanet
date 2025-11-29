@@ -56,11 +56,11 @@ public class EnemySpawner : MonoBehaviour
         spawnedEnemies.Add(enemy);
 
         enemy.Spawner = this;
-        enemy.Initialize(currentTableData, direction, enemyId, objectPoolManager, scaleData, spawnPointIndex);
+        enemy.Initialize(currentTableData, enemyId, objectPoolManager, scaleData, spawnPointIndex);
         return enemy;
     }
 
-    private Enemy CreateChildEnemy(int enemyId, Vector3 position, Vector3 direction, ScaleData scaleData, int moveType)
+    private Enemy CreateChildEnemy(int enemyId, Vector3 position, ScaleData scaleData, int moveType)
     {
         Enemy enemy = objectPoolManager.Get(enemyId);
         if (enemy == null)
@@ -73,7 +73,7 @@ public class EnemySpawner : MonoBehaviour
         enemy.transform.position = position;
         enemy.Spawner = this;
 
-        enemy.InitializeAsChild(currentTableData, direction, enemyId, objectPoolManager, scaleData, moveType);
+        enemy.InitializeAsChild(currentTableData, enemyId, objectPoolManager, scaleData, moveType);
         return enemy;
     }
 
@@ -156,7 +156,7 @@ public class EnemySpawner : MonoBehaviour
 
     public Enemy SpawnEnemyAsChild(int enemyId, Vector3 spawnPosition, ScaleData scaleData, int moveType, bool ShouldDropItems = true)
     {
-        var enemy = CreateChildEnemy(enemyId, spawnPosition, Vector3.down, scaleData, moveType);
+        var enemy = CreateChildEnemy(enemyId, spawnPosition, scaleData, moveType);
         if(enemy != null)
         {
             enemy.ShouldDropItems = ShouldDropItems;
@@ -213,7 +213,18 @@ public class EnemySpawner : MonoBehaviour
         {
             if(enemy != null && (!enemy.IsDead || enemy.gameObject.activeSelf))
             {
-                enemy.ObjectPoolManager.Return(enemy.Data.Enemy_Id, enemy);
+                enemy.OnLifeTimeOver();
+            }
+        }
+    }
+
+    public void DespawnAllEnemiesExceptBoss()
+    {
+        foreach (var enemy in spawnedEnemies)
+        {
+            if (enemy != null && (!enemy.IsDead || enemy.gameObject.activeSelf) && enemy != Variables.LastBossEnemy && enemy != Variables.MiddleBossEnemy)
+            {
+                enemy.OnLifeTimeOver();
             }
         }
     }

@@ -162,7 +162,13 @@ public class SpawnManager : MonoBehaviour
         {
             spawner.DespawnAllEnemies();
         }
+    }
 
-        currentEnemyCount = 0;
+    public void DespawnAllEnemiesExceptBoss()
+    {
+        foreach (var spawner in spawnPoints)
+        {
+            spawner.DespawnAllEnemiesExceptBoss();
+        }
     }
 }
