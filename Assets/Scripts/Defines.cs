@@ -57,6 +57,17 @@ public enum AbilityId
     AttackSpeedOneTarget,
 }
 
+public enum AttackTowerId
+{
+    basicGun = 1000001,
+    ShootGun = 1000002,
+    Gattling = 1001001,
+    Lazer = 1001002,
+    Sniper = 1002001,        
+    Missile = 1002002,
+    
+}
+
 public enum PrefabType
 {
     Enemy,
