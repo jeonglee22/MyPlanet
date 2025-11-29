@@ -34,7 +34,7 @@ public class LazerPattern : ShootingPattern
         lazer.SetLazerWidth(laserWidth);
         lazer.SetTickInterval(tickInterval);
 
-        float damage = owner.atk;
+        float damage = patternData.PatternDamageRate > 0 ? owner.atk * patternData.PatternDamageRate : owner.atk;
 
         if(movement != null)
         {
