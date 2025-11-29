@@ -86,7 +86,7 @@ public class MainTitleUI : MonoBehaviour
         // };
 
         Debug.Log("Game Start Button Clicked");
-        await SceneControlManager.Instance.LoadScene(SceneName.BattleScene);
+        await SceneControlManager.Instance.LoadScene(SceneName.UiTestScene);
     }
 
     private async UniTaskVoid OnEnemyTestButtonClicked()
