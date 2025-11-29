@@ -23,23 +23,16 @@ public class EnemySpawnTest : MonoBehaviour
         enemyDropdown.onValueChanged.AddListener((i) => SetEnemyId(i));
         enemyId = 400102;
 
-        var enemy = GameObject.FindGameObjectWithTag("Boss").GetComponent<Enemy>();
-        switch (enemy.Data.EnemyType)
-        {
-            case 3:
-                Variables.MiddleBossEnemy = enemy;
-                break;
-            case 4:
-                Variables.LastBossEnemy = enemy;
-                break;
-        }
+        var bossObject = GameObject.FindGameObjectWithTag("Boss");
+        Variables.TestBossEnemyObject = bossObject;
+        Debug.Log($"{bossObject.transform.position}");
     }
 
     public void SpawnEnemy()
     {
         Vector3 spawnPosition = spawner.transform.position + new Vector3(0f, 2f, 0f);
         
-        Enemy enemy = spawner.SpawnEnemyWithScale(enemyId, spawnPosition, scaleData);
+        spawner.SpawnEnemiesWithScale(enemyId, 1, scaleData);
     }
 
     public void SetEnemyId(int id)
@@ -73,7 +66,7 @@ public class EnemySpawnTest : MonoBehaviour
 
     public void ClearAllEnemies()
     {
-        SpawnManager.Instance.DespawnAllEnemiesExceptBoss();
-        spawner.DespawnAllEnemiesExceptBoss();
+        SpawnManager.Instance.DespawnAllEnemies();
+        spawner.DespawnAllEnemies();
     }
 }

@@ -3,57 +3,64 @@ using UnityEngine;
 
 public class RevolutionMovement : IMovement
 {
-    private float offSet = 10f;
-    private float angleSpeed = 2f;
+    private Transform lastBossTransform;
+    private float revolutionRadius;
+    private float offSet = 2f;
+
+    private bool isRightTransform = false;
 
     private bool isPatternLine = false;
     public bool IsPatternLine => isPatternLine;
 
-    private Transform lastBoss;
-    private float revolutionRadius;
-    private float currentAngle;
-
-    public Vector3 GetFinalDirection(Vector3 baseDirection, Transform ownerTransform, Transform target)
+    public void Initialize()
     {
-        if(lastBoss == null && lastBoss == null)
+        isPatternLine = false;
+
+        Enemy lastBoss = Variables.LastBossEnemy;
+        if(lastBoss != null)
         {
-            var boss = Variables.LastBossEnemy;
-            if(boss == null)
-            {
-                return Vector3.zero;
-            }
+            lastBossTransform = lastBoss.transform;
 
-            lastBoss = boss.transform;
-
-            var bossCollider = lastBoss.GetComponent<Collider>();
+            var bossCollider = lastBossTransform.GetComponent<Collider>();
             if(bossCollider != null)
             {
-                var extents = bossCollider.bounds.extents;
-                float colliderRadius = extents.magnitude;
-                revolutionRadius = colliderRadius + offSet;
+                float maxSize = Mathf.Max(bossCollider.bounds.extents.x, bossCollider.bounds.extents.y, bossCollider.bounds.extents.z);
+                revolutionRadius = (maxSize / 2f) + offSet;
             }
             else
             {
                 revolutionRadius = 3f;
             }
+
+            isRightTransform = false;
         }
-
-        currentAngle += angleSpeed * Time.deltaTime;
-
-        Vector3 centerPosition = lastBoss.position;
-        float x = Mathf.Cos(currentAngle) * revolutionRadius;
-        float y = Mathf.Sin(currentAngle) * revolutionRadius;
-
-        Vector3 targetPosition = new Vector3(centerPosition.x + x, centerPosition.y + y, ownerTransform.position.z);
-
-        Vector3 direction = targetPosition - ownerTransform.position;
-
-        return direction.normalized;
     }
 
-    public void Initialize()
+    public Vector3 GetFinalDirection(Vector3 baseDirection, Transform ownerTransform, Transform target)
     {
-        isPatternLine = false;
+        if(lastBossTransform == null)
+        {
+            return baseDirection;
+        }
+
+        Vector3 direction = ownerTransform.position - lastBossTransform.position;
+        float currentRadius = direction.magnitude;
+
+        if(!isRightTransform || Mathf.Abs(currentRadius - revolutionRadius) > 0.1f)
+        {
+            Vector3 targetPosition = lastBossTransform.position + direction.normalized * revolutionRadius;
+            Vector3 toTargetDirection = (targetPosition - ownerTransform.position).normalized;
+
+            if(Mathf.Abs(currentRadius - revolutionRadius) < 0.5f)
+            {
+                isRightTransform = true;
+            }
+
+            return toTargetDirection;
+        }
+
+        Vector3 toCircleDirection = Vector3.Cross(direction, Vector3.forward).normalized;
+        return toCircleDirection;
     }
 
     public bool IsCompleted() => false;
