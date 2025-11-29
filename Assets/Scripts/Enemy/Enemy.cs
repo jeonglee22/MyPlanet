@@ -107,6 +107,11 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
     public override void OnDamage(float damage)
     {
+        if(data.EnemyType == 4 && Variables.MiddleBossEnemy != null)
+        {
+            return;
+        }
+
         base.OnDamage(damage);
 
         ColorCancel();
