@@ -21,7 +21,12 @@ public class BattleUI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        battleTime = WaveManager.Instance.CurrentWaveGroupElapsedTime;
+        if(WaveManager.Instance.IsBossBattle)
+        {
+            return;
+        }
+
+        battleTime += Time.deltaTime;
         int minutes = Mathf.FloorToInt(battleTime / 60f);
         int seconds = Mathf.FloorToInt(battleTime % 60f);
         SetBattleTimeText(minutes, seconds);

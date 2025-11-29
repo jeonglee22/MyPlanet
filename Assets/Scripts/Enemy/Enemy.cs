@@ -135,7 +135,24 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
         transform.localScale = originalScale;
 
+        BossDie(data.EnemyType);
+
         objectPoolManager?.Return(enemyId, this);
+    }
+
+    public void BossDie(int enemyType)
+    {
+        switch (enemyType)
+        {
+            case 3:
+                Variables.MiddleBossEnemy = null;
+                WaveManager.Instance.OnBossDefeated(false);
+                break;
+            case 4:
+                Variables.LastBossEnemy = null;
+                WaveManager.Instance.OnBossDefeated(true);
+                break;
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -296,9 +313,11 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         {
             case 3:
                 Variables.MiddleBossEnemy = this;
+                WaveManager.Instance.OnBossSpawned(false);
                 break;
             case 4:
                 Variables.LastBossEnemy = this;
+                WaveManager.Instance.OnBossSpawned(true);
                 break;
         }
 

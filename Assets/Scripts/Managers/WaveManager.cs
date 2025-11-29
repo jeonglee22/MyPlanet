@@ -35,9 +35,14 @@ public class WaveManager : MonoBehaviour
 
     private float waveGroupDuration = 60f;
     private float waveGroupStartTime;
+    private float pausedTime = 0f;
+    private float pauseStartTime = 0f;
     private CancellationTokenSource groupCts;
-    public float CurrentWaveGroupElapsedTime => Time.time - waveGroupStartTime;
-    public float CurrentWaveGroupRemainingTime => Mathf.Max(0f, waveGroupDuration - CurrentWaveGroupElapsedTime);
+
+    private bool isBossBattle = false;
+    private bool isLastBoss = false;
+    public bool IsBossBattle => isBossBattle;
+    public bool IsLastBoss => isLastBoss;
 
     private void Awake()
     {
@@ -102,7 +107,16 @@ public class WaveManager : MonoBehaviour
         groupCts = new CancellationTokenSource();
     }
 
-    private bool IsWaveGroupTimeExpired() => (Time.time - waveGroupStartTime) >= waveGroupDuration;
+    private bool IsWaveGroupTimeExpired()
+    {
+        if(isBossBattle)
+        {
+            return false;
+        }
+
+        float elapsed = Time.time - waveGroupStartTime - pausedTime;
+        return elapsed >= waveGroupDuration;
+    }
 
     private async UniTask WaitForWaveGroupCompletion(CancellationToken cts)
     {
@@ -189,6 +203,11 @@ public class WaveManager : MonoBehaviour
             return;
         }
 
+        if(isBossBattle)
+        {
+            return;
+        }
+
         if(currentWaveIndex > 0 && waveGroup != waveDatas[currentWaveIndex].WaveGroup)
         {
             if (!IsWaveGroupTimeExpired())
@@ -230,11 +249,11 @@ public class WaveManager : MonoBehaviour
             }
         }
 
-        if(currentWaveIndex < waveDatas.Count)
+        if(currentWaveIndex < waveDatas.Count && !isBossBattle)
         {
             await StartNextWave(cts);
         }
-        else
+        else if(currentWaveIndex >= waveDatas.Count && !isLastBoss)
         {
             isCleared = true;
             Debug.Log($"Stage {currentStageId} completed!");
@@ -259,5 +278,47 @@ public class WaveManager : MonoBehaviour
         groupCts = new CancellationTokenSource();
 
         ResetWave();
+    }
+
+    public void OnBossSpawned(bool isLastBoss)
+    {
+        isBossBattle = true;
+        this.isLastBoss = isLastBoss;
+
+        pausedTime = Time.time;
+
+        if(isLastBoss)
+        {
+            Debug.Log("Last Boss Spawned. Wave termination");
+            groupCts?.Cancel();
+            groupCts?.Dispose();
+            groupCts = new CancellationTokenSource();
+        }
+        else
+        {
+            Debug.Log("Middle Boss Spawned. Wave progression paused.");
+        }
+    }
+
+    public void OnBossDefeated(bool wasLastBoss)
+    {
+        pausedTime += Time.time - pauseStartTime;
+
+        isBossBattle = false;
+
+        if (wasLastBoss)
+        {
+            isLastBoss = false;
+            isCleared = true;
+        }
+        else
+        {
+            isLastBoss = false;
+
+            if(currentWaveIndex < waveDatas.Count)
+            {
+                StartNextWave(waveCts.Token).Forget();
+            }
+        }
     }
 }
