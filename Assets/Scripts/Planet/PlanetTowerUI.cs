@@ -30,8 +30,13 @@ public class PlanetTowerUI : MonoBehaviour
         goToTitleButton?.onClick.AddListener(OnGoToTitleClicked);
 
         Angle = 0f;
-        Time.timeScale = 0f;
+        
         battleButton.gameObject.SetActive(!towerUpgradeSlotUI.IsFirstInstall);
+    }
+
+    void OnEnable()
+    {
+        Time.timeScale = 0f;
     }
 
     void Update()
