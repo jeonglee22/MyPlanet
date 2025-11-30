@@ -37,7 +37,7 @@ public class SplitUpgradeAbility : EffectAbility
         {
             if (isLazerSplit)
             {
-                MakeLazerSplit(this.projectile.splitCount);
+                MakeLazerSplit(this.projectile.splitCount, enemy.transform);
                 return;
             }
 
@@ -49,7 +49,7 @@ public class SplitUpgradeAbility : EffectAbility
         }
     }
 
-    private void MakeLazerSplit(int splitCount)
+    private void MakeLazerSplit(int splitCount, Transform target)
     {
         var splitLines = splitCount + 1;
         var splitAngle = 90f;
@@ -60,7 +60,26 @@ public class SplitUpgradeAbility : EffectAbility
             eachAngles[i] = -splitAngle / 2 + splitAngle / (splitLines - 1) * i;
         }
 
-        
+        foreach (var angle in eachAngles)
+        {
+            var direction = Quaternion.Euler(0, 0, angle) * this.direction;
+            var newProjectiles = projectilePoolManager.GetProjectile(baseData);
+
+            var lazerObj = LoadManager.GetLoadedGamePrefab(ObjectName.Lazer);
+            var lazer = lazerObj.GetComponent<LazertowerAttack>();
+
+            newProjectiles.Initialize(
+                buffedData,
+                baseData,
+                direction,
+                true,
+                ProjectilePoolManager.Instance.ProjectilePool
+            );
+            lazer.SetLazer(target, direction, null, newProjectiles, towerAttack);
+
+            newProjectiles.gameObject.SetActive(false);
+            towerAttack.Lazer.IsSplitSet = true;
+        }
     }
 
     public override void RemoveAbility(GameObject gameObject)

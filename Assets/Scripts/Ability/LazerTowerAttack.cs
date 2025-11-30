@@ -24,6 +24,8 @@ public class LazertowerAttack : MonoBehaviour
     private List<Enemy> attackObject;
     private List<Enemy> removeObject;
     private float lazerLength = 10f;
+    private bool isSplitSet = false;
+    public bool IsSplitSet { get => isSplitSet; set => isSplitSet = value; }
 
     void Awake()
     {
@@ -101,6 +103,12 @@ public class LazertowerAttack : MonoBehaviour
             startPoint = lineRenderer.GetPosition(0);
             endPoint = startPoint + direction * lazerLength;
             finalDirection = direction;
+
+            if (isSplitSet)
+            {
+                endPoint = target.position;
+                lazerLength = Vector3.Distance(tower.position, target.position);
+            }
         }
         else
         {
@@ -133,14 +141,14 @@ public class LazertowerAttack : MonoBehaviour
         transform.position = tower.position;
     }
 
-    public void SetLazer(Transform tower, Transform target, Projectile projectile, TowerAttack towerAttack, bool isHoming = false, float duration = 15f)
+    public void SetLazer(Transform tower, Vector3 direction, Transform target, Projectile projectile, TowerAttack towerAttack, bool isHoming = false, float duration = 15f)
     {
         lineRenderer.positionCount = pointCount;
-        Vector3 direction = (target.position - tower.position).normalized;
+        Vector3 newDirection = target == null ? direction : (target.position - tower.position).normalized;
 
         this.tower = tower;
         this.target = target;
-        finalPoint = tower.position + direction * lazerLength;
+        finalPoint = tower.position + newDirection * lazerLength;
         this.duration = duration;
         this.towerAttack = towerAttack;
         this.isHoming = isHoming;
