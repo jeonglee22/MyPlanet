@@ -77,4 +77,14 @@ public class WaveTable : DataTable
 
         return result;
     }
+
+    public int GetStageCount()
+    {
+        HashSet<int> stageIndices = new HashSet<int>();
+        foreach (var item in dictionary.Values)
+        {
+            stageIndices.Add(item.StageIndex);
+        }
+        return stageIndices.Count;
+    }
 }
