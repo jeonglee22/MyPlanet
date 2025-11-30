@@ -11,6 +11,7 @@ public class PowerUpItemControlUI : MonoBehaviour
     [SerializeField] private TowerInfoUI towerInfoUI;
     [SerializeField] private TextMeshProUGUI towerInstallText;
     [SerializeField] private GameObject itemChoosePanel;
+    [SerializeField] private TowerUpgradeSlotUI towerUpgradeSlotUI;
 
     [SerializeField] private Button towerCountUpgradeButton;
     [SerializeField] private Button newAbilityUpgradeButton;
@@ -188,6 +189,8 @@ public class PowerUpItemControlUI : MonoBehaviour
         if (!itemChoosePanel.activeSelf)
         {
             itemChoosePanel.SetActive(true);
+            towerUpgradeSlotUI.IsNotUpgradeOpen = true;
+            towerUpgradeSlotUI.gameObject.SetActive(true);
             towerCountUpgradeButton.gameObject.SetActive(true);
             newAbilityUpgradeButton.gameObject.SetActive(true);
             abilities = new List<int>();

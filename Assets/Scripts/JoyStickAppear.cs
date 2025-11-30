@@ -7,6 +7,8 @@ using UnityEngine.InputSystem.OnScreen;
 
 public class JoyStickAppear : MonoBehaviour
 {
+    [SerializeField] private GameObject towerUI;
+
     public GameObject joystick;
     public RectTransform touchRect;
 
@@ -25,7 +27,7 @@ public class JoyStickAppear : MonoBehaviour
 
     void Update()
     {
-        if(EventSystem.current.IsPointerOverGameObject())
+        if(EventSystem.current.IsPointerOverGameObject() || towerUI.activeSelf)
         {
             isAppear = false;
             joystick.SetActive(false);

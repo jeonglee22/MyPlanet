@@ -2413,7 +2413,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3584462536352248341, guid: a7e321e09859ab144b6f58d388635272, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8224037072186832961, guid: a7e321e09859ab144b6f58d388635272, type: 3}
       propertyPath: m_LocalPosition.x
@@ -5398,6 +5398,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5684087843260545709, guid: 859e5f70b2890704093344d374a01339, type: 3}
+      propertyPath: towerUI
+      value: 
+      objectReference: {fileID: 8087737669774974351}
+    - target: {fileID: 5684087843260545709, guid: 859e5f70b2890704093344d374a01339, type: 3}
       propertyPath: upgradeSlotUI
       value: 
       objectReference: {fileID: 914193105680469377}
@@ -6060,7 +6064,7 @@ Transform:
   m_GameObject: {fileID: 1488899771}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 595.54535, y: 1578.4775, z: -14.0233}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6096,18 +6100,6 @@ MonoBehaviour:
       - m_Target: {fileID: 1488899773}
         m_TargetAssemblyTypeName: TouchManager, Assembly-CSharp
         m_MethodName: OnUITouchPhase
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 1488899773}
-        m_TargetAssemblyTypeName: TouchManager, Assembly-CSharp
-        m_MethodName: OnUITouchCheck
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -9642,6 +9634,7 @@ MonoBehaviour:
   battleButton: {fileID: 1403100447}
   goToTitleButton: {fileID: 424407510}
   towerInfoUI: {fileID: 4544513132663384558}
+  installControl: {fileID: 0}
 --- !u!1 &550671616204197059
 GameObject:
   m_ObjectHideFlags: 0
@@ -14745,6 +14738,7 @@ MonoBehaviour:
   towerInfoUI: {fileID: 4544513132663384558}
   towerInstallText: {fileID: 409136489598362038}
   itemChoosePanel: {fileID: 1443911461}
+  towerUpgradeSlotUI: {fileID: 0}
   towerCountUpgradeButton: {fileID: 2088021477}
   newAbilityUpgradeButton: {fileID: 2067874399}
   itemUseButton: {fileID: 447534052}
