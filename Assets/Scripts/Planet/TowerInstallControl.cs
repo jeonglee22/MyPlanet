@@ -58,6 +58,7 @@ public class TowerInstallControl : MonoBehaviour
 
     [SerializeField] private PlanetTowerUI planetTowerUI;
     private float currentAngle;
+    public float CurrentAngle { get => currentAngle; }
 
     //test
     private bool[] emptyTower;
@@ -68,6 +69,7 @@ public class TowerInstallControl : MonoBehaviour
     public TowerInstallChoice ChoosedData { get; set; }
 
     public bool isInstall = true;
+    private float dragRotateSpeed = 300f;
 
     private void Awake()
     {
@@ -99,8 +101,14 @@ public class TowerInstallControl : MonoBehaviour
         if (planetTowerUI != null && currentAngle != planetTowerUI.Angle)
         {
             var beforeDiff = currentAngle - planetTowerUI.Angle;
-            currentAngle += rotateSpeed * Time.unscaledDeltaTime * (planetTowerUI.TowerRotateClock ? -1f : 1f);
+
+            if (planetTowerUI.IsStartDrag)
+                currentAngle += dragRotateSpeed * Time.unscaledDeltaTime * (planetTowerUI.TowerRotateClock ? -1f : 1f);
+            else
+                currentAngle += rotateSpeed * Time.unscaledDeltaTime * (planetTowerUI.TowerRotateClock ? -1f : 1f);
+            
             var newDiff = currentAngle - planetTowerUI.Angle;
+            // Debug.Log(currentAngle.ToString() + " / " + planetTowerUI.Angle.ToString() + " / " + beforeDiff.ToString() + " / " + newDiff.ToString());
 
             SettingTowerTransform(currentAngle);
             
