@@ -92,6 +92,14 @@ public class Projectile : MonoBehaviour , IDisposable
         lifeTimeCts = new CancellationTokenSource();
     }
 
+    public void ReturnProjectileToPool()
+    {
+        Cancel();
+        abilityRelease?.Invoke(gameObject);
+        abilityRelease = null;
+        objectPoolManager.Return(poolKeyData, this);
+    }
+
     private void MoveProjectile()
     {
         totalSpeed += acceleration * Time.deltaTime;

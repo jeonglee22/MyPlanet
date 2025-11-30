@@ -269,9 +269,7 @@ public class TowerAttack : MonoBehaviour
             {
                 var lazerObj = LoadManager.GetLoadedGamePrefab(ObjectName.Lazer);
                 var lazer = lazerObj.GetComponent<LazertowerAttack>();
-                lazer.SetLazer(transform, (target as Enemy).gameObject.transform, this, attackType == (int)ProjectileType.Homing, buffedData.RemainTime);
-                isStartLazer = true;
-                
+
                 projectile.Initialize(
                     buffedData,
                     baseData,
@@ -279,7 +277,10 @@ public class TowerAttack : MonoBehaviour
                     true,
                     ProjectilePoolManager.Instance.ProjectilePool
                 );
-                projectile.IsFinish = true;
+                lazer.SetLazer(transform, (target as Enemy).gameObject.transform, projectile, this, attackType == (int)ProjectileType.Homing, buffedData.RemainTime);
+                isStartLazer = true;
+
+                projectile.gameObject.SetActive(false);
 
                 continue;
             }

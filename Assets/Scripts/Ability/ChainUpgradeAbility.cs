@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ChainUpgradeAbility : EffectAbility
 {
-    private Projectile projectile;
+    private ProjectileData projectileData;
     private ProjectileData baseData;
     private ProjectileData buffedData;
     private bool isSetup = false;
@@ -26,7 +26,7 @@ public class ChainUpgradeAbility : EffectAbility
         if (projectile != null)
         {
             SetProjectile(projectile);
-            this.projectile = projectile;
+            projectileData = projectile.projectileData;
         }
         var enemy = gameObject.GetComponent<Enemy>();
         if (enemy != null)
@@ -49,7 +49,7 @@ public class ChainUpgradeAbility : EffectAbility
 
     private void ChainingDamage(Enemy enemy, int count)
     {
-        if(enemy == null || count <= 0 || projectile == null)
+        if(enemy == null || count <= 0 || projectileData == null)
             return;
         
         var nearboundEnemyColliders = Physics.OverlapSphere(enemy.transform.position, 2f);
@@ -64,8 +64,8 @@ public class ChainUpgradeAbility : EffectAbility
             return;
         }
 
-        projectile.damage = buffedData.Attack * Mathf.Pow(0.9f, (upgradeAmount - count));
-        nextEnemy.OnDamage(projectile.CalculateTotalDamage(enemy.Data.Defense));
+        projectileData.Attack = buffedData.Attack * Mathf.Pow(0.9f, (upgradeAmount - count));
+        nextEnemy.OnDamage(CalculateTotalDamage(enemy.Data.Defense));
         hitEnemies.Add(nextEnemy);
         ChainingDamage(nextEnemy, count - 1);
     }
@@ -97,5 +97,19 @@ public class ChainUpgradeAbility : EffectAbility
     public override IAbility Copy()
     {
         return new ChainUpgradeAbility(upgradeAmount);
+    }
+
+    public float CalculateTotalDamage(float enemyDef)
+    {
+        var RatePanetration = Mathf.Clamp(projectileData.RatePenetration, 0f, 100f);
+        // Debug.Log(damage);
+        var totalEnemyDef = enemyDef * (1 - RatePanetration / 100f) - projectileData.FixedPenetration;
+        if(totalEnemyDef < 0)
+        {
+            totalEnemyDef = 0;
+        }
+        var totalDamage = projectileData.Attack * 100f / (100f + totalEnemyDef);
+        
+        return totalDamage;
     }
 }

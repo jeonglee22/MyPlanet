@@ -16,6 +16,8 @@ public class LazertowerAttack : MonoBehaviour
     private TowerAttack towerAttack;
     private bool isHoming;
     private List<int> abilities;
+    private Projectile projectile;
+    private List<IAbility> appliedAbilities = new List<IAbility>();
     private float durationTimer;
     private float attackDelayTimer;
     private float attackDelay = 0.5f;
@@ -46,12 +48,15 @@ public class LazertowerAttack : MonoBehaviour
         UpdateLazerPositions();
         if (attackDelayTimer >= attackDelay)
         {
-            Debug.Log(attackObject.Count);
             foreach (var enemy in attackObject)
             {
                 enemy.OnDeathEvent += () => {
                     removeObject.Add(enemy);
                 };
+                foreach (var ability in appliedAbilities)
+                {
+                    ability.ApplyAbility(enemy.gameObject);
+                }
                 enemy.OnDamage(10f);
             }
 
@@ -69,6 +74,7 @@ public class LazertowerAttack : MonoBehaviour
             Destroy(gameObject);
             towerAttack.IsStartLazer = false;
             durationTimer = 0f;
+            projectile.ReturnProjectileToPool();
         }
     }
 
@@ -127,7 +133,7 @@ public class LazertowerAttack : MonoBehaviour
         transform.position = tower.position;
     }
 
-    public void SetLazer(Transform tower, Transform target, TowerAttack towerAttack, bool isHoming = false, float duration = 15f)
+    public void SetLazer(Transform tower, Transform target, Projectile projectile, TowerAttack towerAttack, bool isHoming = false, float duration = 15f)
     {
         lineRenderer.positionCount = pointCount;
         Vector3 direction = (target.position - tower.position).normalized;
@@ -138,6 +144,18 @@ public class LazertowerAttack : MonoBehaviour
         this.duration = duration;
         this.towerAttack = towerAttack;
         this.isHoming = isHoming;
+        abilities = towerAttack.Abilities;
+        this.projectile = projectile;
+
+        foreach (var abilityId in abilities)
+        {
+            var ability = AbilityManager.GetAbility(abilityId);
+            if (ability == null) continue;
+
+            ability.ApplyAbility(projectile.gameObject);
+            ability.Setting(towerAttack.gameObject);
+            appliedAbilities.Add(ability);
+        }
 
         for (int i = 0; i < pointCount; i++)
         {
@@ -151,7 +169,6 @@ public class LazertowerAttack : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Lazer Hit");
         var damagable = other.gameObject.GetComponent<IDamagable>();
         var enemy = other.gameObject.GetComponent<Enemy>();
         if (damagable != null && enemy != null)
@@ -169,8 +186,6 @@ public class LazertowerAttack : MonoBehaviour
         }
         
     }
-
-
 
     // public float CalculateTotalDamage(float enemyDef)
     // {

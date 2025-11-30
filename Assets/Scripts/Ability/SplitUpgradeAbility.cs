@@ -14,6 +14,8 @@ public class SplitUpgradeAbility : EffectAbility
 
     private int pierceCount;
     private Projectile projectile;
+    private int splitCount;
+    private bool isLazerSplit;
 
     public SplitUpgradeAbility(float amount)
     {
@@ -33,12 +35,32 @@ public class SplitUpgradeAbility : EffectAbility
         var enemy = gameObject.GetComponent<Enemy>();
         if (enemy != null && isSetup && upgradeAmount > 0 && this.projectile.splitCount > 0)
         {
+            if (isLazerSplit)
+            {
+                MakeLazerSplit(this.projectile.splitCount);
+                return;
+            }
+
             upgradeAmount--;
             MakeSplit(offsetAngle);
             MakeSplit(-offsetAngle);
             isSetup = false;
             this.projectile.splitCount = 0;
         }
+    }
+
+    private void MakeLazerSplit(int splitCount)
+    {
+        var splitLines = splitCount + 1;
+        var splitAngle = 90f;
+
+        float[] eachAngles = new float[splitLines];
+        for (int i = 0; i < splitLines; i++)
+        {
+            eachAngles[i] = -splitAngle / 2 + splitAngle / (splitLines - 1) * i;
+        }
+
+        
     }
 
     public override void RemoveAbility(GameObject gameObject)
@@ -52,6 +74,11 @@ public class SplitUpgradeAbility : EffectAbility
 
         towerAttack = gameObject.GetComponent<TowerAttack>();
         projectilePoolManager = ProjectilePoolManager.Instance;
+
+        if (towerAttack.AttackTowerData.towerIdInt == (int)AttackTowerId.Lazer)
+        {
+            isLazerSplit = true;
+        }
     }
 
     public override string ToString()
@@ -68,7 +95,7 @@ public class SplitUpgradeAbility : EffectAbility
             direction = projectile.direction;
             firePoint = projectile.transform;
             this.projectile = projectile;
-            projectile.splitCount = (int)upgradeAmount;
+            this.projectile.splitCount = (int)upgradeAmount;
             isSetup = true;
         }
     }

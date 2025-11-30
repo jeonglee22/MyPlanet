@@ -72,6 +72,11 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             return;
         }
 
+        if (upgradeUIs == null || upgradeUIs.Length == 0)
+            return;
+        if (refreshButtons == null || refreshButtons.Length != upgradeUIs.Length)
+            return;
+
         foreach (var ui in upgradeUIs)
             ui.SetActive(true);
 
