@@ -130,6 +130,16 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         {
             foreach (var drop in drops)
             {
+                if(drop is QuasarItem && data.EnemyGrade != 2)
+                {
+                    continue;
+                }
+
+                if(drop is QuasarItem)
+                {
+                    UnityEngine.Debug.Log("Drop Quasar");
+                }
+
                 var dropInstance = Instantiate(drop, transform.position, Quaternion.identity);
                 if(dropInstance is ExpItem expItem)
                 {
@@ -167,7 +177,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
             OnPatternLineTrigger();
         }
 
-        if(other.CompareTag(TagName.Enemy) || other.CompareTag(TagName.Boss) || other.CompareTag(TagName.CenterStone))
+        if(other.CompareTag(TagName.CenterStone) || (data.EnemyType == 4 && Variables.MiddleBossEnemy != null))
         {
             return;
         }

@@ -90,6 +90,11 @@ public class PatternExecutor : MonoBehaviour
             return;
         }
 
+        if(owner.Data.EnemyType == 4 && Variables.MiddleBossEnemy != null && !Variables.MiddleBossEnemy.IsDead)
+        {
+            return;
+        }
+
         foreach (var pattern in patterns)
         {
             if(pattern.Trigger == ExecutionTrigger.Immediate)

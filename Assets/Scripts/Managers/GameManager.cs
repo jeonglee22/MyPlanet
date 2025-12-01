@@ -15,5 +15,8 @@ public class GameManager : MonoBehaviour
         
         //await loadManager.TestLoadEnemy();
         await WaveManager.Instance.InitializeStage(Variables.Stage);
+
+        int enemyLayer = LayerMask.NameToLayer(TagName.Enemy);
+        Physics.IgnoreLayerCollision(enemyLayer, enemyLayer, true);
     }
 }
