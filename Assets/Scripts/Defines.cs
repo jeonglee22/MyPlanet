@@ -1,3 +1,4 @@
+using System;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -35,6 +36,7 @@ public static class SceneName
     public static readonly string EnemyTestScene = "EnemyTestScene";
     public static readonly string CameraTestScene = "CameraTestScene";
     public static readonly string UiTestScene = "UiTestScene";
+    public static readonly string StageSelectScene = "StageSelectScene";
 }
 
 public enum AbilityId
@@ -120,7 +122,7 @@ public enum PatternIds
 public static class DataTableIds
 {
     public static readonly string Item = "ItemTable";
-    public static readonly string Enemy = "EnemyTable";
+    public static readonly string Enemy = "EnemyTableTest";
     public static readonly string Combine = "CombineTable";
     public static readonly string Wave = "WaveTable";
     public static readonly string Projectile = "ProjectileTable";
@@ -140,6 +142,20 @@ public static class DataTableIds
 public static class Variables
 {
     public static int Stage {get; set;} = 3;
+    private static int quasar = 0;
+    public static int Quasar
+    {
+        get => quasar;
+        set
+        {
+            quasar = value;
+            if(quasar > 0)
+            {
+                OnQuasarChanged?.Invoke();
+            }
+        }
+    }
+    public static event Action OnQuasarChanged;
     public static Enemy LastBossEnemy {get; set;} = null;
     public static Enemy MiddleBossEnemy {get; set;} = null;
     public static GameObject TestBossEnemyObject {get; set;} = null;
