@@ -156,8 +156,14 @@ public class MeteorClusterPattern : SpecialPattern
 
         if(wasLeader)
         {
-            PromoteNewLeader();
+            PromoteNewLeaderAsync().Forget();
         }
+    }
+
+    private async UniTaskVoid PromoteNewLeaderAsync()
+    {
+        await UniTask.Yield();
+        PromoteNewLeader();
     }
 
     private void ClearChildren()
@@ -229,28 +235,23 @@ public class MeteorClusterPattern : SpecialPattern
         if(oldLeader != null && oldLeader.Movement != null)
         {
             IMovement oldLeaderMovement = oldLeader.Movement.CurrentMovement;
-            newLeader.Movement.CurrentMovement = oldLeaderMovement;
-            newLeader.Movement.MoveDirection = oldLeaderMovement.GetFinalDirection(currentDirection, oldLeader.transform, null);
 
             if(oldLeaderMovement is ChaseMovement chaseMovement)
             {
-                chaseMovement.OnPatternLine();
+                ChaseMovement newMovement = new ChaseMovement();
+                newMovement.Initialize();
+                newMovement.OnPatternLine();
+
+                newLeader.Movement.CurrentMovement = newMovement;
+                newLeader.Movement.MoveDirection = Vector3.down;
+            }
+            else
+            {
+                newLeader.Movement.CurrentMovement = oldLeaderMovement;
+                newLeader.Movement.MoveDirection = oldLeaderMovement.GetFinalDirection(currentDirection, oldLeader.transform, null);
             }
         }
         
-        /*
-        if(newLeader.Movement != null)
-        {
-            IMovement leaderMovementCopy = CopyMovement(leaderMovement);
-            float moveSpeed = oldLeader != null ? oldLeader.Data.MoveSpeed : owner.Data.MoveSpeed;
-            newLeader.Movement.Initialize(moveSpeed, -1, leaderMovementCopy);
-
-            if(leaderMovementCopy is ChaseMovement chaseMovement)
-            {
-                chaseMovement.OnPatternLine();
-            }
-        }
-        */
         newLeader.OnDeathEvent += OnLeaderDeath;
         currentLeader.OnLifeTimeOverEvent += OnLeaderDeath;
 
@@ -279,28 +280,6 @@ public class MeteorClusterPattern : SpecialPattern
                 }
             }
         }
-    }
-
-    private IMovement CopyMovement(IMovement original)
-    {
-        if(original is StraightDownMovement)
-        {
-            return new StraightDownMovement();
-        }
-        else if(original is HomingMovement)
-        {
-            return new HomingMovement();
-        }
-        else if(original is ChaseMovement)
-        {
-            return new ChaseMovement();
-        }
-        else if(original is FollowParentMovement)
-        {
-            return new FollowParentMovement();
-        }
-
-        return null;
     }
 
     public override UniTask ExecuteAsync()
