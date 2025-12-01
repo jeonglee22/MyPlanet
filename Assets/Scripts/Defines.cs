@@ -137,6 +137,7 @@ public static class DataTableIds
     public static readonly string PlanetLevelUp = "PlanetLevelUpTable";
     public const string TowerReinforceUpgrade = "TowerReinforceUpgradeTable";
     public static readonly string BuffTowerReinforceUpgrade = "BuffTowerReinforceUpgradeTable";
+    public static readonly string AsyncPlanet = "AsyncPlanetTable";
 }
 
 public static class Variables
