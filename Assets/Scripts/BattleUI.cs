@@ -24,6 +24,7 @@ public class BattleUI : MonoBehaviour
         stageText.text = $"STAGE {Variables.Stage}";
 
         WaveManager.Instance.WaveChange += OnWaveChanged;
+        SpawnManager.Instance.OnBossSpawn += OnWaveChanged;
 
         waveToggles[0].isOn = true;
     }
@@ -31,6 +32,7 @@ public class BattleUI : MonoBehaviour
     public void OnDestroy()
     {
         WaveManager.Instance.WaveChange -= OnWaveChanged;
+        SpawnManager.Instance.OnBossSpawn -= OnWaveChanged;
     }
 
     // Update is called once per frame

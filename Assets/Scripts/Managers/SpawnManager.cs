@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
@@ -24,6 +25,8 @@ public class SpawnManager : MonoBehaviour
     public Rect ScreenBounds => screenBounds;
     public Rect OffSetBounds => offSetBounds;
     private float offSet = 1f;
+
+    public event Action OnBossSpawn;
 
     private void Awake()
     {
@@ -170,5 +173,7 @@ public class SpawnManager : MonoBehaviour
         {
             spawner.DespawnAllEnemiesExceptBoss();
         }
+
+        OnBossSpawn?.Invoke();
     }
 }
