@@ -26,6 +26,7 @@ public class MovementManager : MonoBehaviour
         movementDict.Add((int)MoveType.FollowParent, () => new FollowParentMovement());
         movementDict.Add((int)MoveType.DescendAndStopMovement, () => new DescendAndStopMovement());
         movementDict.Add((int)MoveType.Revolution, () => new RevolutionMovement());
+        movementDict.Add((int)MoveType.Side, () => new SideMovement());
     }
 
     public IMovement GetMovement(int moveType)

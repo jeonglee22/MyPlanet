@@ -99,6 +99,7 @@ public enum MoveType
     FollowParent,
     DescendAndStopMovement = 10,
     Revolution = 11,
+    Side,
 }
 
 public enum PatternIds
