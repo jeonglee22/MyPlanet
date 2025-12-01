@@ -1,14 +1,20 @@
+using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public class LazerPattern : ShootingPattern
 {
     public override int PatternId => patternData.Pattern_Id;
 
-    private GameObject lazerObject;
+    private List<GameObject> lazerPool = new List<GameObject>();
 
     protected float duration = 2f;
-    protected float laserWidth = 1f;
+    protected float laserWidth = 0.2f;
     protected float tickInterval = 0.1f;
+
+    public override bool RequireAsync => true;
+
+    protected UniTaskCompletionSource lazerCompletionSource;
 
 
     public override void Initialize(Enemy enemy, EnemyMovement movement, EnemyTableData enemyData)
@@ -20,7 +26,7 @@ public class LazerPattern : ShootingPattern
 
     protected override void Shoot()
     {
-        if(lazerObject == null)
+        if(lazerPool.Count == 0)
         {
             LoadLaserSettings();
         }
@@ -28,6 +34,7 @@ public class LazerPattern : ShootingPattern
         Vector3 shootPosition = owner.transform.position;
         Vector3 shootDirection = GetLaserDirection();
 
+        GameObject lazerObject = GetOrCreateLazer();
         Lazer lazer = lazerObject.GetComponent<Lazer>();
 
         lazer.SetDuration(duration);
@@ -46,6 +53,15 @@ public class LazerPattern : ShootingPattern
         lazerObject.SetActive(true);
     }
 
+    public override async UniTask ExecuteAsync()
+    {
+        lazerCompletionSource = new UniTaskCompletionSource();
+
+        Shoot();
+
+        await lazerCompletionSource.Task;
+    }
+
     protected virtual Vector3 GetLaserDirection()
     {
         return Vector3.down;
@@ -53,8 +69,6 @@ public class LazerPattern : ShootingPattern
 
     private void LoadLaserSettings()
     {
-        lazerObject = LoadManager.GetLoadedGamePrefab(AddressLabel.EnemyLazer);
-
         duration = 2f;
         laserWidth = 0.2f;
         tickInterval = 0.1f;
@@ -66,5 +80,22 @@ public class LazerPattern : ShootingPattern
         {
             movement.CanMove = true;
         }
+
+        lazerCompletionSource?.TrySetResult();
+    }
+
+    protected GameObject GetOrCreateLazer()
+    {
+        foreach(var lazer in lazerPool)
+        {
+            if(!lazer.activeInHierarchy)
+            {
+                return lazer;
+            }
+        }
+
+        GameObject newLazer = LoadManager.GetLoadedGamePrefab(AddressLabel.EnemyLazer);
+        lazerPool.Add(newLazer);
+        return newLazer;
     }
 }

@@ -302,4 +302,10 @@ public class MeteorClusterPattern : SpecialPattern
 
         return null;
     }
+
+    public override UniTask ExecuteAsync()
+    {
+        Execute();
+        return UniTask.CompletedTask;
+    }
 }

@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public abstract class MovementPattern : IPattern
@@ -11,6 +12,7 @@ public abstract class MovementPattern : IPattern
     public abstract int PatternId { get; }
     public ExecutionTrigger Trigger { get; protected set;}
     public float TriggerValue { get; protected set;}
+    public bool RequireAsync { get; protected set;} = false;
 
     protected PatternData patternData;
 
@@ -62,6 +64,12 @@ public abstract class MovementPattern : IPattern
         {
             isExecuteOneTime = true;
         }
+    }
+
+    public virtual UniTask ExecuteAsync()
+    {
+        Execute();
+        return UniTask.CompletedTask;
     }
 
     protected abstract void ChangeMovement();

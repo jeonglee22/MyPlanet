@@ -163,7 +163,14 @@ public class PatternExecutor : MonoBehaviour
             {
                 token.ThrowIfCancellationRequested();
 
-                pattern.Execute();
+                if(pattern.RequireAsync)
+                {
+                    await pattern.ExecuteAsync();
+                }
+                else
+                {
+                    pattern.Execute();
+                }
 
                 if(i < patternRepeatExecutions[pattern] - 1 && patternData.RepeatDelay > 0f)
                 {
