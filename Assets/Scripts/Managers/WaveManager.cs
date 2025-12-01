@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -22,6 +23,7 @@ public class WaveManager : MonoBehaviour
     private int currentStageId;
     private List<WaveData> waveDatas = new List<WaveData>();
     private int currentWaveIndex = 0;
+    public int CurrentWaveIndex => currentWaveIndex;
     private bool isWaveInProgress = false;
 
     public bool IsWaveInProgress => isWaveInProgress;
@@ -43,6 +45,8 @@ public class WaveManager : MonoBehaviour
     private bool isLastBoss = false;
     public bool IsBossBattle => isBossBattle;
     public bool IsLastBoss => isLastBoss;
+
+    public event Action WaveChange;
 
     private void Awake()
     {
@@ -217,6 +221,7 @@ public class WaveManager : MonoBehaviour
 
             WaveCount++;
             waveGroup = waveDatas[currentWaveIndex].WaveGroup;
+            WaveChange?.Invoke();
             StartWaveGroupTimer();
         }
         
@@ -302,6 +307,11 @@ public class WaveManager : MonoBehaviour
 
     public void OnBossDefeated(bool wasLastBoss)
     {
+        if(Variables.LastBossEnemy != null)
+        {
+            return;
+        }
+
         pausedTime += Time.time - pauseStartTime;
 
         isBossBattle = false;

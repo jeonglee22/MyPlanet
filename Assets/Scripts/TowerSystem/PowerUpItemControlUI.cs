@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks.CompilerServices;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -62,6 +63,8 @@ public class PowerUpItemControlUI : MonoBehaviour
         itemChoosePanel.SetActive(false);
         upgradeChooseUis.SetActive(false);
         chooseTowerPanel.SetActive(false);
+
+        Variables.OnQuasarChanged += CheckQuasarForReactivation;
     }
 
     private void OnNewAbilityCardClicked(int index)
@@ -172,13 +175,18 @@ public class PowerUpItemControlUI : MonoBehaviour
     public void SetActiveItemUseButton(bool isActive)
     {
         itemUseButton.interactable = isActive;
-        isUsedItem = isActive;
+        isUsedItem = !isActive;
 
         if(isInfiniteItem)
         {
             itemUseButton.interactable = true;
             isUsedItem = false;
         }
+    }
+
+    public void CheckQuasarForReactivation()
+    {
+        SetActiveItemUseButton(true);
     }
 
     private void OnItemUseClicked()
@@ -238,6 +246,8 @@ public class PowerUpItemControlUI : MonoBehaviour
     {
         Time.timeScale = 1f;
         numlist = null;
+
+        Variables.OnQuasarChanged -= CheckQuasarForReactivation;
     }
 
     private void SetUpCard(int i)

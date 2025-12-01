@@ -1,3 +1,4 @@
+using System;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -141,7 +142,20 @@ public static class DataTableIds
 public static class Variables
 {
     public static int Stage {get; set;} = 3;
-    public static int Quasar {get; set;} = 0;
+    private static int quasar = 0;
+    public static int Quasar
+    {
+        get => quasar;
+        set
+        {
+            quasar = value;
+            if(quasar > 0)
+            {
+                OnQuasarChanged?.Invoke();
+            }
+        }
+    }
+    public static event Action OnQuasarChanged;
     public static Enemy LastBossEnemy {get; set;} = null;
     public static Enemy MiddleBossEnemy {get; set;} = null;
     public static GameObject TestBossEnemyObject {get; set;} = null;

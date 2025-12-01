@@ -11,7 +11,7 @@ public class MeteorClusterPattern : SpecialPattern
     private EnemySpawner spawner;
     public override int PatternId => patternData.Pattern_Id;
 
-    private int meteorCount = 6;
+    private int meteorCount = 4;
     private float damage = 10f;
     private float spawnRadius = 0.5f;
 
