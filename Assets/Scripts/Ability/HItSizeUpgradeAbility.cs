@@ -17,6 +17,18 @@ public class HItSizeUpgradeAbility : PassiveAbility
         {
             projectile.gameObject.transform.localScale += new Vector3(0.2f,0.2f,0.2f) * upgradeAmount;
         }
+        var lazer = gameObject.GetComponent<LazertowerAttack>();
+        if (lazer != null)
+        {
+            var lineRenderer = lazer.GetComponentInChildren<LineRenderer>();
+            lineRenderer.startWidth += lazer.InitLineRendererWidth * upgradeAmount;
+
+            var boxCollider = lazer.GetComponent<BoxCollider>();
+            var size = boxCollider.size;
+            size.x += lazer.InitColliderWidth * upgradeAmount;
+            size.z += lazer.InitColliderWidth * upgradeAmount;
+            boxCollider.size = size;
+        }
     }
 
     public override void RemoveAbility(GameObject gameObject)

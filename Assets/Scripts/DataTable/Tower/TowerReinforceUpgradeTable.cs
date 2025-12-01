@@ -7,7 +7,7 @@ public class TowerReinforceUpgradeRow
 {
     public int TowerReinforceUpgrade_ID { get; set; }        
     public int ReinforceUpgradeLevel { get; set; }     
-    public int AddValue { get; set; }                
+    public float AddValue { get; set; }                
 }
 
 public class TowerReinforceUpgradeTable : DataTable

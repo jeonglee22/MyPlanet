@@ -45,6 +45,7 @@ public class DebugButtonsUI : MonoBehaviour
         infItemToggle.onValueChanged.AddListener((isOn) =>
         {
             isInfItem = isOn;
+            Debug.Log(powerUpItemControlUI == null);
             powerUpItemControlUI.IsInfiniteItem = isOn;
             powerUpItemControlUI.SetActiveItemUseButton(!isOn);
         });

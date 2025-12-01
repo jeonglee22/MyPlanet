@@ -14,6 +14,10 @@ public class SplitUpgradeAbility : EffectAbility
 
     private int pierceCount;
     private Projectile projectile;
+    private int splitCount;
+    private bool isLazerSplit;
+    private bool isSetupLazer = false;
+    private LazertowerAttack lazer;
 
     public SplitUpgradeAbility(float amount)
     {
@@ -30,14 +34,63 @@ public class SplitUpgradeAbility : EffectAbility
         {
             SetProjectile(projectile);
         }
+        var lazer = gameObject.GetComponent<LazertowerAttack>();
+        if (lazer != null)
+        {
+            this.lazer = lazer;
+        }
         var enemy = gameObject.GetComponent<Enemy>();
         if (enemy != null && isSetup && upgradeAmount > 0 && this.projectile.splitCount > 0)
         {
+            if (isLazerSplit)
+            {
+                if (isSetupLazer)
+                    return;
+                
+                MakeLazerSplit(this.projectile.splitCount, this.lazer.TailTransform);
+                isSetupLazer = true;
+                return;
+            }
+
             upgradeAmount--;
             MakeSplit(offsetAngle);
             MakeSplit(-offsetAngle);
             isSetup = false;
             this.projectile.splitCount = 0;
+        }
+    }
+
+    private void MakeLazerSplit(int splitCount, Transform target)
+    {
+        var splitLines = splitCount + 1;
+        var splitAngle = 90f;
+
+        float[] eachAngles = new float[splitLines];
+        for (int i = 0; i < splitLines; i++)
+        {
+            eachAngles[i] = -splitAngle / 2 + splitAngle / (splitLines - 1) * i;
+        }
+
+        foreach (var angle in eachAngles)
+        {
+            var direction = Quaternion.Euler(0, 0, angle) * this.direction;
+            var newProjectiles = projectilePoolManager.GetProjectile(baseData);
+
+            var lazerObj = LoadManager.GetLoadedGamePrefab(ObjectName.Lazer);
+            var lazer = lazerObj.GetComponent<LazertowerAttack>();
+
+            newProjectiles.Initialize(
+                buffedData,
+                baseData,
+                direction,
+                true,
+                ProjectilePoolManager.Instance.ProjectilePool
+            );
+            
+            lazer.SetLazer(target, angle, null, newProjectiles, towerAttack, projectile.projectileData.RemainTime, true, this.lazer);
+
+            newProjectiles.gameObject.SetActive(false);
+            this.lazer.IsSplitSet = true;
         }
     }
 
@@ -52,6 +105,12 @@ public class SplitUpgradeAbility : EffectAbility
 
         towerAttack = gameObject.GetComponent<TowerAttack>();
         projectilePoolManager = ProjectilePoolManager.Instance;
+
+        if (towerAttack.AttackTowerData.towerIdInt == (int)AttackTowerId.Lazer)
+        {
+            isLazerSplit = true;
+            isSetupLazer = false;
+        }
     }
 
     public override string ToString()
@@ -68,7 +127,7 @@ public class SplitUpgradeAbility : EffectAbility
             direction = projectile.direction;
             firePoint = projectile.transform;
             this.projectile = projectile;
-            projectile.splitCount = (int)upgradeAmount;
+            this.projectile.splitCount = (int)upgradeAmount;
             isSetup = true;
         }
     }

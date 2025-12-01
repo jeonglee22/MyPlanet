@@ -22,13 +22,13 @@ public class Explosion : MonoBehaviour
         explosionParticles = GetComponentsInChildren<ParticleSystem>();
     }
 
-    public void SetInit(float initRadius, float explosionRadius, Projectile projectileData)
+    public void SetInit(float initRadius, float explosionRadius, ProjectileData projectileData)
     {
         this.initRadius = initRadius;
         this.explosionRadius = explosionRadius;
-        damage = projectileData.damage;
-        FixedPanetration = projectileData.FixedPanetration;
-        RatePanetration = projectileData.RatePanetration;
+        damage = projectileData.Attack;
+        FixedPanetration = projectileData.FixedPenetration;
+        RatePanetration = projectileData.RatePenetration;
     }
 
     private void Start()

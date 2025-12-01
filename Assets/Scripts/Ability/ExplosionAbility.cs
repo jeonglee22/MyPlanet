@@ -3,7 +3,7 @@ using UnityEngine;
 public class ExplosionAbility : EffectAbility
 {
     private GameObject explosionEffect;
-    private Projectile projectile;
+    private ProjectileData projectileData;
 
     public ExplosionAbility(float amount)
     {
@@ -17,16 +17,17 @@ public class ExplosionAbility : EffectAbility
         var projectile = gameObject.GetComponent<Projectile>();
         if(projectile != null)
         {
-            this.projectile = projectile;
+            projectileData = projectile.projectileData;
         }
 
         var enemy = gameObject.GetComponent<Enemy>();
         if(enemy != null)
         {
+            Debug.Log("Explosion Ability Triggered");
             var obj = LoadManager.GetLoadedGamePrefab(ObjectName.Explosion);
             obj.transform.position = enemy.transform.position;
             var explosion = obj.GetComponent<Explosion>();
-            explosion.SetInit(0.01f, upgradeAmount, this.projectile);
+            explosion.SetInit(0.01f, upgradeAmount, projectileData);
         }
     }
 

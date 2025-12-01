@@ -111,6 +111,8 @@ public class TowerAttack : MonoBehaviour
     }
     private bool isStartLazer = false;
     public bool IsStartLazer { get { return isStartLazer; } set { isStartLazer = value; } }
+    private List<LazertowerAttack> lazers;
+    public List<LazertowerAttack> Lazers => lazers;
 
     //-------------------------------------------------------
 
@@ -126,6 +128,8 @@ public class TowerAttack : MonoBehaviour
         projectilePoolManager = GameObject
             .FindGameObjectWithTag(TagName.ProjectilePoolManager)
             .GetComponent<ProjectilePoolManager>();
+
+        lazers = new List<LazertowerAttack>();
     }
 
     public void SetTowerData(TowerDataSO data)
@@ -269,9 +273,8 @@ public class TowerAttack : MonoBehaviour
             {
                 var lazerObj = LoadManager.GetLoadedGamePrefab(ObjectName.Lazer);
                 var lazer = lazerObj.GetComponent<LazertowerAttack>();
-                lazer.SetLazer(transform, (target as Enemy).gameObject.transform, this, attackType == (int)ProjectileType.Homing, buffedData.RemainTime);
-                isStartLazer = true;
-                
+                lazers.Add(lazer);
+
                 projectile.Initialize(
                     buffedData,
                     baseData,
@@ -279,7 +282,16 @@ public class TowerAttack : MonoBehaviour
                     true,
                     ProjectilePoolManager.Instance.ProjectilePool
                 );
-                projectile.IsFinish = true;
+
+                if (shotCount > 1)
+                {
+                    lazer.SetLazerPositionOffset(projectileOffset * (i - centerIndex));
+                }
+                lazer.SetLazer(transform, 0f, (target as Enemy).gameObject.transform, projectile, this, buffedData.RemainTime);
+                isStartLazer = true;
+
+                projectile.gameObject.transform.position = new Vector3(0, -1000f, 0);
+                projectile.gameObject.SetActive(false);
 
                 continue;
             }
@@ -334,8 +346,6 @@ public class TowerAttack : MonoBehaviour
                 count++;
             }
         }
-
-        Debug.Log(string.Join(",", innerIndex));
 
         return innerIndex;
     }
@@ -413,7 +423,7 @@ public class TowerAttack : MonoBehaviour
     public void AddAbility(int ability)
     {
         if (abilities == null) abilities = new List<int>();
-        if(!abilities.Contains(ability)) //preventing all duplication
+        // if(!abilities.Contains(ability)) //preventing all duplication
             abilities.Add(ability);
     }
     public void RemoveAbility(int ability)
