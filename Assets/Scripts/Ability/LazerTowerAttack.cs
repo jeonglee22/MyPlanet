@@ -7,6 +7,7 @@ public class LazertowerAttack : MonoBehaviour
 {
     private LineRenderer lineRenderer;
     private BoxCollider boxCollider;
+    private Vector3 initCenter;
     private int pointCount = 2;
     private Transform target;
     // private Vector3 hitPosition;
@@ -35,6 +36,7 @@ public class LazertowerAttack : MonoBehaviour
     private bool isSplitSet = false;
     public bool IsSplitSet { get => isSplitSet; set => isSplitSet = value; }
     private LazertowerAttack splitBaseLazer = null;
+    private float lazerOffset;
 
     public float InitColliderWidth { get; private set; }
     public float InitLineRendererWidth { get; private set; }
@@ -43,6 +45,7 @@ public class LazertowerAttack : MonoBehaviour
     {
         lineRenderer = GetComponentInChildren<LineRenderer>();
         boxCollider = GetComponent<BoxCollider>();
+        initCenter = boxCollider.center;
         attackObject = new List<Enemy>();
         removeObject = new List<Enemy>();
     }
@@ -65,6 +68,8 @@ public class LazertowerAttack : MonoBehaviour
             Destroy(gameObject);
             towerAttack.IsStartLazer = false;
             durationTimer = 0f;
+            projectile.gameObject.SetActive(true);
+            projectile?.ReturnProjectileToPool();
         }
     }
 
@@ -172,8 +177,11 @@ public class LazertowerAttack : MonoBehaviour
             endPoint = startPoint + direction * lazerLength;
         }
         
-        lineRenderer.SetPosition(0, startPoint);
-        lineRenderer.SetPosition(1, endPoint);
+        var verticalDirection = Quaternion.Euler(0, 0, 90f) * finalDirection;
+        boxCollider.center = initCenter + lazerOffset * verticalDirection.normalized;
+        
+        lineRenderer.SetPosition(0, startPoint + lazerOffset * verticalDirection.normalized);
+        lineRenderer.SetPosition(1, endPoint + lazerOffset * verticalDirection.normalized);
         tailTransform.position = endPoint;
 
         var angle = Vector3.Angle(Vector3.right, direction);
@@ -226,6 +234,13 @@ public class LazertowerAttack : MonoBehaviour
 
         lineRenderer.SetPosition(0, tower.position);
         lineRenderer.SetPosition(1, finalPoint);
+    }
+
+    public void SetLazerPositionOffset(float offset)
+    {
+        lazerOffset = offset * 4f;
+        var verticalDirection = Quaternion.Euler(0, 0, 90f) * finalDirection;
+        boxCollider.center = initCenter + lazerOffset * verticalDirection.normalized;
     }
 
     private void OnTriggerEnter(Collider other)

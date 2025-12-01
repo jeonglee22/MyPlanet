@@ -30,11 +30,11 @@ public class ParalyzeAbility : EffectAbility
                 return;
             }
 
-            Debug.Log("Paralyze Applied");
+            // Debug.Log("Paralyze Applied");
             movement.moveSpeed *= (1f - upgradeAmount / 100f);
             movement.isDebuff = true;
             affectedEnemies.Add(enemy);
-            Debug.Log("Initial Speed" + initSpeed + " / New Speed: " + movement.moveSpeed);
+            // Debug.Log("Initial Speed" + initSpeed + " / New Speed: " + movement.moveSpeed);
 
             /*
             if (enemy.Data.hitEffect != null)

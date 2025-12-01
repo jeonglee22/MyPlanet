@@ -97,7 +97,9 @@ public class Projectile : MonoBehaviour , IDisposable
         Cancel();
         abilityRelease?.Invoke(gameObject);
         abilityRelease = null;
-        objectPoolManager.Return(poolKeyData, this);
+        if (objectPoolManager != null)
+            objectPoolManager.Return(poolKeyData, this);
+        Debug.Log("[Projectile] ReturnProjectileToPool called");
     }
 
     private void MoveProjectile()

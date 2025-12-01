@@ -111,8 +111,8 @@ public class TowerAttack : MonoBehaviour
     }
     private bool isStartLazer = false;
     public bool IsStartLazer { get { return isStartLazer; } set { isStartLazer = value; } }
-    private LazertowerAttack lazer;
-    public LazertowerAttack Lazer => lazer;
+    private List<LazertowerAttack> lazers;
+    public List<LazertowerAttack> Lazers => lazers;
 
     //-------------------------------------------------------
 
@@ -128,6 +128,8 @@ public class TowerAttack : MonoBehaviour
         projectilePoolManager = GameObject
             .FindGameObjectWithTag(TagName.ProjectilePoolManager)
             .GetComponent<ProjectilePoolManager>();
+
+        lazers = new List<LazertowerAttack>();
     }
 
     public void SetTowerData(TowerDataSO data)
@@ -270,7 +272,8 @@ public class TowerAttack : MonoBehaviour
             if (towerData.towerIdInt == (int)AttackTowerId.Lazer)
             {
                 var lazerObj = LoadManager.GetLoadedGamePrefab(ObjectName.Lazer);
-                lazer = lazerObj.GetComponent<LazertowerAttack>();
+                var lazer = lazerObj.GetComponent<LazertowerAttack>();
+                lazers.Add(lazer);
 
                 projectile.Initialize(
                     buffedData,
@@ -279,10 +282,15 @@ public class TowerAttack : MonoBehaviour
                     true,
                     ProjectilePoolManager.Instance.ProjectilePool
                 );
-                Debug.Log("towerAttack Abilities : " + abilities.Count);
+
+                if (shotCount > 1)
+                {
+                    lazer.SetLazerPositionOffset(projectileOffset * (i - centerIndex));
+                }
                 lazer.SetLazer(transform, 0f, (target as Enemy).gameObject.transform, projectile, this, buffedData.RemainTime);
                 isStartLazer = true;
 
+                projectile.gameObject.transform.position = new Vector3(0, -1000f, 0);
                 projectile.gameObject.SetActive(false);
 
                 continue;
@@ -338,8 +346,6 @@ public class TowerAttack : MonoBehaviour
                 count++;
             }
         }
-
-        Debug.Log(string.Join(",", innerIndex));
 
         return innerIndex;
     }

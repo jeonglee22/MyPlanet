@@ -56,7 +56,7 @@ public class EnemyMovement : MonoBehaviour
     private void Debuff(float time)
     {
         debuffTime += time;
-        Debug.Log("Enemy Moving : " + moveSpeed + " / Debuff Time: " + debuffTime);
+        // Debug.Log("Enemy Moving : " + moveSpeed + " / Debuff Time: " + debuffTime);
         if(debuffTime > debuffInterval)
         {
             debuffTime = 0f;

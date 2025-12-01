@@ -17,6 +17,7 @@ public class SplitUpgradeAbility : EffectAbility
     private int splitCount;
     private bool isLazerSplit;
     private bool isSetupLazer = false;
+    private LazertowerAttack lazer;
 
     public SplitUpgradeAbility(float amount)
     {
@@ -33,6 +34,11 @@ public class SplitUpgradeAbility : EffectAbility
         {
             SetProjectile(projectile);
         }
+        var lazer = gameObject.GetComponent<LazertowerAttack>();
+        if (lazer != null)
+        {
+            this.lazer = lazer;
+        }
         var enemy = gameObject.GetComponent<Enemy>();
         if (enemy != null && isSetup && upgradeAmount > 0 && this.projectile.splitCount > 0)
         {
@@ -41,7 +47,7 @@ public class SplitUpgradeAbility : EffectAbility
                 if (isSetupLazer)
                     return;
                 
-                MakeLazerSplit(this.projectile.splitCount, towerAttack.Lazer.TailTransform);
+                MakeLazerSplit(this.projectile.splitCount, this.lazer.TailTransform);
                 isSetupLazer = true;
                 return;
             }
@@ -81,10 +87,10 @@ public class SplitUpgradeAbility : EffectAbility
                 ProjectilePoolManager.Instance.ProjectilePool
             );
             
-            lazer.SetLazer(target, angle, null, newProjectiles, towerAttack, projectile.projectileData.RemainTime, true, towerAttack.Lazer);
+            lazer.SetLazer(target, angle, null, newProjectiles, towerAttack, projectile.projectileData.RemainTime, true, this.lazer);
 
             newProjectiles.gameObject.SetActive(false);
-            towerAttack.Lazer.IsSplitSet = true;
+            this.lazer.IsSplitSet = true;
         }
     }
 
