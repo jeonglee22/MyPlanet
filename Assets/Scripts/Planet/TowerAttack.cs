@@ -111,6 +111,8 @@ public class TowerAttack : MonoBehaviour
     }
     private bool isStartLazer = false;
     public bool IsStartLazer { get { return isStartLazer; } set { isStartLazer = value; } }
+    private LazertowerAttack lazer;
+    public LazertowerAttack Lazer => lazer;
 
     //-------------------------------------------------------
 
@@ -268,10 +270,8 @@ public class TowerAttack : MonoBehaviour
             if (towerData.towerIdInt == (int)AttackTowerId.Lazer)
             {
                 var lazerObj = LoadManager.GetLoadedGamePrefab(ObjectName.Lazer);
-                var lazer = lazerObj.GetComponent<LazertowerAttack>();
-                lazer.SetLazer(transform, (target as Enemy).gameObject.transform, this, attackType == (int)ProjectileType.Homing, buffedData.RemainTime);
-                isStartLazer = true;
-                
+                lazer = lazerObj.GetComponent<LazertowerAttack>();
+
                 projectile.Initialize(
                     buffedData,
                     baseData,
@@ -279,7 +279,11 @@ public class TowerAttack : MonoBehaviour
                     true,
                     ProjectilePoolManager.Instance.ProjectilePool
                 );
-                projectile.IsFinish = true;
+                Debug.Log("towerAttack Abilities : " + abilities.Count);
+                lazer.SetLazer(transform, 0f, (target as Enemy).gameObject.transform, projectile, this, buffedData.RemainTime);
+                isStartLazer = true;
+
+                projectile.gameObject.SetActive(false);
 
                 continue;
             }
@@ -413,7 +417,7 @@ public class TowerAttack : MonoBehaviour
     public void AddAbility(int ability)
     {
         if (abilities == null) abilities = new List<int>();
-        if(!abilities.Contains(ability)) //preventing all duplication
+        // if(!abilities.Contains(ability)) //preventing all duplication
             abilities.Add(ability);
     }
     public void RemoveAbility(int ability)

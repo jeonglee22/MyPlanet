@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
@@ -5,6 +6,8 @@ public class ParalyzeAbility : EffectAbility
 {
     private float initSpeed;
     public float slowPercentage = 40f;
+
+    private List<Enemy> affectedEnemies = new List<Enemy>();
 
     public ParalyzeAbility(float amount)
     {
@@ -21,9 +24,17 @@ public class ParalyzeAbility : EffectAbility
         if (movement != null)
         {
             initSpeed = movement.moveSpeed;
+            if(affectedEnemies.Contains(enemy) && movement.isDebuff)
+            {
+                movement.DebuffTime = 0f;
+                return;
+            }
 
-            movement.moveSpeed = initSpeed * (1f - upgradeAmount / 100f);
+            Debug.Log("Paralyze Applied");
+            movement.moveSpeed *= (1f - upgradeAmount / 100f);
             movement.isDebuff = true;
+            affectedEnemies.Add(enemy);
+            Debug.Log("Initial Speed" + initSpeed + " / New Speed: " + movement.moveSpeed);
 
             /*
             if (enemy.Data.hitEffect != null)

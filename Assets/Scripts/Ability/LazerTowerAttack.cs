@@ -7,21 +7,37 @@ public class LazertowerAttack : MonoBehaviour
 {
     private LineRenderer lineRenderer;
     private BoxCollider boxCollider;
-    private int pointCount = 40;
+    private int pointCount = 2;
     private Transform target;
+    // private Vector3 hitPosition;
     private Transform tower;
     private Vector3 finalDirection;
+    private float baseAngle;
     private Vector3 finalPoint;
+    private Transform followingPoint;
+    [SerializeField] private Transform tailTransform;
+    public Transform TailTransform => tailTransform;
     private float duration;
     private TowerAttack towerAttack;
     private bool isHoming;
     private List<int> abilities;
+    private Projectile projectile;
+    private float damage;
+
+    private event Action<GameObject> abilityAction;
+    private event Action<GameObject> abilityRelease;
     private float durationTimer;
     private float attackDelayTimer;
-    private float attackDelay = 0.5f;
+    private float attackDelay = 0.1f;
     private List<Enemy> attackObject;
     private List<Enemy> removeObject;
     private float lazerLength = 10f;
+    private bool isSplitSet = false;
+    public bool IsSplitSet { get => isSplitSet; set => isSplitSet = value; }
+    private LazertowerAttack splitBaseLazer = null;
+
+    public float InitColliderWidth { get; private set; }
+    public float InitLineRendererWidth { get; private set; }
 
     void Awake()
     {
@@ -41,34 +57,46 @@ public class LazertowerAttack : MonoBehaviour
     void Update()
     {
         durationTimer += Time.deltaTime;
+
+        CheckTarget();
+        
+        if (durationTimer >= duration || tower == null)
+        {
+            Destroy(gameObject);
+            towerAttack.IsStartLazer = false;
+            durationTimer = 0f;
+        }
+    }
+
+    void FixedUpdate()
+    {
         attackDelayTimer += Time.deltaTime;
+
+        if (tower == null)
+            return;
 
         UpdateLazerPositions();
         if (attackDelayTimer >= attackDelay)
         {
-            Debug.Log(attackObject.Count);
             foreach (var enemy in attackObject)
             {
-                enemy.OnDeathEvent += () => {
+                abilityAction?.Invoke(enemy.gameObject);
+
+                enemy.OnDamage(CalculateTotalDamage(enemy.Data.Defense));
+
+                if (enemy.IsDead)
+                {
                     removeObject.Add(enemy);
-                };
-                enemy.OnDamage(10f);
+                }
             }
 
             foreach (var rem in removeObject)
             {
                 attackObject.Remove(rem);
             }
-            attackDelayTimer = 0f;
-        }
+            removeObject.Clear();
 
-        CheckTarget();
-        
-        if (durationTimer >= duration)
-        {
-            Destroy(gameObject);
-            towerAttack.IsStartLazer = false;
-            durationTimer = 0f;
+            attackDelayTimer = 0f;
         }
     }
 
@@ -86,35 +114,67 @@ public class LazertowerAttack : MonoBehaviour
 
     private void UpdateLazerPositions()
     {
-        lineRenderer.SetPosition(0, tower.position);
         Vector3 startPoint, endPoint, direction;
+    
         if (target != null)
         {
             direction = (target.position - tower.position).normalized;
+            // if (abilities.Contains((int)AbilityId.Split))
+            // {
+            //     if (target != null)
+            //     {
+            //         Ray ray = new Ray(tower.position, direction);
+            //         if (Physics.Raycast(ray, out RaycastHit hitInfo, Mathf.Infinity, LayerMask.GetMask("Enemy")))
+            //         {
+            //             target = hitInfo.transform;
+            //             finalPoint = hitInfo.point;
+            //         }
+            //     }
+            // }
 
-            startPoint = lineRenderer.GetPosition(0);
+            if (splitBaseLazer != null)
+            {
+                direction = Quaternion.Euler(0, 0, baseAngle) * splitBaseLazer.finalDirection.normalized;
+            }
+
+            startPoint = tower.position;
             endPoint = startPoint + direction * lazerLength;
             finalDirection = direction;
+
+            if (isSplitSet)
+            {
+                endPoint = target.position;
+                lazerLength = Vector3.Distance(tower.position, target.position);
+            }
         }
         else
         {
             direction = finalDirection.normalized;
+            // if (abilities.Contains((int)AbilityId.Split))
+            // {
+            //     if (target != null)
+            //     {
+            //         Ray ray = new Ray(tower.position, direction);
+            //         if (Physics.Raycast(ray, out RaycastHit hitInfo, Mathf.Infinity, LayerMask.GetMask("Enemy")))
+            //         {
+            //             target = hitInfo.transform;
+            //             finalPoint = hitInfo.point;
+            //         }
+            //     }
+            // }
 
-            startPoint = lineRenderer.GetPosition(0);
+            if (splitBaseLazer != null)
+            {
+                direction = Quaternion.Euler(0, 0, baseAngle) * splitBaseLazer.finalDirection.normalized;
+            }
+
+            startPoint = tower.position;
             endPoint = startPoint + direction * lazerLength;
         }
         
-
-        for (int i = 0; i < pointCount; i++)
-        {
-            float t = (float)i / (pointCount - 1);
-            Vector3 point = Vector3.Lerp(startPoint, endPoint, t);
-
-            if (isHoming)
-                point += new Vector3(0, Mathf.Sin(t * Mathf.PI * 4) * 0.5f, 0); // Sine wave effect
-
-            lineRenderer.SetPosition(i, point);
-        }
+        lineRenderer.SetPosition(0, startPoint);
+        lineRenderer.SetPosition(1, endPoint);
+        tailTransform.position = endPoint;
 
         var angle = Vector3.Angle(Vector3.right, direction);
         if (direction.y < 0)
@@ -127,31 +187,49 @@ public class LazertowerAttack : MonoBehaviour
         transform.position = tower.position;
     }
 
-    public void SetLazer(Transform tower, Transform target, TowerAttack towerAttack, bool isHoming = false, float duration = 15f)
+    public void SetLazer(Transform start, float angle, Transform target, Projectile projectile, TowerAttack towerAttack, float duration = 15f, bool isSplit = false, LazertowerAttack baseLazer = null)
     {
         lineRenderer.positionCount = pointCount;
-        Vector3 direction = (target.position - tower.position).normalized;
+        Vector3 newDirection = target == null ? Quaternion.Euler(0, 0, angle) * baseLazer.finalDirection : (target.position - start.position).normalized;
+        finalDirection = newDirection;
+        baseAngle = angle;
+        splitBaseLazer = baseLazer;
 
-        this.tower = tower;
+        this.tower = start;
         this.target = target;
-        finalPoint = tower.position + direction * lazerLength;
+        finalPoint = start.position + newDirection * lazerLength;
         this.duration = duration;
         this.towerAttack = towerAttack;
-        this.isHoming = isHoming;
-
-        for (int i = 0; i < pointCount; i++)
+        abilities = new List<int>(towerAttack.Abilities);
+        Debug.Log(abilities.Count);
+        if (isSplit)
         {
-            float t = (float)i / (pointCount - 1);
-            Vector3 point = Vector3.Lerp(tower.position, finalPoint, t);
-            if (isHoming)
-                point += new Vector3(0, Mathf.Sin(t * Mathf.PI * 4) * 0.5f, 0); // Sine wave effect
-            lineRenderer.SetPosition(i, point);
+            abilities.RemoveAll(x => x == (int)AbilityId.Split);
         }
+        this.projectile = projectile;
+        damage = projectile.projectileData.Attack;
+
+        InitColliderWidth = GetComponent<BoxCollider>().size.x;
+        InitLineRendererWidth = lineRenderer.endWidth;
+
+        foreach (var abilityId in abilities)
+        {
+            var ability = AbilityManager.GetAbility(abilityId);
+            if (ability == null) continue;
+
+            ability.ApplyAbility(projectile.gameObject);
+            ability.ApplyAbility(gameObject);
+            abilityAction += ability.ApplyAbility;
+            abilityRelease += ability.RemoveAbility;
+            ability.Setting(towerAttack.gameObject);
+        }
+
+        lineRenderer.SetPosition(0, tower.position);
+        lineRenderer.SetPosition(1, finalPoint);
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Lazer Hit");
         var damagable = other.gameObject.GetComponent<IDamagable>();
         var enemy = other.gameObject.GetComponent<Enemy>();
         if (damagable != null && enemy != null)
@@ -170,19 +248,17 @@ public class LazertowerAttack : MonoBehaviour
         
     }
 
-
-
-    // public float CalculateTotalDamage(float enemyDef)
-    // {
-    //     var RatePanetration = Mathf.Clamp(this.RatePanetration, 0f, 100f);
-    //     // Debug.Log(damage);
-    //     var totalEnemyDef = enemyDef * (1 - RatePanetration / 100f) - FixedPanetration;
-    //     if(totalEnemyDef < 0)
-    //     {
-    //         totalEnemyDef = 0;
-    //     }
-    //     var totalDamage = damage * 100f / (100f + totalEnemyDef);
+    public float CalculateTotalDamage(float enemyDef)
+    {
+        var RatePanetration = Mathf.Clamp(projectile.projectileData.RatePenetration, 0f, 100f);
+        // Debug.Log(damage);
+        var totalEnemyDef = enemyDef * (1 - RatePanetration / 100f) - projectile.projectileData.FixedPenetration;
+        if(totalEnemyDef < 0)
+        {
+            totalEnemyDef = 0;
+        }
+        var totalDamage = damage * 100f / (100f + totalEnemyDef);
         
-    //     return totalDamage;
-    // }
+        return totalDamage;
+    }
 }

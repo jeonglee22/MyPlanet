@@ -92,6 +92,14 @@ public class Projectile : MonoBehaviour , IDisposable
         lifeTimeCts = new CancellationTokenSource();
     }
 
+    public void ReturnProjectileToPool()
+    {
+        Cancel();
+        abilityRelease?.Invoke(gameObject);
+        abilityRelease = null;
+        objectPoolManager.Return(poolKeyData, this);
+    }
+
     private void MoveProjectile()
     {
         totalSpeed += acceleration * Time.deltaTime;
@@ -158,7 +166,7 @@ public class Projectile : MonoBehaviour , IDisposable
         {
             return;
         }
-
+        
         var damagable = other.gameObject.GetComponent<IDamagable>();
         var enemy = other.gameObject.GetComponent<Enemy>();
         if (damagable != null && enemy != null && isHit)
