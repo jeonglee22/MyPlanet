@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -129,7 +130,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             
             while (true)
             {
-                number = Random.Range(0, installControl.TowerCount);
+                number = UnityEngine.Random.Range(0, installControl.TowerCount);
 
                 if (installControl.MaxTowerCount == installControl.CurrentTowerCount && 
                     !installControl.IsUsedSlot(number))
@@ -180,7 +181,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             string towerName = towerData != null ? towerData.towerId : "AttackTower";
             string abilityName = GetAbilityName(abilityId);
 
-            uiTexts[i].text = $"new\n{towerName}\n\n{abilityName}";
+            uiTexts[i].text = $"{towerName}\n\n{abilityName}";
             return;
         }
 
@@ -261,26 +262,57 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             ? ampData.AmplifierType.ToString()
             : ampData.BuffTowerName;
 
-            string buffSlotText = FormatOffsetArray(buffOffsets);
-
-            string randomSlotText = FormatOffsetArray(randomOffsets);
-            uiTexts[i].text = $"new\n{ampName}\n"
-                + $"Buff Slot: {buffSlotText}\n"
-                + $"Random Slot: {randomSlotText}\n"
-                + $"{ampAbilityName}";
+            string buffBlock=FormatOffsetArray(buffOffsets);
+            string randomBlock=FormatOffsetArray(randomOffsets);
+            uiTexts[i].text =
+                $"{ampName}\n" +
+                buffBlock +
+                $"---" +
+                $"\n{ampAbilityName}\n" +
+                randomBlock;
         }
     }
     private string FormatOffsetArray(int[] offsets)
     {
-        if (offsets == null || offsets.Length == 0) return "-";
+        if (offsets == null || offsets.Length == 0)
+            return string.Empty;
 
-        var parts = new string[offsets.Length];
-        for (int k = 0; k < offsets.Length; k++)
+        List<int> rightList = new List<int>();
+        List<int> leftList = new List<int>();
+
+        foreach (int offset in offsets)
         {
-            int offset = offsets[k];
-            parts[k] = offset > 0 ? $"+{offset}" : offset.ToString();
+            if (offset > 0) 
+                rightList.Add(offset);              
+            else if (offset < 0)
+                leftList.Add(System.Math.Abs(offset));       
         }
-        return string.Join(",", parts);
+
+        if (rightList.Count == 0 && leftList.Count == 0)
+            return string.Empty;
+
+        var sb = new StringBuilder();
+
+        sb.AppendLine("요격타워 기준");
+
+        if (rightList.Count > 0)
+        {
+            var rightPos = new List<string>();
+            foreach (int v in rightList)
+                rightPos.Add($"{v}번째");
+
+            sb.AppendLine($"오른쪽 {string.Join(", ", rightPos)}");
+        }
+
+        if (leftList.Count > 0)
+        {
+            var leftPos = new List<string>();
+            foreach (int v in leftList)
+                leftPos.Add($"{v}번째");
+
+            sb.AppendLine($"왼쪽 {string.Join(", ", leftPos)}");
+        }
+        return sb.ToString();
     }
 
     private int GetRandomAbilityForAmplifier(AmplifierTowerDataSO ampData)
