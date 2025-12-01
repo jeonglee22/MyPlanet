@@ -282,7 +282,7 @@ public class MeteorClusterPattern : SpecialPattern
         }
     }
 
-    public override UniTask ExecuteAsync()
+    public override UniTask ExecuteAsync(CancellationToken token)
     {
         Execute();
         return UniTask.CompletedTask;

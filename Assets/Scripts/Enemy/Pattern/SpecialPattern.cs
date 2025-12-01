@@ -1,3 +1,4 @@
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -46,7 +47,7 @@ public abstract class SpecialPattern : IPattern
     }
 
     public abstract void Execute();
-    public abstract UniTask ExecuteAsync();
+    public abstract UniTask ExecuteAsync(CancellationToken token);
 
     public abstract void PatternUpdate();
 

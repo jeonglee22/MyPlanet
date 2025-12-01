@@ -1,3 +1,4 @@
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -73,7 +74,7 @@ public abstract class SummonPattern : IPattern
         lastExecuteTime = Time.time;
     }
 
-    public virtual UniTask ExecuteAsync()
+    public virtual UniTask ExecuteAsync(CancellationToken token)
     {
         Execute();
         return UniTask.CompletedTask;

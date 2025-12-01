@@ -1,3 +1,4 @@
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -10,7 +11,7 @@ public interface IPattern
 
     public void Initialize(Enemy enemy, EnemyMovement movement, EnemyTableData data);
     public void Execute();
-    public UniTask ExecuteAsync();
+    public UniTask ExecuteAsync(CancellationToken token);
     public bool CanExecute();
     public void Reset();
     public void PatternUpdate();

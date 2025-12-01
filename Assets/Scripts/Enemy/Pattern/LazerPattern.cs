@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -53,13 +54,13 @@ public class LazerPattern : ShootingPattern
         lazerObject.SetActive(true);
     }
 
-    public override async UniTask ExecuteAsync()
+    public override async UniTask ExecuteAsync(CancellationToken token)
     {
         lazerCompletionSource = new UniTaskCompletionSource();
 
         Shoot();
 
-        await lazerCompletionSource.Task;
+        await lazerCompletionSource.Task.AttachExternalCancellation(token);
     }
 
     protected virtual Vector3 GetLaserDirection()

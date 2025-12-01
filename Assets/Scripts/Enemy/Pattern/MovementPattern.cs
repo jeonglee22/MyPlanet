@@ -1,3 +1,4 @@
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -66,7 +67,7 @@ public abstract class MovementPattern : IPattern
         }
     }
 
-    public virtual UniTask ExecuteAsync()
+    public virtual UniTask ExecuteAsync(CancellationToken token)
     {
         Execute();
         return UniTask.CompletedTask;

@@ -17,6 +17,11 @@ public class PatternExecutor : MonoBehaviour
     private bool isExecutePattern = false;
     private CancellationTokenSource patternCts;
 
+    private void OnDisable()
+    {
+        Cancel();
+    }
+
     private void OnDestroy()
     {
         Cancel();
@@ -112,6 +117,9 @@ public class PatternExecutor : MonoBehaviour
         List<IPattern> availablePatterns = new List<IPattern>();
         List<float> weights = new List<float>();
 
+        bool hasHealthPercentagePattern = false;
+        IPattern healthPercentagePattern = null;
+
         foreach(var pattern in patterns)
         {
             if (patternCooldowns.ContainsKey(pattern) && patternCooldowns[pattern] > 0f)
@@ -121,13 +129,20 @@ public class PatternExecutor : MonoBehaviour
 
             if(patternCooldowns[pattern] <= 0f && pattern.CanExecute())
             {
+                if(pattern.Trigger == ExecutionTrigger.OnHealthPercentage)
+                {
+                    hasHealthPercentagePattern = true;
+                    healthPercentagePattern = pattern;
+                    break;
+                }
+
                 availablePatterns.Add(pattern);
 
                 weights.Add(patternWeights[pattern]);
             }
         }
 
-        IPattern selectedPattern = SelectPatternWeight(availablePatterns, weights);
+        IPattern selectedPattern = hasHealthPercentagePattern ? healthPercentagePattern : SelectPatternWeight(availablePatterns, weights);
         if(selectedPattern != null)
         {
             ExecutePatternAsync(selectedPattern, patternCts.Token).Forget();
@@ -149,6 +164,11 @@ public class PatternExecutor : MonoBehaviour
 
     private async UniTaskVoid ExecutePatternAsync(IPattern pattern, CancellationToken token)
     {
+        if(!patternRepeatExecutions.ContainsKey(pattern))
+        {
+            return;
+        }
+
         var patternData = pattern.GetPatternData();
         if(patternData == null)
         {
@@ -165,7 +185,7 @@ public class PatternExecutor : MonoBehaviour
 
                 if(pattern.RequireAsync)
                 {
-                    await pattern.ExecuteAsync();
+                    await pattern.ExecuteAsync(token);
                 }
                 else
                 {
@@ -183,7 +203,10 @@ public class PatternExecutor : MonoBehaviour
                 await UniTask.Delay(System.TimeSpan.FromSeconds(patternData.PatternDelay), cancellationToken: token);
             }
 
-            patternCooldowns[pattern] = patternData.Cooltime;
+            if(patternCooldowns.ContainsKey(pattern))
+            {
+                patternCooldowns[pattern] = patternData.Cooltime;
+            }
         }
         catch(System.OperationCanceledException)
         {
