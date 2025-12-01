@@ -57,7 +57,7 @@ public class Lazer : MonoBehaviour
         lineRenderer.useWorldSpace = true;
     }
 
-    public void Initialize(Vector3 startPosition, Vector3 direction, float damage, Action onEnd = null, float? customLength = null)
+    public void Initialize(Vector3 startPosition, Vector3 direction, float damage, Action onEnd = null, float? customLength = null, CancellationToken token = default)
     {
         this.startPoint = startPosition;
         this.direction = direction.normalized;
@@ -78,7 +78,9 @@ public class Lazer : MonoBehaviour
 
         Cancel();
 
-        LazerLifeCycleAsync(lazerCts.Token).Forget();
+        CancellationToken linkedToken = token == default ? lazerCts.Token : CancellationTokenSource.CreateLinkedTokenSource(lazerCts.Token, token).Token;
+
+        LazerLifeCycleAsync(linkedToken).Forget();
     }
 
     public void Cancel()
@@ -132,8 +134,10 @@ public class Lazer : MonoBehaviour
         }
 
         fieldRenderer.transform.localScale = new Vector3(laserWidth, laserLength, 1f);
-        fieldRenderer.transform.localPosition = new Vector3(startPoint.x, startPoint.y - laserLength / 2f, 0f);
-        fieldRenderer.transform.localRotation = Quaternion.identity;
+
+        Vector3 midPoint = (startPoint + endPoint) / 2f;
+        fieldRenderer.transform.localPosition = midPoint;
+        fieldRenderer.transform.localRotation = transform.rotation;
     }
 
     public void SetDuration(float duration) => this.duration = duration;

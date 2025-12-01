@@ -1,3 +1,5 @@
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public abstract class SpecialPattern : IPattern
@@ -10,6 +12,7 @@ public abstract class SpecialPattern : IPattern
     public abstract int PatternId { get; }
     public ExecutionTrigger Trigger { get; protected set;}
     public float TriggerValue { get; protected set;}
+    public bool RequireAsync { get; protected set;} = false;
 
     protected PatternData patternData;
 
@@ -44,6 +47,7 @@ public abstract class SpecialPattern : IPattern
     }
 
     public abstract void Execute();
+    public abstract UniTask ExecuteAsync(CancellationToken token);
 
     public abstract void PatternUpdate();
 

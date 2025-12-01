@@ -1,3 +1,5 @@
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public abstract class SummonPattern : IPattern
@@ -10,6 +12,7 @@ public abstract class SummonPattern : IPattern
     public abstract int PatternId { get; }
     public ExecutionTrigger Trigger { get; protected set;}
     public float TriggerValue { get; protected set;} //Interval
+    public bool RequireAsync { get; protected set;} = false;
 
     protected PatternData patternData;
     protected MinionSpawnData summonData;
@@ -69,6 +72,12 @@ public abstract class SummonPattern : IPattern
         Summon();
 
         lastExecuteTime = Time.time;
+    }
+
+    public virtual UniTask ExecuteAsync(CancellationToken token)
+    {
+        Execute();
+        return UniTask.CompletedTask;
     }
 
     public virtual void PatternUpdate()

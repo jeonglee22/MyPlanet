@@ -1,3 +1,5 @@
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public abstract class ShootingPattern : IPattern
@@ -11,6 +13,7 @@ public abstract class ShootingPattern : IPattern
     public abstract int PatternId { get; }
     public ExecutionTrigger Trigger { get; protected set;}
     public float TriggerValue { get; protected set;} //Interval
+    public virtual bool RequireAsync { get; protected set;} = false;
 
     protected PatternData patternData;
 
@@ -61,6 +64,12 @@ public abstract class ShootingPattern : IPattern
         {
             isExecuteOneTime = true;
         }
+    }
+
+    public virtual UniTask ExecuteAsync(CancellationToken token)
+    {
+        Execute();
+        return UniTask.CompletedTask;
     }
 
     protected abstract void Shoot();
