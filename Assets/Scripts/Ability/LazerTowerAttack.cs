@@ -9,6 +9,7 @@ public class LazertowerAttack : MonoBehaviour
     private BoxCollider boxCollider;
     private int pointCount = 2;
     private Transform target;
+    // private Vector3 hitPosition;
     private Transform tower;
     private Vector3 finalDirection;
     private float baseAngle;
@@ -115,6 +116,19 @@ public class LazertowerAttack : MonoBehaviour
         if (target != null)
         {
             direction = (target.position - tower.position).normalized;
+            // if (abilities.Contains((int)AbilityId.Split))
+            // {
+            //     if (target != null)
+            //     {
+            //         Ray ray = new Ray(tower.position, direction);
+            //         if (Physics.Raycast(ray, out RaycastHit hitInfo, Mathf.Infinity, LayerMask.GetMask("Enemy")))
+            //         {
+            //             target = hitInfo.transform;
+            //             finalPoint = hitInfo.point;
+            //         }
+            //     }
+            // }
+
             if (splitBaseLazer != null)
             {
                 direction = Quaternion.Euler(0, 0, baseAngle) * splitBaseLazer.finalDirection.normalized;
@@ -133,6 +147,19 @@ public class LazertowerAttack : MonoBehaviour
         else
         {
             direction = finalDirection.normalized;
+            // if (abilities.Contains((int)AbilityId.Split))
+            // {
+            //     if (target != null)
+            //     {
+            //         Ray ray = new Ray(tower.position, direction);
+            //         if (Physics.Raycast(ray, out RaycastHit hitInfo, Mathf.Infinity, LayerMask.GetMask("Enemy")))
+            //         {
+            //             target = hitInfo.transform;
+            //             finalPoint = hitInfo.point;
+            //         }
+            //     }
+            // }
+
             if (splitBaseLazer != null)
             {
                 direction = Quaternion.Euler(0, 0, baseAngle) * splitBaseLazer.finalDirection.normalized;
