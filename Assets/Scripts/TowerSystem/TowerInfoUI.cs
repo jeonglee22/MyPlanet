@@ -9,49 +9,32 @@ using UnityEngine.UI;
 public class TowerInfoUI : PopUpUI
 {
     [SerializeField] private TowerInstallControl installControl;
-    [SerializeField] private TextMeshProUGUI nameText;  //no use
+    
+    //TowerNameInfo
+    [SerializeField] private TextMeshProUGUI nameText;
 
-    [Header("Left Panel - Labels")]
-    [SerializeField] private TextMeshProUGUI towerIdLabelText;
-    [SerializeField] private TextMeshProUGUI rangeLabelText;
-    [SerializeField] private TextMeshProUGUI fireRateLabelText;
-    [SerializeField] private TextMeshProUGUI hitRateLabelText;
-    [SerializeField] private TextMeshProUGUI spreadLabelText;
+    [Header("Switch Data Panel")]
+    [SerializeField] private GameObject attackTowerDataPanel;
+    [SerializeField] private GameObject buffTowerDataPanel;
 
-    [Header("Right Panel - Labels")]
-    [SerializeField] private TextMeshProUGUI damageLabelText;
-    [SerializeField] private TextMeshProUGUI fixedPenLabelText;
-    [SerializeField] private TextMeshProUGUI percentPenLabelText;
-    [SerializeField] private TextMeshProUGUI targetNumLabelText;
-    [SerializeField] private TextMeshProUGUI projectileNumLabelText;
-    [SerializeField] private TextMeshProUGUI lifeTimeLabelText;
-    [SerializeField] private TextMeshProUGUI projectileSizeLabelText;
-
-    [Header("Left Panel - Tower Data")]
-    [SerializeField] private TextMeshProUGUI towerIdValueText;
-    // [SerializeField] private TextMeshProUGUI rangeTypeValueText;
-    [SerializeField] private TextMeshProUGUI rangeValueText;
-    // [SerializeField] private TextMeshProUGUI priorityTypeValueText;
-    // [SerializeField] private TextMeshProUGUI priorityOrderValueText;
-    [SerializeField] private TextMeshProUGUI fireRateValueText;
-    [SerializeField] private TextMeshProUGUI hitRateValueText;
-    [SerializeField] private TextMeshProUGUI spreadAccuracyValueText;
+    [Header("Attack Tower Basic Data")]
     [SerializeField] private TextMeshProUGUI damageValueText;
-
-    [Header("Right Panel - Projectile Data")]
-    // [SerializeField] private TextMeshProUGUI projectileTypeValueText;
-    // [SerializeField] private TextMeshProUGUI projectilePrefabValueText;
-    // [SerializeField] private TextMeshProUGUI hitEffectValueText;
+    [SerializeField] private TextMeshProUGUI fireRateValueText;
     [SerializeField] private TextMeshProUGUI fixedPenetrationValueText;
     [SerializeField] private TextMeshProUGUI percentPenetrationValueText;
-    // [SerializeField] private TextMeshProUGUI speedValueText;
-    // [SerializeField] private TextMeshProUGUI accelerationValueText;
+    [SerializeField] private TextMeshProUGUI hitRateValueText;
+    [SerializeField] private TextMeshProUGUI spreadAccuracyValueText;
+
+    //ADD VALUE
     [SerializeField] private TextMeshProUGUI targetNumberValueText;
     [SerializeField] private TextMeshProUGUI projectileNumberValueText;
     [SerializeField] private TextMeshProUGUI lifeTimeValueText;
     [SerializeField] private TextMeshProUGUI projectileSizeValueText;
 
-    [Header("Bottom Panel - Ability Explain")]
+    private TextMeshProUGUI rangeValueText;
+    private TextMeshProUGUI towerIdValueText;
+
+    [Header("Ability Panel")]
     [SerializeField] private TextMeshProUGUI abilityExplainText;
     [SerializeField] private Button openAbilityInfoButton;
     [SerializeField] private GameObject abilityInfoPanel;
@@ -65,27 +48,35 @@ public class TowerInfoUI : PopUpUI
     private void Start()
     {
         abilityInfoPanel.SetActive(false);
-        openAbilityInfoButton.onClick.AddListener(() => abilityInfoPanel.SetActive(!abilityInfoPanel.activeSelf));
+        openAbilityInfoButton.onClick.AddListener(
+            () => abilityInfoPanel.SetActive(!abilityInfoPanel.activeSelf));
     }
 
     private void OnEnable()
     {
         contentRect = scrollRect?.content;
         abilityInfoPanel.SetActive(false);
+
+        if (attackTowerDataPanel != null) attackTowerDataPanel.SetActive(false);
+        if (buffTowerDataPanel != null) buffTowerDataPanel.SetActive(false);
     }
 
     public void SetInfo(int index)
     {
-        Debug.Log($"[TowerInfoUI.SetInfo] index={index}, installControl={(installControl != null)}");
+        if (contentRect == null && scrollRect != null)
+            contentRect = scrollRect.content;
 
-        nameText.text = $"Tower {index}";
-        contentRect.DetachChildren();
+        if (contentRect != null)
+            contentRect.DetachChildren();
 
         if (installControl == null)
         {
             nameText.text = "No data";
             SetAllText(null);
-            
+
+            if (attackTowerDataPanel != null) attackTowerDataPanel.SetActive(false);
+            if (buffTowerDataPanel != null) buffTowerDataPanel.SetActive(false);
+
             var textNull = Instantiate(abilityExplainContent, contentRect);
             SetText(textNull.GetComponent<TextMeshProUGUI>(), "no tower");
             return;
@@ -97,6 +88,9 @@ public class TowerInfoUI : PopUpUI
 
         if (attackTower != null && attackTower.AttackTowerData != null)
         {
+            if (attackTowerDataPanel != null) attackTowerDataPanel.SetActive(true);
+            if (buffTowerDataPanel != null) buffTowerDataPanel.SetActive(false);
+
             FillAttackTowerInfo(index, attackTower);
             SetAbilityExplainForAttack(attackTower);
             return;
@@ -104,6 +98,9 @@ public class TowerInfoUI : PopUpUI
 
         if (amplifierTower != null && amplifierTower.AmplifierTowerData != null)
         {
+            if (attackTowerDataPanel != null) attackTowerDataPanel.SetActive(false);
+            if (buffTowerDataPanel != null) buffTowerDataPanel.SetActive(true);
+
             FillAmplifierTowerInfo(index, amplifierTower);
             SetAbilityExplainForAmplifier(amplifierTower);
             return;
@@ -111,7 +108,10 @@ public class TowerInfoUI : PopUpUI
 
         if (nameText != null) nameText.text = $"Empty Slot {index}";
         SetAllText("-");
-        
+
+        if (attackTowerDataPanel != null) attackTowerDataPanel.SetActive(false);
+        if (buffTowerDataPanel != null) buffTowerDataPanel.SetActive(false);
+
         var textEmpty = Instantiate(abilityExplainContent, contentRect);
         SetText(textEmpty.GetComponent<TextMeshProUGUI>(), "no tower");
     }
@@ -169,7 +169,7 @@ public class TowerInfoUI : PopUpUI
                 result += ability.UpgradeAmount;
             }
         }
-
+         
         return result;
     }
 
@@ -220,37 +220,29 @@ public class TowerInfoUI : PopUpUI
 
     private void SetAllText(string value)
     {
-        //left panel_tower
-        SetText(towerIdValueText, value);
-        // SetText(rangeTypeValueText, value);
-        SetText(rangeValueText, value);
-        // SetText(priorityTypeValueText, value);
-        // SetText(priorityOrderValueText, value);
-        SetText(fireRateValueText, value);
-        SetText(hitRateValueText, value);
-        SetText(spreadAccuracyValueText, value);
-        //right panel_projectile
-        // SetText(projectileTypeValueText, value);
-        // SetText(projectilePrefabValueText, value);
-        // SetText(hitEffectValueText, value);
         SetText(damageValueText, value);
+        SetText(fireRateValueText, value);
         SetText(fixedPenetrationValueText, value);
         SetText(percentPenetrationValueText, value);
-        // SetText(speedValueText, value);
-        // SetText(accelerationValueText, value);
+        SetText(hitRateValueText, value);
+        SetText(spreadAccuracyValueText, value);
+
         SetText(targetNumberValueText, value);
         SetText(projectileNumberValueText, value);
+
         SetText(lifeTimeValueText, value);
         SetText(projectileSizeValueText, value);
+
+        SetText(towerIdValueText, value);
+        SetText(rangeValueText, value);
     }
 
     private void FillAttackTowerInfo(int index, TowerAttack attackTower)
     {
-        SetupAttackLabels();
-
         var attackTowerData = attackTower.AttackTowerData;
         int level = attackTower.ReinforceLevel;
 
+        //
         if (nameText != null)
         {
             nameText.text = $"{attackTowerData.towerId} (Lv.{level})";
@@ -259,33 +251,12 @@ public class TowerInfoUI : PopUpUI
         isSameTower = (infoIndex == index);
         var abilities = attackTower.Abilities;
 
+        //
         SetText(
             towerIdValueText,
             $"{attackTowerData.towerId} (Lv.{level})"
         );
 
-        //Range
-        SetText(rangeValueText,
-            attackTowerData.rangeData != null
-                ? attackTowerData.rangeData.GetRange().ToString("0.0")
-                : null);
-
-        //FireRate
-        float baseFireRate = attackTower.BasicFireRate;
-        float finalFireRate = attackTower.CurrentFireRate;
-        SetStatText(fireRateValueText, baseFireRate, finalFireRate, "0.00");
-
-        //Hit Rate
-        float baseHitRate = attackTowerData.Accuracy;
-        float finalHitRate = attackTower.FinalHitRate;
-        SetStatText(hitRateValueText, baseHitRate, finalHitRate, "0.00", "%");
-
-        //Spread Accuracy
-        if (spreadAccuracyValueText != null)
-            spreadAccuracyValueText.text = attackTowerData.grouping.ToString("0.00") + "%";
-        //----------------------------------------------------------
-
-        // Right panel----------------------------------------------
         var baseProj = attackTower.BaseProjectileData ?? attackTowerData.projectileType;
         var buffedProj = attackTower.BuffedProjectileData ?? baseProj;
 
@@ -318,9 +289,7 @@ public class TowerInfoUI : PopUpUI
             float baseTargets = baseProj.TargetNum;
             float ampTargets = buffedProj.TargetNum;
             float finalTargets = CalculateEachAbility(
-                (int)AbilityId.TargetCount, 
-                abilities, 
-                ampTargets);
+                (int)AbilityId.TargetCount, abilities, ampTargets);
             SetStatText(targetNumberValueText, baseTargets, finalTargets, "0");
 
             // LifeTime
@@ -344,6 +313,24 @@ public class TowerInfoUI : PopUpUI
             SetText(lifeTimeValueText, "-");
             SetText(projectileSizeValueText, "-");
         }
+        //FireRate
+        float baseFireRate = attackTower.BasicFireRate;
+        float finalFireRate = attackTower.CurrentFireRate;
+        SetStatText(fireRateValueText, baseFireRate, finalFireRate, "0.00");
+
+        //Hit Rate
+        float baseHitRate = attackTowerData.Accuracy;
+        float finalHitRate = attackTower.FinalHitRate;
+        SetStatText(hitRateValueText, baseHitRate, finalHitRate, "0.00", "%");
+
+        //Spread Accuracy
+        if (spreadAccuracyValueText != null)
+            spreadAccuracyValueText.text = attackTowerData.grouping.ToString("0.00") + "%";
+
+        //Range 
+        SetText(rangeValueText,
+            attackTowerData.rangeData != null
+                ? attackTowerData.rangeData.GetRange().ToString("0.0") : null);
     }
 
     private void SetAbilityExplainForAttack(TowerAttack attackTower)
@@ -366,8 +353,6 @@ public class TowerInfoUI : PopUpUI
 
     private void FillAmplifierTowerInfo(int index, TowerAmplifier amplifierTower)
     {
-        SetupAmplifierLabels();
-
         var ampData = amplifierTower.AmplifierTowerData;
         var slots = amplifierTower.BuffedSlotIndex;
 
@@ -384,15 +369,14 @@ public class TowerInfoUI : PopUpUI
 
         int level = amplifierTower.ReinforceLevel;
 
+        //
         if (nameText != null)
             nameText.text = $"{baseName} (Lv.{level})";
 
-        SetText(
-            towerIdValueText,
-            $"{baseName} (Lv.{level})"
-        );
+        SetText(towerIdValueText, $"{baseName} (Lv.{level})");
+        //
 
-        // 왼쪽 패널: 이름 / 타입 / 슬롯 수 / 타겟 종류
+        // Buff Panel--------------------------------
         SetText(rangeValueText,
             !string.IsNullOrEmpty(ampData.BuffTowerName)
                 ? ampData.BuffTowerName
@@ -402,8 +386,6 @@ public class TowerInfoUI : PopUpUI
         SetText(hitRateValueText, ampData.FixedBuffedSlotCount.ToString());
         SetText(spreadAccuracyValueText,
             ampData.OnlyAttackTower ? "공격 타워만" : "모든 타워");
-
-        // 오른쪽 패널: 수치들 (퍼센트/추가값 포맷 맞추기)
 
         // 공격력% (DamageBuff: add, 0.4 -> +40%)
         string dmgText = FormatPercentFromAdd(ampData.DamageBuff);
@@ -524,40 +506,6 @@ public class TowerInfoUI : PopUpUI
         }
         var text = Instantiate(abilityExplainContent, contentRect);
         SetText(text.GetComponent<TextMeshProUGUI>(), sb.ToString());
-    }
-
-    private void SetupAttackLabels()
-    {
-        if (towerIdLabelText != null) towerIdLabelText.text = "타워 ID";
-        if (rangeLabelText != null) rangeLabelText.text = "사거리";
-        if (fireRateLabelText != null) fireRateLabelText.text = "공격 속도";
-        if (hitRateLabelText != null) hitRateLabelText.text = "명중률";
-        if (spreadLabelText != null) spreadLabelText.text = "정확도";
-
-        if (damageLabelText != null) damageLabelText.text = "공격력";
-        if (fixedPenLabelText != null) fixedPenLabelText.text = "고정 관통";
-        if (percentPenLabelText != null) percentPenLabelText.text = "관통률";
-        if (targetNumLabelText != null) targetNumLabelText.text = "타겟 수";
-        if (projectileNumLabelText != null) projectileNumLabelText.text = "투사체 수";
-        if (lifeTimeLabelText != null) lifeTimeLabelText.text = "수명";
-        if (projectileSizeLabelText != null) projectileSizeLabelText.text = "hitbox 크기";
-    }
-
-    private void SetupAmplifierLabels()
-    {
-        if (towerIdLabelText != null) towerIdLabelText.text = "-";
-        if (rangeLabelText != null) rangeLabelText.text = "Buff Tower Name";
-        if (fireRateLabelText != null) fireRateLabelText.text = "Buff Type";
-        if (hitRateLabelText != null) hitRateLabelText.text = "버프 슬롯 수";
-        if (spreadLabelText != null) spreadLabelText.text = "Buff Target";
-
-        if (damageLabelText != null) damageLabelText.text = "공격력+";
-        if (fixedPenLabelText != null) fixedPenLabelText.text = "공속 배율";
-        if (percentPenLabelText != null) percentPenLabelText.text = "투사체 수 +";
-        if (targetNumLabelText != null) targetNumLabelText.text = "타겟 수 +";
-        if (projectileNumLabelText != null) projectileNumLabelText.text = "hit 반경 +";
-        if (lifeTimeLabelText != null) lifeTimeLabelText.text = "관통률 배율";
-        if (projectileSizeLabelText != null) projectileSizeLabelText.text = "고정 관통 +";
     }
 
     // 0.4 -> "+40%"
