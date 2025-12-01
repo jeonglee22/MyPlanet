@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
-using Cysharp.Threading.Tasks.Triggers;
 using UnityEngine;
 
 public class LazertowerAttack : MonoBehaviour
 {
     private LineRenderer lineRenderer;
     private BoxCollider boxCollider;
-    private int pointCount = 40;
+    private int pointCount = 2;
     private Transform target;
     private Transform tower;
     private Vector3 finalDirection;
@@ -17,10 +16,13 @@ public class LazertowerAttack : MonoBehaviour
     private bool isHoming;
     private List<int> abilities;
     private Projectile projectile;
-    private List<IAbility> appliedAbilities = new List<IAbility>();
+    private float damage;
+
+    private event Action<GameObject> abilityAction;
+    private event Action<GameObject> abilityRelease;
     private float durationTimer;
     private float attackDelayTimer;
-    private float attackDelay = 0.5f;
+    private float attackDelay = 0.1f;
     private List<Enemy> attackObject;
     private List<Enemy> removeObject;
     private float lazerLength = 10f;
@@ -45,29 +47,6 @@ public class LazertowerAttack : MonoBehaviour
     void Update()
     {
         durationTimer += Time.deltaTime;
-        attackDelayTimer += Time.deltaTime;
-
-        UpdateLazerPositions();
-        if (attackDelayTimer >= attackDelay)
-        {
-            foreach (var enemy in attackObject)
-            {
-                enemy.OnDeathEvent += () => {
-                    removeObject.Add(enemy);
-                };
-                foreach (var ability in appliedAbilities)
-                {
-                    ability.ApplyAbility(enemy.gameObject);
-                }
-                enemy.OnDamage(10f);
-            }
-
-            foreach (var rem in removeObject)
-            {
-                attackObject.Remove(rem);
-            }
-            attackDelayTimer = 0f;
-        }
 
         CheckTarget();
         
@@ -76,7 +55,37 @@ public class LazertowerAttack : MonoBehaviour
             Destroy(gameObject);
             towerAttack.IsStartLazer = false;
             durationTimer = 0f;
-            projectile.ReturnProjectileToPool();
+            projectile.gameObject.SetActive(true);
+            projectile.IsFinish = true;
+        }
+    }
+
+    void FixedUpdate()
+    {
+        attackDelayTimer += Time.deltaTime;
+
+        UpdateLazerPositions();
+        if (attackDelayTimer >= attackDelay)
+        {
+            foreach (var enemy in attackObject)
+            {
+                abilityAction?.Invoke(enemy.gameObject);
+
+                enemy.OnDamage(CalculateTotalDamage(enemy.Data.Defense));
+
+                if (enemy.IsDead)
+                {
+                    removeObject.Add(enemy);
+                }
+            }
+
+            foreach (var rem in removeObject)
+            {
+                attackObject.Remove(rem);
+            }
+            removeObject.Clear();
+
+            attackDelayTimer = 0f;
         }
     }
 
@@ -94,7 +103,6 @@ public class LazertowerAttack : MonoBehaviour
 
     private void UpdateLazerPositions()
     {
-        lineRenderer.SetPosition(0, tower.position);
         Vector3 startPoint, endPoint, direction;
         if (target != null)
         {
@@ -118,17 +126,8 @@ public class LazertowerAttack : MonoBehaviour
             endPoint = startPoint + direction * lazerLength;
         }
         
-
-        for (int i = 0; i < pointCount; i++)
-        {
-            float t = (float)i / (pointCount - 1);
-            Vector3 point = Vector3.Lerp(startPoint, endPoint, t);
-
-            if (isHoming)
-                point += new Vector3(0, Mathf.Sin(t * Mathf.PI * 4) * 0.5f, 0); // Sine wave effect
-
-            lineRenderer.SetPosition(i, point);
-        }
+        lineRenderer.SetPosition(0, startPoint);
+        lineRenderer.SetPosition(1, endPoint);
 
         var angle = Vector3.Angle(Vector3.right, direction);
         if (direction.y < 0)
@@ -141,19 +140,25 @@ public class LazertowerAttack : MonoBehaviour
         transform.position = tower.position;
     }
 
-    public void SetLazer(Transform tower, Vector3 direction, Transform target, Projectile projectile, TowerAttack towerAttack, bool isHoming = false, float duration = 15f)
+    public void SetLazer(Transform tower, Vector3 direction, Transform target, Projectile projectile, TowerAttack towerAttack, float duration = 15f, bool isSplit = false)
     {
         lineRenderer.positionCount = pointCount;
         Vector3 newDirection = target == null ? direction : (target.position - tower.position).normalized;
+        finalDirection = newDirection;
 
         this.tower = tower;
         this.target = target;
         finalPoint = tower.position + newDirection * lazerLength;
         this.duration = duration;
         this.towerAttack = towerAttack;
-        this.isHoming = isHoming;
-        abilities = towerAttack.Abilities;
+        abilities = new List<int>(towerAttack.Abilities);
+        Debug.Log(abilities.Count);
+        if (isSplit)
+        {
+            abilities.RemoveAll(x => x == (int)AbilityId.Split);
+        }
         this.projectile = projectile;
+        damage = projectile.projectileData.Attack;
 
         foreach (var abilityId in abilities)
         {
@@ -161,18 +166,13 @@ public class LazertowerAttack : MonoBehaviour
             if (ability == null) continue;
 
             ability.ApplyAbility(projectile.gameObject);
+            abilityAction += ability.ApplyAbility;
+            abilityRelease += ability.RemoveAbility;
             ability.Setting(towerAttack.gameObject);
-            appliedAbilities.Add(ability);
         }
 
-        for (int i = 0; i < pointCount; i++)
-        {
-            float t = (float)i / (pointCount - 1);
-            Vector3 point = Vector3.Lerp(tower.position, finalPoint, t);
-            if (isHoming)
-                point += new Vector3(0, Mathf.Sin(t * Mathf.PI * 4) * 0.5f, 0); // Sine wave effect
-            lineRenderer.SetPosition(i, point);
-        }
+        lineRenderer.SetPosition(0, tower.position);
+        lineRenderer.SetPosition(1, finalPoint);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -195,17 +195,17 @@ public class LazertowerAttack : MonoBehaviour
         
     }
 
-    // public float CalculateTotalDamage(float enemyDef)
-    // {
-    //     var RatePanetration = Mathf.Clamp(this.RatePanetration, 0f, 100f);
-    //     // Debug.Log(damage);
-    //     var totalEnemyDef = enemyDef * (1 - RatePanetration / 100f) - FixedPanetration;
-    //     if(totalEnemyDef < 0)
-    //     {
-    //         totalEnemyDef = 0;
-    //     }
-    //     var totalDamage = damage * 100f / (100f + totalEnemyDef);
+    public float CalculateTotalDamage(float enemyDef)
+    {
+        var RatePanetration = Mathf.Clamp(projectile.projectileData.RatePenetration, 0f, 100f);
+        // Debug.Log(damage);
+        var totalEnemyDef = enemyDef * (1 - RatePanetration / 100f) - projectile.projectileData.FixedPenetration;
+        if(totalEnemyDef < 0)
+        {
+            totalEnemyDef = 0;
+        }
+        var totalDamage = damage * 100f / (100f + totalEnemyDef);
         
-    //     return totalDamage;
-    // }
+        return totalDamage;
+    }
 }

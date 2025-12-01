@@ -179,6 +179,7 @@ public class TowerAttack : MonoBehaviour
 
         if(shootTimer>=shootInterval)
         {
+            Debug.Log(shootInterval);
             ShootAtTarget();
             shootTimer = 0f;
             hitScanTimer = 0f;
@@ -279,7 +280,8 @@ public class TowerAttack : MonoBehaviour
                     true,
                     ProjectilePoolManager.Instance.ProjectilePool
                 );
-                lazer.SetLazer(transform, Vector3.zero, (target as Enemy).gameObject.transform, projectile, this, attackType == (int)ProjectileType.Homing, buffedData.RemainTime);
+                Debug.Log("towerAttack Abilities : " + abilities.Count);
+                lazer.SetLazer(transform, Vector3.zero, (target as Enemy).gameObject.transform, projectile, this, buffedData.RemainTime);
                 isStartLazer = true;
 
                 projectile.gameObject.SetActive(false);
