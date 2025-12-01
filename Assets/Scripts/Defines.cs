@@ -170,3 +170,9 @@ public static class AddressLabel
     public static readonly string Lazer = "Lazer";
     public static readonly string EnemyLazer = "EnemyLazer";
 }
+
+public static class DatabaseRef
+{
+    public static readonly string UserProfiles = "users";
+    public static readonly string UserPlanets = "userplanets";
+}
