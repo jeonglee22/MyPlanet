@@ -61,8 +61,6 @@ public class LazertowerAttack : MonoBehaviour
             Destroy(gameObject);
             towerAttack.IsStartLazer = false;
             durationTimer = 0f;
-            projectile.gameObject.SetActive(true);
-            projectile.IsFinish = true;
         }
     }
 
@@ -122,7 +120,7 @@ public class LazertowerAttack : MonoBehaviour
                 direction = Quaternion.Euler(0, 0, baseAngle) * splitBaseLazer.finalDirection.normalized;
             }
 
-            startPoint = lineRenderer.GetPosition(0);
+            startPoint = tower.position;
             endPoint = startPoint + direction * lazerLength;
             finalDirection = direction;
 

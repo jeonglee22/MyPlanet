@@ -44,6 +44,7 @@ public class ChainUpgradeAbility : EffectAbility
             {
                 lineRenderer.SetPosition(i, hitEnemies[i].transform.position);
             }
+            hitEnemies.Clear();
         }
     }
 
