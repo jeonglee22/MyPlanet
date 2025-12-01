@@ -179,7 +179,6 @@ public class TowerAttack : MonoBehaviour
 
         if(shootTimer>=shootInterval)
         {
-            Debug.Log(shootInterval);
             ShootAtTarget();
             shootTimer = 0f;
             hitScanTimer = 0f;
@@ -418,7 +417,7 @@ public class TowerAttack : MonoBehaviour
     public void AddAbility(int ability)
     {
         if (abilities == null) abilities = new List<int>();
-        if(!abilities.Contains(ability)) //preventing all duplication
+        // if(!abilities.Contains(ability)) //preventing all duplication
             abilities.Add(ability);
     }
     public void RemoveAbility(int ability)

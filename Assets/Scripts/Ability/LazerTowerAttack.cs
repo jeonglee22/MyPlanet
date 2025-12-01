@@ -36,6 +36,9 @@ public class LazertowerAttack : MonoBehaviour
     public bool IsSplitSet { get => isSplitSet; set => isSplitSet = value; }
     private LazertowerAttack splitBaseLazer = null;
 
+    public float InitColliderWidth { get; private set; }
+    public float InitLineRendererWidth { get; private set; }
+
     void Awake()
     {
         lineRenderer = GetComponentInChildren<LineRenderer>();
@@ -206,12 +209,16 @@ public class LazertowerAttack : MonoBehaviour
         this.projectile = projectile;
         damage = projectile.projectileData.Attack;
 
+        InitColliderWidth = GetComponent<BoxCollider>().size.x;
+        InitLineRendererWidth = lineRenderer.endWidth;
+
         foreach (var abilityId in abilities)
         {
             var ability = AbilityManager.GetAbility(abilityId);
             if (ability == null) continue;
 
             ability.ApplyAbility(projectile.gameObject);
+            ability.ApplyAbility(gameObject);
             abilityAction += ability.ApplyAbility;
             abilityRelease += ability.RemoveAbility;
             ability.Setting(towerAttack.gameObject);

@@ -20,6 +20,7 @@ public class EnemyMovement : MonoBehaviour
     public bool isDebuff;
     private float debuffInterval = 2f;
     private float debuffTime;
+    public float DebuffTime { get => debuffTime; set => debuffTime = value; }
 
     void OnEnable()
     {
@@ -30,16 +31,15 @@ public class EnemyMovement : MonoBehaviour
 
         isDebuff = false;
         isDirectionSet = false;
+        debuffTime = 0f;
     }
 
     protected virtual void Update()
     {
         if(isDebuff)
-        {
-            Debuff();
-        }
-
-        ResetMovement();
+            Debuff(Time.deltaTime);
+        else
+            ResetMovement();
 
         if (!CanMove || currentMovement == null)
         {
@@ -53,9 +53,10 @@ public class EnemyMovement : MonoBehaviour
         transform.position += finalDirection * moveSpeed * Time.deltaTime;
     }
 
-    private void Debuff()
+    private void Debuff(float time)
     {
-        debuffTime += Time.deltaTime;
+        debuffTime += time;
+        Debug.Log("Enemy Moving : " + moveSpeed + " / Debuff Time: " + debuffTime);
         if(debuffTime > debuffInterval)
         {
             debuffTime = 0f;
