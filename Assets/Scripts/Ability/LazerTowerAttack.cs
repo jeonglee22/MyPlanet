@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks.Triggers;
 using UnityEngine;
 
 public class LazertowerAttack : MonoBehaviour
@@ -10,7 +11,11 @@ public class LazertowerAttack : MonoBehaviour
     private Transform target;
     private Transform tower;
     private Vector3 finalDirection;
+    private float baseAngle;
     private Vector3 finalPoint;
+    private Transform followingPoint;
+    [SerializeField] private Transform tailTransform;
+    public Transform TailTransform => tailTransform;
     private float duration;
     private TowerAttack towerAttack;
     private bool isHoming;
@@ -28,6 +33,7 @@ public class LazertowerAttack : MonoBehaviour
     private float lazerLength = 10f;
     private bool isSplitSet = false;
     public bool IsSplitSet { get => isSplitSet; set => isSplitSet = value; }
+    private LazertowerAttack splitBaseLazer = null;
 
     void Awake()
     {
@@ -50,7 +56,7 @@ public class LazertowerAttack : MonoBehaviour
 
         CheckTarget();
         
-        if (durationTimer >= duration)
+        if (durationTimer >= duration || tower == null)
         {
             Destroy(gameObject);
             towerAttack.IsStartLazer = false;
@@ -63,6 +69,9 @@ public class LazertowerAttack : MonoBehaviour
     void FixedUpdate()
     {
         attackDelayTimer += Time.deltaTime;
+
+        if (tower == null)
+            return;
 
         UpdateLazerPositions();
         if (attackDelayTimer >= attackDelay)
@@ -104,9 +113,14 @@ public class LazertowerAttack : MonoBehaviour
     private void UpdateLazerPositions()
     {
         Vector3 startPoint, endPoint, direction;
+    
         if (target != null)
         {
             direction = (target.position - tower.position).normalized;
+            if (splitBaseLazer != null)
+            {
+                direction = Quaternion.Euler(0, 0, baseAngle) * splitBaseLazer.finalDirection.normalized;
+            }
 
             startPoint = lineRenderer.GetPosition(0);
             endPoint = startPoint + direction * lazerLength;
@@ -121,13 +135,18 @@ public class LazertowerAttack : MonoBehaviour
         else
         {
             direction = finalDirection.normalized;
+            if (splitBaseLazer != null)
+            {
+                direction = Quaternion.Euler(0, 0, baseAngle) * splitBaseLazer.finalDirection.normalized;
+            }
 
-            startPoint = lineRenderer.GetPosition(0);
+            startPoint = tower.position;
             endPoint = startPoint + direction * lazerLength;
         }
         
         lineRenderer.SetPosition(0, startPoint);
         lineRenderer.SetPosition(1, endPoint);
+        tailTransform.position = endPoint;
 
         var angle = Vector3.Angle(Vector3.right, direction);
         if (direction.y < 0)
@@ -140,15 +159,17 @@ public class LazertowerAttack : MonoBehaviour
         transform.position = tower.position;
     }
 
-    public void SetLazer(Transform tower, Vector3 direction, Transform target, Projectile projectile, TowerAttack towerAttack, float duration = 15f, bool isSplit = false)
+    public void SetLazer(Transform start, float angle, Transform target, Projectile projectile, TowerAttack towerAttack, float duration = 15f, bool isSplit = false, LazertowerAttack baseLazer = null)
     {
         lineRenderer.positionCount = pointCount;
-        Vector3 newDirection = target == null ? direction : (target.position - tower.position).normalized;
+        Vector3 newDirection = target == null ? Quaternion.Euler(0, 0, angle) * baseLazer.finalDirection : (target.position - start.position).normalized;
         finalDirection = newDirection;
+        baseAngle = angle;
+        splitBaseLazer = baseLazer;
 
-        this.tower = tower;
+        this.tower = start;
         this.target = target;
-        finalPoint = tower.position + newDirection * lazerLength;
+        finalPoint = start.position + newDirection * lazerLength;
         this.duration = duration;
         this.towerAttack = towerAttack;
         abilities = new List<int>(towerAttack.Abilities);

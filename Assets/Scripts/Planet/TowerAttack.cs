@@ -281,7 +281,7 @@ public class TowerAttack : MonoBehaviour
                     ProjectilePoolManager.Instance.ProjectilePool
                 );
                 Debug.Log("towerAttack Abilities : " + abilities.Count);
-                lazer.SetLazer(transform, Vector3.zero, (target as Enemy).gameObject.transform, projectile, this, buffedData.RemainTime);
+                lazer.SetLazer(transform, 0f, (target as Enemy).gameObject.transform, projectile, this, buffedData.RemainTime);
                 isStartLazer = true;
 
                 projectile.gameObject.SetActive(false);
