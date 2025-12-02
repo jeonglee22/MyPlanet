@@ -21,6 +21,9 @@ public class TowerAmplifier : MonoBehaviour
     private List<int> abilities = new List<int>();
     public List<int> Abilities => abilities;
 
+    private readonly Dictionary<TowerAttack, Dictionary<int, int>> appliedAbilityMap
+       = new Dictionary<TowerAttack, Dictionary<int, int>>();
+
     //Reinforce Field --------------------------------------
     [Header("Reinforce (Buff Tower)")]
     [SerializeField] private int reinforceLevel = 0;
@@ -114,6 +117,24 @@ public class TowerAmplifier : MonoBehaviour
             foreach (var abilityId in abilities)
             {
                 target.AddAbility(abilityId);
+
+                var ability = AbilityManager.GetAbility(abilityId);
+                if (ability != null)
+                {
+                    ability.ApplyAbility(target.gameObject);
+                    ability.Setting(target.gameObject);
+                }
+
+                if (!appliedAbilityMap.TryGetValue(target, out var dict))
+                {
+                    dict = new Dictionary<int, int>();
+                    appliedAbilityMap[target] = dict;
+                }
+
+                if (!dict.ContainsKey(abilityId))
+                    dict[abilityId] = 0;
+
+                dict[abilityId]++;
             }
         }
 
@@ -128,26 +149,63 @@ public class TowerAmplifier : MonoBehaviour
         if (target == null) return;
         if (!buffedTargets.Contains(target)) return;
 
-        if (abilities != null && abilities.Count > 0)
+        //Remove All Buff In Slot
+        if (appliedAbilityMap.TryGetValue(target, out var dict))
         {
-            foreach (var abilityId in abilities)
+            foreach (var kv in dict)
             {
-                target.RemoveAbility(abilityId);  
+                int abilityId = kv.Key;
+                int count = kv.Value;
+
+                var ability = AbilityManager.GetAbility(abilityId);
+
+                for (int i = 0; i < count; i++)
+                {
+                    if (ability != null)
+                    {
+                        ability.RemoveAbility(target.gameObject);
+                    }
+
+                    target.RemoveAbility(abilityId);
+                }
             }
+
+            appliedAbilityMap.Remove(target);
         }
 
-        //Remove All Buff In Slot
-        target.SetUpBuff(null);
         buffedTargets.Remove(target);
+        target.SetUpBuff(null);
+
     }
 
     public void ClearAllbuffs()//(Destory Buff Tower)
-    { 
-        foreach(var t in buffedTargets)
+    {
+        foreach (var kvTarget in appliedAbilityMap)
         {
-            if (t == null) continue;
-            t.SetUpBuff(null);
+            var target = kvTarget.Key;
+            if (target == null) continue;
+
+            var dict = kvTarget.Value;
+            foreach (var kv in dict)
+            {
+                int abilityId = kv.Key;
+                int count = kv.Value;
+
+                var ability = AbilityManager.GetAbility(abilityId);
+
+                for (int i = 0; i < count; i++)
+                {
+                    if (ability != null)
+                    {
+                        ability.RemoveAbility(target.gameObject);
+                    }
+
+                    target.RemoveAbility(abilityId);
+                }
+            }
+            target.SetUpBuff(null);
         }
+        appliedAbilityMap.Clear();
         buffedTargets.Clear();
     }
 

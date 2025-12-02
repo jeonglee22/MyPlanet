@@ -43,8 +43,17 @@ public class TowerAttack : MonoBehaviour
     public float PercentPenetrationBuffMul { get { return percentPenetrationBuffMul; } set { percentPenetrationBuffMul = value; } }
     private float fixedPenetrationBuffAdd = 0f;
     public float FixedPenetrationBuffAdd { get { return fixedPenetrationBuffAdd; } set { fixedPenetrationBuffAdd = value; } }
-    private int targetNumberBuffAdd = 0;
-    public int TargetNumberBuffAdd { get { return targetNumberBuffAdd; } set { targetNumberBuffAdd = value; } }
+
+    //TargetNum---------------------------
+    private int targetNumberFromAbility = 0;   
+    private int targetNumberFromAmplifier = 0; 
+    public int TargetNumberBuffAdd
+    {
+        get => targetNumberFromAbility;
+        set => targetNumberFromAbility = value;
+    }
+    private int TotalTargetNumberBuffAdd => targetNumberFromAbility + targetNumberFromAmplifier;
+    //------------------------------------
     private float hitRateBuffMul = 1f;
 
     public float BasicFireRate => towerData.fireRate;
@@ -479,7 +488,9 @@ public class TowerAttack : MonoBehaviour
             hitRadiusBuffMul = 1f;
             percentPenetrationBuffMul = 1f;
             fixedPenetrationBuffAdd = 0f;
-            targetNumberBuffAdd = 0;
+
+            targetNumberFromAmplifier = 0;
+
             hitRateBuffMul = 1f;
 
             if (targetingSystem != null) targetingSystem.SetMaxTargetCount(1);
@@ -494,23 +505,24 @@ public class TowerAttack : MonoBehaviour
         hitRadiusBuffMul += amp.HitRadiusBuff;
         percentPenetrationBuffMul *= amp.PercentPenetrationBuff;
         fixedPenetrationBuffAdd += amp.FixedPenetrationBuff;
-        targetNumberBuffAdd += amp.TargetNumberBuff;
+        targetNumberFromAmplifier += amp.TargetNumberBuff;
         hitRateBuffMul *= amp.HitRateBuff;
 
         if (targetingSystem != null)
         {
-            int finalTargetCount = 1 + targetNumberBuffAdd;
+            int finalTargetCount = 1 + TotalTargetNumberBuffAdd;
             targetingSystem.SetMaxTargetCount(finalTargetCount);
         }
     }
 
-    private ProjectileData GetBuffedProjectileData() //making runtime once
+    private ProjectileData GetBuffedProjectileData() // making runtime once
     {
         if (currentProjectileData == null) return null;
 
         addBuffProjectileData = currentProjectileData.Clone();
 
-        float finalTargetNumber = currentProjectileData.TargetNum + targetNumberBuffAdd;
+        // ⬇️ 증폭 + 카드 둘 다 합친 값 사용
+        float finalTargetNumber = currentProjectileData.TargetNum + TotalTargetNumberBuffAdd;
         addBuffProjectileData.TargetNum = Mathf.Max(1, finalTargetNumber);
 
         addBuffProjectileData.CollisionSize = currentProjectileData.CollisionSize * hitRadiusBuffMul;
@@ -528,6 +540,7 @@ public class TowerAttack : MonoBehaviour
 
         return addBuffProjectileData;
     }
+
 
     //Reinforce ----------------------------------------------------
     public void SetReinforceLevel(int newLevel)
