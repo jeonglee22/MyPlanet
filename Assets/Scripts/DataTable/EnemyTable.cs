@@ -7,6 +7,7 @@ public class EnemyTableData
 {
     public int Enemy_Id { get; set; }
     public string EnemyName { get; set; }
+    public string EnemyTextName { get; set; }
     public int EnemyType { get; set; }
     public int EnemyGrade { get; set; }
     public int AttackType { get; set; }

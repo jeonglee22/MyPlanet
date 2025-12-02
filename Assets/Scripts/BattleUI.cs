@@ -17,6 +17,7 @@ public class BattleUI : MonoBehaviour
     private List<Toggle> currentStageToggles;
     [SerializeField] private List<GameObject> toggleObjects;
 
+    [SerializeField] private TextMeshProUGUI bossNameText;
     [SerializeField] private Slider bossHpSlider;
     
     private float battleTime = 0f;
@@ -55,6 +56,7 @@ public class BattleUI : MonoBehaviour
 
         currentStageToggles[0].isOn = true;
 
+        bossNameText.gameObject.SetActive(false);
         bossHpSlider.gameObject.SetActive(false);
     }
 
@@ -137,12 +139,14 @@ public class BattleUI : MonoBehaviour
         UpdateWaveToggles();
     }
 
-    public void SetBossHp(float currentHp, float maxHp)
+    public void SetBossHp(string name, float currentHp, float maxHp)
     {
         if(!bossHpSlider.gameObject.activeSelf)
         {
+            bossNameText.gameObject.SetActive(true);
             bossHpSlider.gameObject.SetActive(true);
         }
+        bossNameText.text = name;
         bossHpSlider.value = currentHp / maxHp;
     }
 }
