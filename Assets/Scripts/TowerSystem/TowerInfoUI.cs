@@ -9,49 +9,39 @@ using UnityEngine.UI;
 public class TowerInfoUI : PopUpUI
 {
     [SerializeField] private TowerInstallControl installControl;
-    [SerializeField] private TextMeshProUGUI nameText;  //no use
+    
+    //TowerNameInfo
+    [SerializeField] private TextMeshProUGUI nameText;
 
-    [Header("Left Panel - Labels")]
-    [SerializeField] private TextMeshProUGUI towerIdLabelText;
-    [SerializeField] private TextMeshProUGUI rangeLabelText;
-    [SerializeField] private TextMeshProUGUI fireRateLabelText;
-    [SerializeField] private TextMeshProUGUI hitRateLabelText;
-    [SerializeField] private TextMeshProUGUI spreadLabelText;
+    [Header("Switch Data Panel")]
+    [SerializeField] private GameObject attackTowerDataPanel;
+    [SerializeField] private GameObject buffTowerDataPanel;
 
-    [Header("Right Panel - Labels")]
-    [SerializeField] private TextMeshProUGUI damageLabelText;
-    [SerializeField] private TextMeshProUGUI fixedPenLabelText;
-    [SerializeField] private TextMeshProUGUI percentPenLabelText;
-    [SerializeField] private TextMeshProUGUI targetNumLabelText;
-    [SerializeField] private TextMeshProUGUI projectileNumLabelText;
-    [SerializeField] private TextMeshProUGUI lifeTimeLabelText;
-    [SerializeField] private TextMeshProUGUI projectileSizeLabelText;
+    [Header("Buff Tower Text")]
+    [SerializeField] private TextMeshProUGUI buffSlotInfoText;  
+    [SerializeField] private TextMeshProUGUI randomSlotInfoText;
+    [SerializeField] private RectTransform basicEffectListRoot; 
+    [SerializeField] private RectTransform randomEffectListRoot;
+    [SerializeField] private GameObject effectLinePrefab;
 
-    [Header("Left Panel - Tower Data")]
-    [SerializeField] private TextMeshProUGUI towerIdValueText;
-    // [SerializeField] private TextMeshProUGUI rangeTypeValueText;
-    [SerializeField] private TextMeshProUGUI rangeValueText;
-    // [SerializeField] private TextMeshProUGUI priorityTypeValueText;
-    // [SerializeField] private TextMeshProUGUI priorityOrderValueText;
-    [SerializeField] private TextMeshProUGUI fireRateValueText;
-    [SerializeField] private TextMeshProUGUI hitRateValueText;
-    [SerializeField] private TextMeshProUGUI spreadAccuracyValueText;
+    [Header("Attack Tower Basic Data")]
     [SerializeField] private TextMeshProUGUI damageValueText;
-
-    [Header("Right Panel - Projectile Data")]
-    // [SerializeField] private TextMeshProUGUI projectileTypeValueText;
-    // [SerializeField] private TextMeshProUGUI projectilePrefabValueText;
-    // [SerializeField] private TextMeshProUGUI hitEffectValueText;
+    [SerializeField] private TextMeshProUGUI fireRateValueText;
     [SerializeField] private TextMeshProUGUI fixedPenetrationValueText;
     [SerializeField] private TextMeshProUGUI percentPenetrationValueText;
-    // [SerializeField] private TextMeshProUGUI speedValueText;
-    // [SerializeField] private TextMeshProUGUI accelerationValueText;
+    [SerializeField] private TextMeshProUGUI hitRateValueText;
+    [SerializeField] private TextMeshProUGUI spreadAccuracyValueText;
+
+    //ADD VALUE
     [SerializeField] private TextMeshProUGUI targetNumberValueText;
     [SerializeField] private TextMeshProUGUI projectileNumberValueText;
     [SerializeField] private TextMeshProUGUI lifeTimeValueText;
     [SerializeField] private TextMeshProUGUI projectileSizeValueText;
 
-    [Header("Bottom Panel - Ability Explain")]
+    private TextMeshProUGUI rangeValueText;
+    private TextMeshProUGUI towerIdValueText;
+
+    [Header("Ability Panel")]
     [SerializeField] private TextMeshProUGUI abilityExplainText;
     [SerializeField] private Button openAbilityInfoButton;
     [SerializeField] private GameObject abilityInfoPanel;
@@ -65,27 +55,35 @@ public class TowerInfoUI : PopUpUI
     private void Start()
     {
         abilityInfoPanel.SetActive(false);
-        openAbilityInfoButton.onClick.AddListener(() => abilityInfoPanel.SetActive(!abilityInfoPanel.activeSelf));
+        openAbilityInfoButton.onClick.AddListener(
+            () => abilityInfoPanel.SetActive(!abilityInfoPanel.activeSelf));
     }
 
     private void OnEnable()
     {
         contentRect = scrollRect?.content;
         abilityInfoPanel.SetActive(false);
+
+        if (attackTowerDataPanel != null) attackTowerDataPanel.SetActive(false);
+        if (buffTowerDataPanel != null) buffTowerDataPanel.SetActive(false);
     }
 
     public void SetInfo(int index)
     {
-        Debug.Log($"[TowerInfoUI.SetInfo] index={index}, installControl={(installControl != null)}");
+        if (contentRect == null && scrollRect != null)
+            contentRect = scrollRect.content;
 
-        nameText.text = $"Tower {index}";
-        contentRect.DetachChildren();
+        if (contentRect != null)
+            contentRect.DetachChildren();
 
         if (installControl == null)
         {
             nameText.text = "No data";
             SetAllText(null);
-            
+
+            if (attackTowerDataPanel != null) attackTowerDataPanel.SetActive(false);
+            if (buffTowerDataPanel != null) buffTowerDataPanel.SetActive(false);
+
             var textNull = Instantiate(abilityExplainContent, contentRect);
             SetText(textNull.GetComponent<TextMeshProUGUI>(), "no tower");
             return;
@@ -97,6 +95,9 @@ public class TowerInfoUI : PopUpUI
 
         if (attackTower != null && attackTower.AttackTowerData != null)
         {
+            if (attackTowerDataPanel != null) attackTowerDataPanel.SetActive(true);
+            if (buffTowerDataPanel != null) buffTowerDataPanel.SetActive(false);
+
             FillAttackTowerInfo(index, attackTower);
             SetAbilityExplainForAttack(attackTower);
             return;
@@ -104,6 +105,9 @@ public class TowerInfoUI : PopUpUI
 
         if (amplifierTower != null && amplifierTower.AmplifierTowerData != null)
         {
+            if (attackTowerDataPanel != null) attackTowerDataPanel.SetActive(false);
+            if (buffTowerDataPanel != null) buffTowerDataPanel.SetActive(true);
+
             FillAmplifierTowerInfo(index, amplifierTower);
             SetAbilityExplainForAmplifier(amplifierTower);
             return;
@@ -111,7 +115,10 @@ public class TowerInfoUI : PopUpUI
 
         if (nameText != null) nameText.text = $"Empty Slot {index}";
         SetAllText("-");
-        
+
+        if (attackTowerDataPanel != null) attackTowerDataPanel.SetActive(false);
+        if (buffTowerDataPanel != null) buffTowerDataPanel.SetActive(false);
+
         var textEmpty = Instantiate(abilityExplainContent, contentRect);
         SetText(textEmpty.GetComponent<TextMeshProUGUI>(), "no tower");
     }
@@ -169,7 +176,7 @@ public class TowerInfoUI : PopUpUI
                 result += ability.UpgradeAmount;
             }
         }
-
+         
         return result;
     }
 
@@ -220,37 +227,29 @@ public class TowerInfoUI : PopUpUI
 
     private void SetAllText(string value)
     {
-        //left panel_tower
-        SetText(towerIdValueText, value);
-        // SetText(rangeTypeValueText, value);
-        SetText(rangeValueText, value);
-        // SetText(priorityTypeValueText, value);
-        // SetText(priorityOrderValueText, value);
-        SetText(fireRateValueText, value);
-        SetText(hitRateValueText, value);
-        SetText(spreadAccuracyValueText, value);
-        //right panel_projectile
-        // SetText(projectileTypeValueText, value);
-        // SetText(projectilePrefabValueText, value);
-        // SetText(hitEffectValueText, value);
         SetText(damageValueText, value);
+        SetText(fireRateValueText, value);
         SetText(fixedPenetrationValueText, value);
         SetText(percentPenetrationValueText, value);
-        // SetText(speedValueText, value);
-        // SetText(accelerationValueText, value);
+        SetText(hitRateValueText, value);
+        SetText(spreadAccuracyValueText, value);
+
         SetText(targetNumberValueText, value);
         SetText(projectileNumberValueText, value);
+
         SetText(lifeTimeValueText, value);
         SetText(projectileSizeValueText, value);
+
+        SetText(towerIdValueText, value);
+        SetText(rangeValueText, value);
     }
 
     private void FillAttackTowerInfo(int index, TowerAttack attackTower)
     {
-        SetupAttackLabels();
-
         var attackTowerData = attackTower.AttackTowerData;
         int level = attackTower.ReinforceLevel;
 
+        //
         if (nameText != null)
         {
             nameText.text = $"{attackTowerData.towerId} (Lv.{level})";
@@ -259,33 +258,12 @@ public class TowerInfoUI : PopUpUI
         isSameTower = (infoIndex == index);
         var abilities = attackTower.Abilities;
 
+        //
         SetText(
             towerIdValueText,
             $"{attackTowerData.towerId} (Lv.{level})"
         );
 
-        //Range
-        SetText(rangeValueText,
-            attackTowerData.rangeData != null
-                ? attackTowerData.rangeData.GetRange().ToString("0.0")
-                : null);
-
-        //FireRate
-        float baseFireRate = attackTower.BasicFireRate;
-        float finalFireRate = attackTower.CurrentFireRate;
-        SetStatText(fireRateValueText, baseFireRate, finalFireRate, "0.00");
-
-        //Hit Rate
-        float baseHitRate = attackTowerData.Accuracy;
-        float finalHitRate = attackTower.FinalHitRate;
-        SetStatText(hitRateValueText, baseHitRate, finalHitRate, "0.00", "%");
-
-        //Spread Accuracy
-        if (spreadAccuracyValueText != null)
-            spreadAccuracyValueText.text = attackTowerData.grouping.ToString("0.00") + "%";
-        //----------------------------------------------------------
-
-        // Right panel----------------------------------------------
         var baseProj = attackTower.BaseProjectileData ?? attackTowerData.projectileType;
         var buffedProj = attackTower.BuffedProjectileData ?? baseProj;
 
@@ -318,9 +296,7 @@ public class TowerInfoUI : PopUpUI
             float baseTargets = baseProj.TargetNum;
             float ampTargets = buffedProj.TargetNum;
             float finalTargets = CalculateEachAbility(
-                (int)AbilityId.TargetCount, 
-                abilities, 
-                ampTargets);
+                (int)AbilityId.TargetCount, abilities, ampTargets);
             SetStatText(targetNumberValueText, baseTargets, finalTargets, "0");
 
             // LifeTime
@@ -344,6 +320,24 @@ public class TowerInfoUI : PopUpUI
             SetText(lifeTimeValueText, "-");
             SetText(projectileSizeValueText, "-");
         }
+        //FireRate
+        float baseFireRate = attackTower.BasicFireRate;
+        float finalFireRate = attackTower.CurrentFireRate;
+        SetStatText(fireRateValueText, baseFireRate, finalFireRate, "0.00");
+
+        //Hit Rate
+        float baseHitRate = attackTowerData.Accuracy;
+        float finalHitRate = attackTower.FinalHitRate;
+        SetStatText(hitRateValueText, baseHitRate, finalHitRate, "0.00", "%");
+
+        //Spread Accuracy
+        if (spreadAccuracyValueText != null)
+            spreadAccuracyValueText.text = attackTowerData.grouping.ToString("0.00") + "%";
+
+        //Range 
+        SetText(rangeValueText,
+            attackTowerData.rangeData != null
+                ? attackTowerData.rangeData.GetRange().ToString("0.0") : null);
     }
 
     private void SetAbilityExplainForAttack(TowerAttack attackTower)
@@ -366,8 +360,6 @@ public class TowerInfoUI : PopUpUI
 
     private void FillAmplifierTowerInfo(int index, TowerAmplifier amplifierTower)
     {
-        SetupAmplifierLabels();
-
         var ampData = amplifierTower.AmplifierTowerData;
         var slots = amplifierTower.BuffedSlotIndex;
 
@@ -375,24 +367,43 @@ public class TowerInfoUI : PopUpUI
         {
             if (nameText != null) nameText.text = $"Amplifier {index}";
             SetAllText("no data");
+
+            if (buffSlotInfoText != null) buffSlotInfoText.text = "버프 슬롯 없음";
+            if (randomSlotInfoText != null) randomSlotInfoText.text = "랜덤 슬롯 없음";
             return;
         }
 
         string baseName = !string.IsNullOrEmpty(ampData.BuffTowerName)
-            ? ampData.BuffTowerName
-            : $"Amplifier {index}";
+            ? ampData.BuffTowerName : $"Amplifier {index}";
 
         int level = amplifierTower.ReinforceLevel;
 
+        //Name Object
         if (nameText != null)
             nameText.text = $"{baseName} (Lv.{level})";
 
-        SetText(
-            towerIdValueText,
-            $"{baseName} (Lv.{level})"
-        );
+        SetText(towerIdValueText, $"{baseName} (Lv.{level})");
+        //
 
-        // 왼쪽 패널: 이름 / 타입 / 슬롯 수 / 타겟 종류
+        //Slot Index Info
+        if (buffSlotInfoText != null)
+        {
+            int selfIndex = amplifierTower.SelfIndex;
+            string buffBlock = FormatOffsetArray(amplifierTower.BuffedSlotIndex, selfIndex);
+            buffSlotInfoText.text = buffBlock;
+        }
+
+        if (randomSlotInfoText != null)
+        {
+            string randomInfo = BuildRandomSlotInfo(amplifierTower);
+            randomSlotInfoText.text = randomInfo;
+        }
+
+        ClearBuffEffectLists();
+        FillBasicBuffEffects(ampData);
+        FillRandomAbilityEffects(amplifierTower);
+
+        // Buff Panel--------------------------------
         SetText(rangeValueText,
             !string.IsNullOrEmpty(ampData.BuffTowerName)
                 ? ampData.BuffTowerName
@@ -402,8 +413,6 @@ public class TowerInfoUI : PopUpUI
         SetText(hitRateValueText, ampData.FixedBuffedSlotCount.ToString());
         SetText(spreadAccuracyValueText,
             ampData.OnlyAttackTower ? "공격 타워만" : "모든 타워");
-
-        // 오른쪽 패널: 수치들 (퍼센트/추가값 포맷 맞추기)
 
         // 공격력% (DamageBuff: add, 0.4 -> +40%)
         string dmgText = FormatPercentFromAdd(ampData.DamageBuff);
@@ -526,40 +535,6 @@ public class TowerInfoUI : PopUpUI
         SetText(text.GetComponent<TextMeshProUGUI>(), sb.ToString());
     }
 
-    private void SetupAttackLabels()
-    {
-        if (towerIdLabelText != null) towerIdLabelText.text = "타워 ID";
-        if (rangeLabelText != null) rangeLabelText.text = "사거리";
-        if (fireRateLabelText != null) fireRateLabelText.text = "공격 속도";
-        if (hitRateLabelText != null) hitRateLabelText.text = "명중률";
-        if (spreadLabelText != null) spreadLabelText.text = "정확도";
-
-        if (damageLabelText != null) damageLabelText.text = "공격력";
-        if (fixedPenLabelText != null) fixedPenLabelText.text = "고정 관통";
-        if (percentPenLabelText != null) percentPenLabelText.text = "관통률";
-        if (targetNumLabelText != null) targetNumLabelText.text = "타겟 수";
-        if (projectileNumLabelText != null) projectileNumLabelText.text = "투사체 수";
-        if (lifeTimeLabelText != null) lifeTimeLabelText.text = "수명";
-        if (projectileSizeLabelText != null) projectileSizeLabelText.text = "hitbox 크기";
-    }
-
-    private void SetupAmplifierLabels()
-    {
-        if (towerIdLabelText != null) towerIdLabelText.text = "-";
-        if (rangeLabelText != null) rangeLabelText.text = "Buff Tower Name";
-        if (fireRateLabelText != null) fireRateLabelText.text = "Buff Type";
-        if (hitRateLabelText != null) hitRateLabelText.text = "버프 슬롯 수";
-        if (spreadLabelText != null) spreadLabelText.text = "Buff Target";
-
-        if (damageLabelText != null) damageLabelText.text = "공격력+";
-        if (fixedPenLabelText != null) fixedPenLabelText.text = "공속 배율";
-        if (percentPenLabelText != null) percentPenLabelText.text = "투사체 수 +";
-        if (targetNumLabelText != null) targetNumLabelText.text = "타겟 수 +";
-        if (projectileNumLabelText != null) projectileNumLabelText.text = "hit 반경 +";
-        if (lifeTimeLabelText != null) lifeTimeLabelText.text = "관통률 배율";
-        if (projectileSizeLabelText != null) projectileSizeLabelText.text = "고정 관통 +";
-    }
-
     // 0.4 -> "+40%"
     private string FormatPercentFromAdd(float add)
     {
@@ -575,4 +550,271 @@ public class TowerInfoUI : PopUpUI
         float p = (mul - 1f) * 100f;
         return $"{p:+0.##;-0.##}%";
     }
+
+    private string FormatOffsetArray(IReadOnlyList<int> targetSlots, int selfIndex)
+    {
+        if (targetSlots == null || targetSlots.Count == 0)
+            return "버프 슬롯 없음";
+
+        // selfIndex 기준 상대 오프셋 계산
+        List<int> offsets = new List<int>();
+        for (int i = 0; i < targetSlots.Count; i++)
+        {
+            int slot = targetSlots[i];
+            if (slot == selfIndex) continue; // 자기 자신은 제외
+            int offset = slot - selfIndex;
+            offsets.Add(offset);
+        }
+
+        if (offsets.Count == 0)
+            return "버프 슬롯 없음";
+
+        var parts = new List<string>();
+        foreach (int o in offsets)
+        {
+            string dir = o > 0 ? "오른쪽" : "왼쪽";
+            int n = Mathf.Abs(o);
+            parts.Add($"{dir} {n}번째");
+        }
+
+        var sb = new StringBuilder();
+        sb.AppendLine("요격타워 기준");
+        sb.Append(string.Join(", ", parts));
+        return sb.ToString();
+    }
+
+    private string BuildRandomSlotInfo(TowerAmplifier amp)
+    {
+        if (amp == null) return "-";
+
+        int selfIndex = amp.SelfIndex;
+        var randomSlots = amp.RandomAbilitySlotIndex;
+
+        // 랜덤 능력 이름
+        string abilityName = null;
+        var abilities = amp.Abilities;
+        if (abilities != null && abilities.Count > 0)
+        {
+            int randAbilityId = abilities[0];
+            var raRow = DataTableManager.RandomAbilityTable?.Get(randAbilityId);
+            if (raRow != null)
+                abilityName = raRow.RandomAbilityName;
+        }
+
+        // 슬롯 오프셋 문자열
+        string randomBlock = FormatOffsetArray(randomSlots, selfIndex);
+
+        // 둘 다 없으면
+        if (string.IsNullOrEmpty(abilityName) && string.IsNullOrEmpty(randomBlock))
+            return "랜덤 슬롯 없음";
+
+        // 능력 이름만 있는 경우
+        if (!string.IsNullOrEmpty(abilityName) && string.IsNullOrEmpty(randomBlock))
+            return abilityName;
+
+        // 슬롯 정보만 있는 경우
+        if (string.IsNullOrEmpty(abilityName) && !string.IsNullOrEmpty(randomBlock))
+            return randomBlock;
+
+        // 둘 다 있으면: 카드와 비슷하게 "이름\n슬롯 설명"
+        return $"{abilityName}\n{randomBlock}";
+    }
+
+    //Buffed List
+    private void ClearBuffEffectLists()
+    {
+        if (basicEffectListRoot != null)
+        {
+            for (int i = basicEffectListRoot.childCount - 1; i >= 0; i--)
+            {
+                Destroy(basicEffectListRoot.GetChild(i).gameObject);
+            }
+        }
+
+        if (randomEffectListRoot != null)
+        {
+            for (int i = randomEffectListRoot.childCount - 1; i >= 0; i--)
+            {
+                Destroy(randomEffectListRoot.GetChild(i).gameObject);
+            }
+        }
+    }
+
+    private void AddEffectLine(RectTransform root, string text)
+    {
+        if (root == null) return;
+        if (effectLinePrefab == null) return;
+        if (string.IsNullOrEmpty(text)) return;
+
+        var go = Instantiate(effectLinePrefab, root);
+        var tmp = go.GetComponent<TextMeshProUGUI>();
+        if (tmp != null)
+            tmp.text = text;
+    }
+    private string BuildStatChangeLine(string statName, float delta, string formattedValue)
+    {
+        if (Mathf.Approximately(delta, 0f)) return null;
+
+        string dir = delta > 0f ? "상승" : "하락";
+        return $"{statName} 능력치 {dir} ({formattedValue})";
+    }
+
+    private void FillBasicBuffEffects(AmplifierTowerDataSO ampData)
+    {
+        if (basicEffectListRoot == null) return;
+
+        // 먼저 비우기
+        for (int i = basicEffectListRoot.childCount - 1; i >= 0; i--)
+        {
+            Destroy(basicEffectListRoot.GetChild(i).gameObject);
+        }
+
+        if (ampData == null) return;
+
+        // 공격력 (DamageBuff: add, 0.4 -> +40%)
+        if (!Mathf.Approximately(ampData.DamageBuff, 0f))
+        {
+            float delta = ampData.DamageBuff;  // 0 기준
+            string value = FormatPercentFromAdd(delta); // "+40%"
+            string line = BuildStatChangeLine("공격력", delta, value);
+            AddEffectLine(basicEffectListRoot, line);
+        }
+
+        // 공속 (FireRateBuff: mul, 1.2 -> +20%)
+        if (!Mathf.Approximately(ampData.FireRateBuff, 1f))
+        {
+            float delta = ampData.FireRateBuff - 1f;   // 1 기준
+            string value = FormatPercentFromMul(ampData.FireRateBuff); // "+20%"
+            string line = BuildStatChangeLine("공격 속도", delta, value);
+            AddEffectLine(basicEffectListRoot, line);
+        }
+
+        // 투사체 수 +N
+        if (ampData.ProjectileCountBuff != 0)
+        {
+            int delta = ampData.ProjectileCountBuff;
+            string value = delta > 0 ? $"+{delta}" : delta.ToString();
+            string line = BuildStatChangeLine("투사체 수", delta, value);
+            AddEffectLine(basicEffectListRoot, line);
+        }
+
+        // 타겟 수 +N
+        if (ampData.TargetNumberBuff != 0)
+        {
+            int delta = ampData.TargetNumberBuff;
+            string value = delta > 0 ? $"+{delta}" : delta.ToString();
+            string line = BuildStatChangeLine("타겟 수", delta, value);
+            AddEffectLine(basicEffectListRoot, line);
+        }
+
+        // 히트 반경 (HitRadiusBuff: add, 0.25 -> +25%)
+        if (!Mathf.Approximately(ampData.HitRadiusBuff, 0f))
+        {
+            float delta = ampData.HitRadiusBuff;
+            string value = FormatPercentFromAdd(delta);
+            string line = BuildStatChangeLine("히트 반경", delta, value);
+            AddEffectLine(basicEffectListRoot, line);
+        }
+
+        // 관통률 (PercentPenetrationBuff: mul, 1.5 -> +50%)
+        if (!Mathf.Approximately(ampData.PercentPenetrationBuff, 1f))
+        {
+            float delta = ampData.PercentPenetrationBuff - 1f;
+            string value = FormatPercentFromMul(ampData.PercentPenetrationBuff);
+            string line = BuildStatChangeLine("관통률", delta, value);
+            AddEffectLine(basicEffectListRoot, line);
+        }
+
+        // 고정 관통 +N
+        if (!Mathf.Approximately(ampData.FixedPenetrationBuff, 0f))
+        {
+            float delta = ampData.FixedPenetrationBuff;
+            string value = delta > 0 ? $"+{delta:0.##}" : $"{delta:0.##}";
+            string line = BuildStatChangeLine("고정 관통", delta, value);
+            AddEffectLine(basicEffectListRoot, line);
+        }
+
+        // 명중률 (HitRateBuff: mul, 1.2 -> +20%)
+        if (!Mathf.Approximately(ampData.HitRateBuff, 1f))
+        {
+            float delta = ampData.HitRateBuff - 1f;
+            string value = FormatPercentFromMul(ampData.HitRateBuff);
+            string line = BuildStatChangeLine("명중률", delta, value);
+            AddEffectLine(basicEffectListRoot, line);
+        }
+    }
+
+    private void FillRandomAbilityEffects(TowerAmplifier amplifierTower)
+    {
+        if (randomEffectListRoot == null) return;
+
+        // 먼저 비우기
+        for (int i = randomEffectListRoot.childCount - 1; i >= 0; i--)
+        {
+            Destroy(randomEffectListRoot.GetChild(i).gameObject);
+        }
+
+        if (amplifierTower == null) return;
+
+        var ampData = amplifierTower.AmplifierTowerData;
+        var abilities = amplifierTower.Abilities;
+        if (ampData == null || abilities == null || abilities.Count == 0) return;
+
+        int randAbilityId = abilities[0];
+        var raRow = DataTableManager.RandomAbilityTable?.Get(randAbilityId);
+        if (raRow == null) return;
+
+        int baseBuffSlotCount = Mathf.Max(1, ampData.FixedBuffedSlotCount);
+        int addSlotNum = Mathf.Max(0, raRow.AddSlotNum);
+        int randomSlotNum = Mathf.Max(0, raRow.RandonSlotNum);
+        int placeType = raRow.PlaceType;
+        int duplicateType = raRow.DuplicateType;
+
+        // 버프 슬롯 수 증가
+        if (addSlotNum != 0)
+        {
+            // baseBuffSlotCount -> baseBuffSlotCount + addSlotNum
+            int delta = addSlotNum;
+            string value = delta > 0 ? $"+{delta}" : delta.ToString();
+            string line = BuildStatChangeLine("버프 슬롯 수", delta, value);
+            AddEffectLine(randomEffectListRoot, line);
+        }
+
+        // 랜덤 슬롯 수
+        if (randomSlotNum != 0)
+        {
+            int delta = randomSlotNum;
+            string value = delta > 0 ? $"+{delta}" : delta.ToString();
+            string line = BuildStatChangeLine("랜덤 슬롯 수", delta, value);
+            AddEffectLine(randomEffectListRoot, line);
+        }
+
+        // 배치 타입 설명 (숫자지만, 정보성 문구로 한 줄 추가)
+        string placeDesc = null;
+        switch (placeType)
+        {
+            case 0:
+                placeDesc = "랜덤 슬롯 배치: 버프 슬롯과 별도 슬롯에 랜덤 능력 배치";
+                break;
+            case 1:
+                placeDesc = "랜덤 슬롯 배치: 기존 버프 슬롯 중 하나에 랜덤 능력 집중";
+                break;
+            case 2:
+                placeDesc = $"랜덤 슬롯 배치: 기본 버프 슬롯 수가 {addSlotNum}개 증가";
+                break;
+            default:
+                placeDesc = $"랜덤 슬롯 배치 타입: {placeType}";
+                break;
+        }
+        if (!string.IsNullOrEmpty(placeDesc))
+        {
+            AddEffectLine(randomEffectListRoot, placeDesc);
+        }
+
+        // 중첩 여부
+        string dupDesc = duplicateType == 0 ? "랜덤 능력 중첩 가능" : "랜덤 능력 중첩 불가";
+        AddEffectLine(randomEffectListRoot, dupDesc);
+    }
+
+
 }
