@@ -72,6 +72,18 @@ public class TowerInstallControl : MonoBehaviour
     public bool isInstall = true;
     private float dragRotateSpeed = 300f;
 
+    [Header("Drag Settings")]
+    [SerializeField] private Canvas uiCanvas;          
+    [SerializeField] private GameObject dragImagePrefab; 
+
+    private bool isDraggingTower = false;
+    private int dragSourceIndex = -1;
+    private GameObject currentDragGhost;
+    private RectTransform currentDragGhostRect;
+
+    private Image dragSourceImage;
+    private Color dragSourceOriginalColor;
+
     private void Awake()
     {
         planetTowerUI.TowerCount = towerCount;
@@ -510,14 +522,104 @@ public class TowerInstallControl : MonoBehaviour
     {
         Debug.Log($"[TowerInstallControl] Long press start on slot {index}, pos={screenPos}");
 
-        // ⚠ 여기서는 TowerInfoUI를 새로 열지 않는다.
-        //    (기존에 떠 있던 정보창이 있으면 그대로 유지)
+        if (IsReadyInstall) return; //Consider preventing Install mod 
 
-        // 다음 단계에서:
-        // - 드래그 상태로 전환
-        // - 드래그 고스트 생성
-        // - 원래 슬롯 UI 투명하게 만들기
-        // 등을 여기에 붙일 예정
+        if (towerInfoObj != null && towerInfoObj.activeSelf) 
+        {
+            towerInfoObj.SetActive(false);
+        }
+
+        if (isDraggingTower) return;
+
+        //tower null check
+        if (towers == null || index < 0 || index >= towers.Count) return;
+        if (emptyTower != null && emptyTower[index]) return; 
+        isDraggingTower = true;
+        dragSourceIndex = index;
+
+        //drag prefab
+        if (dragImagePrefab != null && uiCanvas != null)
+        {
+            currentDragGhost = Instantiate(dragImagePrefab, uiCanvas.transform);
+            currentDragGhostRect = currentDragGhost.GetComponent<RectTransform>();
+
+            var sourceObj = towers[index];
+            var sourceImage = sourceObj.GetComponentInChildren<Image>();
+            dragSourceImage = sourceImage; 
+
+            if (sourceImage != null)
+            {
+                dragSourceOriginalColor = sourceImage.color;
+
+                var ghostUI = currentDragGhost.GetComponent<TowerDragImageUI>();
+                if (ghostUI != null && ghostUI.IconImage != null)
+                {
+                    var ghostImage = ghostUI.IconImage;
+                    ghostImage.sprite = sourceImage.sprite;
+                    ghostImage.color = sourceImage.color;
+                    ghostImage.preserveAspect = true;
+                    ghostImage.rectTransform.sizeDelta = new Vector2(25f, 50f);
+                }
+                var c = sourceImage.color;
+                c.a = 0f;
+                sourceImage.color = c;
+            }
+            UpdateDragGhostPosition(screenPos);
+        }
+        Debug.Log($"[TowerInstallControl] Long press drag start on slot {index}");
+    }
+
+    public void OnSlotLongPressDrag(int index, Vector2 screenPos)
+    {
+        if (!isDraggingTower) return;
+        if (index != dragSourceIndex) return; 
+
+        UpdateDragGhostPosition(screenPos);
+    }
+    private void UpdateDragGhostPosition(Vector2 screenPos)
+    {
+        if (currentDragGhostRect == null || uiCanvas == null) return;
+
+        RectTransform canvasRect = uiCanvas.transform as RectTransform;
+
+        Vector2 localPos;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            canvasRect,
+            screenPos,
+            uiCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : uiCanvas.worldCamera,
+            out localPos);
+
+        currentDragGhostRect.anchoredPosition = localPos;
+    }
+
+    public void OnSlotLongPressEnd(int index, Vector2 screenPos)
+    {
+        if (!isDraggingTower) return;
+        if (index != dragSourceIndex)
+        {
+            // 안전하게 무시하거나, 나중에 멀티터치 고려할 때 조정
+        }
+        // 2단계: 아직 이동/스왑 없이 그냥 드래그 취소 + 연출 복귀만
+        CleanupDragVisual();
+        Debug.Log($"[TowerInstallControl] Long press drag end on slot {index}");
+    }
+    private void CleanupDragVisual()
+    {
+        if (currentDragGhost != null)
+        {
+            Destroy(currentDragGhost);
+            currentDragGhost = null;
+            currentDragGhostRect = null;
+        }
+
+        if (dragSourceImage != null)
+        {
+            dragSourceImage.color = dragSourceOriginalColor;
+            dragSourceImage = null;
+        }
+
+        isDraggingTower = false;
+        dragSourceIndex = -1;
     }
     //--------------------------------------------------------------
 }

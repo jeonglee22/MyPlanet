@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class TowerSlotInputHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler
@@ -31,33 +31,41 @@ public class TowerSlotInputHandler : MonoBehaviour, IPointerDownHandler, IPointe
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        if (!isPointerDown)
-            return;
-
-        float heldTime = Time.unscaledTime - pointerDownTime;
-
-        if (!isLongPressTriggered)
-        {
-            if (heldTime < longPressThreshold)
-                installControl?.OnSlotClick(slotIndex);
-            else
-                installControl?.OnSlotLongPressStart(slotIndex, pointerDownPos);
-        }
-        isPointerDown = false;
-    }
-
-    public void OnDrag(PointerEventData eventData)
-    {
-        if (!isPointerDown || isLongPressTriggered)
-            return;
+        if (!isPointerDown) return;
 
         float heldTime = Time.unscaledTime - pointerDownTime;
         float movedDist = Vector2.Distance(pointerDownPos, eventData.position);
 
-        if (heldTime >= longPressThreshold)
+        if (!isLongPressTriggered &&
+            heldTime < longPressThreshold &&
+            movedDist < dragStartDistance)
+        {
+            installControl?.OnSlotClick(slotIndex);
+        }
+        else if (isLongPressTriggered)
+        {
+            installControl?.OnSlotLongPressEnd(slotIndex, eventData.position);
+        }
+        isPointerDown = false;
+        isLongPressTriggered = false;
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        if (!isPointerDown) return;
+
+        float heldTime = Time.unscaledTime - pointerDownTime;
+        float movedDist = Vector2.Distance(pointerDownPos, eventData.position);
+
+        if (!isLongPressTriggered && heldTime >= longPressThreshold)
         {
             isLongPressTriggered = true;
             installControl?.OnSlotLongPressStart(slotIndex, pointerDownPos);
+        }
+
+        if (isLongPressTriggered)
+        {
+            installControl?.OnSlotLongPressDrag(slotIndex, eventData.position);
         }
     }
 }

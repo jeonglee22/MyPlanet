@@ -222,6 +222,8 @@ GameObject:
   - component: {fileID: 415131903699593988}
   - component: {fileID: 2164794330455009407}
   - component: {fileID: 3068457080352568945}
+  - component: {fileID: 3754755890394386004}
+  - component: {fileID: 7562503345140738089}
   m_Layer: 5
   m_Name: TowerUIBase
   m_TagString: Untagged
@@ -324,6 +326,34 @@ MonoBehaviour:
   buffTargetColor: {r: 1, g: 0.85, b: 0.3, a: 1}
   randomOnlyColor: {r: 1, g: 0.5, b: 0.8, a: 1}
   highlightScale: 1.08
+--- !u!114 &3754755890394386004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4187861493209293078}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5764702736f5c54688b743ec75f805b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  installControl: {fileID: 0}
+  longPressThreshold: 0.3
+  dragStartDistance: 10
+--- !u!114 &7562503345140738089
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4187861493209293078}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4488f984362d7a64da2f4e6237b39613, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  iconImage: {fileID: 366160228890574618}
 --- !u!1 &5410690284191773736
 GameObject:
   m_ObjectHideFlags: 0
