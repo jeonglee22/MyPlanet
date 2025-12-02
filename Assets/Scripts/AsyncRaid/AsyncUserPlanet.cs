@@ -6,6 +6,7 @@ using UnityEngine;
 public class AsyncUserPlanet : LivingEntity
 {
     private float livingTime;
+    private float elapsedTime = 0f;
     private float attack = 0f;
     private float attackDps;
 
@@ -18,7 +19,8 @@ public class AsyncUserPlanet : LivingEntity
 
     private async void Awake()
     {
-        livingTime = Random.Range(20f, 40f);
+        livingTime = Random.Range(5f, 10f);
+        // livingTime = Random.Range(20f, 40f);
         abilities = new List<int>();
     }
 
@@ -30,8 +32,22 @@ public class AsyncUserPlanet : LivingEntity
     protected override void OnEnable()
     {
         base.OnEnable();
+    }
 
-        planetData = new UserPlanetData();
+    private void Update()
+    {
+        elapsedTime += Time.deltaTime;
+        if (elapsedTime >= livingTime)
+        {
+            Die();
+        }
+
+        TestMove();
+    }
+
+    private void TestMove()
+    {
+        transform.Translate(Vector3.down * Time.deltaTime * 2f);
     }
 
     public void InitializePlanet(UserPlanetData data, float damage)
