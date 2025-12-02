@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using NUnit.Framework;
 using UnityEngine;
 
 public struct ScaleData
@@ -155,6 +156,7 @@ public class WaveManager : MonoBehaviour
         StartWaveGroupTimer();
 
         await PreloadWaveAssets(waveDatas[0], cts);
+        await UniTask.Delay(System.TimeSpan.FromSeconds(1f), cancellationToken: cts);
         await StartNextWave(cts);
     }
 
@@ -182,17 +184,26 @@ public class WaveManager : MonoBehaviour
         {
             try
             {
-                for(int i = 0; i < waveData.RepeatCount; i++)
+                if(waveData.RepeatCount == 0)
                 {
                     SpawnManager.Instance.SpawnCombination(combData, scaleData);
                     
-                    if(i < waveData.RepeatCount - 1)
+                    await UniTask.Delay(System.TimeSpan.FromSeconds(waveData.SpawnTerm), cancellationToken: linkedCts.Token);
+                }
+                else
+                {
+                    for(int i = 0; i < waveData.RepeatCount; i++)
                     {
+                        if(IsWaveGroupTimeExpired())
+                        {
+                            break;
+                        }
+
+                        SpawnManager.Instance.SpawnCombination(combData, scaleData);
+                        
                         await UniTask.Delay(System.TimeSpan.FromSeconds(waveData.SpawnTerm), cancellationToken: linkedCts.Token);
                     }
                 }
-
-                await UniTask.Delay(System.TimeSpan.FromSeconds(1f), cancellationToken: linkedCts.Token);
             }
             catch (System.OperationCanceledException)
             {

@@ -12,7 +12,11 @@ public class BattleUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI stageText;
 
     [SerializeField] private List<Toggle> waveToggles;
-    private int lastDisplayedWave = 0;
+    [SerializeField] private List<Toggle> stageOneToggles;
+    [SerializeField] private List<Toggle> stageTwoToggles;
+    private List<Toggle> currentStageToggles;
+    [SerializeField] private List<GameObject> toggleObjects;
+    
     private float battleTime = 0f;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -26,7 +30,28 @@ public class BattleUI : MonoBehaviour
         WaveManager.Instance.WaveChange += OnWaveChanged;
         SpawnManager.Instance.OnBossSpawn += OnWaveChanged;
 
-        waveToggles[0].isOn = true;
+        foreach(var toggleObj in toggleObjects)
+        {
+            toggleObj.SetActive(false);
+        }
+
+        switch(Variables.Stage)
+        {
+            case 1:
+                toggleObjects[1].SetActive(true);
+                currentStageToggles = stageOneToggles;
+                break;
+            case 2:
+                toggleObjects[2].SetActive(true);
+                currentStageToggles = stageTwoToggles;
+                break;
+            default:
+                toggleObjects[0].SetActive(true);
+                currentStageToggles = waveToggles;
+                break;
+        }
+
+        currentStageToggles[0].isOn = true;
     }
 
     public void OnDestroy()
@@ -71,7 +96,7 @@ public class BattleUI : MonoBehaviour
     {
         int currentWave = WaveManager.Instance.WaveCount;
 
-        foreach(var toggle in waveToggles)
+        foreach(var toggle in currentStageToggles)
         {
             toggle.isOn = false;
         }
@@ -84,22 +109,22 @@ public class BattleUI : MonoBehaviour
                 toggleIndex = 0;
                 break;
             case 2:
-                toggleIndex = 1;
+                toggleIndex = Variables.MiddleBossEnemy != null ? 2 : 1;
                 break;
             case 3:
-                toggleIndex = Variables.MiddleBossEnemy != null ? 3 : 2;
+                toggleIndex = Variables.MiddleBossEnemy != null || Variables.LastBossEnemy != null || Variables.Stage == 2 ? 3 : 2;
                 break;
             case 4:
                 toggleIndex = 4;
                 break;
             case 5:
-                toggleIndex = (Variables.MiddleBossEnemy != null || Variables.LastBossEnemy != null) ? 6 : 5;;
+                toggleIndex = (Variables.MiddleBossEnemy != null || Variables.LastBossEnemy != null) ? 6 : 5;
                 break;
         }
 
-        if(toggleIndex >= 0 && toggleIndex < waveToggles.Count)
+        if(toggleIndex >= 0 && toggleIndex < currentStageToggles.Count)
         {
-            waveToggles[toggleIndex].isOn = true;
+            currentStageToggles[toggleIndex].isOn = true;
         }
     }
 
