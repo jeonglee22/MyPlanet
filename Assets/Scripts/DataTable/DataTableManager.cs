@@ -40,6 +40,7 @@ public static class DataTableManager
             LoadTableAsync<PlanetLevelUpTable>(DataTableIds.PlanetLevelUp),
             LoadTableAsync<TowerReinforceUpgradeTable>(DataTableIds.TowerReinforceUpgrade),
             LoadTableAsync<BuffTowerReinforceUpgradeTable>(DataTableIds.BuffTowerReinforceUpgrade),
+            LoadTableAsync<AsyncPlanetTable>(DataTableIds.AsyncPlanet)
         };
 
         await UniTask.WhenAll(tasks);
@@ -159,6 +160,11 @@ public static class DataTableManager
     public static BuffTowerReinforceUpgradeTable BuffTowerReinforceUpgradeTable
     {
         get { return Get<BuffTowerReinforceUpgradeTable>(DataTableIds.BuffTowerReinforceUpgrade); }
+    }
+
+    public static AsyncPlanetTable AsyncPlanetTable
+    {
+        get { return Get<AsyncPlanetTable>(DataTableIds.AsyncPlanet); }
     }
 
     public static T Get<T>(string id) where T : DataTable
