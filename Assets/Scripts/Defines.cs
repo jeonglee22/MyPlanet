@@ -37,6 +37,7 @@ public static class SceneName
     public static readonly string CameraTestScene = "CameraTestScene";
     public static readonly string UiTestScene = "UiTestScene";
     public static readonly string StageSelectScene = "StageSelectScene";
+    public static readonly string AsyncRaidTestScene = "AsyncRaidTestScene";
 }
 
 public enum AbilityId
@@ -137,6 +138,7 @@ public static class DataTableIds
     public static readonly string PlanetLevelUp = "PlanetLevelUpTable";
     public const string TowerReinforceUpgrade = "TowerReinforceUpgradeTable";
     public static readonly string BuffTowerReinforceUpgrade = "BuffTowerReinforceUpgradeTable";
+    public static readonly string AsyncPlanet = "AsyncPlanetTable";
 }
 
 public static class Variables
@@ -168,4 +170,10 @@ public static class AddressLabel
     public static readonly string PatternProjectile = "PatternProjectile";
     public static readonly string Lazer = "Lazer";
     public static readonly string EnemyLazer = "EnemyLazer";
+}
+
+public static class DatabaseRef
+{
+    public static readonly string UserProfiles = "users";
+    public static readonly string UserPlanets = "userplanets";
 }

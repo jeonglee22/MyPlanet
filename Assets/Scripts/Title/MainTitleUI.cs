@@ -13,7 +13,7 @@ public class MainTitleUI : MonoBehaviour
     [SerializeField] private Button exitButton;
     [SerializeField] private Button enemyTestButton;
     [SerializeField] private Button cameraTestButton;
-    [SerializeField] private Button uiTestButton;
+    [SerializeField] private Button asyncRaidTestButton;
     [SerializeField] private MainTitleCanvasManager canvasManager;
 
     [SerializeField] private TextMeshProUGUI uidText;
@@ -33,7 +33,7 @@ public class MainTitleUI : MonoBehaviour
         logInOutButton.onClick.AddListener(() => OnLogInOutButtonClicked());
         enemyTestButton.onClick.AddListener(() => OnEnemyTestButtonClicked().Forget());
         cameraTestButton.onClick.AddListener(() => OnCameraTestButtonClicked().Forget());
-        uiTestButton.onClick.AddListener(() => OnUiTestButtonclicked().Forget());
+        asyncRaidTestButton.onClick.AddListener(() => OnAsyncRaidTestButtonclicked().Forget());
 
 #if UNITY_EDITOR
         exitButton.onClick.AddListener(() => UnityEditor.EditorApplication.isPlaying = false);
@@ -93,8 +93,6 @@ public class MainTitleUI : MonoBehaviour
 
     private async UniTaskVoid OnEnemyTestButtonClicked()
     {
-
-
         await SceneControlManager.Instance.LoadScene(SceneName.EnemyTestScene);
     }
 
@@ -103,8 +101,8 @@ public class MainTitleUI : MonoBehaviour
         await SceneControlManager.Instance.LoadScene(SceneName.CameraTestScene);
     }
 
-    private async UniTaskVoid OnUiTestButtonclicked()
+    private async UniTaskVoid OnAsyncRaidTestButtonclicked()
     {
-        await SceneControlManager.Instance.LoadScene(SceneName.UiTestScene);
+        await SceneControlManager.Instance.LoadScene(SceneName.AsyncRaidTestScene);
     }
 }

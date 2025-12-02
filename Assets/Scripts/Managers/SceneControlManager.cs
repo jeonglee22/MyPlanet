@@ -14,9 +14,7 @@ public class SceneControlManager : MonoBehaviour
     private string currentSceneName;
     public string CurrentSceneName { get => currentSceneName; set => currentSceneName = value; }
 
-    [SerializeField] private GameObject loadingPanelObject;
-    private GameObject loadingPanel;
-    public GameObject LoadingPanel { get => loadingPanel; }
+    [SerializeField] private GameObject loadingCanvas;
 
     private void Awake()
     {
@@ -35,32 +33,29 @@ public class SceneControlManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private async UniTaskVoid Start()
     {
-        Debug.Log(loadingPanelObject == null);
-        loadingPanel = Instantiate(instance.loadingPanelObject, GameObject.FindWithTag(TagName.MainCanvas).transform);
+        Debug.Log(loadingCanvas == null);
+
+        loadingCanvas.SetActive(true);
 
         await FireBaseInitializer.Instance.WaitInitialization();
 
-        loadingPanel.SetActive(false);
+        loadingCanvas.SetActive(false);
 
         currentSceneName = SceneManager.GetActiveScene().name;
     }
 
     private void Update()
     {
-        if (loadingPanel == null)
-        {
-            loadingPanel = Instantiate(instance.loadingPanelObject, GameObject.FindWithTag(TagName.MainCanvas).transform);
-        }
     }
 
     public async UniTask LoadScene(string sceneName, List<UniTask> additionalTasks = null)
     {
-        loadingPanel.SetActive(true);
+        loadingCanvas.SetActive(true);
         // Time.timeScale = 0f;
 
         var sceneLoad = Addressables.LoadSceneAsync(SceneName.LoadingScene).ToUniTask();
 
-        var tasks = new List<UniTask>() { sceneLoad, WaitSceneLoadMinimun(1000) };
+        var tasks = new List<UniTask>() { sceneLoad };
 
         await UniTask.WhenAll(tasks);
 
@@ -73,14 +68,14 @@ public class SceneControlManager : MonoBehaviour
 
         var newSceneLoad = Addressables.LoadSceneAsync(sceneName).ToUniTask();
 
-        tasks = new List<UniTask>() { newSceneLoad, WaitSceneLoadMinimun(1000) };
+        tasks = new List<UniTask>() { newSceneLoad };
 
         await UniTask.WhenAll(tasks);
 
         Debug.Log("Scene Loaded");
 
         currentSceneName = sceneName;
-        loadingPanel.SetActive(false);
+        loadingCanvas.SetActive(false);
         // Time.timeScale = 1f;
     }
 

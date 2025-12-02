@@ -1358,7 +1358,8 @@ MonoBehaviour:
   statusUIButton: {fileID: 597618132131071102}
   towerInstallUiObj: {fileID: 8087737669774974351}
   timeText: {fileID: 7564550940235488509}
-  enemyCountText: {fileID: 5682685952709057732}
+  stageText: {fileID: 0}
+  waveToggles: []
 --- !u!114 &287381106
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2465,17 +2466,6 @@ RectTransform:
   m_AnchoredPosition: {x: 233.16061, y: -133.69284}
   m_SizeDelta: {x: 93.264244, y: 267.38568}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &541629095 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1610382161845735853, guid: 8984e5d2204aebd4fbda3b75634d936d, type: 3}
-  m_PrefabInstance: {fileID: 1580770405}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &572829390
 GameObject:
   m_ObjectHideFlags: 0
@@ -2600,17 +2590,6 @@ CanvasRenderer:
 --- !u!114 &573675227 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7157266818409233432, guid: 8984e5d2204aebd4fbda3b75634d936d, type: 3}
-  m_PrefabInstance: {fileID: 1580770405}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &582056888 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 9218600468089838276, guid: 8984e5d2204aebd4fbda3b75634d936d, type: 3}
   m_PrefabInstance: {fileID: 1580770405}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
@@ -2927,17 +2906,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 732169770}
   m_CullTransparentMesh: 1
---- !u!114 &770501711 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7825751400055133860, guid: 8984e5d2204aebd4fbda3b75634d936d, type: 3}
-  m_PrefabInstance: {fileID: 1580770405}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &824370127
 GameObject:
   m_ObjectHideFlags: 0
@@ -3934,17 +3902,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5619869323305318227, guid: a3ba0402da80b294fbc9c7f3252f3bef, type: 3}
   m_PrefabInstance: {fileID: 112521779}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1238051219 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5017755526982821780, guid: 8984e5d2204aebd4fbda3b75634d936d, type: 3}
-  m_PrefabInstance: {fileID: 1580770405}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &1255604107
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4325,6 +4282,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5684087843260545709, guid: 859e5f70b2890704093344d374a01339, type: 3}
+      propertyPath: towerUI
+      value: 
+      objectReference: {fileID: 8087737669774974351}
     - target: {fileID: 5684087843260545709, guid: 859e5f70b2890704093344d374a01339, type: 3}
       propertyPath: upgradeSlotUI
       value: 
@@ -4754,28 +4715,6 @@ MonoBehaviour:
   towerInstallControl: {fileID: 2834448803939915530}
   baseColor: {r: 1, g: 1, b: 1, a: 1}
   hitColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
---- !u!114 &1437661470 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6378315016947444451, guid: 8984e5d2204aebd4fbda3b75634d936d, type: 3}
-  m_PrefabInstance: {fileID: 1580770405}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1439196968 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7563711966956403694, guid: 8984e5d2204aebd4fbda3b75634d936d, type: 3}
-  m_PrefabInstance: {fileID: 1580770405}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1443911461
 GameObject:
   m_ObjectHideFlags: 0
@@ -4815,17 +4754,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1483554744 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4414137396446918538, guid: 8984e5d2204aebd4fbda3b75634d936d, type: 3}
-  m_PrefabInstance: {fileID: 1580770405}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1488899771
 GameObject:
   m_ObjectHideFlags: 0
@@ -4945,17 +4873,6 @@ MonoBehaviour:
   m_DefaultActionMap: UI
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
---- !u!114 &1489446764 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 374954490008238349, guid: 8984e5d2204aebd4fbda3b75634d936d, type: 3}
-  m_PrefabInstance: {fileID: 1580770405}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1538163887 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4516387260521356823, guid: 859e5f70b2890704093344d374a01339, type: 3}
@@ -5082,17 +4999,6 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 0
---- !u!114 &1550285733 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7484889379977553432, guid: 8984e5d2204aebd4fbda3b75634d936d, type: 3}
-  m_PrefabInstance: {fileID: 1580770405}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1575440681
 GameObject:
   m_ObjectHideFlags: 0
@@ -6304,17 +6210,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 6240607457394590289, guid: 8984e5d2204aebd4fbda3b75634d936d, type: 3}
   m_PrefabInstance: {fileID: 1580770405}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1580770407 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8969209904360822483, guid: 8984e5d2204aebd4fbda3b75634d936d, type: 3}
-  m_PrefabInstance: {fileID: 1580770405}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1580770408 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6952553642848961017, guid: 8984e5d2204aebd4fbda3b75634d936d, type: 3}
@@ -6406,17 +6301,6 @@ MonoBehaviour:
 --- !u!114 &1580770421 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5166210149681982483, guid: 8984e5d2204aebd4fbda3b75634d936d, type: 3}
-  m_PrefabInstance: {fileID: 1580770405}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1580770424 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 917410869304376140, guid: 8984e5d2204aebd4fbda3b75634d936d, type: 3}
   m_PrefabInstance: {fileID: 1580770405}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
@@ -6809,28 +6693,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1694597588}
   m_CullTransparentMesh: 1
---- !u!114 &1715622583 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7824999108551758405, guid: 8984e5d2204aebd4fbda3b75634d936d, type: 3}
-  m_PrefabInstance: {fileID: 1580770405}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1805895777 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 33203548575091960, guid: 8984e5d2204aebd4fbda3b75634d936d, type: 3}
-  m_PrefabInstance: {fileID: 1580770405}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1816178011
 GameObject:
   m_ObjectHideFlags: 0
@@ -7861,17 +7723,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2093396392}
   m_CullTransparentMesh: 1
---- !u!114 &2107874192 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7889774074542878500, guid: 8984e5d2204aebd4fbda3b75634d936d, type: 3}
-  m_PrefabInstance: {fileID: 1580770405}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &2120195829
 GameObject:
   m_ObjectHideFlags: 0
@@ -8288,6 +8139,7 @@ MonoBehaviour:
   battleButton: {fileID: 1403100447}
   goToTitleButton: {fileID: 1401153645}
   towerInfoUI: {fileID: 4544513132663384558}
+  installControl: {fileID: 0}
 --- !u!1 &550671616204197059
 GameObject:
   m_ObjectHideFlags: 0
@@ -10703,26 +10555,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   installControl: {fileID: 2834448803939915530}
   nameText: {fileID: 732169772}
-  towerIdLabelText: {fileID: 541629095}
-  rangeLabelText: {fileID: 1715622583}
-  fireRateLabelText: {fileID: 1437661470}
-  hitRateLabelText: {fileID: 1238051219}
-  spreadLabelText: {fileID: 1805895777}
-  damageLabelText: {fileID: 1439196968}
-  fixedPenLabelText: {fileID: 1483554744}
-  percentPenLabelText: {fileID: 1489446764}
-  targetNumLabelText: {fileID: 582056888}
-  projectileNumLabelText: {fileID: 770501711}
-  lifeTimeLabelText: {fileID: 1550285733}
-  projectileSizeLabelText: {fileID: 2107874192}
-  towerIdValueText: {fileID: 1580770407}
-  rangeValueText: {fileID: 1580770424}
-  fireRateValueText: {fileID: 1580770421}
-  hitRateValueText: {fileID: 1580770420}
-  spreadAccuracyValueText: {fileID: 1580770419}
+  attackTowerDataPanel: {fileID: 0}
+  buffTowerDataPanel: {fileID: 0}
+  buffSlotInfoText: {fileID: 0}
+  randomSlotInfoText: {fileID: 0}
+  basicEffectListRoot: {fileID: 0}
+  randomEffectListRoot: {fileID: 0}
+  effectLinePrefab: {fileID: 0}
   damageValueText: {fileID: 1580770415}
+  fireRateValueText: {fileID: 1580770421}
   fixedPenetrationValueText: {fileID: 1580770414}
   percentPenetrationValueText: {fileID: 1580770413}
+  hitRateValueText: {fileID: 1580770420}
+  spreadAccuracyValueText: {fileID: 1580770419}
   targetNumberValueText: {fileID: 1580770410}
   projectileNumberValueText: {fileID: 573675227}
   lifeTimeValueText: {fileID: 1580770409}
@@ -13375,6 +13220,7 @@ MonoBehaviour:
   towerInfoUI: {fileID: 4544513132663384558}
   towerInstallText: {fileID: 409136489598362038}
   itemChoosePanel: {fileID: 1443911461}
+  towerUpgradeSlotUI: {fileID: 0}
   towerCountUpgradeButton: {fileID: 2088021477}
   newAbilityUpgradeButton: {fileID: 2067874399}
   itemUseButton: {fileID: 447534052}

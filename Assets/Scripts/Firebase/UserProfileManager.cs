@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Data;
 using Cysharp.Threading.Tasks;
 using Firebase.Database;
 using UnityEngine;
@@ -8,6 +10,9 @@ public class UserProfileManager : MonoBehaviour
 
     private UserProfile currentProfile;
     public UserProfile CurrentProfile => currentProfile;
+
+    private List<UserProfile> randomProfiles = new List<UserProfile>();
+    public List<UserProfile> RandomProfiles => randomProfiles;
 
     private bool isInitialized = false;
     public bool IsInitialized => isInitialized;
@@ -26,7 +31,7 @@ public class UserProfileManager : MonoBehaviour
     {
         await FireBaseInitializer.Instance.WaitInitialization();
 
-        userRef = FirebaseDatabase.DefaultInstance.RootReference.Child("users");
+        userRef = FirebaseDatabase.DefaultInstance.RootReference.Child(DatabaseRef.UserProfiles);
 
         isInitialized = true;
     }
