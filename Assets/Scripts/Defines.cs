@@ -13,12 +13,14 @@ public static class TagName
     public static readonly string ProjectilePoolManager = "ProjectilePoolManager";
     public static readonly string MainCanvas = "MainCanvas";
     public static readonly string Boss = "Boss";
+    public static readonly string BattleUI = "BattleUI";
 }
 
 public static class ObjectName
 {
     public static readonly string PatternProjectile = "PatternProjectile";
     public static readonly string Enemy = "EnemySample";
+    public static readonly string BossEnemy = "EnemyBossSample";
     public static readonly string ProjectilePrefab = "Projectile_Sample";
     public static readonly string Projectile = "Projectile";
     public static readonly string ChainEffect = "ChainEffect";

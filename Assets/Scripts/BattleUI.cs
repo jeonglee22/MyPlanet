@@ -16,6 +16,8 @@ public class BattleUI : MonoBehaviour
     [SerializeField] private List<Toggle> stageTwoToggles;
     private List<Toggle> currentStageToggles;
     [SerializeField] private List<GameObject> toggleObjects;
+
+    [SerializeField] private Slider bossHpSlider;
     
     private float battleTime = 0f;
 
@@ -52,6 +54,8 @@ public class BattleUI : MonoBehaviour
         }
 
         currentStageToggles[0].isOn = true;
+
+        bossHpSlider.gameObject.SetActive(false);
     }
 
     public void OnDestroy()
@@ -131,5 +135,14 @@ public class BattleUI : MonoBehaviour
     public void OnWaveChanged()
     {
         UpdateWaveToggles();
+    }
+
+    public void SetBossHp(float currentHp, float maxHp)
+    {
+        if(!bossHpSlider.gameObject.activeSelf)
+        {
+            bossHpSlider.gameObject.SetActive(true);
+        }
+        bossHpSlider.value = currentHp / maxHp;
     }
 }

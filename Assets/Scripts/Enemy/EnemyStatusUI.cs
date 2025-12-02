@@ -8,20 +8,26 @@ public class EnemyStatusUI : MonoBehaviour
     [SerializeField] private Slider hpSlider;
 
     private Transform cameraTransform;
+    private BattleUI battleUI;
 
     private void Start()
     {
         enemy = GetComponentInParent<Enemy>();
         enemy.HpDecreseEvent += HpValueChanged;
 
+        cameraTransform = Camera.main.transform;
+
         hpSlider.gameObject.SetActive(false);
 
-        cameraTransform = Camera.main.transform;
+        if(enemy.EnemyType == 4)
+        {
+            battleUI = GameObject.FindGameObjectWithTag(TagName.BattleUI).GetComponent<BattleUI>();        
+        }
     }
 
     private void LateUpdate()
     {
-        if(!hpSlider.gameObject.activeSelf)
+        if(enemy.EnemyType == 4 || !hpSlider.gameObject.activeSelf)
         {
             return;
         }
@@ -32,6 +38,11 @@ public class EnemyStatusUI : MonoBehaviour
     private void OnEnable()
     {
         hpSlider.value = 1f;
+
+        if(enemy != null && enemy.EnemyType == 4 && battleUI != null)
+        {
+            battleUI.SetBossHp(enemy.Health, enemy.MaxHealth);
+        }
     }
 
     private void OnDisable()
@@ -46,7 +57,14 @@ public class EnemyStatusUI : MonoBehaviour
 
     private void HpValueChanged(float hp)
     {
-        hpSlider.gameObject.SetActive(true);
-        hpSlider.value = hp / enemy.MaxHealth;
+        if(enemy.EnemyType == 4)
+        {
+            battleUI.SetBossHp(enemy.Health, enemy.MaxHealth);
+        }
+        else
+        {
+            hpSlider.gameObject.SetActive(true);
+            hpSlider.value = hp / enemy.MaxHealth;
+        }
     }
 }
