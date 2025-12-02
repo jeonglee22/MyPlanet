@@ -315,4 +315,79 @@ public class TowerAmplifier : MonoBehaviour
 
         ApplyBuff(newTower, slotIndex);
     }
+
+    //Move Tower
+    public void RebuildSlotsForNewIndex(int newSelfIndex, int towerCount)
+    {
+        bool hasBuff = buffedSlotIndex != null && buffedSlotIndex.Count > 0;
+        bool hasRandom = randomAbilitySlotIndex != null && randomAbilitySlotIndex.Count > 0;
+
+        // 버프 슬롯이 아무것도 없으면 인덱스만 갱신하고 끝
+        if (!hasBuff && !hasRandom)
+        {
+            selfIndex = newSelfIndex;
+            return;
+        }
+
+        int oldSelf = selfIndex;
+
+        // 1) 현재 절대 슬롯 기준으로 상대 오프셋 계산
+        List<int> buffOffsets = null;
+        if (hasBuff)
+        {
+            buffOffsets = new List<int>(buffedSlotIndex.Count);
+            foreach (var s in buffedSlotIndex)
+            {
+                int offset = s - oldSelf;   // 예: oldSelf=0, s=11 -> offset = -1 (왼쪽 1칸)
+                buffOffsets.Add(offset);
+            }
+        }
+
+        List<int> randomOffsets = null;
+        if (hasRandom)
+        {
+            randomOffsets = new List<int>(randomAbilitySlotIndex.Count);
+            foreach (var s in randomAbilitySlotIndex)
+            {
+                int offset = s - oldSelf;
+                randomOffsets.Add(offset);
+            }
+        }
+
+        // 2) selfIndex를 새 인덱스로 바꾸고, 기존 슬롯 리스트 초기화
+        selfIndex = newSelfIndex;
+        buffedSlotIndex.Clear();
+        randomAbilitySlotIndex.Clear();
+
+        // 3) 새 selfIndex 기준으로 절대 슬롯 재계산 (원형 인덱스)
+        if (buffOffsets != null)
+        {
+            foreach (var offset in buffOffsets)
+            {
+                int target = newSelfIndex + offset;
+
+                target %= towerCount;
+                if (target < 0) target += towerCount;
+
+                if (target == newSelfIndex) continue;     // 자기 자신은 제외
+                if (!buffedSlotIndex.Contains(target))
+                    buffedSlotIndex.Add(target);
+            }
+        }
+
+        if (randomOffsets != null)
+        {
+            foreach (var offset in randomOffsets)
+            {
+                int target = newSelfIndex + offset;
+
+                target %= towerCount;
+                if (target < 0) target += towerCount;
+
+                if (target == newSelfIndex) continue;
+                if (!randomAbilitySlotIndex.Contains(target))
+                    randomAbilitySlotIndex.Add(target);
+            }
+        }
+    }
 }

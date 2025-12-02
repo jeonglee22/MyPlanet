@@ -50,6 +50,7 @@ public class TowerInfoUI : PopUpUI
     private RectTransform contentRect;
 
     private int infoIndex = -1;
+    public int CurrentSlotIndex => infoIndex;
     private bool isSameTower;
 
     private void Start()

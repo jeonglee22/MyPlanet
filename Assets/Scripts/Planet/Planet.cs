@@ -309,6 +309,9 @@ public class Planet : LivingEntity
         // 둘 다 비어 있으면 의미 없음
         if (fromGo == null && toGo == null) return;
 
+        var fromAmp = fromGo != null ? fromGo.GetComponent<TowerAmplifier>() : null;
+        var toAmp = toGo != null ? toGo.GetComponent<TowerAmplifier>() : null;
+
         // 실제 월드 오브젝트 스왑
         towers[fromIndex] = toGo;
         towers[toIndex] = fromGo;
@@ -319,6 +322,21 @@ public class Planet : LivingEntity
         if (toGo != null)
             SetSlotRotation(fromIndex);
 
+        int slotCount = towers.Count;
+        if (amplifiersSlots != null && amplifiersSlots.Length == slotCount)
+        {
+            amplifiersSlots[fromIndex] = towers[fromIndex]?.GetComponent<TowerAmplifier>();
+            amplifiersSlots[toIndex] = towers[toIndex]?.GetComponent<TowerAmplifier>();
+        }
+
+        if (fromAmp != null)
+        {
+            fromAmp.RebuildSlotsForNewIndex(toIndex, slotCount);
+        }
+        if (toAmp != null)
+        {
+            toAmp.RebuildSlotsForNewIndex(fromIndex, slotCount);
+        }
         // 증폭 버프 재적용
         ReapplyAllAmplifierBuffs();
     }

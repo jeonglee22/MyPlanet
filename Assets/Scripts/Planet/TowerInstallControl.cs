@@ -533,6 +533,8 @@ public class TowerInstallControl : MonoBehaviour
             towerInfoObj.SetActive(false);
         }
 
+        ClearAllSlotHighlights();
+
         if (isDraggingTower) return;
 
         //tower null check
@@ -614,6 +616,7 @@ public class TowerInstallControl : MonoBehaviour
         Debug.Log($"[TowerInstallControl] Long press drag end from {dragSourceIndex} to {targetIndex}");
 
         // 상태 초기화는 CleanupDragVisual 안에서 이미 하고 있음
+        ClearAllSlotHighlights();
     }
 
 
@@ -766,6 +769,8 @@ public class TowerInstallControl : MonoBehaviour
         if (sourceIndex < 0 || sourceIndex >= towers.Count) return;
         if (targetIndex < 0 || targetIndex >= towers.Count) return;
 
+        ClearAllSlotHighlights();
+
         // 1) Planet 쪽 실제 타워 이동/스왑 (공격 ↔ 증폭 모두 허용)
         planet?.MoveTower(sourceIndex, targetIndex);
 
@@ -796,6 +801,34 @@ public class TowerInstallControl : MonoBehaviour
         // 6) 슬롯 인풋/버튼 다시 바인딩
         RefreshSlotInputs();
         RefreshSlotLabels();
+
+        if (towerInfoObj != null && towerInfoObj.activeSelf)
+        {
+            var info = towerInfoObj.GetComponent<TowerInfoUI>();
+            if (info != null)
+            {
+                int focusIndex = info.CurrentSlotIndex;
+
+                // 유효한 인덱스면, "지금 보고 있던 슬롯"을 다시 열어서
+                // 새 상태 기준으로 하이라이트를 다시 세팅
+                if (focusIndex >= 0 && focusIndex < towerCount)
+                {
+                    OpenInfoUI(focusIndex);
+                }
+                else
+                {
+                    ClearAllSlotHighlights();
+                }
+            }
+            else
+            {
+                ClearAllSlotHighlights();
+            }
+        }
+        else
+        {
+            ClearAllSlotHighlights();
+        }
     }
     private void RefreshSlotInputs()
     {
