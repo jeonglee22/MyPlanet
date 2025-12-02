@@ -14,7 +14,7 @@ public class UserPlanetData
         attackPower = 0;
     }
 
-    public UserPlanetData(string nickName, int attackPower)
+    public UserPlanetData(string nickName, int attackPower = 0)
     {
         this.nickName = nickName;
         this.attackPower = attackPower;

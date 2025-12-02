@@ -16,6 +16,9 @@ public class UserPlanetManager : MonoBehaviour
     private UserPlanetData currentPlanet;
     public UserPlanetData CurrentPlanet => currentPlanet;
 
+    private bool isInitialized = false;
+    public bool IsInitialized => isInitialized;
+
     private void Awake()
     {
         if (instance == null)
@@ -30,6 +33,8 @@ public class UserPlanetManager : MonoBehaviour
 
         userPlanetRef = FirebaseDatabase.DefaultInstance.GetReference(DatabaseRef.UserPlanets);
         Debug.Log("UserPlanetManager initialized.");
+        
+        isInitialized = true;
     }
 
     public async UniTask<bool> LoadUserPlanetAsync()

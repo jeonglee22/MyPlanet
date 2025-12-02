@@ -37,6 +37,7 @@ public static class SceneName
     public static readonly string CameraTestScene = "CameraTestScene";
     public static readonly string UiTestScene = "UiTestScene";
     public static readonly string StageSelectScene = "StageSelectScene";
+    public static readonly string AsyncRaidTestScene = "AsyncRaidTestScene";
 }
 
 public enum AbilityId

@@ -49,4 +49,16 @@ public class AsyncPlanetTable : DataTable
 
         return dictionary[key];
     }
+
+    public AsyncPlanetData GetRandomData()
+    {
+        if (dictionary.Count == 0)
+        {
+            return null;
+        }
+
+        var keys = new List<int>(dictionary.Keys);
+        var randomKey = keys[Random.Range(0, keys.Count)];
+        return dictionary[randomKey];
+    }
 }
