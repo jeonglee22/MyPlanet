@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -133,8 +133,10 @@ public class TowerInstallControl : MonoBehaviour
             if (emptyTower[index])
             {
                 tower = Instantiate(emptySlotPrefab, PlanetTransform);
+
                 var buttonEmpty = tower.GetComponent<Button>();
                 buttonEmpty.onClick.AddListener(() => IntallNewTower(index));
+
                 towers.Add(tower);
 
                 // Test (Slot Index Text)
@@ -168,8 +170,13 @@ public class TowerInstallControl : MonoBehaviour
                 targeting.SetTowerData(chosenData);
             }
 
-            var button = tower.GetComponent<Button>();
-            button.onClick.AddListener(() => OpenInfoUI(index));
+            //20251202 16:06 click -> seperate drag move tower 
+            //var button = tower.GetComponent<Button>();
+            //button.onClick.AddListener(() => OpenInfoUI(index));
+            var inputHandler = tower.GetComponent<TowerSlotInputHandler>();
+            if (inputHandler == null)
+                inputHandler = tower.AddComponent<TowerSlotInputHandler>();
+            inputHandler.Initialize(this, index);
 
             // Test (Color)
             var image = tower.GetComponentInChildren<Image>();
@@ -295,8 +302,16 @@ public class TowerInstallControl : MonoBehaviour
         //UI-------------------------------------------------------
         if (newTower != null)
         {
-            var button = newTower.GetComponent<Button>();
-            button.onClick.AddListener(() => OpenInfoUI(index));
+
+            //20251202 16:11 click -> seperate drag move tower 
+            //var button = newTower.GetComponent<Button>();
+            //button.onClick.AddListener(() => OpenInfoUI(index));
+            var inputHandler = newTower.GetComponent<TowerSlotInputHandler>();
+            if (inputHandler == null)
+            {
+                inputHandler = newTower.AddComponent<TowerSlotInputHandler>();
+            }
+            inputHandler.Initialize(this, index);
 
             var image = newTower.GetComponentInChildren<Image>();
             var text = newTower.GetComponentInChildren<TextMeshProUGUI>();
@@ -397,7 +412,7 @@ public class TowerInstallControl : MonoBehaviour
         return PickRandomTowerData();
     }
 
-    //Slot Highliht Helper (TowerSlotHighlightUI)
+    //Slot Highliht Helper (TowerSlotHighlightUI) ------------------
     private TowerSlotHighlightUI GetSlotHighlight(int index)
     {
         if (towers == null) return null;
@@ -484,4 +499,25 @@ public class TowerInstallControl : MonoBehaviour
             }
         }
     }
+    //--------------------------------------------------------------
+    //Move Tower----------------------------------------------------
+    public void OnSlotClick(int index)
+    {
+        OpenInfoUI(index);
+    }
+
+    public void OnSlotLongPressStart(int index, Vector2 screenPos)
+    {
+        Debug.Log($"[TowerInstallControl] Long press start on slot {index}, pos={screenPos}");
+
+        // ⚠ 여기서는 TowerInfoUI를 새로 열지 않는다.
+        //    (기존에 떠 있던 정보창이 있으면 그대로 유지)
+
+        // 다음 단계에서:
+        // - 드래그 상태로 전환
+        // - 드래그 고스트 생성
+        // - 원래 슬롯 UI 투명하게 만들기
+        // 등을 여기에 붙일 예정
+    }
+    //--------------------------------------------------------------
 }
