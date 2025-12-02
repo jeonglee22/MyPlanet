@@ -14,6 +14,9 @@ public class TowerAttack : MonoBehaviour
     public TowerDataSO AttackTowerData => towerData;
     private float shootTimer;
 
+    private bool isOtherUserTower = false;
+    public bool IsOtherUserTower { get { return isOtherUserTower; } set { isOtherUserTower = value; } }
+
     private List<int> abilities;
     public List<int> Abilities => abilities;
 
@@ -265,6 +268,9 @@ public class TowerAttack : MonoBehaviour
         {
             float offsetIndex = i - centerIndex;
             var projectile = ProjectilePoolManager.Instance.GetProjectile(baseData);
+            if (isOtherUserTower)
+                projectile.IsOtherUser = true;
+
             var verticalDirection = new Vector3(-baseDirection.y, baseDirection.x, baseDirection.z).normalized;
 
             var direction = new Vector3(baseDirection.x, baseDirection.y, baseDirection.z);

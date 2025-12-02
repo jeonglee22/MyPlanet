@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 [RequireComponent(typeof(Renderer))]
@@ -19,6 +20,8 @@ public class ProjectileVisibilityTracker : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (projectile.IsOtherUser) return;
+
         if (!Application.isPlaying || projectile == null) return;
 
         if (cam == null) cam = Camera.main;

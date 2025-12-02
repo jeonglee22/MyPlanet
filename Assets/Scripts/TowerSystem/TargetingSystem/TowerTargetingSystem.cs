@@ -104,7 +104,7 @@ public class TowerTargetingSystem : MonoBehaviour
 
             Vector3 targetPos = target.position;
             float distSqr = (targetPos - firingPoint).sqrMagnitude;
-            if (distSqr > radiusSqr) continue;
+            // if (distSqr > radiusSqr) continue;
 
             validTargets.Add(target);
         }
