@@ -9,7 +9,8 @@ public class Lazer : MonoBehaviour
     private float chargeTime = 3f;
     private float duration = 2f;
     private float laserLength = 10f;
-    private float laserWidth = 0.2f;
+    private float laserWidth = 0.5f;
+    private float fieldWidth = 0.2f;
     private float tickInterval = 0.1f;
 
     private LineRenderer lineRenderer;
@@ -133,7 +134,7 @@ public class Lazer : MonoBehaviour
             transform.rotation = Quaternion.LookRotation(Vector3.forward, direction);
         }
 
-        fieldRenderer.transform.localScale = new Vector3(laserWidth, laserLength, 1f);
+        fieldRenderer.transform.localScale = new Vector3(fieldWidth, laserLength, 1f);
 
         Vector3 midPoint = (startPoint + endPoint) / 2f;
         fieldRenderer.transform.localPosition = midPoint;

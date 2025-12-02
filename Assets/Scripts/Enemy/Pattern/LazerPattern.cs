@@ -10,7 +10,7 @@ public class LazerPattern : ShootingPattern
     private List<GameObject> lazerPool = new List<GameObject>();
 
     protected float duration = 2f;
-    protected float laserWidth = 0.2f;
+    protected float laserWidth = 0.5f;
     protected float tickInterval = 0.1f;
 
     public override bool RequireAsync => true;

@@ -100,6 +100,7 @@ public enum MoveType
     FollowParent,
     DescendAndStopMovement = 10,
     Revolution = 11,
+    Side,
 }
 
 public enum PatternIds
@@ -161,6 +162,13 @@ public static class Variables
     public static Enemy LastBossEnemy {get; set;} = null;
     public static Enemy MiddleBossEnemy {get; set;} = null;
     public static GameObject TestBossEnemyObject {get; set;} = null;
+
+    public static void Reset()
+    {
+        Quasar = 0;
+        LastBossEnemy = null;
+        MiddleBossEnemy = null;
+    }
 }
 
 public static class AddressLabel
