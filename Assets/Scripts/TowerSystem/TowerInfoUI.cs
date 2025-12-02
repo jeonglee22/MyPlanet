@@ -20,6 +20,9 @@ public class TowerInfoUI : PopUpUI
     [Header("Buff Tower Text")]
     [SerializeField] private TextMeshProUGUI buffSlotInfoText;  
     [SerializeField] private TextMeshProUGUI randomSlotInfoText;
+    [SerializeField] private RectTransform basicEffectListRoot; 
+    [SerializeField] private RectTransform randomEffectListRoot;
+    [SerializeField] private GameObject effectLinePrefab;
 
     [Header("Attack Tower Basic Data")]
     [SerializeField] private TextMeshProUGUI damageValueText;
@@ -396,6 +399,10 @@ public class TowerInfoUI : PopUpUI
             randomSlotInfoText.text = randomInfo;
         }
 
+        ClearBuffEffectLists();
+        FillBasicBuffEffects(ampData);
+        FillRandomAbilityEffects(amplifierTower);
+
         // Buff Panel--------------------------------
         SetText(rangeValueText,
             !string.IsNullOrEmpty(ampData.BuffTowerName)
@@ -612,5 +619,202 @@ public class TowerInfoUI : PopUpUI
         // 둘 다 있으면: 카드와 비슷하게 "이름\n슬롯 설명"
         return $"{abilityName}\n{randomBlock}";
     }
+
+    //Buffed List
+    private void ClearBuffEffectLists()
+    {
+        if (basicEffectListRoot != null)
+        {
+            for (int i = basicEffectListRoot.childCount - 1; i >= 0; i--)
+            {
+                Destroy(basicEffectListRoot.GetChild(i).gameObject);
+            }
+        }
+
+        if (randomEffectListRoot != null)
+        {
+            for (int i = randomEffectListRoot.childCount - 1; i >= 0; i--)
+            {
+                Destroy(randomEffectListRoot.GetChild(i).gameObject);
+            }
+        }
+    }
+
+    private void AddEffectLine(RectTransform root, string text)
+    {
+        if (root == null) return;
+        if (effectLinePrefab == null) return;
+        if (string.IsNullOrEmpty(text)) return;
+
+        var go = Instantiate(effectLinePrefab, root);
+        var tmp = go.GetComponent<TextMeshProUGUI>();
+        if (tmp != null)
+            tmp.text = text;
+    }
+    private string BuildStatChangeLine(string statName, float delta, string formattedValue)
+    {
+        if (Mathf.Approximately(delta, 0f)) return null;
+
+        string dir = delta > 0f ? "상승" : "하락";
+        return $"{statName} 능력치 {dir} ({formattedValue})";
+    }
+
+    private void FillBasicBuffEffects(AmplifierTowerDataSO ampData)
+    {
+        if (basicEffectListRoot == null) return;
+
+        // 먼저 비우기
+        for (int i = basicEffectListRoot.childCount - 1; i >= 0; i--)
+        {
+            Destroy(basicEffectListRoot.GetChild(i).gameObject);
+        }
+
+        if (ampData == null) return;
+
+        // 공격력 (DamageBuff: add, 0.4 -> +40%)
+        if (!Mathf.Approximately(ampData.DamageBuff, 0f))
+        {
+            float delta = ampData.DamageBuff;  // 0 기준
+            string value = FormatPercentFromAdd(delta); // "+40%"
+            string line = BuildStatChangeLine("공격력", delta, value);
+            AddEffectLine(basicEffectListRoot, line);
+        }
+
+        // 공속 (FireRateBuff: mul, 1.2 -> +20%)
+        if (!Mathf.Approximately(ampData.FireRateBuff, 1f))
+        {
+            float delta = ampData.FireRateBuff - 1f;   // 1 기준
+            string value = FormatPercentFromMul(ampData.FireRateBuff); // "+20%"
+            string line = BuildStatChangeLine("공격 속도", delta, value);
+            AddEffectLine(basicEffectListRoot, line);
+        }
+
+        // 투사체 수 +N
+        if (ampData.ProjectileCountBuff != 0)
+        {
+            int delta = ampData.ProjectileCountBuff;
+            string value = delta > 0 ? $"+{delta}" : delta.ToString();
+            string line = BuildStatChangeLine("투사체 수", delta, value);
+            AddEffectLine(basicEffectListRoot, line);
+        }
+
+        // 타겟 수 +N
+        if (ampData.TargetNumberBuff != 0)
+        {
+            int delta = ampData.TargetNumberBuff;
+            string value = delta > 0 ? $"+{delta}" : delta.ToString();
+            string line = BuildStatChangeLine("타겟 수", delta, value);
+            AddEffectLine(basicEffectListRoot, line);
+        }
+
+        // 히트 반경 (HitRadiusBuff: add, 0.25 -> +25%)
+        if (!Mathf.Approximately(ampData.HitRadiusBuff, 0f))
+        {
+            float delta = ampData.HitRadiusBuff;
+            string value = FormatPercentFromAdd(delta);
+            string line = BuildStatChangeLine("히트 반경", delta, value);
+            AddEffectLine(basicEffectListRoot, line);
+        }
+
+        // 관통률 (PercentPenetrationBuff: mul, 1.5 -> +50%)
+        if (!Mathf.Approximately(ampData.PercentPenetrationBuff, 1f))
+        {
+            float delta = ampData.PercentPenetrationBuff - 1f;
+            string value = FormatPercentFromMul(ampData.PercentPenetrationBuff);
+            string line = BuildStatChangeLine("관통률", delta, value);
+            AddEffectLine(basicEffectListRoot, line);
+        }
+
+        // 고정 관통 +N
+        if (!Mathf.Approximately(ampData.FixedPenetrationBuff, 0f))
+        {
+            float delta = ampData.FixedPenetrationBuff;
+            string value = delta > 0 ? $"+{delta:0.##}" : $"{delta:0.##}";
+            string line = BuildStatChangeLine("고정 관통", delta, value);
+            AddEffectLine(basicEffectListRoot, line);
+        }
+
+        // 명중률 (HitRateBuff: mul, 1.2 -> +20%)
+        if (!Mathf.Approximately(ampData.HitRateBuff, 1f))
+        {
+            float delta = ampData.HitRateBuff - 1f;
+            string value = FormatPercentFromMul(ampData.HitRateBuff);
+            string line = BuildStatChangeLine("명중률", delta, value);
+            AddEffectLine(basicEffectListRoot, line);
+        }
+    }
+
+    private void FillRandomAbilityEffects(TowerAmplifier amplifierTower)
+    {
+        if (randomEffectListRoot == null) return;
+
+        // 먼저 비우기
+        for (int i = randomEffectListRoot.childCount - 1; i >= 0; i--)
+        {
+            Destroy(randomEffectListRoot.GetChild(i).gameObject);
+        }
+
+        if (amplifierTower == null) return;
+
+        var ampData = amplifierTower.AmplifierTowerData;
+        var abilities = amplifierTower.Abilities;
+        if (ampData == null || abilities == null || abilities.Count == 0) return;
+
+        int randAbilityId = abilities[0];
+        var raRow = DataTableManager.RandomAbilityTable?.Get(randAbilityId);
+        if (raRow == null) return;
+
+        int baseBuffSlotCount = Mathf.Max(1, ampData.FixedBuffedSlotCount);
+        int addSlotNum = Mathf.Max(0, raRow.AddSlotNum);
+        int randomSlotNum = Mathf.Max(0, raRow.RandonSlotNum);
+        int placeType = raRow.PlaceType;
+        int duplicateType = raRow.DuplicateType;
+
+        // 버프 슬롯 수 증가
+        if (addSlotNum != 0)
+        {
+            // baseBuffSlotCount -> baseBuffSlotCount + addSlotNum
+            int delta = addSlotNum;
+            string value = delta > 0 ? $"+{delta}" : delta.ToString();
+            string line = BuildStatChangeLine("버프 슬롯 수", delta, value);
+            AddEffectLine(randomEffectListRoot, line);
+        }
+
+        // 랜덤 슬롯 수
+        if (randomSlotNum != 0)
+        {
+            int delta = randomSlotNum;
+            string value = delta > 0 ? $"+{delta}" : delta.ToString();
+            string line = BuildStatChangeLine("랜덤 슬롯 수", delta, value);
+            AddEffectLine(randomEffectListRoot, line);
+        }
+
+        // 배치 타입 설명 (숫자지만, 정보성 문구로 한 줄 추가)
+        string placeDesc = null;
+        switch (placeType)
+        {
+            case 0:
+                placeDesc = "랜덤 슬롯 배치: 버프 슬롯과 별도 슬롯에 랜덤 능력 배치";
+                break;
+            case 1:
+                placeDesc = "랜덤 슬롯 배치: 기존 버프 슬롯 중 하나에 랜덤 능력 집중";
+                break;
+            case 2:
+                placeDesc = $"랜덤 슬롯 배치: 기본 버프 슬롯 수가 {addSlotNum}개 증가";
+                break;
+            default:
+                placeDesc = $"랜덤 슬롯 배치 타입: {placeType}";
+                break;
+        }
+        if (!string.IsNullOrEmpty(placeDesc))
+        {
+            AddEffectLine(randomEffectListRoot, placeDesc);
+        }
+
+        // 중첩 여부
+        string dupDesc = duplicateType == 0 ? "랜덤 능력 중첩 가능" : "랜덤 능력 중첩 불가";
+        AddEffectLine(randomEffectListRoot, dupDesc);
+    }
+
 
 }
