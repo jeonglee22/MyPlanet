@@ -15,12 +15,16 @@ public class AsyncRaidUI : MonoBehaviour
     [SerializeField] private Image[] hpFillImages1;
     [SerializeField] private Image[] hpFillImages2;
     [SerializeField] private Image[] hpFillImages3;
+    [SerializeField] private Image[] backGroundImages;
 
     private List<AsyncUserPlanet> asyncUserPlanets;
+    private Color initColor;
 
     private void OnEnable()
     {
         asyncUserPlanets = asyncRaidManager.AsyncUserPlanets;
+
+        Debug.Log("AsyncRaidUI OnEnable :" + asyncUserPlanets?.Count);
 
         if (asyncUserPlanets == null)
             return;
@@ -31,7 +35,10 @@ public class AsyncRaidUI : MonoBehaviour
             var index = i;
 
             planet.HpDecreseEvent += (health) => ControllImageCount(health, index);
-            planet.OnDeathEvent += () => userStatPanel.SetActive(false);
+            planet.OnDeathEvent += () => ChangeToDeathState(index);
+            planet.OnDeathEvent += () => planet.gameObject.SetActive(false);
+
+            SetUserNickname(i, planet.BlurNickname);
         }
     }
 
@@ -46,7 +53,8 @@ public class AsyncRaidUI : MonoBehaviour
             var index = i;
 
             planet.HpDecreseEvent -= (health) => ControllImageCount(health, index);
-            planet.OnDeathEvent -= () => userStatPanel.SetActive(false);
+            planet.OnDeathEvent -= () => ChangeToDeathState(index);
+            planet.OnDeathEvent -= () => planet.gameObject.SetActive(false);
         }
     }
 
@@ -55,26 +63,27 @@ public class AsyncRaidUI : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        if(WaveManager.Instance.IsBossBattle && !asyncRaidManager.IsSettingAsyncUserPlanet)
-        {
-            gameObject.SetActive(true);
-        }
-    }
-
     public void OnClickResetRaid()
     {
         asyncRaidManager.IsSettingAsyncUserPlanet = false;
+        asyncRaidManager.CanStartSpawn = true;
+        asyncRaidManager.IsStartRaid = false;
+
+        gameObject.SetActive(false);
+
         if (asyncUserPlanets == null)
             return;
 
         foreach (var planet in asyncUserPlanets)
         {
-            planet.Die();
             Destroy(planet.gameObject);
+            ResetImages();
         }
+    }
+
+    public void OnClickStartRaid()
+    {
+        asyncRaidManager.IsStartRaid = true;
     }
 
     public void SetTransparentUserPlanetInfo(int index)
@@ -95,6 +104,51 @@ public class AsyncRaidUI : MonoBehaviour
         var hpRatio = hp / 100f * images.Length - Mathf.FloorToInt(hp / 100f * images.Length);
         var i = Mathf.FloorToInt(hp / 100f * images.Length);
 
+        if (i < 0)
+        {
+            i = 0;
+            hpRatio = 0;
+        }
+        if (i < images.Length-1)
+        {
+             images[i+1].fillAmount = 0f;
+        }
         images[i].fillAmount = hpRatio;
+    }
+
+    public void SetUserNickname(int index, string nickname)
+    {
+        nicknameTexts[index].text = nickname;
+    }
+
+    private void ChangeToDeathState(int index)
+    {
+        connectionIcons[index].gameObject.SetActive(false);
+        disConnectionIcons[index].gameObject.SetActive(true);
+        initColor = backGroundImages[index].color;
+        backGroundImages[index].color = Color.gray;
+    }
+
+    private void ResetImages()
+    {
+        foreach (var img in hpFillImages1)
+        {
+            img.fillAmount = 1f;
+        }
+        foreach (var img in hpFillImages2)
+        {
+            img.fillAmount = 1f;
+        }
+        foreach (var img in hpFillImages3)
+        {
+            img.fillAmount = 1f;
+        }
+
+        for (int i = 0; i < connectionIcons.Length; i++)
+        {
+            connectionIcons[i].gameObject.SetActive(true);
+            disConnectionIcons[i].gameObject.SetActive(false);
+            backGroundImages[i].color = initColor;
+        }
     }
 }

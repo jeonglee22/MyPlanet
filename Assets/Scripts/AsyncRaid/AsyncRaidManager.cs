@@ -21,14 +21,22 @@ public class AsyncRaidManager : MonoBehaviour
     private bool isSettingAsyncUserPlanet = false;
     public bool IsSettingAsyncUserPlanet { get { return isSettingAsyncUserPlanet;} set {isSettingAsyncUserPlanet = value;} }
 
+    private bool canStartSpawn = true;
+    public bool CanStartSpawn { get { return canStartSpawn;} set {canStartSpawn = value;} }
+
+    public bool IsStartRaid { get; set; } = false;
+
     private float xOffset = 1.5f;
 
     void Update()
     {
-        if(WaveManager.Instance.IsBossBattle && !isSettingAsyncUserPlanet)
+        if(WaveManager.Instance.IsBossBattle && !isSettingAsyncUserPlanet && canStartSpawn && IsStartRaid)
         {
             SpawnAsyncUserPlanet().Forget();
-            isSettingAsyncUserPlanet = true;
+            canStartSpawn = false;
+        }
+        else if (WaveManager.Instance.IsBossBattle && isSettingAsyncUserPlanet)
+        {
             asyncRaidUI.gameObject.SetActive(true);
         }
     }
@@ -57,6 +65,8 @@ public class AsyncRaidManager : MonoBehaviour
             asyncUserPlanet.InitializePlanet(userPlanetDatas[i] ?? null, totalBossDamagePercent / userPlanetCount, asyncPlanetData, towerData);
             asyncUserPlanets.Add(asyncUserPlanet);
         }
+
+        isSettingAsyncUserPlanet = true;
     }
 
     private Vector3 GetSpawnPoint()
