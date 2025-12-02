@@ -7,7 +7,6 @@ public class UserPlanetData
     public string nickName;
     public int attackPower;
 
-
     public UserPlanetData()
     {
         nickName = string.Empty;

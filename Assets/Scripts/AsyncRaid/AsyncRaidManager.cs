@@ -20,10 +20,11 @@ public class AsyncRaidManager : MonoBehaviour
         await UniTask.WaitUntil(() => UserPlanetManager.Instance.IsInitialized);
 
         userPlanetCount = Random.Range(1, 4);
+        // userPlanetCount = 3;
 
         await UserPlanetManager.Instance.GetRandomPlanetsAsync(userPlanetCount);
 
-        userPlanetDatas = new List<UserPlanetData>();
+        userPlanetDatas = new List<UserPlanetData>(userPlanetCount);
         userPlanetDatas = UserPlanetManager.Instance.UserPlanets;
         asyncUserPlanets = new List<AsyncUserPlanet>();
 
@@ -31,7 +32,7 @@ public class AsyncRaidManager : MonoBehaviour
         {
             var asyncUserPlanetObj = Instantiate(asyncUserPlanetPrefab, transform);
             var asyncUserPlanet = asyncUserPlanetObj.GetComponent<AsyncUserPlanet>();
-            asyncUserPlanet.InitializePlanet(userPlanetDatas[i], totalBossDamagePercent / userPlanetCount);
+            asyncUserPlanet.InitializePlanet(userPlanetDatas[i] ?? null, totalBossDamagePercent / userPlanetCount);
             asyncUserPlanets.Add(asyncUserPlanet);
         }
     }

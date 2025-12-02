@@ -36,6 +36,11 @@ public class AsyncUserPlanet : LivingEntity
 
     public void InitializePlanet(UserPlanetData data, float damage)
     {
+        if (data == null)
+        {
+            data = new UserPlanetData("Unknown", 0);
+        }
+
         planetData = data;
         attack = damage;
         attackDps = attack / livingTime;

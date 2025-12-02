@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using CsvHelper.Configuration.Attributes;
 using Cysharp.Threading.Tasks;
 using Firebase.Database;
 using UnityEngine;
@@ -19,12 +20,15 @@ public class UserPlanetManager : MonoBehaviour
     private bool isInitialized = false;
     public bool IsInitialized => isInitialized;
 
+    private int dummyDataCount = 10;
+
     private void Awake()
     {
         if (instance == null)
         {
             instance = this;
         }
+        FirebaseDatabase.DefaultInstance.SetPersistenceEnabled(false);
     }
 
     private async UniTaskVoid Start()
@@ -32,6 +36,8 @@ public class UserPlanetManager : MonoBehaviour
         await UniTask.WaitUntil(() => AuthManager.Instance.IsInitialized);
 
         userPlanetRef = FirebaseDatabase.DefaultInstance.GetReference(DatabaseRef.UserPlanets);
+
+        SetDummyUserPlanetData().Forget();
         Debug.Log("UserPlanetManager initialized.");
         
         isInitialized = true;
@@ -142,6 +148,44 @@ public class UserPlanetManager : MonoBehaviour
         {
             var result = await GetRandomPlanetsAsync(1);
             return result;
+        }
+        catch (System.Exception ex)
+        {
+            Debug.Log($"Error : {ex.Message}");
+            return false;
+        }
+    }
+
+    public async UniTask<bool> SetDummyUserPlanetData()
+    {
+        if (!AuthManager.Instance.IsSignedIn)
+            return false;
+
+        try
+        {
+            var dataSnapshot = await userPlanetRef.GetValueAsync().AsUniTask();
+
+            var userCount = dataSnapshot.ChildrenCount;
+            Debug.Log(userCount);
+
+            if (userCount >= dummyDataCount)
+            {
+                Debug.Log("Already have enough dummy data.");
+                return true;
+            }
+
+            var remainCount = dummyDataCount - (int)userCount;
+            for (int i = 0; i < remainCount; i++)
+            {
+                var nickName = $"DummyUser 100{i}";
+                var attackPower = Random.Range(100, 1000);
+                var data = new UserPlanetData(nickName, attackPower);
+                var json = data.ToJson();
+
+                await userPlanetRef.Push().SetRawJsonValueAsync(json).AsUniTask();
+            }
+            
+            return true;
         }
         catch (System.Exception ex)
         {
