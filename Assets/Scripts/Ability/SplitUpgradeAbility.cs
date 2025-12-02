@@ -170,7 +170,7 @@ public class SplitUpgradeAbility : EffectAbility
             newProjectiles.abilityRelease += ability.RemoveAbility;
         }
 
-        Debug.Log(newProjectiles.projectileData.AttackType);
+        //Debug.Log(newProjectiles.projectileData.AttackType);
         newProjectiles.currentPierceCount = 1;
     }
 

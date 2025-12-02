@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using NUnit.Framework;
 using UnityEngine;
 
 public struct ScaleData
@@ -61,11 +62,13 @@ public class WaveManager : MonoBehaviour
 
         Cancel();
         ResetWave();
+        Variables.Reset();
     }
 
     private void OnDestroy()
     {
         Cancel();
+        Variables.Reset();
     }
 
     public HashSet<int> ExtractEnemyIds(CombineData combData)
@@ -106,6 +109,7 @@ public class WaveManager : MonoBehaviour
     private void StartWaveGroupTimer()
     {
         waveGroupStartTime = Time.time;
+        pausedTime = 0f;
         groupCts?.Cancel();
         groupCts?.Dispose();
         groupCts = new CancellationTokenSource();
@@ -124,7 +128,7 @@ public class WaveManager : MonoBehaviour
 
     private async UniTask WaitForWaveGroupCompletion(CancellationToken cts)
     {
-        float elapsed = Time.time - waveGroupStartTime;
+        float elapsed = Time.time - waveGroupStartTime - pausedTime;
         float remainingTime = waveGroupDuration - elapsed;
 
         if(remainingTime > 0)
@@ -152,6 +156,7 @@ public class WaveManager : MonoBehaviour
         StartWaveGroupTimer();
 
         await PreloadWaveAssets(waveDatas[0], cts);
+        await UniTask.Delay(System.TimeSpan.FromSeconds(1f), cancellationToken: cts);
         await StartNextWave(cts);
     }
 
@@ -179,17 +184,26 @@ public class WaveManager : MonoBehaviour
         {
             try
             {
-                for(int i = 0; i < waveData.RepeatCount; i++)
+                if(waveData.RepeatCount == 0)
                 {
                     SpawnManager.Instance.SpawnCombination(combData, scaleData);
                     
-                    if(i < waveData.RepeatCount - 1)
+                    await UniTask.Delay(System.TimeSpan.FromSeconds(waveData.SpawnTerm), cancellationToken: linkedCts.Token);
+                }
+                else
+                {
+                    for(int i = 0; i < waveData.RepeatCount; i++)
                     {
+                        if(IsWaveGroupTimeExpired())
+                        {
+                            break;
+                        }
+
+                        SpawnManager.Instance.SpawnCombination(combData, scaleData);
+                        
                         await UniTask.Delay(System.TimeSpan.FromSeconds(waveData.SpawnTerm), cancellationToken: linkedCts.Token);
                     }
                 }
-
-                await UniTask.Delay(System.TimeSpan.FromSeconds(1f), cancellationToken: linkedCts.Token);
             }
             catch (System.OperationCanceledException)
             {
@@ -258,11 +272,6 @@ public class WaveManager : MonoBehaviour
         {
             await StartNextWave(cts);
         }
-        else if(currentWaveIndex >= waveDatas.Count && !isLastBoss)
-        {
-            isCleared = true;
-            Debug.Log($"Stage {currentStageId} completed!");
-        }
     }
 
     public void ResetWave()
@@ -290,7 +299,7 @@ public class WaveManager : MonoBehaviour
         isBossBattle = true;
         this.isLastBoss = isLastBoss;
 
-        pausedTime = Time.time;
+        pauseStartTime = Time.time;
 
         if(isLastBoss)
         {

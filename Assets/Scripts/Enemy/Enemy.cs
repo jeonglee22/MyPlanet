@@ -224,6 +224,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     public void Initialize(EnemyTableData enemyData, int enemyId, ObjectPoolManager<int, Enemy> poolManager, ScaleData scaleData, int spawnPointIndex)
     {
         this.enemyId = enemyId;
+
         objectPoolManager = poolManager;
 
         data = enemyData;

@@ -99,7 +99,7 @@ public class Planet : LivingEntity
 
     private async UniTaskVoid levelUps(int count)
     {
-        Debug.Log("LevelUpCount" + count);
+        //Debug.Log("LevelUpCount" + count);
         for (int i = 0; i < count; i++)
         {
             levelUpEvent?.Invoke();
