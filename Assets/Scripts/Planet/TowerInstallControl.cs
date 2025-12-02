@@ -205,6 +205,8 @@ public class TowerInstallControl : MonoBehaviour
         }
         SettingTowerTransform(0f);
         currentAngle = 0f;
+        RefreshSlotLabels();
+        RefreshSlotInputs();
     }
 
     public bool IsUsedSlot(int index)
@@ -310,7 +312,6 @@ public class TowerInstallControl : MonoBehaviour
             }
         }
         //---------------------------------------------------------
-
         //UI-------------------------------------------------------
         if (newTower != null)
         {
@@ -356,6 +357,9 @@ public class TowerInstallControl : MonoBehaviour
         IsReadyInstall = false;
         ChoosedData = null;
         isInstall = true;
+
+        RefreshSlotLabels();
+        RefreshSlotInputs();
     }
 
     public void OpenInfoUI(int index)
@@ -594,80 +598,24 @@ public class TowerInstallControl : MonoBehaviour
 
     public void OnSlotLongPressEnd(int index, Vector2 screenPos)
     {
-        if (!isDraggingTower)
-            return;
+        if (!isDraggingTower) return;
 
-        // 드롭한 위치 기준으로 목표 슬롯 찾기
-        int targetIndex = GetSlotIndexFromScreenPos(screenPos);
+        // 드롭된 위치 기준으로 실제 슬롯 인덱스 계산
+        int targetIndex = FindSlotIndexFromScreenPos(screenPos);
 
-        // 고스트 정리 / 원본 색 복구는 마지막에 공통으로 처리
-        void Finish()
+        if (targetIndex >= 0 && targetIndex != dragSourceIndex)
         {
-            CleanupDragVisual();
-            Debug.Log($"[TowerInstallControl] Long press drag end on slot {index}, drop={targetIndex}");
+            // 공격 ↔ 공격, 공격 ↔ 증폭, 증폭 ↔ 증폭, 공격/증폭 ↔ 빈 슬롯 모두 허용
+            MoveOrSwapTower(dragSourceIndex, targetIndex);
         }
 
-        // 유효하지 않은 곳에 드롭했거나, 자기 자신이면 -> 그냥 취소
-        if (targetIndex < 0 || targetIndex == dragSourceIndex)
-        {
-            Finish();
-            return;
-        }
+        // 고스트/투명 처리 복구
+        CleanupDragVisual();
+        Debug.Log($"[TowerInstallControl] Long press drag end from {dragSourceIndex} to {targetIndex}");
 
-        // 이번 1차 버전: "공격 타워만" 드래그 대상을 허용
-        var srcAttack = GetAttackTower(dragSourceIndex);
-        if (srcAttack == null)
-        {
-            Finish();
-            return;
-        }
-
-        bool targetIsEmpty = !IsUsedSlot(targetIndex);   // emptyTower 기반
-        var targetAttack = GetAttackTower(targetIndex);
-        var targetAmp = GetAmplifierTower(targetIndex);
-
-        // (A) 빈 슬롯에 드롭 -> Move
-        if (targetIsEmpty)
-        {
-            // UI + 데이터 쪽 이동
-            MoveAttackSlotUIAndData(dragSourceIndex, targetIndex);
-
-            // Planet 실제 타워 이동
-            planet?.MoveAttackTower(dragSourceIndex, targetIndex);
-
-            // 버프 전체 재적용 (슬롯 기준)
-            planet?.ReapplyAllAmplifierBuffs();
-
-            Finish();
-            return;
-        }
-
-        // (B) 다른 공격 타워가 있는 슬롯에 드롭 -> Swap
-        if (targetAttack != null)
-        {
-            // UI + 데이터 스왑
-            SwapAttackSlotUIAndData(dragSourceIndex, targetIndex);
-
-            // Planet 실제 타워 스왑
-            planet?.SwapAttackTowers(dragSourceIndex, targetIndex);
-
-            // 버프 전체 재적용
-            planet?.ReapplyAllAmplifierBuffs();
-
-            Finish();
-            return;
-        }
-
-        // (C) 증폭 타워 위에 드롭한 경우: 1차 버전에선 무효 처리 (그냥 돌아가기)
-        if (targetAmp != null)
-        {
-            Finish();
-            return;
-        }
-
-        // 기타 케이스: 안전하게 취소
-        Finish();
+        // 상태 초기화는 CleanupDragVisual 안에서 이미 하고 있음
     }
+
 
     private void CleanupDragVisual()
     {
@@ -687,31 +635,6 @@ public class TowerInstallControl : MonoBehaviour
         isDraggingTower = false;
         dragSourceIndex = -1;
     }
-    private int GetSlotIndexFromScreenPos(Vector2 screenPos)
-    {
-        if (towers == null) return -1;
-
-        for (int i = 0; i < towers.Count; i++)
-        {
-            var go = towers[i];
-            if (go == null) continue;
-
-            var rt = go.GetComponent<RectTransform>();
-            if (rt == null) continue;
-
-            if (RectTransformUtility.RectangleContainsScreenPoint(
-                    rt,
-                    screenPos,
-                    uiCanvas != null && uiCanvas.renderMode != RenderMode.ScreenSpaceOverlay
-                        ? uiCanvas.worldCamera
-                        : null))
-            {
-                return i;
-            }
-        }
-        return -1;
-    }
-
     // ---------------------- [UI & 데이터: 공격 타워 -> 빈 슬롯 이동] ----------------------
     private void MoveAttackSlotUIAndData(int fromIndex, int toIndex)
     {
@@ -810,6 +733,157 @@ public class TowerInstallControl : MonoBehaviour
         // 원형 배치 다시 세팅 (실제로는 인덱스 고정이므로 크게 변하는 건 없음)
         SettingTowerTransform(currentAngle);
     }
+
+    private int FindSlotIndexFromScreenPos(Vector2 screenPos)
+    {
+        if (towers == null || uiCanvas == null) return -1;
+
+        Camera cam = uiCanvas.renderMode == RenderMode.ScreenSpaceOverlay
+            ? null
+            : uiCanvas.worldCamera;
+
+        for (int i = 0; i < towers.Count; i++)
+        {
+            var go = towers[i];
+            if (go == null) continue;
+
+            var rect = go.GetComponent<RectTransform>();
+            if (rect == null) continue;
+
+            if (RectTransformUtility.RectangleContainsScreenPoint(rect, screenPos, cam))
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    private void MoveOrSwapTower(int sourceIndex, int targetIndex)
+    {
+        if (sourceIndex == targetIndex) return;
+        if (towers == null) return;
+        if (sourceIndex < 0 || sourceIndex >= towers.Count) return;
+        if (targetIndex < 0 || targetIndex >= towers.Count) return;
+
+        // 1) Planet 쪽 실제 타워 이동/스왑 (공격 ↔ 증폭 모두 허용)
+        planet?.MoveTower(sourceIndex, targetIndex);
+
+        // 2) UI 오브젝트 스왑
+        var tmpGo = towers[sourceIndex];
+        towers[sourceIndex] = towers[targetIndex];
+        towers[targetIndex] = tmpGo;
+
+        // 3) 공격타워 데이터(assignedTowerDatas) 스왑
+        if (assignedTowerDatas != null)
+        {
+            var tmpData = assignedTowerDatas[sourceIndex];
+            assignedTowerDatas[sourceIndex] = assignedTowerDatas[targetIndex];
+            assignedTowerDatas[targetIndex] = tmpData;
+        }
+
+        // 4) 빈 슬롯 여부 플래그 스왑
+        if (emptyTower != null)
+        {
+            bool tmpEmpty = emptyTower[sourceIndex];
+            emptyTower[sourceIndex] = emptyTower[targetIndex];
+            emptyTower[targetIndex] = tmpEmpty;
+        }
+
+        // 5) 위치/회전 다시 잡기
+        SettingTowerTransform(currentAngle);
+
+        // 6) 슬롯 인풋/버튼 다시 바인딩
+        RefreshSlotInputs();
+        RefreshSlotLabels();
+    }
+    private void RefreshSlotInputs()
+    {
+        if (towers == null) return;
+
+        for (int i = 0; i < towerCount; i++)
+        {
+            var go = towers[i];
+            if (go == null) continue;
+
+            var input = go.GetComponent<TowerSlotInputHandler>();
+            var button = go.GetComponent<Button>();
+
+            // 빈 슬롯
+            if (emptyTower != null && emptyTower[i])
+            {
+                // 드래그 입력 제거
+                if (input != null)
+                {
+                    Destroy(input);
+                }
+
+                // 설치 버튼 다시 연결
+                if (button != null)
+                {
+                    button.onClick.RemoveAllListeners();
+                    int captured = i;
+                    button.onClick.AddListener(() => IntallNewTower(captured));
+                }
+            }
+            // 타워가 있는 슬롯
+            else
+            {
+                // 드래그/탭 인풋 붙이기
+                if (input == null)
+                {
+                    input = go.AddComponent<TowerSlotInputHandler>();
+                }
+                input.Initialize(this, i);
+
+                // 설치 버튼은 사용 안 하므로 리스너 제거
+                if (button != null)
+                {
+                    button.onClick.RemoveAllListeners();
+                }
+            }
+        }
+    }
+    private void RefreshSlotLabels()
+    {
+        if (towers == null) return;
+
+        for (int i = 0; i < towerCount; i++)
+        {
+            var go = towers[i];
+            if (go == null) continue;
+
+            var text = go.GetComponentInChildren<TextMeshProUGUI>();
+            if (text == null) continue;
+
+            // 빈 슬롯이면
+            if (emptyTower != null && emptyTower[i])
+            {
+                // 디버그용으로 인덱스를 계속 보고 싶으면:
+                text.text = i.ToString();
+                // 완전히 숨기고 싶으면 아래처럼:
+                // text.text = "";
+                continue;
+            }
+
+            // 여기부터는 "타워가 있는 슬롯"
+
+            bool isAttack = assignedTowerDatas != null && assignedTowerDatas[i] != null;
+            bool isAmplifier = !isAttack; // 공격타워가 아니면서 emptyTower=false면 증폭타워
+
+            if (isAttack)
+            {
+                // 공격 타워 슬롯: 인덱스만 출력
+                text.text = i.ToString();
+            }
+            else if (isAmplifier)
+            {
+                // 증폭 타워 슬롯: 기존처럼 "i+"
+                text.text = $"{i}+";
+            }
+        }
+    }
+
 
     //--------------------------------------------------------------
 }

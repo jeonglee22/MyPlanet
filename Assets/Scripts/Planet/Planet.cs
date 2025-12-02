@@ -296,68 +296,47 @@ public class Planet : LivingEntity
     }
 
     //Move Tower ---------------------------------------
-    public void MoveAttackTower(int fromIndex, int toIndex)
+    public void MoveTower(int fromIndex, int toIndex)
     {
         if (towers == null) return;
+        if (fromIndex == toIndex) return;
         if (fromIndex < 0 || fromIndex >= towers.Count) return;
         if (toIndex < 0 || toIndex >= towers.Count) return;
-        if (fromIndex == toIndex) return;
 
-        var fromObj = towers[fromIndex];
-        if (fromObj == null) return;
+        var fromGo = towers[fromIndex];
+        var toGo = towers[toIndex];
 
-        var fromAttack = fromObj.GetComponent<TowerAttack>();
-        if (fromAttack == null) return; 
+        // 둘 다 비어 있으면 의미 없음
+        if (fromGo == null && toGo == null) return;
 
-        var toObj = towers[toIndex];
-        if (toObj != null) return; // to 슬롯은 진짜 "빈" 상태라고 가정
+        // 실제 월드 오브젝트 스왑
+        towers[fromIndex] = toGo;
+        towers[toIndex] = fromGo;
 
-        towers[fromIndex] = null;
-        towers[toIndex] = fromObj;
+        // 회전/위치 갱신
+        if (fromGo != null)
+            SetSlotRotation(toIndex);
+        if (toGo != null)
+            SetSlotRotation(fromIndex);
 
-        SetSlotRotation(toIndex);
-    }
-
-    public void SwapAttackTowers(int indexA, int indexB)
-    {
-        if (towers == null) return;
-        if (indexA < 0 || indexA >= towers.Count) return;
-        if (indexB < 0 || indexB >= towers.Count) return;
-        if (indexA == indexB) return;
-
-        var objA = towers[indexA];
-        var objB = towers[indexB];
-        if (objA == null || objB == null) return;
-
-        var attackA = objA.GetComponent<TowerAttack>();
-        var attackB = objB.GetComponent<TowerAttack>();
-        if (attackA == null || attackB == null)
-        {
-            // 둘 중 하나라도 공격 타워가 아니면 스왑하지 않음 (Amplifier 스왑은 나중에)
-            return;
-        }
-
-        towers[indexA] = objB;
-        towers[indexB] = objA;
-
-        SetSlotRotation(indexA);
-        SetSlotRotation(indexB);
+        // 증폭 버프 재적용
+        ReapplyAllAmplifierBuffs();
     }
     public void ReapplyAllAmplifierBuffs()
     {
-        if (amplifiersSlots == null) return;
-        int slotCount = towers != null ? towers.Count : 0;
+        if (amplifiersSlots == null || towers == null) return;
 
-        //Init Buff
+        int slotCount = towers.Count;
+
+        // 1) 모든 증폭타워가 걸어둔 버프/능력 일단 제거
         for (int i = 0; i < amplifiersSlots.Length; i++)
         {
             var amp = amplifiersSlots[i];
             if (amp == null) continue;
-
             amp.ClearAllbuffs();
         }
 
-        //ReBuff
+        // 2) 각 증폭타워가 기억하고 있는 슬롯 인덱스를 기준으로 다시 적용
         for (int i = 0; i < amplifiersSlots.Length; i++)
         {
             var amp = amplifiersSlots[i];
@@ -368,7 +347,9 @@ public class Planet : LivingEntity
 
             if ((buffSlots == null || buffSlots.Count == 0) &&
                 (randomSlots == null || randomSlots.Count == 0))
+            {
                 continue;
+            }
 
             // buffSlots ∪ randomSlots 의 합집합
             HashSet<int> targetSlots = new HashSet<int>();
@@ -385,6 +366,7 @@ public class Planet : LivingEntity
                     targetSlots.Add(s);
             }
 
+            // 실제로 그 슬롯에 앉아있는 공격 타워에게 다시 버프 적용
             foreach (int slotIndex in targetSlots)
             {
                 if (slotIndex < 0 || slotIndex >= slotCount) continue;
@@ -396,6 +378,5 @@ public class Planet : LivingEntity
             }
         }
     }
-
     //--------------------------------------------------
 }
