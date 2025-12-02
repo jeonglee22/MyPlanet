@@ -17,6 +17,10 @@ public class TowerInfoUI : PopUpUI
     [SerializeField] private GameObject attackTowerDataPanel;
     [SerializeField] private GameObject buffTowerDataPanel;
 
+    [Header("Buff Tower Text")]
+    [SerializeField] private TextMeshProUGUI buffSlotInfoText;  
+    [SerializeField] private TextMeshProUGUI randomSlotInfoText;
+
     [Header("Attack Tower Basic Data")]
     [SerializeField] private TextMeshProUGUI damageValueText;
     [SerializeField] private TextMeshProUGUI fireRateValueText;
@@ -360,21 +364,37 @@ public class TowerInfoUI : PopUpUI
         {
             if (nameText != null) nameText.text = $"Amplifier {index}";
             SetAllText("no data");
+
+            if (buffSlotInfoText != null) buffSlotInfoText.text = "버프 슬롯 없음";
+            if (randomSlotInfoText != null) randomSlotInfoText.text = "랜덤 슬롯 없음";
             return;
         }
 
         string baseName = !string.IsNullOrEmpty(ampData.BuffTowerName)
-            ? ampData.BuffTowerName
-            : $"Amplifier {index}";
+            ? ampData.BuffTowerName : $"Amplifier {index}";
 
         int level = amplifierTower.ReinforceLevel;
 
-        //
+        //Name Object
         if (nameText != null)
             nameText.text = $"{baseName} (Lv.{level})";
 
         SetText(towerIdValueText, $"{baseName} (Lv.{level})");
         //
+
+        //Slot Index Info
+        if (buffSlotInfoText != null)
+        {
+            int selfIndex = amplifierTower.SelfIndex;
+            string buffBlock = FormatOffsetArray(amplifierTower.BuffedSlotIndex, selfIndex);
+            buffSlotInfoText.text = buffBlock;
+        }
+
+        if (randomSlotInfoText != null)
+        {
+            string randomInfo = BuildRandomSlotInfo(amplifierTower);
+            randomSlotInfoText.text = randomInfo;
+        }
 
         // Buff Panel--------------------------------
         SetText(rangeValueText,
@@ -523,4 +543,74 @@ public class TowerInfoUI : PopUpUI
         float p = (mul - 1f) * 100f;
         return $"{p:+0.##;-0.##}%";
     }
+
+    private string FormatOffsetArray(IReadOnlyList<int> targetSlots, int selfIndex)
+    {
+        if (targetSlots == null || targetSlots.Count == 0)
+            return "버프 슬롯 없음";
+
+        // selfIndex 기준 상대 오프셋 계산
+        List<int> offsets = new List<int>();
+        for (int i = 0; i < targetSlots.Count; i++)
+        {
+            int slot = targetSlots[i];
+            if (slot == selfIndex) continue; // 자기 자신은 제외
+            int offset = slot - selfIndex;
+            offsets.Add(offset);
+        }
+
+        if (offsets.Count == 0)
+            return "버프 슬롯 없음";
+
+        var parts = new List<string>();
+        foreach (int o in offsets)
+        {
+            string dir = o > 0 ? "오른쪽" : "왼쪽";
+            int n = Mathf.Abs(o);
+            parts.Add($"{dir} {n}번째");
+        }
+
+        var sb = new StringBuilder();
+        sb.AppendLine("요격타워 기준");
+        sb.Append(string.Join(", ", parts));
+        return sb.ToString();
+    }
+
+    private string BuildRandomSlotInfo(TowerAmplifier amp)
+    {
+        if (amp == null) return "-";
+
+        int selfIndex = amp.SelfIndex;
+        var randomSlots = amp.RandomAbilitySlotIndex;
+
+        // 랜덤 능력 이름
+        string abilityName = null;
+        var abilities = amp.Abilities;
+        if (abilities != null && abilities.Count > 0)
+        {
+            int randAbilityId = abilities[0];
+            var raRow = DataTableManager.RandomAbilityTable?.Get(randAbilityId);
+            if (raRow != null)
+                abilityName = raRow.RandomAbilityName;
+        }
+
+        // 슬롯 오프셋 문자열
+        string randomBlock = FormatOffsetArray(randomSlots, selfIndex);
+
+        // 둘 다 없으면
+        if (string.IsNullOrEmpty(abilityName) && string.IsNullOrEmpty(randomBlock))
+            return "랜덤 슬롯 없음";
+
+        // 능력 이름만 있는 경우
+        if (!string.IsNullOrEmpty(abilityName) && string.IsNullOrEmpty(randomBlock))
+            return abilityName;
+
+        // 슬롯 정보만 있는 경우
+        if (string.IsNullOrEmpty(abilityName) && !string.IsNullOrEmpty(randomBlock))
+            return randomBlock;
+
+        // 둘 다 있으면: 카드와 비슷하게 "이름\n슬롯 설명"
+        return $"{abilityName}\n{randomBlock}";
+    }
+
 }

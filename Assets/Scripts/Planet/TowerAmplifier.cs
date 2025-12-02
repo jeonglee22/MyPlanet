@@ -15,6 +15,7 @@ public class TowerAmplifier : MonoBehaviour
     public IReadOnlyList<int> RandomAbilitySlotIndex => randomAbilitySlotIndex;
 
     private int selfIndex;
+    public int SelfIndex => selfIndex;
     private Planet planet;
 
     private List<int> abilities = new List<int>();
