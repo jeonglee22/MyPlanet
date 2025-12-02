@@ -35,7 +35,7 @@ public class LoadManager : MonoBehaviour
         return null;
     }
 
-    public async UniTask<GameObject> LoadEnemyPrefabAsync(int enemyId)
+    public async UniTask<GameObject> LoadEnemyPrefabAsync(int enemyId, int enemyType)
     {
         if (loadedEnemyPrefabs.ContainsKey(enemyId))
         {
@@ -43,7 +43,16 @@ public class LoadManager : MonoBehaviour
         }
 
         //string addressKey = enemyId.ToString();
-        string addressKey = ObjectName.Enemy;
+        string addressKey = default;
+        switch (enemyType)
+        {
+            case 4:
+                addressKey = ObjectName.BossEnemy;
+                break;
+            default:
+                addressKey = ObjectName.Enemy;
+                break;
+        }
 
         try
         {
@@ -76,7 +85,8 @@ public class LoadManager : MonoBehaviour
         {
             if(!loadedEnemyPrefabs.ContainsKey(enemyId))
             {
-                loadTasks.Add(LoadEnemyPrefabAsync(enemyId));
+                var enemyData = DataTableManager.EnemyTable.Get(enemyId);
+                loadTasks.Add(LoadEnemyPrefabAsync(enemyId, enemyData.EnemyType));
             }
         }
 

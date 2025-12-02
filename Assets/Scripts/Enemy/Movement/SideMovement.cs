@@ -58,6 +58,8 @@ public class SideMovement : IMovement
         rightPoint = new Vector3(screenBounds.xMax, yPos, 0f);
 
         currentTarget = Vector3.zero;
+
+        isInitialized = false;
     }
 
     public bool IsCompleted() => false;
