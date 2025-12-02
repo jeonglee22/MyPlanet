@@ -397,4 +397,44 @@ public class Planet : LivingEntity
         }
     }
     //--------------------------------------------------
+    //Remove Tower--------------------------------------
+    public int GetAttackTowerCount()
+    {
+        if (planetAttacks == null) return 0;
+        return planetAttacks.Count;
+    }
+
+    public void RemoveTowerAt(int index)
+    {
+        if (towers == null) return;
+        if (index < 0 || index >= towers.Count) return;
+
+        var go = towers[index];
+        if (go == null) return;
+
+        // 공격 타워라면 planetAttacks에서 제거
+        var attack = go.GetComponent<TowerAttack>();
+        if (attack != null)
+        {
+            if (planetAttacks != null)
+            {
+                planetAttacks.Remove(attack);
+            }
+        }
+
+        // 증폭 타워라면 증폭 슬롯에서 제거
+        var amp = go.GetComponent<TowerAmplifier>();
+        if (amp != null && amplifiersSlots != null && index >= 0 && index < amplifiersSlots.Length)
+        {
+            amplifiersSlots[index] = null;
+        }
+
+        // 실제 오브젝트 제거
+        Destroy(go);
+        towers[index] = null;
+
+        // 남아 있는 증폭 버프들 다시 셋업
+        ReapplyAllAmplifierBuffs();
+    }
+    //--------------------------------------------------
 }

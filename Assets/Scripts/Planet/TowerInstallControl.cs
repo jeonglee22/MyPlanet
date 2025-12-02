@@ -84,6 +84,16 @@ public class TowerInstallControl : MonoBehaviour
     private Image dragSourceImage;
     private Color dragSourceOriginalColor;
 
+    [Header("Delete Settings")]
+    [SerializeField] private GameObject trashIconObj;      
+    [SerializeField] private RectTransform trashIconRect;  
+    [SerializeField] private GameObject deleteConfirmPanel;
+    [SerializeField] private GameObject yesOrNoPanel;
+    [SerializeField] private Button deleteYesButton;
+    [SerializeField] private Button deleteNoButton;
+
+    private int pendingDeleteIndex = -1;
+
     private void Awake()
     {
         planetTowerUI.TowerCount = towerCount;
@@ -107,6 +117,19 @@ public class TowerInstallControl : MonoBehaviour
         if (towerInfoObj != null)
             towerInfoObj.SetActive(false);
         CurrentTowerCount = 0;
+
+        //rm tower
+        if (trashIconObj != null)
+            trashIconObj.SetActive(false);
+
+        if (deleteConfirmPanel != null)
+            deleteConfirmPanel.SetActive(false);
+
+        if (deleteYesButton != null)
+            deleteYesButton.onClick.AddListener(OnDeleteYes);
+
+        if (deleteNoButton != null)
+            deleteNoButton.onClick.AddListener(OnDeleteNo);
     }
 
     private void Update()
@@ -524,8 +547,6 @@ public class TowerInstallControl : MonoBehaviour
 
     public void OnSlotLongPressStart(int index, Vector2 screenPos)
     {
-        Debug.Log($"[TowerInstallControl] Long press start on slot {index}, pos={screenPos}");
-
         if (IsReadyInstall) return; //Consider preventing Install mod 
 
         if (towerInfoObj != null && towerInfoObj.activeSelf) 
@@ -543,6 +564,24 @@ public class TowerInstallControl : MonoBehaviour
         isDraggingTower = true;
         dragSourceIndex = index;
 
+
+        //rm tower
+        bool canShowTrash = false;
+        var attack = GetAttackTower(index);
+        var amp = GetAmplifierTower(index);
+
+        if (attack != null)
+        {
+            int attackCount = planet != null ? planet.GetAttackTowerCount() : 0;
+            canShowTrash = attackCount > 1;
+        }
+        else if (amp != null)
+        {
+            canShowTrash = true;
+        }
+
+        if (trashIconObj != null)
+            trashIconObj.SetActive(canShowTrash);
         //drag prefab
         if (dragImagePrefab != null && uiCanvas != null)
         {
@@ -572,7 +611,6 @@ public class TowerInstallControl : MonoBehaviour
             }
             UpdateDragGhostPosition(screenPos);
         }
-        Debug.Log($"[TowerInstallControl] Long press drag start on slot {index}");
     }
 
     public void OnSlotLongPressDrag(int index, Vector2 screenPos)
@@ -602,21 +640,54 @@ public class TowerInstallControl : MonoBehaviour
     {
         if (!isDraggingTower) return;
 
-        // 드롭된 위치 기준으로 실제 슬롯 인덱스 계산
-        int targetIndex = FindSlotIndexFromScreenPos(screenPos);
+        int sourceIndex = dragSourceIndex; // Cleanup 전에 따로 보관
 
-        if (targetIndex >= 0 && targetIndex != dragSourceIndex)
+        // ---- 휴지통 영역에 드랍됐는지 먼저 체크 ----
+        bool droppedOnTrash = false;
+        if (trashIconObj != null && trashIconObj.activeSelf && trashIconRect != null && uiCanvas != null)
         {
-            // 공격 ↔ 공격, 공격 ↔ 증폭, 증폭 ↔ 증폭, 공격/증폭 ↔ 빈 슬롯 모두 허용
-            MoveOrSwapTower(dragSourceIndex, targetIndex);
+            Camera cam = uiCanvas.renderMode == RenderMode.ScreenSpaceOverlay
+                ? null
+                : uiCanvas.worldCamera;
+
+            if (RectTransformUtility.RectangleContainsScreenPoint(trashIconRect, screenPos, cam))
+            {
+                droppedOnTrash = true;
+            }
         }
 
-        // 고스트/투명 처리 복구
-        CleanupDragVisual();
-        Debug.Log($"[TowerInstallControl] Long press drag end from {dragSourceIndex} to {targetIndex}");
+        if (droppedOnTrash)
+        {
+            // 1) 드래그 고스트 정리 & 원래 슬롯 시각 복구
+            CleanupDragVisual();  // 여기서 dragSourceIndex는 -1로 초기화되지만 sourceIndex에 이미 저장해둠
 
-        // 상태 초기화는 CleanupDragVisual 안에서 이미 하고 있음
-        ClearAllSlotHighlights();
+            // 2) 삭제 확인 팝업 세팅
+            pendingDeleteIndex = sourceIndex;
+            ShowDeleteConfirm();
+
+            Debug.Log($"[TowerInstallControl] Drop on trash from {sourceIndex}");
+        }
+        else
+        {
+            // 기존 슬롯 드랍 로직 (스왑/이동)
+            int targetIndex = FindSlotIndexFromScreenPos(screenPos);
+            if (targetIndex >= 0 && targetIndex != sourceIndex)
+            {
+                MoveOrSwapTower(sourceIndex, targetIndex);
+                Debug.Log($"[TowerInstallControl] Long press drag end from {sourceIndex} to {targetIndex}");
+            }
+            else
+            {
+                Debug.Log($"[TowerInstallControl] Long press drag end, no valid target. index={sourceIndex}");
+            }
+
+            // 고스트/투명 처리 복구
+            CleanupDragVisual();
+        }
+
+        // 휴지통 아이콘은 항상 끄기
+        if (trashIconObj != null)
+            trashIconObj.SetActive(false);
     }
 
 
@@ -916,7 +987,104 @@ public class TowerInstallControl : MonoBehaviour
             }
         }
     }
+    //--------------------------------------------------------------
+    //rm tower -----------------------------------------------------
+    private void ShowDeleteConfirm()
+    {
+        if (deleteConfirmPanel != null)
+        {
+            deleteConfirmPanel.SetActive(true);
+            yesOrNoPanel.gameObject.SetActive(true);
+            deleteYesButton.gameObject.SetActive(true);
+            deleteNoButton.gameObject.SetActive(true);
+        }
+    }
 
+    private void OnDeleteYes()
+    {
+        if (pendingDeleteIndex >= 0)
+        {
+            PerformDelete(pendingDeleteIndex);
+        }
+
+        pendingDeleteIndex = -1;
+
+        if (deleteConfirmPanel != null)
+        {
+            deleteConfirmPanel.SetActive(false);
+            yesOrNoPanel.gameObject.SetActive(false);
+            deleteYesButton.gameObject.SetActive(false);
+            deleteNoButton.gameObject.SetActive(false);
+        }
+    }
+
+    private void OnDeleteNo()
+    {
+        pendingDeleteIndex = -1;
+
+        if (deleteConfirmPanel != null)
+            deleteConfirmPanel.SetActive(false);
+    }
+    private void PerformDelete(int index)
+    {
+        if (towers == null) return;
+        if (index < 0 || index >= towers.Count) return;
+
+        // 이미 빈 슬롯이면 할 일 없음
+        if (emptyTower != null && emptyTower[index])
+            return;
+
+        // 1) Planet에 실제 타워 삭제 요청 (공격/증폭 모두)
+        planet?.RemoveTowerAt(index);
+
+        // 2) UI 쪽 슬롯을 EmptySlotUI로 교체
+        var oldUI = towers[index];
+        if (oldUI != null)
+        {
+            Destroy(oldUI);
+        }
+
+        GameObject newEmpty = Instantiate(emptySlotPrefab, PlanetTransform);
+        towers[index] = newEmpty;
+
+        // 버튼: 설치 버튼 연결
+        var button = newEmpty.GetComponent<Button>();
+        if (button != null)
+        {
+            button.onClick.RemoveAllListeners();
+            int captured = index;
+            button.onClick.AddListener(() => IntallNewTower(captured));
+        }
+
+        // 슬롯 번호 텍스트
+        var numText = newEmpty.GetComponentInChildren<TextMeshProUGUI>();
+        if (numText != null)
+        {
+            numText.text = index.ToString();
+        }
+
+        // 하이라이트 기본 색 갱신
+        var highlight = newEmpty.GetComponent<TowerSlotHighlightUI>();
+        if (highlight != null)
+        {
+            highlight.RefreshDefaultColorFromImage();
+        }
+
+        // 3) 내부 플래그/데이터 갱신
+        if (emptyTower != null)
+            emptyTower[index] = true;
+
+        if (assignedTowerDatas != null)
+            assignedTowerDatas[index] = null;
+
+        // 설치된 타워 수 감소 (최소 0 보장)
+        CurrentTowerCount = Mathf.Max(0, CurrentTowerCount - 1);
+
+        // 4) 전체 인풋/하이라이트 갱신
+        RefreshSlotInputs();
+        ClearAllSlotHighlights();
+        SettingTowerTransform(currentAngle);
+    }
 
     //--------------------------------------------------------------
 }
