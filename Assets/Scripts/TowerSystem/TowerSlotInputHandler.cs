@@ -8,7 +8,6 @@ public class TowerSlotInputHandler : MonoBehaviour, IPointerDownHandler, IPointe
 
     [Header("Input Settings")]
     [SerializeField] private float longPressThreshold = 0.3f;
-    [SerializeField] private float dragStartDistance = 10f;
 
     private bool isPointerDown = false;
     private bool isLongPressTriggered = false;
@@ -34,18 +33,18 @@ public class TowerSlotInputHandler : MonoBehaviour, IPointerDownHandler, IPointe
         if (!isPointerDown) return;
 
         float heldTime = Time.unscaledTime - pointerDownTime;
-        float movedDist = Vector2.Distance(pointerDownPos, eventData.position);
 
-        if (!isLongPressTriggered &&
-            heldTime < longPressThreshold &&
-            movedDist < dragStartDistance)
+        // ① 짧게 탭: 클릭으로 처리
+        if (!isLongPressTriggered && heldTime < longPressThreshold)
         {
             installControl?.OnSlotClick(slotIndex);
         }
+        // ② 롱프레스 끝: 드롭 처리
         else if (isLongPressTriggered)
         {
             installControl?.OnSlotLongPressEnd(slotIndex, eventData.position);
         }
+
         isPointerDown = false;
         isLongPressTriggered = false;
     }
@@ -55,14 +54,15 @@ public class TowerSlotInputHandler : MonoBehaviour, IPointerDownHandler, IPointe
         if (!isPointerDown) return;
 
         float heldTime = Time.unscaledTime - pointerDownTime;
-        float movedDist = Vector2.Distance(pointerDownPos, eventData.position);
 
+        // 롱프레스 시작 지점
         if (!isLongPressTriggered && heldTime >= longPressThreshold)
         {
             isLongPressTriggered = true;
             installControl?.OnSlotLongPressStart(slotIndex, pointerDownPos);
         }
 
+        // 롱프레스 중 드래그
         if (isLongPressTriggered)
         {
             installControl?.OnSlotLongPressDrag(slotIndex, eventData.position);

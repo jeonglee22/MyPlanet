@@ -594,15 +594,81 @@ public class TowerInstallControl : MonoBehaviour
 
     public void OnSlotLongPressEnd(int index, Vector2 screenPos)
     {
-        if (!isDraggingTower) return;
-        if (index != dragSourceIndex)
+        if (!isDraggingTower)
+            return;
+
+        // 드롭한 위치 기준으로 목표 슬롯 찾기
+        int targetIndex = GetSlotIndexFromScreenPos(screenPos);
+
+        // 고스트 정리 / 원본 색 복구는 마지막에 공통으로 처리
+        void Finish()
         {
-            // 안전하게 무시하거나, 나중에 멀티터치 고려할 때 조정
+            CleanupDragVisual();
+            Debug.Log($"[TowerInstallControl] Long press drag end on slot {index}, drop={targetIndex}");
         }
-        // 2단계: 아직 이동/스왑 없이 그냥 드래그 취소 + 연출 복귀만
-        CleanupDragVisual();
-        Debug.Log($"[TowerInstallControl] Long press drag end on slot {index}");
+
+        // 유효하지 않은 곳에 드롭했거나, 자기 자신이면 -> 그냥 취소
+        if (targetIndex < 0 || targetIndex == dragSourceIndex)
+        {
+            Finish();
+            return;
+        }
+
+        // 이번 1차 버전: "공격 타워만" 드래그 대상을 허용
+        var srcAttack = GetAttackTower(dragSourceIndex);
+        if (srcAttack == null)
+        {
+            Finish();
+            return;
+        }
+
+        bool targetIsEmpty = !IsUsedSlot(targetIndex);   // emptyTower 기반
+        var targetAttack = GetAttackTower(targetIndex);
+        var targetAmp = GetAmplifierTower(targetIndex);
+
+        // (A) 빈 슬롯에 드롭 -> Move
+        if (targetIsEmpty)
+        {
+            // UI + 데이터 쪽 이동
+            MoveAttackSlotUIAndData(dragSourceIndex, targetIndex);
+
+            // Planet 실제 타워 이동
+            planet?.MoveAttackTower(dragSourceIndex, targetIndex);
+
+            // 버프 전체 재적용 (슬롯 기준)
+            planet?.ReapplyAllAmplifierBuffs();
+
+            Finish();
+            return;
+        }
+
+        // (B) 다른 공격 타워가 있는 슬롯에 드롭 -> Swap
+        if (targetAttack != null)
+        {
+            // UI + 데이터 스왑
+            SwapAttackSlotUIAndData(dragSourceIndex, targetIndex);
+
+            // Planet 실제 타워 스왑
+            planet?.SwapAttackTowers(dragSourceIndex, targetIndex);
+
+            // 버프 전체 재적용
+            planet?.ReapplyAllAmplifierBuffs();
+
+            Finish();
+            return;
+        }
+
+        // (C) 증폭 타워 위에 드롭한 경우: 1차 버전에선 무효 처리 (그냥 돌아가기)
+        if (targetAmp != null)
+        {
+            Finish();
+            return;
+        }
+
+        // 기타 케이스: 안전하게 취소
+        Finish();
     }
+
     private void CleanupDragVisual()
     {
         if (currentDragGhost != null)
@@ -621,5 +687,129 @@ public class TowerInstallControl : MonoBehaviour
         isDraggingTower = false;
         dragSourceIndex = -1;
     }
+    private int GetSlotIndexFromScreenPos(Vector2 screenPos)
+    {
+        if (towers == null) return -1;
+
+        for (int i = 0; i < towers.Count; i++)
+        {
+            var go = towers[i];
+            if (go == null) continue;
+
+            var rt = go.GetComponent<RectTransform>();
+            if (rt == null) continue;
+
+            if (RectTransformUtility.RectangleContainsScreenPoint(
+                    rt,
+                    screenPos,
+                    uiCanvas != null && uiCanvas.renderMode != RenderMode.ScreenSpaceOverlay
+                        ? uiCanvas.worldCamera
+                        : null))
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    // ---------------------- [UI & 데이터: 공격 타워 -> 빈 슬롯 이동] ----------------------
+    private void MoveAttackSlotUIAndData(int fromIndex, int toIndex)
+    {
+        if (towers == null) return;
+        if (fromIndex < 0 || fromIndex >= towers.Count) return;
+        if (toIndex < 0 || toIndex >= towers.Count) return;
+        if (fromIndex == toIndex) return;
+
+        // from에는 공격 타워 UI, to에는 빈 슬롯 UI라고 가정
+        GameObject fromGO = towers[fromIndex];
+        GameObject toGO = towers[toIndex];
+
+        if (fromGO == null || toGO == null) return;
+
+        // 데이터 쪽: assignedTowerDatas / emptyTower
+        TowerDataSO moveData = assignedTowerDatas[fromIndex];
+        assignedTowerDatas[fromIndex] = null;
+        assignedTowerDatas[toIndex] = moveData;
+
+        emptyTower[fromIndex] = true;
+        emptyTower[toIndex] = false;
+
+        // UI 쪽: from은 EmptySlotUI, to는 towerUIBasePrefab 로 교체
+        // 1) fromIndex -> Empty Slot UI 로 교체
+        Destroy(fromGO);
+        GameObject newEmpty = Instantiate(emptySlotPrefab, PlanetTransform);
+        towers[fromIndex] = newEmpty;
+
+        var buttonEmpty = newEmpty.GetComponent<Button>();
+        if (buttonEmpty != null)
+        {
+            int capturedIndex = fromIndex;
+            buttonEmpty.onClick.AddListener(() => IntallNewTower(capturedIndex));
+        }
+
+        var numTextEmpty = newEmpty.GetComponentInChildren<TextMeshProUGUI>();
+        if (numTextEmpty != null)
+        {
+            numTextEmpty.text = fromIndex.ToString();
+        }
+
+        var highlightEmpty = newEmpty.GetComponent<TowerSlotHighlightUI>();
+        if (highlightEmpty != null)
+        {
+            highlightEmpty.RefreshDefaultColorFromImage();
+        }
+
+        // 2) toIndex -> Attack Slot UI 로 교체
+        Destroy(toGO);
+        GameObject newAttack = Instantiate(towerUIBasePrefab, PlanetTransform);
+        towers[toIndex] = newAttack;
+
+        // Input Handler
+        var inputHandler = newAttack.GetComponent<TowerSlotInputHandler>();
+        if (inputHandler == null)
+            inputHandler = newAttack.AddComponent<TowerSlotInputHandler>();
+        inputHandler.Initialize(this, toIndex);
+
+        // 색 / 텍스트 (인덱스 표시)
+        var img = newAttack.GetComponentInChildren<Image>();
+        var txt = newAttack.GetComponentInChildren<TextMeshProUGUI>();
+        if (img != null)
+            img.color = Color.Lerp(Color.red, Color.blue, (float)toIndex / (towerCount - 1));
+        if (txt != null)
+            txt.text = toIndex.ToString();
+
+        var highlightAttack = newAttack.GetComponent<TowerSlotHighlightUI>();
+        if (highlightAttack != null)
+            highlightAttack.RefreshDefaultColorFromImage();
+
+        // 원형 배치 다시 세팅
+        SettingTowerTransform(currentAngle);
+    }
+    // ---------------------- [UI & 데이터: 공격 타워 <-> 공격 타워 스왑] ----------------------
+    private void SwapAttackSlotUIAndData(int indexA, int indexB)
+    {
+        if (towers == null) return;
+        if (indexA < 0 || indexA >= towers.Count) return;
+        if (indexB < 0 || indexB >= towers.Count) return;
+        if (indexA == indexB) return;
+
+        // 둘 다 비어있지 않고, 공격 타워가 설치되어 있다고 가정 (emptyTower == false)
+        if (emptyTower[indexA] || emptyTower[indexB]) return;
+
+        // 데이터 쪽: assignedTowerDatas 스왑
+        var tmpData = assignedTowerDatas[indexA];
+        assignedTowerDatas[indexA] = assignedTowerDatas[indexB];
+        assignedTowerDatas[indexB] = tmpData;
+
+        // UI 쪽은 실제로 프리팹 타입(Attack/Empty)이 동일하므로
+        // 여기서는 굳이 GameObject를 건들지 않아도 된다.
+        // (각 슬롯은 여전히 Attack 슬롯이므로 색/텍스트는 인덱스 기준 유지)
+
+        // 필요하다면 나중에 "타워 종류에 따라 아이콘" 같은 걸 쓸 때 여기서 Sprite 교체 가능.
+
+        // 원형 배치 다시 세팅 (실제로는 인덱스 고정이므로 크게 변하는 건 없음)
+        SettingTowerTransform(currentAngle);
+    }
+
     //--------------------------------------------------------------
 }

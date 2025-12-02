@@ -294,4 +294,108 @@ public class Planet : LivingEntity
 
         return tower.GetComponent<TowerAmplifier>();
     }
+
+    //Move Tower ---------------------------------------
+    public void MoveAttackTower(int fromIndex, int toIndex)
+    {
+        if (towers == null) return;
+        if (fromIndex < 0 || fromIndex >= towers.Count) return;
+        if (toIndex < 0 || toIndex >= towers.Count) return;
+        if (fromIndex == toIndex) return;
+
+        var fromObj = towers[fromIndex];
+        if (fromObj == null) return;
+
+        var fromAttack = fromObj.GetComponent<TowerAttack>();
+        if (fromAttack == null) return; 
+
+        var toObj = towers[toIndex];
+        if (toObj != null) return; // to 슬롯은 진짜 "빈" 상태라고 가정
+
+        towers[fromIndex] = null;
+        towers[toIndex] = fromObj;
+
+        SetSlotRotation(toIndex);
+    }
+
+    public void SwapAttackTowers(int indexA, int indexB)
+    {
+        if (towers == null) return;
+        if (indexA < 0 || indexA >= towers.Count) return;
+        if (indexB < 0 || indexB >= towers.Count) return;
+        if (indexA == indexB) return;
+
+        var objA = towers[indexA];
+        var objB = towers[indexB];
+        if (objA == null || objB == null) return;
+
+        var attackA = objA.GetComponent<TowerAttack>();
+        var attackB = objB.GetComponent<TowerAttack>();
+        if (attackA == null || attackB == null)
+        {
+            // 둘 중 하나라도 공격 타워가 아니면 스왑하지 않음 (Amplifier 스왑은 나중에)
+            return;
+        }
+
+        towers[indexA] = objB;
+        towers[indexB] = objA;
+
+        SetSlotRotation(indexA);
+        SetSlotRotation(indexB);
+    }
+    public void ReapplyAllAmplifierBuffs()
+    {
+        if (amplifiersSlots == null) return;
+        int slotCount = towers != null ? towers.Count : 0;
+
+        //Init Buff
+        for (int i = 0; i < amplifiersSlots.Length; i++)
+        {
+            var amp = amplifiersSlots[i];
+            if (amp == null) continue;
+
+            amp.ClearAllbuffs();
+        }
+
+        //ReBuff
+        for (int i = 0; i < amplifiersSlots.Length; i++)
+        {
+            var amp = amplifiersSlots[i];
+            if (amp == null || amp.AmplifierTowerData == null) continue;
+
+            var buffSlots = amp.BuffedSlotIndex;
+            var randomSlots = amp.RandomAbilitySlotIndex;
+
+            if ((buffSlots == null || buffSlots.Count == 0) &&
+                (randomSlots == null || randomSlots.Count == 0))
+                continue;
+
+            // buffSlots ∪ randomSlots 의 합집합
+            HashSet<int> targetSlots = new HashSet<int>();
+
+            if (buffSlots != null)
+            {
+                foreach (var s in buffSlots)
+                    targetSlots.Add(s);
+            }
+
+            if (randomSlots != null)
+            {
+                foreach (var s in randomSlots)
+                    targetSlots.Add(s);
+            }
+
+            foreach (int slotIndex in targetSlots)
+            {
+                if (slotIndex < 0 || slotIndex >= slotCount) continue;
+
+                var attack = GetAttackTowerToAmpTower(slotIndex);
+                if (attack == null) continue;
+
+                amp.ApplyBuffForNewTower(slotIndex, attack);
+            }
+        }
+    }
+
+    //--------------------------------------------------
 }
