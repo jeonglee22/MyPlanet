@@ -5,21 +5,40 @@ using UnityEngine;
 public class AsyncRaidManager : MonoBehaviour
 {
     [SerializeField] private GameObject asyncUserPlanetPrefab;
+    [SerializeField] private List<TowerDataSO> towerDataSOs;
+
+    [SerializeField] private int userCount;
 
     private List<AsyncUserPlanet> asyncUserPlanets;
+    public List<AsyncUserPlanet> AsyncUserPlanets => asyncUserPlanets;
     private List<UserPlanetData> userPlanetDatas;
 
     private int userPlanetCount;
 
     private float totalBossDamagePercent = 5f;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    private async UniTaskVoid Start()
-    {
-        await UniTask.WaitUntil(() => UserPlanetManager.Instance.IsInitialized);
+    private bool isSettingAsyncUserPlanet = false;
+    public bool IsSettingAsyncUserPlanet { get { return isSettingAsyncUserPlanet;} set {isSettingAsyncUserPlanet = value;} }
 
-        userPlanetCount = Random.Range(1, 4);
-        // userPlanetCount = 3;
+    private float xOffset = 1.5f;
+
+    void Update()
+    {
+        if(WaveManager.Instance.IsBossBattle && !isSettingAsyncUserPlanet)
+        {
+            SpawnAsyncUserPlanet().Forget();
+            isSettingAsyncUserPlanet = true;
+        }
+    }
+
+    private async UniTask SpawnAsyncUserPlanet()
+    {
+        // userPlanetCount = Random.Range(1, 4);
+        userPlanetCount = 3;
+        if (userPlanetDatas != null)
+            userPlanetDatas.Clear();
+        if (asyncUserPlanets != null)
+            asyncUserPlanets.Clear();
 
         await UserPlanetManager.Instance.GetRandomPlanetsAsync(userPlanetCount);
 
@@ -31,39 +50,28 @@ public class AsyncRaidManager : MonoBehaviour
         {
             var asyncUserPlanetObj = Instantiate(asyncUserPlanetPrefab, GetSpawnPoint(), Quaternion.identity);
             var asyncUserPlanet = asyncUserPlanetObj.GetComponent<AsyncUserPlanet>();
-            asyncUserPlanet.InitializePlanet(userPlanetDatas[i] ?? null, totalBossDamagePercent / userPlanetCount);
+            var asyncPlanetData = DataTableManager.AsyncPlanetTable.GetRandomData();
+            var towerData = towerDataSOs[asyncPlanetData.TowerType - 1];
+            asyncUserPlanet.InitializePlanet(userPlanetDatas[i] ?? null, totalBossDamagePercent / userPlanetCount, asyncPlanetData, towerData);
             asyncUserPlanets.Add(asyncUserPlanet);
-            asyncUserPlanetObj.SetActive(false);
-        }
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if(WaveManager.Instance.IsBossBattle)
-        {
-            foreach(var planet in asyncUserPlanets)
-            {
-                planet.gameObject.SetActive(true);
-            }
         }
     }
 
     private Vector3 GetSpawnPoint()
     {
-        Camera mainCamera = Camera.main;
-        float zDistance = -mainCamera.transform.position.z; // 카메라에서의 거리
-        float minHeight = Screen.height * 0.75f;
-
-        var bottomLeft = mainCamera.ScreenToWorldPoint(new Vector3(0, minHeight, zDistance));
-        var screenBottomLeft = mainCamera.ScreenToWorldPoint(new Vector3(0, 0f, zDistance));
-        var topRight = mainCamera.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, zDistance));
-
-        var screenBounds = new Rect(screenBottomLeft.x, screenBottomLeft.y, topRight.x - screenBottomLeft.x, topRight.y - screenBottomLeft.y);
-
+        var screenBounds = SpawnManager.Instance.ScreenBounds;
         var position = Vector3.zero;
-        position.x = Random.Range(bottomLeft.x, topRight.x);
-        position.y = Random.Range((bottomLeft.y + topRight.y) * 0.5f, topRight.y);
+
+        position.y = Random.Range(Mathf.Lerp(screenBounds.yMin, screenBounds.yMax, 0.4f) , Mathf.Lerp(screenBounds.yMin, screenBounds.yMax, 0.7f));
+        if (Random.value < 0.5f)
+        {
+            position.x = screenBounds.xMin - xOffset;
+        }
+        else
+        {
+            position.x = screenBounds.xMax + xOffset;
+        }
+
         return position;
     }
 }

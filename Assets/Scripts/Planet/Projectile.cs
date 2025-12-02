@@ -34,6 +34,7 @@ public class Projectile : MonoBehaviour , IDisposable
 
     private bool isFinish = false;
     public bool IsFinish { get => isFinish; set => isFinish = value; }
+    public bool IsOtherUser { get; set; }
 
     private void OnEnable()
     {
@@ -54,6 +55,7 @@ public class Projectile : MonoBehaviour , IDisposable
     {
         if(isFinish)
         {
+            IsOtherUser = false;
             Cancel();
             abilityRelease?.Invoke(gameObject);
             abilityRelease = null;
@@ -68,7 +70,7 @@ public class Projectile : MonoBehaviour , IDisposable
         }
         else
         {
-            Debug.Log($"[Projectile] DESPAWN reason=isFinish:{isFinish}, life={currentLifeTime:0.00}/{projectileData.RemainTime:0.00}, obj={name}");
+            // Debug.Log($"[Projectile] DESPAWN reason=isFinish:{isFinish}, life={currentLifeTime:0.00}/{projectileData.RemainTime:0.00}, obj={name}");
 
             Cancel();
             abilityRelease?.Invoke(gameObject);
