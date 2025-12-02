@@ -8,6 +8,7 @@ public class AsyncRaidManager : MonoBehaviour
     [SerializeField] private List<TowerDataSO> towerDataSOs;
 
     [SerializeField] private int userCount;
+    [SerializeField] private AsyncRaidUI asyncRaidUI;
 
     private List<AsyncUserPlanet> asyncUserPlanets;
     public List<AsyncUserPlanet> AsyncUserPlanets => asyncUserPlanets;
@@ -28,6 +29,7 @@ public class AsyncRaidManager : MonoBehaviour
         {
             SpawnAsyncUserPlanet().Forget();
             isSettingAsyncUserPlanet = true;
+            asyncRaidUI.gameObject.SetActive(true);
         }
     }
 

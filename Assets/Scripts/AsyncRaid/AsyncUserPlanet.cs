@@ -9,6 +9,7 @@ public class AsyncUserPlanet : LivingEntity
     private float livingTime;
     private float elapsedTime = 0f;
     private float attack = 0f;
+    private float dieDps;
     private float attackDps;
 
     private TowerAttack tower;
@@ -38,11 +39,12 @@ public class AsyncUserPlanet : LivingEntity
 
     private void Update()
     {
-        elapsedTime += Time.deltaTime;
-        if (elapsedTime >= livingTime)
-        {
-            Die();
-        }
+        // elapsedTime += Time.deltaTime;
+        OnDamage(dieDps * Time.deltaTime);
+        // if (elapsedTime >= livingTime)
+        // {
+        //     Die();
+        // }
     }
 
     private void TestMove()
@@ -60,6 +62,7 @@ public class AsyncUserPlanet : LivingEntity
         planetData = data;
         attack = damage;
         attackDps = attack / livingTime;
+        dieDps = Health / livingTime;
         tower = GetComponent<TowerAttack>();
         tower.IsOtherUserTower = true;
 
