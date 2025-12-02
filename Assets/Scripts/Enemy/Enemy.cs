@@ -42,6 +42,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     private CancellationTokenSource lifeTimeCts;
     private float exp;
 
+    public int EnemyType => data.EnemyType;
+
     [SerializeField] private List<DropItem> drops;
 
     //test

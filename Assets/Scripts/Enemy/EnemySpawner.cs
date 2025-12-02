@@ -110,9 +110,10 @@ public class EnemySpawner : MonoBehaviour
         }
 
         GameObject prefab = GameManager.LoadManagerInstance.GetLoadedPrefab(enemyId);
+        var enemyData = DataTableManager.EnemyTable.Get(enemyId);
         if(prefab == null)
         {
-            GameManager.LoadManagerInstance.LoadEnemyPrefabAsync(enemyId).Forget();
+            GameManager.LoadManagerInstance.LoadEnemyPrefabAsync(enemyId, enemyData.EnemyType).Forget();
         }
 
         if(prefab == null)
