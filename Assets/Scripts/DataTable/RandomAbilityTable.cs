@@ -54,4 +54,16 @@ public class RandomAbilityTable : DataTable
 
         return dictionary[key];
     }
+
+    public int GetAbilityIdFromEffectId(int effectId)
+    {
+        var values = dictionary.Values;
+        foreach (var data in values)
+        {
+            if (data.SpecialEffect_ID == effectId)
+                return data.RandomAbility_ID;
+        }
+
+        return -1;
+    }
 }

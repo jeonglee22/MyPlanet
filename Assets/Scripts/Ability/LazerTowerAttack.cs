@@ -209,7 +209,7 @@ public class LazertowerAttack : MonoBehaviour
         this.duration = duration;
         this.towerAttack = towerAttack;
         abilities = new List<int>(towerAttack.Abilities);
-        Debug.Log(abilities.Count);
+        // Debug.Log(abilities.Count);
         if (isSplit)
         {
             abilities.RemoveAll(x => x == (int)AbilityId.Split);
