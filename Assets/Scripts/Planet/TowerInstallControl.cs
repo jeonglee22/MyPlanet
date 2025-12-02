@@ -209,6 +209,12 @@ public class TowerInstallControl : MonoBehaviour
     private TowerDataSO PickRandomTowerData()
     {
         int idx = UnityEngine.Random.Range(0, availableTowerDatas.Count);
+
+        //tutorial
+        if(Variables.Stage == 1)
+        {
+            idx = 1; // Basic Tower
+        }      
         // idx = 3; // Missile
         // idx = 2; // Lazer
         // idx = 4; // ShootGun
