@@ -182,6 +182,16 @@ public class TowerInfoUI : PopUpUI
 
     public void OnCloseInfoClicked()
     {
+        if (installControl != null)
+        {
+            var method = installControl.GetType().GetMethod("ClearAllSlotHighlights",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            if (method != null)
+            {
+                method.Invoke(installControl, null);
+            }
+        }
+
         gameObject.SetActive(false);
     }
 
@@ -815,6 +825,4 @@ public class TowerInfoUI : PopUpUI
         string dupDesc = duplicateType == 0 ? "랜덤 능력 중첩 가능" : "랜덤 능력 중첩 불가";
         AddEffectLine(randomEffectListRoot, dupDesc);
     }
-
-
 }

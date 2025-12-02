@@ -85,6 +85,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7677617118448603380}
   - component: {fileID: -1403827312621582651}
+  - component: {fileID: 4162858810816527252}
   m_Layer: 5
   m_Name: EmptySlotUI
   m_TagString: Untagged
@@ -157,6 +158,23 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &4162858810816527252
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1900192328185390982}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a139d6071fcb0e458a39c92b2c4415f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  borderImage: {fileID: 8941739345562796042}
+  fromAttackSourceColor: {r: 1, g: 0.35, b: 0.35, a: 1}
+  buffTargetColor: {r: 1, g: 0.85, b: 0.3, a: 1}
+  randomOnlyColor: {r: 1, g: 0.5, b: 0.8, a: 1}
+  highlightScale: 1.08
 --- !u!1 &2100372579418321414
 GameObject:
   m_ObjectHideFlags: 0

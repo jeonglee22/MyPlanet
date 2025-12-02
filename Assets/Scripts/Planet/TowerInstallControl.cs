@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -29,8 +30,8 @@ public class TowerInstallControl : MonoBehaviour
     public int CurrentTowerCount
     {
         get { return currentTowerCount; }
-        set 
-        { 
+        set
+        {
             currentTowerCount = value;
             OnTowerInstalled?.Invoke();
         }
@@ -76,7 +77,7 @@ public class TowerInstallControl : MonoBehaviour
         planetTowerUI.TowerCount = towerCount;
 
         emptyTower = new bool[towerCount];
-        
+
         var index = UnityEngine.Random.Range(0, towerCount);
         for (int i = 0; i < towerCount; i++)
         {
@@ -106,13 +107,13 @@ public class TowerInstallControl : MonoBehaviour
                 currentAngle += dragRotateSpeed * Time.unscaledDeltaTime * (planetTowerUI.TowerRotateClock ? -1f : 1f);
             else
                 currentAngle += rotateSpeed * Time.unscaledDeltaTime * (planetTowerUI.TowerRotateClock ? -1f : 1f);
-            
+
             var newDiff = currentAngle - planetTowerUI.Angle;
             // Debug.Log(currentAngle.ToString() + " / " + planetTowerUI.Angle.ToString() + " / " + beforeDiff.ToString() + " / " + newDiff.ToString());
 
             SettingTowerTransform(currentAngle);
-            
-            if(beforeDiff * newDiff <= 0f)
+
+            if (beforeDiff * newDiff <= 0f)
             {
                 currentAngle = planetTowerUI.Angle;
                 SettingTowerTransform(currentAngle);
@@ -141,6 +142,12 @@ public class TowerInstallControl : MonoBehaviour
                 numtext.text = index.ToString();
 
                 assignedTowerDatas[index] = null;
+
+                var highlight = tower.GetComponent<TowerSlotHighlightUI>();
+                if (highlight != null)
+                {
+                    highlight.RefreshDefaultColorFromImage();
+                }
                 continue;
             }
 
@@ -173,9 +180,12 @@ public class TowerInstallControl : MonoBehaviour
 
             towers.Add(tower);
             planet?.SetAttackTower(assignedTowerDatas[index], index);
+
+            var highlight2 = tower.GetComponent<TowerSlotHighlightUI>();
+            if (highlight2 != null) highlight2.RefreshDefaultColorFromImage();
         }
         SettingTowerTransform(0f);
-        currentAngle = 0f;   
+        currentAngle = 0f;
     }
 
     public bool IsUsedSlot(int index)
@@ -190,7 +200,7 @@ public class TowerInstallControl : MonoBehaviour
         if (!IsReadyInstall) return;
         if (ChoosedData == null) return;
 
-        planet?.UpgradeTower(index);   
+        planet?.UpgradeTower(index);
 
         IsReadyInstall = false;
         isInstall = true;
@@ -219,7 +229,7 @@ public class TowerInstallControl : MonoBehaviour
     {
         if (!IsReadyInstall) return;
 
-        if(currentTowerCount >= maxTowerCount)
+        if (currentTowerCount >= maxTowerCount)
         {
             Debug.Log("Tower limit");
             return;
@@ -233,9 +243,9 @@ public class TowerInstallControl : MonoBehaviour
         Destroy(towers[index]);
 
         GameObject newTower = null;
-        
+
         // Attack||Amplifier Tower Branch ------------
-        if(ChoosedData.InstallType==TowerInstallType.Attack)
+        if (ChoosedData.InstallType == TowerInstallType.Attack)
         {
             //Install Attack Tower
             newTower = Instantiate(towerUIBasePrefab, PlanetTransform);
@@ -256,23 +266,23 @@ public class TowerInstallControl : MonoBehaviour
 
             //Set Attack Tower In Planet
             planet?.SetAttackTower(
-                assignedTowerDatas[index], 
+                assignedTowerDatas[index],
                 index,
                 ChoosedData.ability);
         }
-        else if(ChoosedData.InstallType == TowerInstallType.Amplifier)
+        else if (ChoosedData.InstallType == TowerInstallType.Amplifier)
         {
             //Install Amplifier Tower
             newTower = Instantiate(towerUIBasePrefab, PlanetTransform);
             towers[index] = newTower;
 
             assignedTowerDatas[index] = null; //(assignedTowerDatas: only attack tower)
-            
+
             //Set Amplifier Tower In Planet
             if (ChoosedData.AmplifierTowerData != null)
             {
                 planet?.SetAmplifierTower(
-                    ChoosedData.AmplifierTowerData, 
+                    ChoosedData.AmplifierTowerData,
                     index,
                     ChoosedData.ability,
                     ChoosedData.BuffSlotIndex,
@@ -283,7 +293,7 @@ public class TowerInstallControl : MonoBehaviour
         //---------------------------------------------------------
 
         //UI-------------------------------------------------------
-        if (newTower!=null)
+        if (newTower != null)
         {
             var button = newTower.GetComponent<Button>();
             button.onClick.AddListener(() => OpenInfoUI(index));
@@ -291,14 +301,21 @@ public class TowerInstallControl : MonoBehaviour
             var image = newTower.GetComponentInChildren<Image>();
             var text = newTower.GetComponentInChildren<TextMeshProUGUI>();
 
-            if(ChoosedData.InstallType==TowerInstallType.Attack)
+            if (ChoosedData.InstallType == TowerInstallType.Attack)
             {
                 image.color = Color.Lerp(Color.red, Color.blue, (float)index / (towerCount - 1));
                 text.text = index.ToString();
-            }else
+            }
+            else
             {
                 image.color = Color.yellow;
                 text.text = $"{index}+";
+            }
+
+            var highlight = newTower.GetComponent<TowerSlotHighlightUI>();
+            if (highlight != null)
+            {
+                highlight.RefreshDefaultColorFromImage();
             }
         }
         //----------------------------------------------------------
@@ -319,8 +336,23 @@ public class TowerInstallControl : MonoBehaviour
         if (IsReadyInstall || towerInfoObj == null) return;
 
         towerInfoObj.SetActive(true);
-        towerInfoObj.GetComponent<TowerInfoUI>().SetInfo(index);
+        var info = towerInfoObj.GetComponent<TowerInfoUI>();
+        info.SetInfo(index);
+
+        var attack = GetAttackTower(index);
+        var amp = GetAmplifierTower(index);
+
+        if (amp != null && amp.AmplifierTowerData != null)
+        {
+            HighlightForAmplifierSlot(index);
+        }
+        else if (attack != null && attack.AttackTowerData != null)
+        {
+            HighlightForAttackSlot(index);
+        }
+        else ClearAllSlotHighlights();
     }
+
     public TowerDataSO GetTowerData(int index)
     {
         if (index < 0 || index >= assignedTowerDatas.Length) return null;
@@ -332,7 +364,7 @@ public class TowerInstallControl : MonoBehaviour
         foreach (var tower in towers)
         {
             var pos = new Vector2(
-                Mathf.Cos((baseAngle + 90f) * Mathf.Deg2Rad), 
+                Mathf.Cos((baseAngle + 90f) * Mathf.Deg2Rad),
                 Mathf.Sin((baseAngle + 90f) * Mathf.Deg2Rad)
                 ) * towerRadius;
             var rot = new Vector3(0, 0, baseAngle);
@@ -363,5 +395,93 @@ public class TowerInstallControl : MonoBehaviour
     public TowerDataSO GetRandomAttackTowerDataForCard() //For Pick Card
     {
         return PickRandomTowerData();
+    }
+
+    //Slot Highliht Helper (TowerSlotHighlightUI)
+    private TowerSlotHighlightUI GetSlotHighlight(int index)
+    {
+        if (towers == null) return null;
+        if (index < 0 || index >= towers.Count) return null;
+
+        return towers[index].GetComponent<TowerSlotHighlightUI>();
+    }
+
+    private void ClearAllSlotHighlights()
+    {
+        if (towers == null) return;
+
+        foreach (var t in towers)
+        {
+            if (t == null) continue;
+
+            var highlight = t.GetComponent<TowerSlotHighlightUI>();
+            if (highlight != null)
+            {
+                highlight.SetHighlight(TowerHighlightType.None);
+            }
+        }
+    }
+
+    private void HighlightForAttackSlot(int attackIndex)  // buff tower to attack tower
+    {
+        ClearAllSlotHighlights();
+
+        int count = towerCount;
+        if (planet == null || count <= 0) return;
+
+        for (int i = 0; i < count; i++)
+        {
+            var amp = GetAmplifierTower(i);
+            if (amp == null || amp.AmplifierTowerData == null) continue;
+
+            var buffSlots = amp.BuffedSlotIndex;
+            var randomSlots = amp.RandomAbilitySlotIndex;
+
+            bool isBuffTarget = buffSlots != null && buffSlots.Contains(attackIndex);
+            bool isRandomTarget = randomSlots != null && randomSlots.Contains(attackIndex);
+
+            if (!isBuffTarget && !isRandomTarget) continue;
+
+            var highlight = GetSlotHighlight(i);
+            if (highlight == null) continue;
+
+            highlight.SetHighlight(TowerHighlightType.FromAttackSource);
+        }
+    }
+
+    private void HighlightForAmplifierSlot(int ampIndex)
+    {
+        ClearAllSlotHighlights();
+
+        var amp = GetAmplifierTower(ampIndex);
+        if (amp == null || amp.AmplifierTowerData == null) return;
+
+        var buffSlots = amp.BuffedSlotIndex;       
+        var randomSlots = amp.RandomAbilitySlotIndex; 
+
+        if (buffSlots != null) // buff target
+        {
+            foreach (var slot in buffSlots)
+            {
+                var highlight = GetSlotHighlight(slot);
+                if (highlight == null) continue;
+
+                highlight.SetHighlight(TowerHighlightType.BuffTarget);
+            }
+        }
+
+        if (randomSlots != null) // ability target
+        {
+            foreach (var slot in randomSlots)
+            {
+                if (buffSlots != null && buffSlots.Contains(slot))
+                    continue;
+
+                var highlight = GetSlotHighlight(slot);
+                if (highlight == null) continue;
+
+                highlight.SetHighlight(TowerHighlightType.RandomOnlyTarget);
+            }
+        }
     }
 }
