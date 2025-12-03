@@ -8,6 +8,7 @@ public class LazertowerAttack : MonoBehaviour
     private LineRenderer lineRenderer;
     private BoxCollider boxCollider;
     private Vector3 initCenter;
+    private Vector3 initSize;
     private int pointCount = 2;
     private Transform target;
     // private Vector3 hitPosition;
@@ -46,6 +47,9 @@ public class LazertowerAttack : MonoBehaviour
         lineRenderer = GetComponentInChildren<LineRenderer>();
         boxCollider = GetComponent<BoxCollider>();
         initCenter = boxCollider.center;
+        initSize = boxCollider.size;
+        initSize.y = 12f;
+        boxCollider.size = initSize;
         attackObject = new List<Enemy>();
         removeObject = new List<Enemy>();
     }
@@ -60,6 +64,20 @@ public class LazertowerAttack : MonoBehaviour
     void Update()
     {
         durationTimer += Time.deltaTime;
+
+        if (CameraManager.Instance.IsZoomedOut)
+        {
+            lazerLength = 30f;
+            boxCollider.center = new Vector3(0f, 15f, 0f);
+            var newSize = initSize;
+            newSize.y = lazerLength;
+            boxCollider.size = newSize;
+        }
+        else
+        {
+            lazerLength = 12f;
+            boxCollider.center = new Vector3(0f, 6f, 0f);
+        }
 
         CheckTarget();
         
