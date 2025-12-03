@@ -44,10 +44,14 @@ public class WaveManager : MonoBehaviour
 
     private bool isBossBattle = false;
     private bool isLastBoss = false;
+    private bool isMiddleBoss = false;
     public bool IsBossBattle => isBossBattle;
     public bool IsLastBoss => isLastBoss;
+    public bool IsMiddleBoss => isMiddleBoss;
 
     public event Action WaveChange;
+    public event Action LastBossSpawned;
+    public event Action MiddleBossDefeated;
 
     private void Awake()
     {
@@ -297,7 +301,19 @@ public class WaveManager : MonoBehaviour
     public void OnBossSpawned(bool isLastBoss)
     {
         isBossBattle = true;
-        this.isLastBoss = isLastBoss;
+        if (isLastBoss)
+        {
+            this.isLastBoss = true;
+        }
+        else
+        {
+            isMiddleBoss = true;
+
+            if (this.isLastBoss)
+            {
+                LastBossSpawned?.Invoke();
+            }
+        }
 
         pauseStartTime = Time.time;
 
@@ -318,6 +334,7 @@ public class WaveManager : MonoBehaviour
     {
         if(Variables.LastBossEnemy != null)
         {
+            MiddleBossDefeated?.Invoke();
             return;
         }
 
@@ -332,8 +349,6 @@ public class WaveManager : MonoBehaviour
         }
         else
         {
-            isLastBoss = false;
-
             if(currentWaveIndex < waveDatas.Count)
             {
                 StartNextWave(waveCts.Token).Forget();
