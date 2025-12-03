@@ -5,7 +5,7 @@ public class RevolutionMovement : IMovement
 {
     private Transform lastBossTransform;
     private float revolutionRadius;
-    private float offSet = 2f;
+    private float offSet = 4f;
 
     private bool isRightTransform = false;
 
