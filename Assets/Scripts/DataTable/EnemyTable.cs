@@ -21,6 +21,7 @@ public class EnemyTableData
     public float FixedPenetration { get; set; }
     public float Exp { get; set; }
     public int PatternList { get; set; }
+    public string VisualAsset { get; set; }
 
     public override string ToString()
     {
@@ -64,5 +65,10 @@ public class EnemyTable : DataTable
         }
 
         return dictionary[key];
+    }
+
+    public List<int> GetEnemyIds()
+    {
+        return new List<int>(dictionary.Keys);
     }
 }

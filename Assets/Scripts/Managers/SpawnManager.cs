@@ -14,6 +14,8 @@ public class SpawnManager : MonoBehaviour
 
     [SerializeField] private GameObject spawnPointSample;
     [SerializeField] private int spawnPointCount = 5;
+    [SerializeField] private Transform bossSpawnPosition;
+    public Transform BossSpawnPosition => bossSpawnPosition;
 
     public int CurrentEnemyCount { get => currentEnemyCount; set => currentEnemyCount = value; }
     private int currentEnemyCount = 0;

@@ -332,10 +332,12 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
             case 3:
                 Variables.MiddleBossEnemy = this;
                 WaveManager.Instance.OnBossSpawned(false);
+                transform.position = SpawnManager.Instance.BossSpawnPosition.position;
                 break;
             case 4:
                 Variables.LastBossEnemy = this;
                 WaveManager.Instance.OnBossSpawned(true);
+                transform.position = SpawnManager.Instance.BossSpawnPosition.position;
                 break;
         }
 
