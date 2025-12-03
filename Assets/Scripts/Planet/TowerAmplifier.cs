@@ -8,8 +8,11 @@ public class TowerAmplifier : MonoBehaviour
     public AmplifierTowerDataSO AmplifierTowerData => amplifierTowerData;
 
     private readonly List<TowerAttack> buffedTargets = new List<TowerAttack>();
+    public bool HasAppliedBaseBuffs => buffedTargets.Count > 0;
+
     private readonly List<int> buffedSlotIndex = new List<int>();
     public IReadOnlyList<int> BuffedSlotIndex => buffedSlotIndex;
+    public event Action OnBuffTargetsChanged;
 
     private readonly List<int> randomAbilitySlotIndex = new List<int>();
     public IReadOnlyList<int> RandomAbilitySlotIndex => randomAbilitySlotIndex;
@@ -23,7 +26,6 @@ public class TowerAmplifier : MonoBehaviour
 
     private readonly Dictionary<TowerAttack, Dictionary<int, int>> appliedAbilityMap
        = new Dictionary<TowerAttack, Dictionary<int, int>>();
-    public bool HasAppliedBaseBuffs => buffedTargets.Count > 0;
     public bool HasAppliedRandomAbilities => appliedAbilityMap.Count > 0;
 
     //Reinforce Field --------------------------------------
@@ -108,10 +110,8 @@ public class TowerAmplifier : MonoBehaviour
         if (!isBuffSlot && !isAbilitySlot) return;
 
         //buff slot
-        if (isBuffSlot)
-        {
+        if (isBuffSlot) 
             target.SetUpBuff(amplifierTowerData); //allow overlap
-        }
 
         //random ability slot
         if (isAbilitySlot && abilities != null && abilities.Count > 0)
@@ -126,7 +126,19 @@ public class TowerAmplifier : MonoBehaviour
                     ability.ApplyAbility(target.gameObject);
                     ability.Setting(target.gameObject);
                 }
-
+                var raRow = DataTableManager.RandomAbilityTable?.Get(abilityId);
+                if (raRow != null)
+                {
+                    switch (abilityId)
+                    {
+                        case 200004: 
+                            {
+                                float add = raRow.SpecialEffectValue; 
+                                target.FixedPenetrationBuffAdd += add;
+                                break;
+                            }
+                    }
+                }
                 if (!appliedAbilityMap.TryGetValue(target, out var dict))
                 {
                     dict = new Dictionary<int, int>();
@@ -144,6 +156,8 @@ public class TowerAmplifier : MonoBehaviour
         {
             buffedTargets.Add(target);
         }
+
+        OnBuffTargetsChanged?.Invoke();
     }
 
     public void RemoveBuff(TowerAttack target) //single target (destory target tower)
@@ -170,14 +184,26 @@ public class TowerAmplifier : MonoBehaviour
 
                     target.RemoveAbility(abilityId);
                 }
+                var raRow = DataTableManager.RandomAbilityTable?.Get(abilityId);
+                if (raRow != null)
+                {
+                    switch (abilityId)
+                    {
+                        case 200004: 
+                            {
+                                float add = raRow.SpecialEffectValue;
+                                target.FixedPenetrationBuffAdd -= add * count;
+                                break;
+                            }
+                    }
+                }
             }
 
             appliedAbilityMap.Remove(target);
         }
-
         buffedTargets.Remove(target);
         target.SetUpBuff(null);
-
+        OnBuffTargetsChanged?.Invoke();
     }
 
     public void ClearAllbuffs()//(Destory Buff Tower)
@@ -203,6 +229,19 @@ public class TowerAmplifier : MonoBehaviour
                     }
 
                     target.RemoveAbility(abilityId);
+                }
+                var raRow = DataTableManager.RandomAbilityTable?.Get(abilityId);
+                if (raRow != null)
+                {
+                    switch (abilityId)
+                    {
+                        case 200004:
+                            {
+                                float add = raRow.SpecialEffectValue;
+                                target.FixedPenetrationBuffAdd -= add * count;
+                                break;
+                            }
+                    }
                 }
             }
             target.SetUpBuff(null);
@@ -414,12 +453,10 @@ public class TowerAmplifier : MonoBehaviour
             }
         }
 
-        // 2) selfIndex를 새 인덱스로 바꾸고, 기존 슬롯 리스트 초기화
         selfIndex = newSelfIndex;
         buffedSlotIndex.Clear();
         randomAbilitySlotIndex.Clear();
 
-        // 3) 새 selfIndex 기준으로 절대 슬롯 재계산 (원형 인덱스)
         if (buffOffsets != null)
         {
             foreach (var offset in buffOffsets)
@@ -429,7 +466,7 @@ public class TowerAmplifier : MonoBehaviour
                 target %= towerCount;
                 if (target < 0) target += towerCount;
 
-                if (target == newSelfIndex) continue;     // 자기 자신은 제외
+                if (target == newSelfIndex) continue;
                 if (!buffedSlotIndex.Contains(target))
                     buffedSlotIndex.Add(target);
             }

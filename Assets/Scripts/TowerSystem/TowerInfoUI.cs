@@ -67,6 +67,18 @@ public class TowerInfoUI : PopUpUI
 
         if (attackTowerDataPanel != null) attackTowerDataPanel.SetActive(false);
         if (buffTowerDataPanel != null) buffTowerDataPanel.SetActive(false);
+
+        foreach (var amp in installControl.GetAllAmplifiers())
+        {
+            amp.OnBuffTargetsChanged += HandleBuffChanged;
+        }
+    }
+    private void HandleBuffChanged()
+    {
+        if (gameObject.activeSelf && CurrentSlotIndex >= 0)
+        {
+            SetInfo(CurrentSlotIndex);
+        }
     }
 
     public void SetInfo(int index)
@@ -147,14 +159,6 @@ public class TowerInfoUI : PopUpUI
         base.Update();
     }
 
-    private float CalculateEachAbility(int abilityId, List<int> abilities, float baseValue)
-    {
-        if (abilities == null || abilities.Count == 0) return baseValue;
-
-        int count = abilities.FindAll(x => x == abilityId).Count;
-        return CalculateAbilityUpgradeValue(abilityId, count, baseValue);
-    }
-
     private float CalculateAbilityUpgradeValue(int abilityId, int count, float baseValue)
     {
         var ability = AbilityManager.GetAbility(abilityId);
@@ -223,7 +227,7 @@ public class TowerInfoUI : PopUpUI
 
         if (!hasBase && !hasFinal)
         {
-            tmp.text = "-";
+            tmp.text = $"0{suffix}";
             return;
         }
 
@@ -232,7 +236,6 @@ public class TowerInfoUI : PopUpUI
             tmp.text = $"{baseValue.ToString(format)}{suffix}";
             return;
         }
-
         tmp.text = $"{finalValue.ToString(format)}{suffix}";
     }
 
@@ -260,20 +263,12 @@ public class TowerInfoUI : PopUpUI
         var attackTowerData = attackTower.AttackTowerData;
         int level = attackTower.ReinforceLevel;
 
-        //
-        if (nameText != null)
-        {
-            nameText.text = $"{attackTowerData.towerId} (Lv.{level})";
-        }
+        if (nameText != null) nameText.text = $"{attackTowerData.towerId} (Lv.{level})";
 
         isSameTower = (infoIndex == index);
         var abilities = attackTower.Abilities;
 
-        //
-        SetText(
-            towerIdValueText,
-            $"{attackTowerData.towerId} (Lv.{level})"
-        );
+        SetText(towerIdValueText, $"{attackTowerData.towerId} (Lv.{level})");
 
         var baseProj = attackTower.BaseProjectileData ?? attackTowerData.projectileType;
         var buffedProj = attackTower.BuffedProjectileData ?? baseProj;
@@ -282,43 +277,31 @@ public class TowerInfoUI : PopUpUI
         {
             // Attack(base + ability + amp)
             float baseDamage = baseProj.Attack;
-            float ampDamage = buffedProj.Attack;
-            float finalDamage = CalculateEachAbility((int)AbilityId.AttackDamage, abilities, ampDamage);
+            float finalDamage = buffedProj.Attack;
             SetStatText(damageValueText, baseDamage, finalDamage, "0.00");
-
             // Fixed Penetration
             float baseFixedPen = baseProj.FixedPenetration;
-            float ampFixedPen = buffedProj.FixedPenetration;
-            float finalFixedPen = CalculateEachAbility((int)AbilityId.FixedPanetration, abilities, ampFixedPen);
+            float finalFixedPen = buffedProj.FixedPenetration;
             SetStatText(fixedPenetrationValueText, baseFixedPen, finalFixedPen, "0.00");
-
             // Percent Penetration
             float baseRatePen = baseProj.RatePenetration;
-            float ampRatePen = buffedProj.RatePenetration;
-            float finalRatePen = CalculateEachAbility((int)AbilityId.PercentPenetration, abilities, ampRatePen);
+            float finalRatePen = buffedProj.RatePenetration;
             SetStatText(percentPenetrationValueText, baseRatePen, finalRatePen, "0.00", "%");
-
-            // Proejctile Count
+            // Projectile Count
             float baseCount = attackTower.BaseProjectileCount;
             float finalCount = attackTower.CurrentProjectileCount;
             SetStatText(projectileNumberValueText, baseCount, finalCount, "0");
-
             // Target Num
             float baseTargets = baseProj.TargetNum;
-            float ampTargets = buffedProj.TargetNum;
-            float finalTargets = CalculateEachAbility(
-                (int)AbilityId.TargetCount, abilities, ampTargets);
+            float finalTargets = buffedProj.TargetNum;
             SetStatText(targetNumberValueText, baseTargets, finalTargets, "0");
-
             // LifeTime
             float baseLifeTime = baseProj.RemainTime;
             float finalLifeTime = buffedProj.RemainTime;
             SetStatText(lifeTimeValueText, baseLifeTime, finalLifeTime, "0.00");
-
             // Hitbox Size
             float baseSize = baseProj.CollisionSize;
-            float ampSize = buffedProj.CollisionSize;
-            float finalSize = CalculateEachAbility((int)AbilityId.CollisionSize, abilities, ampSize);
+            float finalSize = buffedProj.CollisionSize;
             SetStatText(projectileSizeValueText, baseSize, finalSize, "0.00");
         }
         else
@@ -336,7 +319,7 @@ public class TowerInfoUI : PopUpUI
         float finalFireRate = attackTower.CurrentFireRate;
         SetStatText(fireRateValueText, baseFireRate, finalFireRate, "0.00");
 
-        //Hit Rate
+        //Hit Rate (명중률)
         float baseHitRate = attackTowerData.Accuracy;
         float finalHitRate = attackTower.FinalHitRate;
         SetStatText(hitRateValueText, baseHitRate, finalHitRate, "0.00", "%");
@@ -346,8 +329,7 @@ public class TowerInfoUI : PopUpUI
             spreadAccuracyValueText.text = attackTowerData.grouping.ToString("0.00") + "%";
 
         //Range 
-        SetText(rangeValueText,
-            attackTowerData.rangeData != null
+        SetText(rangeValueText, attackTowerData.rangeData != null
                 ? attackTowerData.rangeData.GetRange().ToString("0.0") : null);
     }
 
@@ -390,11 +372,8 @@ public class TowerInfoUI : PopUpUI
         int level = amplifierTower.ReinforceLevel;
 
         //Name Object
-        if (nameText != null)
-            nameText.text = $"{baseName} (Lv.{level})";
-
+        if (nameText != null) nameText.text = $"{baseName} (Lv.{level})";
         SetText(towerIdValueText, $"{baseName} (Lv.{level})");
-        //
 
         //Slot Index Info
         if (buffSlotInfoText != null)
@@ -716,7 +695,6 @@ public class TowerInfoUI : PopUpUI
     {
         if (basicEffectListRoot == null) return;
 
-        // 먼저 비우기
         for (int i = basicEffectListRoot.childCount - 1; i >= 0; i--)
         {
             Destroy(basicEffectListRoot.GetChild(i).gameObject);
@@ -727,12 +705,8 @@ public class TowerInfoUI : PopUpUI
         var ampData = amplifierTower.AmplifierTowerData;
         if (ampData == null) return;
 
-        // ⬇️ 새 조건: 실제로 버프를 적용한 타워가 하나도 없으면 표시하지 않음
-        if (!amplifierTower.HasAppliedBaseBuffs)
-            return;
-
-        // ===== 여기부터는 기존 내용 그대로 유지 =====
-
+        if (!amplifierTower.HasAppliedBaseBuffs) return;
+       
         // 공격력 (DamageBuff: add, 0.4 -> +40%)
         if (!Mathf.Approximately(ampData.DamageBuff, 0f))
         {
@@ -778,12 +752,13 @@ public class TowerInfoUI : PopUpUI
             AddEffectLine(basicEffectListRoot, line);
         }
 
-        // 관통률 (PercentPenetrationBuff: mul, 1.5 -> +50%)
-        if (!Mathf.Approximately(ampData.PercentPenetrationBuff, 1f))
+        // 비율 관통력 (PercentPenetrationBuff: add, 0.2 -> +20%)
+        if (!Mathf.Approximately(ampData.PercentPenetrationBuff, 0f))
         {
-            float delta = ampData.PercentPenetrationBuff - 1f;
-            string value = FormatPercentFromMul(ampData.PercentPenetrationBuff);
-            string line = BuildStatChangeLine("관통률", delta, value);
+            float delta = ampData.PercentPenetrationBuff; // 0.2 → +20%
+            float percent = delta * 100f;
+            string value = $"{percent:+0.##;-0.##}%";
+            string line = BuildStatChangeLine("비율 관통력", delta, value);
             AddEffectLine(basicEffectListRoot, line);
         }
 
@@ -792,7 +767,7 @@ public class TowerInfoUI : PopUpUI
         {
             float delta = ampData.FixedPenetrationBuff;
             string value = delta > 0 ? $"+{delta:0.##}" : $"{delta:0.##}";
-            string line = BuildStatChangeLine("고정 관통", delta, value);
+            string line = BuildStatChangeLine("고정\n관통력", delta, value);
             AddEffectLine(basicEffectListRoot, line);
         }
 
@@ -806,12 +781,10 @@ public class TowerInfoUI : PopUpUI
         }
     }
 
-
     private void FillRandomAbilityEffects(TowerAmplifier amplifierTower)
     {
         if (randomEffectListRoot == null) return;
 
-        // 먼저 비우기
         for (int i = randomEffectListRoot.childCount - 1; i >= 0; i--)
         {
             Destroy(randomEffectListRoot.GetChild(i).gameObject);
@@ -827,7 +800,6 @@ public class TowerInfoUI : PopUpUI
 
         bool hasAnyLine = false;
 
-        // 현재 증폭 타워가 가진 "랜덤 능력" ID 들 기준으로 한 줄씩 생성
         foreach (var abilityId in abilities)
         {
             var raRow = DataTableManager.RandomAbilityTable?.Get(abilityId);
@@ -846,12 +818,6 @@ public class TowerInfoUI : PopUpUI
                 hasAnyLine = true;
             }
         }
-
-        // 아무 줄도 못 만들었으면 안내 한 줄이라도
-        if (!hasAnyLine)
-        {
-            AddEffectLine(randomEffectListRoot, "랜덤 능력으로 변화하는 스탯 없음");
-        }
     }
 
     private List<string> BuildRandomAbilityStatLines(
@@ -860,10 +826,6 @@ public class TowerInfoUI : PopUpUI
     float effectValue)
     {
         var result = new List<string>();
-
-        // 숫자 변화가 없고, 이름만 의미있는 특수 효과형인 경우도 있어서
-        // effectValue == 0 이라고 무조건 버리지는 않는다.
-        // (히트스캔 / 유도 등)
 
         switch (abilityId)
         {
@@ -926,7 +888,6 @@ public class TowerInfoUI : PopUpUI
 
             case 200008: // 폭발
                 {
-                    // 숫자를 굳이 안 쓰고 설명만 원하면 아래 한 줄만 남겨도 됨.
                     if (!Mathf.Approximately(effectValue, 0f))
                     {
                         string formatted = $"{effectValue:+0;-0}";
@@ -1002,7 +963,6 @@ public class TowerInfoUI : PopUpUI
 
             default:
                 {
-                    // 혹시 새로운 랜덤 능력이 추가되면:
                     if (!Mathf.Approximately(effectValue, 0f))
                     {
                         string formatted = $"{effectValue:+0.##;-0.##}";
@@ -1011,14 +971,12 @@ public class TowerInfoUI : PopUpUI
                     }
                     else
                     {
-                        // 값이 0이어도 이름만으로 의미 있으면 그냥 이름 표시
                         if (!string.IsNullOrEmpty(abilityName))
                             result.Add(abilityName);
                     }
                     break;
                 }
         }
-
         return result;
     }
 }

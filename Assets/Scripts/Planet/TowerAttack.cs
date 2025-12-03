@@ -42,11 +42,21 @@ public class TowerAttack : MonoBehaviour
 
     private float hitRadiusBuffMul = 1f; // +=
     public float HitRadiusBuffMul { get { return hitRadiusBuffMul; } set { hitRadiusBuffMul = value; } }
-    private float percentPenetrationBuffMul = 0f;
-    public float PercentPenetrationBuffMul { get { return percentPenetrationBuffMul; } set { percentPenetrationBuffMul = value; } }
+
+    //percentpenetration ---------------
+    private float percentPenetrationFromAbility = 0f;
+    public float PercentPenetrationBuffMul
+    {
+        get => percentPenetrationFromAbility;
+        set => percentPenetrationFromAbility = Mathf.Clamp01(value);
+    }
+    private float percentPenetrationFromAmplifier = 0f;
+
+    private readonly System.Collections.Generic.List<float> percentPenAbilitySources
+        = new System.Collections.Generic.List<float>();
+    //fixed-------------------------------
     private float fixedPenetrationBuffAdd = 0f;
     public float FixedPenetrationBuffAdd { get { return fixedPenetrationBuffAdd; } set { fixedPenetrationBuffAdd = value; } }
-
     //TargetNum---------------------------
     private int targetNumberFromAbility = 0;   
     private int targetNumberFromAmplifier = 0; 
@@ -127,7 +137,6 @@ public class TowerAttack : MonoBehaviour
     public List<LazertowerAttack> Lazers => lazers;
 
     //-------------------------------------------------------
-
     private void Awake()
     {
         targetingSystem = GetComponent<TowerTargetingSystem>();
@@ -492,14 +501,15 @@ public class TowerAttack : MonoBehaviour
             projectileCountBuffAdd = 0;
 
             hitRadiusBuffMul = 1f;
-            percentPenetrationBuffMul = 1f;
+            percentPenetrationFromAmplifier = 0f;
             fixedPenetrationBuffAdd = 0f;
 
             targetNumberFromAmplifier = 0;
 
             hitRateBuffMul = 1f;
 
-            if (targetingSystem != null) targetingSystem.SetMaxTargetCount(1);
+            if (targetingSystem != null) 
+                targetingSystem.SetMaxTargetCount(1);
 
             return;
         }
@@ -509,7 +519,10 @@ public class TowerAttack : MonoBehaviour
         accelerationBuffAdd += amp.AccelerationBuff;
         projectileCountBuffAdd += amp.ProjectileCountBuff;
         hitRadiusBuffMul += amp.HitRadiusBuff;
-        percentPenetrationBuffMul *= amp.PercentPenetrationBuff;
+        
+        percentPenetrationFromAmplifier =
+            CombinePercentPenetration01(percentPenetrationFromAmplifier, amp.PercentPenetrationBuff);
+
         fixedPenetrationBuffAdd += amp.FixedPenetrationBuff;
         targetNumberFromAmplifier += amp.TargetNumberBuff;
         hitRateBuffMul *= amp.HitRateBuff;
@@ -527,14 +540,28 @@ public class TowerAttack : MonoBehaviour
 
         addBuffProjectileData = currentProjectileData.Clone();
 
-        // ⬇️ 증폭 + 카드 둘 다 합친 값 사용
         float finalTargetNumber = currentProjectileData.TargetNum + TotalTargetNumberBuffAdd;
         addBuffProjectileData.TargetNum = Mathf.Max(1, finalTargetNumber);
 
         addBuffProjectileData.CollisionSize = currentProjectileData.CollisionSize * hitRadiusBuffMul;
 
-        addBuffProjectileData.FixedPenetration = currentProjectileData.FixedPenetration + fixedPenetrationBuffAdd;
-        addBuffProjectileData.RatePenetration = currentProjectileData.RatePenetration + (100f - currentProjectileData.RatePenetration) * percentPenetrationBuffMul;
+        addBuffProjectileData.FixedPenetration =
+        currentProjectileData.FixedPenetration + fixedPenetrationBuffAdd;
+
+        //rate penetration---------------------------
+        float baseRate01 = Mathf.Clamp01(currentProjectileData.RatePenetration / 100f);
+
+        float ability01 = Mathf.Clamp01(percentPenetrationFromAbility);
+        float amp01 = Mathf.Clamp01(percentPenetrationFromAmplifier);
+
+        float oneMinus = (1f - baseRate01)
+                         * (1f - ability01)
+                         * (1f - amp01);
+
+        float finalRate01 = 1f - oneMinus;
+        addBuffProjectileData.RatePenetration =
+            Mathf.Clamp(finalRate01 * 100f, 0f, 100f);
+        //-------------------------------------------
 
         addBuffProjectileData.Attack = currentProjectileData.Attack * damageBuffMul;
         addBuffProjectileData.ProjectileAddSpeed = currentProjectileData.ProjectileAddSpeed + accelerationBuffAdd;
@@ -589,4 +616,52 @@ public class TowerAttack : MonoBehaviour
         float finalAttack = (originalProjectileData.Attack + addValue) * reinforceAttackScale;
         currentProjectileData.Attack = finalAttack;
     }
+
+    //penetration ----------------------------------
+    private float CombinePercentPenetration01(float current, float add)
+    {
+        current = Mathf.Clamp01(current);
+        add = Mathf.Clamp01(add);
+
+        return 1f - (1f - current) * (1f - add);
+    }
+
+    public void AddPercentPenetrationFromAbilitySource(float add)
+    {
+        add = Mathf.Clamp01(add);
+        if (add <= 0f) return;
+
+        percentPenAbilitySources.Add(add);
+        RecalculatePercentPenetrationFromAbility();
+    }
+
+    public void RemovePercentPenetrationFromAbilitySource(float add)
+    {
+        add = Mathf.Clamp01(add);
+        if (add <= 0f) return;
+
+        int idx = percentPenAbilitySources.FindIndex(p => Mathf.Approximately(p, add));
+        if (idx >= 0)
+            percentPenAbilitySources.RemoveAt(idx);
+
+        RecalculatePercentPenetrationFromAbility();
+    }
+
+    private void RecalculatePercentPenetrationFromAbility()
+    {
+        if (percentPenAbilitySources.Count == 0)
+        {
+            percentPenetrationFromAbility = 0f;
+            return;
+        }
+
+        float oneMinusMul = 1f;
+        foreach (float p in percentPenAbilitySources)
+        {
+            oneMinusMul *= (1f - Mathf.Clamp01(p));
+        }
+
+        percentPenetrationFromAbility = 1f - oneMinusMul;
+    }
+    //----------------------------------------------
 }

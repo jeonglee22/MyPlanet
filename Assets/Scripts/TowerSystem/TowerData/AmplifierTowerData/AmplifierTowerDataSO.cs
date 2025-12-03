@@ -45,7 +45,7 @@ public class AmplifierTowerDataSO : ScriptableObject
     [SerializeField] private float fireRateBuff = 1f;
     [SerializeField] private float accelerationBuff = 0f;
     [SerializeField] private float hitRadiusBuff = 0f;
-    [SerializeField] private float percentPenetrationBuff = 1f;
+    [SerializeField] private float percentPenetrationBuff = 0f;
     [SerializeField] private float fixedPenetrationBuff = 0f;
     [SerializeField] private int projectileCountBuff = 0;
     [SerializeField] private int targetNumberBuff = 0;
@@ -70,7 +70,7 @@ public class AmplifierTowerDataSO : ScriptableObject
         fireRateBuff = 1f;
         accelerationBuff = 0f;
         hitRadiusBuff = 0f;
-        percentPenetrationBuff = 1f;
+        percentPenetrationBuff = 0f;
         fixedPenetrationBuff = 0f;
         projectileCountBuff = 0;
         targetNumberBuff = 0;
@@ -177,7 +177,7 @@ public class AmplifierTowerDataSO : ScriptableObject
                 break;
 
             case AmplifierStatKind.PercentPenetration:
-                percentPenetrationBuff = percentPenetrationBuff + (1 - percentPenetrationBuff) * asRate;
+                percentPenetrationBuff += asRate;
                 break;
 
             case AmplifierStatKind.FixedPenetration:

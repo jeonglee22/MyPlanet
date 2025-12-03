@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class RatePanetrationUpgradeAbility : PassiveAbility
@@ -8,27 +9,53 @@ public class RatePanetrationUpgradeAbility : PassiveAbility
         abilityType = AbilityApplyType.Rate;
     }
 
+    private readonly Dictionary<TowerAttack, int> _stackMap
+        = new Dictionary<TowerAttack, int>();
+
     public override void ApplyAbility(GameObject gameObject)
     {
         base.ApplyAbility(gameObject);
 
-        var towerAttack = gameObject.GetComponent<TowerAttack>();
-        if (towerAttack != null)
-        {
-            towerAttack.PercentPenetrationBuffMul = towerAttack.PercentPenetrationBuffMul + 
-            (1 - towerAttack.PercentPenetrationBuffMul) * upgradeAmount;
-        }
+        var tower = gameObject.GetComponent<TowerAttack>();
+        if (tower == null) return;
+
+        int stack;
+        _stackMap.TryGetValue(tower, out stack);
+        stack++;
+        _stackMap[tower] = stack;
+
+        float p = Mathf.Clamp01(upgradeAmount);
+        float oneMinusP = 1f - p;
+        float oneMinusTotal = Mathf.Pow(oneMinusP, stack);   // (1 - p)^n
+        float total = 1f - oneMinusTotal;
+
+        tower.PercentPenetrationBuffMul = total;
     }
 
     public override void RemoveAbility(GameObject gameObject)
     {
         base.RemoveAbility(gameObject);
 
-        // var projectile = gameObject.GetComponent<Projectile>();
-        // if (projectile != null)
-        // {
-        //     projectile.RatePanetration -= projectile.projectileData.RatePenetration * upgradeAmount;
-        // }
+        var tower = gameObject.GetComponent<TowerAttack>();
+        if (tower == null) return;
+
+        if (!_stackMap.TryGetValue(tower, out var stack)) return;
+
+        stack--;
+        if (stack <= 0)
+        {
+            _stackMap.Remove(tower);
+            tower.PercentPenetrationBuffMul = 0f;
+            return;
+        }
+        _stackMap[tower] = stack;
+
+        float p = Mathf.Clamp01(upgradeAmount);
+        float oneMinusP = 1f - p;
+        float oneMinusTotal = Mathf.Pow(oneMinusP, stack); //1 - (1 - p)^n
+        float total = 1f - oneMinusTotal;
+
+        tower.PercentPenetrationBuffMul = total;
     }
 
     public override void Setting(GameObject gameObject)
