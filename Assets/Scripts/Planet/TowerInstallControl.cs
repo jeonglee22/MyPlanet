@@ -73,6 +73,10 @@ public class TowerInstallControl : MonoBehaviour
     public bool isInstall = true;
     private float dragRotateSpeed = 300f;
 
+    //reinforceLevel
+    private int maxReinforceLevel = 4;
+    public int MaxReinforceLevel => maxReinforceLevel;
+
     [Header("Drag Settings")]
     [SerializeField] private Canvas uiCanvas;          
     [SerializeField] private GameObject dragImagePrefab; 
@@ -1132,4 +1136,24 @@ public class TowerInstallControl : MonoBehaviour
         }
     }
 
+    public int GetSlotReinforceLevel(int index)
+    {
+        var attack = GetAttackTower(index);
+        if (attack != null)
+        {
+            return Mathf.Max(0, attack.ReinforceLevel);
+        }
+
+        var amp = GetAmplifierTower(index);
+        if (amp != null)
+        {
+            return Mathf.Max(0, amp.ReinforceLevel);
+        }
+        return 0;
+    }
+
+    public bool IsSlotMaxLevel(int index)
+    {
+        return GetSlotReinforceLevel(index) >= maxReinforceLevel;
+    }
 }

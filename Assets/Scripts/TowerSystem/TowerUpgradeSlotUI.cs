@@ -188,7 +188,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         initialOptionKeys = new TowerOptionKey[upgradeUIs.Length];
 
         List<int> emptySlots = new List<int>();
-        List<int> attackSlots = new List<int>();
+        List<int> upgradeSlots = new List<int>();
 
         for (int i = 0; i < installControl.TowerCount; i++)
         {
@@ -201,9 +201,8 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             }
             else
             {
-                var data = installControl.GetTowerData(i);
-                if (data != null) 
-                    attackSlots.Add(i);
+                if (!installControl.IsSlotMaxLevel(i))
+                    upgradeSlots.Add(i);
             }
         }
 
