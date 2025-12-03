@@ -25,6 +25,7 @@ public class SceneControlManager : MonoBehaviour
         else
         {
             Destroy(gameObject);
+            return;
         }
 
         DontDestroyOnLoad(gameObject);
@@ -35,11 +36,7 @@ public class SceneControlManager : MonoBehaviour
     {
         Debug.Log(loadingCanvas == null);
 
-        loadingCanvas.SetActive(true);
-
         await FireBaseInitializer.Instance.WaitInitialization();
-
-        loadingCanvas.SetActive(false);
 
         currentSceneName = SceneManager.GetActiveScene().name;
     }

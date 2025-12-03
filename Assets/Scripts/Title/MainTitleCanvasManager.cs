@@ -10,7 +10,7 @@ public class MainTitleCanvasManager : MonoBehaviour
     {
         None = -1,
         LogIn,
-        SignUp
+        Info
     }
 
     [SerializeField] private List<GameObject> popUpUIs;
@@ -35,16 +35,16 @@ public class MainTitleCanvasManager : MonoBehaviour
         if (user != null)
         {
             popUpUIs[(int)PopupName.LogIn].SetActive(false);
-            popUpUIs[(int)PopupName.SignUp].SetActive(false);
+            popUpUIs[(int)PopupName.Info].SetActive(false);
             Debug.Log("User is logged in.");
-            UpdateUIDText();
+            // UpdateUIDText();
         }
         else
         {
             popUpUIs[(int)PopupName.LogIn].SetActive(true);
-            popUpUIs[(int)PopupName.SignUp].SetActive(false);
+            popUpUIs[(int)PopupName.Info].SetActive(false);
             currentPopUpUI = PopupName.LogIn;
-            UpdateUIDText();
+            // UpdateUIDText();
         }
 
         isInitialized = true;

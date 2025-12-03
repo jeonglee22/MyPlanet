@@ -1,6 +1,7 @@
 using System;
 using Cysharp.Threading.Tasks;
 using Firebase.Auth;
+using Firebase.Database;
 using UnityEngine;
 
 public class AuthManager : MonoBehaviour
@@ -36,6 +37,16 @@ public class AuthManager : MonoBehaviour
         auth.StateChanged += OnAuthStateChanged;
 
         currentUser = auth.CurrentUser;
+        if (currentUser != null)
+        {
+            var userRef = FirebaseDatabase.DefaultInstance.GetReference(DatabaseRef.UserPlanets);
+            var dataSnapshot = await userRef.Child(UserId).GetValueAsync().AsUniTask();
+
+            if (dataSnapshot.Exists)
+            {
+                nickName = dataSnapshot.Child("nickName").Value.ToString();
+            }
+        }
 
         isInitialized = true;
     }
@@ -71,12 +82,13 @@ public class AuthManager : MonoBehaviour
         }
     }
 
-    public async UniTask<bool> SignInAnonymousAsync()
+    public async UniTask<bool> SignInAnonymousAsync(string nickName = "")
     {
         try
         {
             var authResult = await auth.SignInAnonymouslyAsync().AsUniTask();
             currentUser = authResult.User;
+            this.nickName = nickName;
 
             return true;
         }

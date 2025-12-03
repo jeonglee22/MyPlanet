@@ -15,6 +15,7 @@ public class SignUpPopUpUI : MonoBehaviour
     [SerializeField] private Button signUpButton;
     [SerializeField] private Button guestLoginButton;
     [SerializeField] private Button closeButton;
+    [SerializeField] private LogInPopUpUI logInPopUpUI;
 
     private string email = string.Empty;
     private string password = string.Empty;
@@ -65,10 +66,11 @@ public class SignUpPopUpUI : MonoBehaviour
 
         var result = await AuthManager.Instance.SignInAnonymousAsync();
         canvasManager.SwitchToTargetPopUp(MainTitleCanvasManager.PopupName.None);
-        if (result)
-        {
-            canvasManager.UpdateUIDText();
-        }
+        // logInPopUpUI.OnNickNameValueChanged(AuthManager.Instance.UserNickName);
+        // if (result)
+        // {
+        //     canvasManager.UpdateUIDText();
+        // }
 
         InteractableButtons(true);
     }
