@@ -561,38 +561,80 @@ public class TowerInfoUI : PopUpUI
         float p = (mul - 1f) * 100f;
         return $"{p:+0.##;-0.##}%";
     }
-
     private string FormatOffsetArray(IReadOnlyList<int> targetSlots, int selfIndex)
     {
+        // 카드 쪽이랑 맞추기: 슬롯이 없으면 빈 문자열
         if (targetSlots == null || targetSlots.Count == 0)
-            return "버프 슬롯 없음";
+            return string.Empty;
 
-        // selfIndex 기준 상대 오프셋 계산
-        List<int> offsets = new List<int>();
-        for (int i = 0; i < targetSlots.Count; i++)
+        if (installControl == null)
+            return string.Empty;
+
+        int towerCount = installControl.TowerCount;
+        if (towerCount <= 1)
+            return string.Empty;
+
+        // 오른쪽 / 왼쪽 상대 거리 리스트
+        List<int> rightList = new List<int>();
+        List<int> leftList = new List<int>();
+
+        foreach (int slot in targetSlots)
         {
-            int slot = targetSlots[i];
-            if (slot == selfIndex) continue; // 자기 자신은 제외
-            int offset = slot - selfIndex;
-            offsets.Add(offset);
+            if (slot < 0) continue;       // 안전장치
+            if (slot == selfIndex) continue; // 자기 자신은 표시 안 함
+
+            // 원형(시계 방향 / 반시계 방향) 기준 거리 계산
+            int cw = (slot - selfIndex + towerCount) % towerCount;   // 시계 방향(오른쪽) 거리
+            int ccw = (selfIndex - slot + towerCount) % towerCount;  // 반시계 방향(왼쪽) 거리
+
+            // 둘 다 0이면 자기 자신이라 스킵(원래 위에서 걸러짐)
+            if (cw == 0 && ccw == 0)
+                continue;
+
+            // 더 가까운 방향을 선택 (동일하면 오른쪽으로 처리)
+            if (cw <= ccw)
+            {
+                if (cw > 0)
+                    rightList.Add(cw);    // 오른쪽 n칸
+            }
+            else
+            {
+                if (ccw > 0)
+                    leftList.Add(ccw);    // 왼쪽 n칸
+            }
         }
 
-        if (offsets.Count == 0)
-            return "버프 슬롯 없음";
+        // 진짜 표시할 게 없으면 빈 문자열
+        if (rightList.Count == 0 && leftList.Count == 0)
+            return string.Empty;
 
-        var parts = new List<string>();
-        foreach (int o in offsets)
+        rightList.Sort();
+        leftList.Sort();
+
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("증폭타워 기준");
+
+        if (rightList.Count > 0)
         {
-            string dir = o > 0 ? "오른쪽" : "왼쪽";
-            int n = Mathf.Abs(o);
-            parts.Add($"{dir} {n}번째");
+            var rightPos = new List<string>();
+            foreach (int v in rightList)
+                rightPos.Add($"{v}번째");
+
+            sb.AppendLine($"왼쪽 {string.Join(", ", rightPos)}");
         }
 
-        var sb = new StringBuilder();
-        sb.AppendLine("요격타워 기준");
-        sb.Append(string.Join(", ", parts));
+        if (leftList.Count > 0)
+        {
+            var leftPos = new List<string>();
+            foreach (int v in leftList)
+                leftPos.Add($"{v}번째");
+
+            sb.AppendLine($"오른쪽 {string.Join(", ", leftPos)}");
+        }
+
         return sb.ToString();
     }
+
 
     private string BuildRandomSlotInfo(TowerAmplifier amp)
     {
