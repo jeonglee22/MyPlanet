@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.UI;
 
 public class AsyncRaidUI : MonoBehaviour
@@ -41,6 +42,11 @@ public class AsyncRaidUI : MonoBehaviour
             planet.OnDeathEvent += () => planet.gameObject.SetActive(false);
 
             SetUserNickname(i, planet.BlurNickname);
+        }
+
+        for (int i = asyncUserPlanets.Count; i < 3; i++)
+        {
+            SetTransparentUserPlanetInfo(i);
         }
     }
 
@@ -90,7 +96,27 @@ public class AsyncRaidUI : MonoBehaviour
 
     public void SetTransparentUserPlanetInfo(int index)
     {
+        connectionIcons[index].gameObject.SetActive(false);
+        disConnectionIcons[index].gameObject.SetActive(false);
+        initColor = backGroundImages[index].color;
+        initTransparentColor = infoPanels[index*2].color;
+        backGroundImages[index].color = new Color(0f,0f,0f,0f);
+        infoPanels[index*2].color = new Color(0f,0f,0f,0f);
+        infoPanels[index*2+1].color = new Color(0f,0f,0f,0f);
+        nicknameTexts[index].color = new Color(0f,0f,0f,0f);
         
+        var images = index switch
+        {
+            0 => hpFillImages1,
+            1 => hpFillImages2,
+            2 => hpFillImages3,
+            _ => null
+        };
+
+        foreach (var img in images)
+        {
+            img.fillAmount = 0f;
+        }
     }
 
     public void ControllImageCount(float hp, int index)

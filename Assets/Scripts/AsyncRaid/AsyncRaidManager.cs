@@ -44,8 +44,8 @@ public class AsyncRaidManager : MonoBehaviour
 
     private async UniTask SpawnAsyncUserPlanet(float bossHp)
     {
-        // userPlanetCount = Random.Range(1, 4);
-        userPlanetCount = 3;
+        userPlanetCount = Random.Range(1, 4);
+        // userPlanetCount = 3;
         if (userPlanetDatas != null)
             userPlanetDatas.Clear();
         if (asyncUserPlanets != null)
