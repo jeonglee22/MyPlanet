@@ -18,5 +18,7 @@ public class GameManager : MonoBehaviour
 
         int enemyLayer = LayerMask.NameToLayer(TagName.Enemy);
         Physics.IgnoreLayerCollision(enemyLayer, enemyLayer, true);
+
+        TutorialManager.Instance.Initialize();
     }
 }

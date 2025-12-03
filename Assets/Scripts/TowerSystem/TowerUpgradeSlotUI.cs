@@ -47,6 +47,8 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     public bool IsFirstInstall => isFirstInstall;
     [SerializeField] private Button[] refreshButtons;
 
+    private bool isTutorial = false;
+
     private void Start()
     {
         // foreach (var ui in upgradeUIs)
@@ -55,11 +57,15 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         // SetActiveRefreshButtons(false);
         installControl.OnTowerInstalled += SetTowerInstallText;
+
+        TutorialManager.Instance.OnTutorialModeChanged += SetIsTutorial;
     }
 
     void OnDestroy()
     {
         installControl.OnTowerInstalled -= SetTowerInstallText;
+
+        TutorialManager.Instance.OnTutorialModeChanged -= SetIsTutorial;
     }
 
     private async UniTaskVoid OnEnable()
@@ -107,6 +113,8 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         isStartTouch = false;
         towerImageIsDraging = false;
         isFirstInstall = false;
+
+        TutorialManager.Instance.OnTutorialModeChanged -= SetIsTutorial;
     }
 
     private void Update()
@@ -614,6 +622,10 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             return null;
 
         int idx = Random.Range(0, allAmplifierTowers.Length);
+        if(isTutorial || Variables.Stage == 1)
+        {
+            idx = Random.Range(0, 2); // Basic Amplifier Towers Only
+        }
 
         return allAmplifierTowers[idx];
     }
@@ -630,5 +642,10 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 useWeight: true);
         }
         return abilityId;
+    }
+
+    private void SetIsTutorial(bool isTutorial)
+    {
+        this.isTutorial = isTutorial;
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Cysharp.Threading.Tasks.Triggers;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -94,6 +95,8 @@ public class TowerInstallControl : MonoBehaviour
 
     private int pendingDeleteIndex = -1;
 
+    private bool isTutorial = false;
+
     private void Awake()
     {
         planetTowerUI.TowerCount = towerCount;
@@ -130,6 +133,18 @@ public class TowerInstallControl : MonoBehaviour
 
         if (deleteNoButton != null)
             deleteNoButton.onClick.AddListener(OnDeleteNo);
+
+        TutorialManager.Instance.OnTutorialModeChanged += SetIsTutorial;
+    }
+
+    private void OnDisable()
+    {
+        TutorialManager.Instance.OnTutorialModeChanged -= SetIsTutorial;
+    }
+
+    private void OnDestroy()
+    {
+        TutorialManager.Instance.OnTutorialModeChanged -= SetIsTutorial;
     }
 
     private void Update()
@@ -265,7 +280,7 @@ public class TowerInstallControl : MonoBehaviour
         int idx = UnityEngine.Random.Range(0, availableTowerDatas.Count);
 
         //tutorial
-        if(Variables.Stage == 1)
+        if(isTutorial || Variables.Stage == 1)
         {
             idx = 1; // Basic Tower
         }      
@@ -1093,4 +1108,9 @@ public class TowerInstallControl : MonoBehaviour
     }
 
     //--------------------------------------------------------------
+
+    private void SetIsTutorial(bool isTutorial)
+    {
+        this.isTutorial = isTutorial;
+    }
 }
