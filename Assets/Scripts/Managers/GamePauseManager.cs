@@ -7,6 +7,8 @@ public class GamePauseManager : MonoBehaviour
 
     public bool IsGamePaused { get; private set; } = false;
 
+    private int pauseCount = 0;
+
     private void Awake()
     {
         if(instance != null)
@@ -21,23 +23,28 @@ public class GamePauseManager : MonoBehaviour
 
     public void Pause()
     {
-        if (IsGamePaused)
-        {
-            return;
-        }
+        pauseCount++;
 
-        IsGamePaused = true;
-        Time.timeScale = 0f;
+        if(pauseCount == 1)
+        {
+            IsGamePaused = true;
+            Time.timeScale = 0f;
+        }
     }
 
     public void Resume()
     {
-        if (!IsGamePaused)
+        pauseCount--;
+
+        if(pauseCount < 0)
         {
-            return;
+            pauseCount = 0;
         }
 
-        IsGamePaused = false;
-        Time.timeScale = 1f;
+        if(pauseCount == 0)
+        {
+            IsGamePaused = false;
+            Time.timeScale = 1f;
+        }
     }
 }

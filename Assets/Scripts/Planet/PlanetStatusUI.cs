@@ -58,7 +58,7 @@ public class PlanetStatusUI : MonoBehaviour
     private void OpenTowerUpgradeUI()
     {
         towerSettingUi.SetActive(true);
-            Time.timeScale = 0f;
+            GamePauseManager.Instance.Pause();
         towerInstallControl.isInstall = false;
     }
 

@@ -93,6 +93,8 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             refreshButton.interactable = true;
         }
         SettingUpgradeCards();
+
+        TutorialManager.Instance.ShowTutorialStep(2);
     }
 
     private void SetTowerInstallText()
@@ -107,7 +109,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             ui.SetActive(false);
         SetActiveRefreshButtons(false);
 
-        Time.timeScale = 1f;
+        GamePauseManager.Instance.Resume();
         numlist = null;
         choosedIndex = -1;
         isStartTouch = false;

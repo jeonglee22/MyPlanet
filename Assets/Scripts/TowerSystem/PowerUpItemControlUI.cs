@@ -243,7 +243,7 @@ public class PowerUpItemControlUI : MonoBehaviour
 
     private void OnDisable()
     {
-        Time.timeScale = 1f;
+        GamePauseManager.Instance.Resume();
         numlist = null;
 
         Variables.OnQuasarChanged -= CheckQuasarForReactivation;

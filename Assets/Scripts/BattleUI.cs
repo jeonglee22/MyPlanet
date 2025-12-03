@@ -83,14 +83,14 @@ public class BattleUI : MonoBehaviour
     private void OnOpenInstallUIClicked()
     {
         towerInstallUiObj.SetActive(true);
-        Time.timeScale = 0f;
+        GamePauseManager.Instance.Pause();
     }
 
     private void OnOpenTowerStatusClicked()
     {
         towerInstallUiObj.GetComponent<TowerUpgradeSlotUI>().IsNotUpgradeOpen = true;
         towerInstallUiObj.SetActive(true);
-        Time.timeScale = 0f;
+        GamePauseManager.Instance.Pause();
     }
 
     private void SetBattleTimeText(int minutes, int seconds)

@@ -31,13 +31,13 @@ public class PlayManager : MonoBehaviour
     {
         gameOverUI.GetComponent<GameResultUI>().SetResultText(false);
         gameOverUI.SetActive(true);
-        Time.timeScale = 0f;
+        GamePauseManager.Instance.Pause();
     }
 
     private void GameClear()
     {
         gameOverUI.GetComponent<GameResultUI>().SetResultText(true);
         gameOverUI.SetActive(true);
-        Time.timeScale = 0f;
+        GamePauseManager.Instance.Pause();
     }
 }

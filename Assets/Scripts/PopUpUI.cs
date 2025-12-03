@@ -3,7 +3,7 @@ using UnityEngine.InputSystem;
 
 public class PopUpUI : MonoBehaviour
 {
-    private RectTransform rectTransform;
+    protected RectTransform rectTransform;
     protected Vector2 touchPos;
 
     private void Awake()

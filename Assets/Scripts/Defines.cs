@@ -123,6 +123,18 @@ public enum PatternIds
     ChaseMeteorCluster
 }
 
+public enum TutorialPoint
+{
+    TopBig,
+    TopMidium,
+    TopRight,
+    TopRightTwo,
+    TopLeftSmall,
+    CenterMidium,
+    CenterMidiumTwo,
+    BottomBig,
+}
+
 public static class DataTableIds
 {
     public static readonly string Item = "ItemTable";

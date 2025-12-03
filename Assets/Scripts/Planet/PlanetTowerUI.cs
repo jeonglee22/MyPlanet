@@ -44,7 +44,7 @@ public class PlanetTowerUI : MonoBehaviour
 
     void OnEnable()
     {
-        Time.timeScale = 0f;
+        GamePauseManager.Instance.Pause();
     }
 
     void Update()
@@ -112,7 +112,7 @@ public class PlanetTowerUI : MonoBehaviour
         if (towerInfoUI != null)
             towerInfoUI.gameObject.SetActive(false);
         gameObject.SetActive(false);
-        Time.timeScale = 1f;
+        GamePauseManager.Instance.Resume();
     }
 
     private void OnGoToTitleClicked()
