@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using Unity.Android.Gradle.Manifest;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
 public class LoadManager : MonoBehaviour
 {
+
     private Dictionary<int, GameObject> loadedEnemyPrefabs = new Dictionary<int, GameObject>();
 
     private static Dictionary<string, GameObject> loadedGamePrefabs = new Dictionary<string, GameObject>();
@@ -35,24 +37,14 @@ public class LoadManager : MonoBehaviour
         return null;
     }
 
-    public async UniTask<GameObject> LoadEnemyPrefabAsync(int enemyId, int enemyType)
+    public async UniTask<GameObject> LoadEnemyPrefabAsync(int enemyId)
     {
         if (loadedEnemyPrefabs.ContainsKey(enemyId))
         {
             return loadedEnemyPrefabs[enemyId];
         }
 
-        //string addressKey = enemyId.ToString();
-        string addressKey = default;
-        switch (enemyType)
-        {
-            case 4:
-                addressKey = ObjectName.BossEnemy;
-                break;
-            default:
-                addressKey = ObjectName.Enemy;
-                break;
-        }
+        string addressKey = DataTableManager.EnemyTable.Get(enemyId).VisualAsset;
 
         try
         {
@@ -64,6 +56,30 @@ public class LoadManager : MonoBehaviour
         catch(System.Exception)
         {
             return null;
+        }
+    }
+
+    public async UniTask LoadEnemyPrefabAsync()
+    {
+        if (loadedEnemyPrefabs.Count > 0)
+        {
+            return;
+        }
+
+        var enemyIds = DataTableManager.EnemyTable.GetEnemyIds();
+        foreach(int enemyId in enemyIds)
+        {
+            string addressKey = DataTableManager.EnemyTable.Get(enemyId).VisualAsset;
+
+            try
+            {
+                GameObject prefab = await Addressables.LoadAssetAsync<GameObject>(addressKey).ToUniTask();
+                loadedEnemyPrefabs.Add(enemyId, prefab);
+            }
+            catch(System.Exception)
+            {
+                
+            }
         }
     }
 
@@ -85,8 +101,7 @@ public class LoadManager : MonoBehaviour
         {
             if(!loadedEnemyPrefabs.ContainsKey(enemyId))
             {
-                var enemyData = DataTableManager.EnemyTable.Get(enemyId);
-                loadTasks.Add(LoadEnemyPrefabAsync(enemyId, enemyData.EnemyType));
+                loadTasks.Add(LoadEnemyPrefabAsync(enemyId));
             }
         }
 

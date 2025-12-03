@@ -46,11 +46,6 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
     [SerializeField] private List<DropItem> drops;
 
-    //test
-    [SerializeField] private Color baseColor = Color.red;
-    [SerializeField] private Color hitColor = Color.white;
-    private Material Material;
-
     private CancellationTokenSource colorResetCts;
     private int enemyId;
     public EnemySpawner Spawner { get; set; }
@@ -73,10 +68,6 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
         OnDeathEvent += SpawnManager.Instance.OnEnemyDied;
         OnLifeTimeOverEvent += SpawnManager.Instance.OnEnemyDied;
-
-        Material = GetComponent<Renderer>().material;
-        Material.color = baseColor;
-        ColorCancel();
 
         OnCollisionDamageCalculate = null;
     }
@@ -104,7 +95,6 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         OnLifeTimeOverEvent -= SpawnManager.Instance.OnEnemyDied;
 
         StopLifeTime();
-        ColorCancel();
     }
 
     public override void OnDamage(float damage)
@@ -115,11 +105,6 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         }
 
         base.OnDamage(damage);
-
-        ColorCancel();
-
-        Material.color = hitColor;
-        ResetColorAsync(0.2f, colorResetCts.Token).Forget();
     }
 
     public override void Die()
@@ -332,10 +317,12 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
             case 3:
                 Variables.MiddleBossEnemy = this;
                 WaveManager.Instance.OnBossSpawned(false);
+                transform.position = SpawnManager.Instance.BossSpawnPosition.position;
                 break;
             case 4:
                 Variables.LastBossEnemy = this;
                 WaveManager.Instance.OnBossSpawned(true);
+                transform.position = SpawnManager.Instance.BossSpawnPosition.position;
                 break;
         }
 
@@ -389,20 +376,6 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     {
         movement?.OnPatternLine();
         patternExecutor?.OnPatternLine();
-    }
-
-    //test
-    private void ColorCancel()
-    {
-        colorResetCts?.Cancel();
-        colorResetCts?.Dispose();
-        colorResetCts = new CancellationTokenSource();
-    }
-
-    private async UniTaskVoid ResetColorAsync(float delay, CancellationToken token = default)
-    {
-        await UniTask.Delay(TimeSpan.FromSeconds(delay), cancellationToken: colorResetCts.Token);
-        Material.color = baseColor;
     }
 
     public void Dispose()
