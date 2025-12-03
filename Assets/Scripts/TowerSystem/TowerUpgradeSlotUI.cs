@@ -212,7 +212,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         for (int cardIndex = 0; cardIndex < uiTexts.Length; cardIndex++)
         {
             bool canNew = emptySlots.Count > 0;
-            bool canUpgrade = attackSlots.Count > 0;
+            bool canUpgrade = upgradeSlots.Count > 0;
 
             if (!canNew && !canUpgrade)
             {
@@ -272,14 +272,14 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 int chosenSlotIndex = -1;
                 TowerDataSO chosenData = null;
 
-                for (int tryCount = 0; tryCount < attackSlots.Count; tryCount++)
+                for (int tryCount = 0; tryCount < upgradeSlots.Count; tryCount++)
                 {
-                    int idx = UnityEngine.Random.Range(0, attackSlots.Count);
-                    int slotNumber = attackSlots[idx];
+                    int idx = UnityEngine.Random.Range(0, upgradeSlots.Count);
+                    int slotNumber = upgradeSlots[idx];
                     var data = installControl.GetTowerData(slotNumber);
                     if (data == null)
                     {
-                        attackSlots.RemoveAt(idx);
+                        upgradeSlots.RemoveAt(idx);
                         tryCount--;
                         continue;
                     }
@@ -294,20 +294,20 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
                 if (chosenSlotIndex == -1)
                 {
-                    int idx = UnityEngine.Random.Range(0, attackSlots.Count);
-                    int slotNumber = attackSlots[idx];
+                    int idx = UnityEngine.Random.Range(0, upgradeSlots.Count);
+                    int slotNumber = upgradeSlots[idx];
                     numlist.Add(slotNumber);
                     SetUpgradeCardForUsedSlot(cardIndex, slotNumber, isInitial: true);
-                    attackSlots.RemoveAt(idx);
+                    upgradeSlots.RemoveAt(idx);
                 }
                 else
                 {
-                    int slotNumber = attackSlots[chosenSlotIndex];
+                    int slotNumber = upgradeSlots[chosenSlotIndex];
                     numlist.Add(slotNumber);
                     usedAttackTowerTypesThisRoll.Add(chosenData);
 
                     SetUpgradeCardForUsedSlot(cardIndex, slotNumber, isInitial: true);
-                    attackSlots.RemoveAt(chosenSlotIndex);
+                    upgradeSlots.RemoveAt(chosenSlotIndex);
                 }
             }
         }
@@ -664,13 +664,19 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         {
             number = Random.Range(0, installControl.TowerCount);
 
-            if (installControl.MaxTowerCount == installControl.CurrentTowerCount && 
+            if (installControl.MaxTowerCount == installControl.CurrentTowerCount &&
                 !installControl.IsUsedSlot(number))
             {
                 continue;
             }
 
-            if(!numlist.Contains(number))
+            if (installControl.IsUsedSlot(number) &&
+                installControl.IsSlotMaxLevel(number))
+            {
+                continue;
+            }
+
+            if (!numlist.Contains(number))
                 break;
         }
 

@@ -249,6 +249,8 @@ public class TowerInstallControl : MonoBehaviour
         if (!IsReadyInstall) return;
         if (ChoosedData == null) return;
 
+        if (IsSlotMaxLevel(index)) return;
+
         planet?.UpgradeTower(index);
 
         IsReadyInstall = false;
