@@ -27,18 +27,22 @@ public class AsyncRaidManager : MonoBehaviour
     public bool IsStartRaid { get; set; } = false;
 
     private float xOffset = 1.5f;
+    private bool isActiveUI = false;
 
     void Update()
     {
-        if(WaveManager.Instance.IsBossBattle && !isSettingAsyncUserPlanet && canStartSpawn && IsStartRaid)
+        if(WaveManager.Instance.IsLastBoss && !isSettingAsyncUserPlanet && canStartSpawn
+            && !CameraManager.Instance.IsZoomedOut)
+        // if(WaveManager.Instance.IsLastBoss && !isSettingAsyncUserPlanet && canStartSpawn && IsStartRaid)
         {
             var bossHp = Variables.LastBossEnemy != null ? Variables.LastBossEnemy.maxHp : 1;
             SpawnAsyncUserPlanet(bossHp).Forget();
             canStartSpawn = false;
         }
-        else if (WaveManager.Instance.IsBossBattle && isSettingAsyncUserPlanet)
+        else if (WaveManager.Instance.IsLastBoss && isSettingAsyncUserPlanet && !isActiveUI)
         {
             asyncRaidUI.gameObject.SetActive(true);
+            isActiveUI = true;
         }
     }
 

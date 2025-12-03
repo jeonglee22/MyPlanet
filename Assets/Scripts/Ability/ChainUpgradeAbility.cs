@@ -58,6 +58,9 @@ public class ChainUpgradeAbility : EffectAbility
             return;
 
         var nextEnemies = nearboundEnemyColliders.ToList().ConvertAll(x => x.GetComponent<Enemy>()).FindAll(x => !hitEnemies.Contains(x));
+        if (nextEnemies.Count == 0)
+            return;
+        
         var index = Random.Range(0, nextEnemies.Count);
         var nextEnemy = nextEnemies[index];
         if (nextEnemy == null)
