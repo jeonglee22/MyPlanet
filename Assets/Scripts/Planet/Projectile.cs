@@ -26,6 +26,10 @@ public class Projectile : MonoBehaviour , IDisposable
     public float acceleration ;
     public int splitCount = 0;
 
+    //collision size
+    [SerializeField] private Vector3 baseScale = Vector3.one;
+    private bool baseScaleInitialized = false;
+
     private ObjectPoolManager<ProjectileData, Projectile> objectPoolManager;
 
     private CancellationTokenSource lifeTimeCts;
@@ -35,7 +39,14 @@ public class Projectile : MonoBehaviour , IDisposable
     private bool isFinish = false;
     public bool IsFinish { get => isFinish; set => isFinish = value; }
     public bool IsOtherUser { get; set; }
-
+    private void Awake()
+    {
+        if (!baseScaleInitialized)
+        {
+            baseScale = transform.localScale;
+            baseScaleInitialized = true;
+        }
+    }
     private void OnEnable()
     {
         trailRenderer.Clear();
@@ -71,7 +82,6 @@ public class Projectile : MonoBehaviour , IDisposable
         else
         {
             // Debug.Log($"[Projectile] DESPAWN reason=isFinish:{isFinish}, life={currentLifeTime:0.00}/{projectileData.RemainTime:0.00}, obj={name}");
-
             Cancel();
             abilityRelease?.Invoke(gameObject);
             abilityRelease = null;
@@ -155,6 +165,14 @@ public class Projectile : MonoBehaviour , IDisposable
         FixedPanetration = projectileData.FixedPenetration;
         damage = projectileData.Attack;
         hitRadius = projectileData.CollisionSize;
+
+        //hit size
+        float baseSize = poolKey != null ? poolKey.CollisionSize : projectileData.CollisionSize;
+        float finalSize = projectileData.CollisionSize;
+        float sizeMul = 1f;
+        if (baseSize > 0f)
+            sizeMul = finalSize / baseSize;
+        transform.localScale = baseScale * sizeMul;
 
         Cancel();
         currentLifeTime = 0f;

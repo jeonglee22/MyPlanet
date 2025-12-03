@@ -68,11 +68,27 @@ public class TowerInfoUI : PopUpUI
         if (attackTowerDataPanel != null) attackTowerDataPanel.SetActive(false);
         if (buffTowerDataPanel != null) buffTowerDataPanel.SetActive(false);
 
+        if (installControl == null) return;
+
         foreach (var amp in installControl.GetAllAmplifiers())
         {
+            if (amp == null) continue;
+            amp.OnBuffTargetsChanged -= HandleBuffChanged; 
             amp.OnBuffTargetsChanged += HandleBuffChanged;
         }
     }
+
+    private void OnDisable()
+    {
+        if (installControl == null) return;
+
+        foreach (var amp in installControl.GetAllAmplifiers())
+        {
+            if (amp == null) continue;
+            amp.OnBuffTargetsChanged -= HandleBuffChanged;
+        }
+    }
+
     private void HandleBuffChanged()
     {
         if (gameObject.activeSelf && CurrentSlotIndex >= 0)
@@ -743,12 +759,12 @@ public class TowerInfoUI : PopUpUI
             AddEffectLine(basicEffectListRoot, line);
         }
 
-        // 히트 반경 (HitRadiusBuff: add, 0.25 -> +25%)
+        // 충돌 크기 (HitRadiusBuff: add, 0.25 -> +25%)
         if (!Mathf.Approximately(ampData.HitRadiusBuff, 0f))
         {
             float delta = ampData.HitRadiusBuff;
             string value = FormatPercentFromAdd(delta);
-            string line = BuildStatChangeLine("히트 반경", delta, value);
+            string line = BuildStatChangeLine("충돌 크기", delta, value);
             AddEffectLine(basicEffectListRoot, line);
         }
 

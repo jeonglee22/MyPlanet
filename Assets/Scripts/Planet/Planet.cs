@@ -305,22 +305,14 @@ public class Planet : LivingEntity
 
         var fromGo = towers[fromIndex];
         var toGo = towers[toIndex];
-
-        // 둘 다 비어 있으면 의미 없음
         if (fromGo == null && toGo == null) return;
-
         var fromAmp = fromGo != null ? fromGo.GetComponent<TowerAmplifier>() : null;
         var toAmp = toGo != null ? toGo.GetComponent<TowerAmplifier>() : null;
-
-        // 실제 월드 오브젝트 스왑
         towers[fromIndex] = toGo;
         towers[toIndex] = fromGo;
 
-        // 회전/위치 갱신
-        if (fromGo != null)
-            SetSlotRotation(toIndex);
-        if (toGo != null)
-            SetSlotRotation(fromIndex);
+        if (fromGo != null) SetSlotRotation(toIndex);
+        if (toGo != null) SetSlotRotation(fromIndex);
 
         int slotCount = towers.Count;
         if (amplifiersSlots != null && amplifiersSlots.Length == slotCount)
@@ -330,14 +322,10 @@ public class Planet : LivingEntity
         }
 
         if (fromAmp != null)
-        {
             fromAmp.RebuildSlotsForNewIndex(toIndex, slotCount);
-        }
         if (toAmp != null)
-        {
             toAmp.RebuildSlotsForNewIndex(fromIndex, slotCount);
-        }
-        // 증폭 버프 재적용
+        
         ReapplyAllAmplifierBuffs();
     }
     public void ReapplyAllAmplifierBuffs()
@@ -346,12 +334,22 @@ public class Planet : LivingEntity
 
         int slotCount = towers.Count;
 
-        // 1) 모든 증폭타워가 걸어둔 버프/능력 일단 제거
+        // 0) 먼저 모든 공격 타워에서 "증폭 버프"만 싹 지운다
+        if (planetAttacks != null)
+        {
+            foreach (var atk in planetAttacks)
+            {
+                if (atk == null) continue;
+                atk.ClearAllAmplifierBuffs();
+            }
+        }
+
+        // 1) 모든 증폭타워의 내부 기록만 초기화
         for (int i = 0; i < amplifiersSlots.Length; i++)
         {
             var amp = amplifiersSlots[i];
             if (amp == null) continue;
-            amp.ClearAllbuffs();
+            amp.ResetLocalBuffStateOnly();
         }
 
         // 2) 각 증폭타워가 기억하고 있는 슬롯 인덱스를 기준으로 다시 적용
@@ -369,7 +367,6 @@ public class Planet : LivingEntity
                 continue;
             }
 
-            // buffSlots ∪ randomSlots 의 합집합
             HashSet<int> targetSlots = new HashSet<int>();
 
             if (buffSlots != null)
@@ -384,7 +381,6 @@ public class Planet : LivingEntity
                     targetSlots.Add(s);
             }
 
-            // 실제로 그 슬롯에 앉아있는 공격 타워에게 다시 버프 적용
             foreach (int slotIndex in targetSlots)
             {
                 if (slotIndex < 0 || slotIndex >= slotCount) continue;
@@ -396,6 +392,7 @@ public class Planet : LivingEntity
             }
         }
     }
+
     //--------------------------------------------------
     //Remove Tower--------------------------------------
     public int GetAttackTowerCount()
