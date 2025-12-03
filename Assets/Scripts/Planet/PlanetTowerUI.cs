@@ -117,6 +117,6 @@ public class PlanetTowerUI : MonoBehaviour
 
     private void OnGoToTitleClicked()
     {
-        SceneControlManager.Instance.LoadScene(SceneName.LoginScene).Forget();
+        SceneControlManager.Instance.LoadScene(SceneName.StageSelectScene).Forget();
     }
 }
