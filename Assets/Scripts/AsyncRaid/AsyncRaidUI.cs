@@ -16,9 +16,11 @@ public class AsyncRaidUI : MonoBehaviour
     [SerializeField] private Image[] hpFillImages2;
     [SerializeField] private Image[] hpFillImages3;
     [SerializeField] private Image[] backGroundImages;
+    [SerializeField] private Image[] infoPanels;
 
     private List<AsyncUserPlanet> asyncUserPlanets;
     private Color initColor;
+    private Color initTransparentColor;
 
     private void OnEnable()
     {
@@ -108,12 +110,14 @@ public class AsyncRaidUI : MonoBehaviour
         {
             i = 0;
             hpRatio = 0;
+            images[0].fillAmount = 0f;
+            return;
         }
         if (i < images.Length-1)
         {
-             images[i+1].fillAmount = 0f;
+            images[i+1].fillAmount = 0f;
         }
-        images[i].fillAmount = hpRatio;
+        // images[i].fillAmount = hpRatio;
     }
 
     public void SetUserNickname(int index, string nickname)
@@ -126,7 +130,11 @@ public class AsyncRaidUI : MonoBehaviour
         connectionIcons[index].gameObject.SetActive(false);
         disConnectionIcons[index].gameObject.SetActive(true);
         initColor = backGroundImages[index].color;
-        backGroundImages[index].color = Color.gray;
+        initTransparentColor = infoPanels[index*2].color;
+        backGroundImages[index].color = new Color(0.5f, 0.5f, 0.5f, initColor.a);
+        infoPanels[index*2].color = new Color(0.5f, 0.5f, 0.5f, initTransparentColor.a);
+        infoPanels[index*2+1].color = new Color(0.5f, 0.5f, 0.5f, initColor.a);
+        // disConnectionIcons[index].color = new Color(0.5f, 0.5f, 0.5f, initColor.a);
     }
 
     private void ResetImages()
@@ -149,6 +157,9 @@ public class AsyncRaidUI : MonoBehaviour
             connectionIcons[i].gameObject.SetActive(true);
             disConnectionIcons[i].gameObject.SetActive(false);
             backGroundImages[i].color = initColor;
+            infoPanels[i*2].color = initTransparentColor;
+            infoPanels[i*2 + 1].color = initColor;
+            nicknameTexts[i].color = Color.white;
         }
     }
 }
