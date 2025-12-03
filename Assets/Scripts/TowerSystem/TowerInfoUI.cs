@@ -411,7 +411,7 @@ public class TowerInfoUI : PopUpUI
         }
 
         ClearBuffEffectLists();
-        FillBasicBuffEffects(ampData);
+        FillBasicBuffEffects(amplifierTower);
         FillRandomAbilityEffects(amplifierTower);
 
         // Buff Panel--------------------------------
@@ -712,7 +712,7 @@ public class TowerInfoUI : PopUpUI
         return $"{statName} 능력치 {dir} ({formattedValue})";
     }
 
-    private void FillBasicBuffEffects(AmplifierTowerDataSO ampData)
+    private void FillBasicBuffEffects(TowerAmplifier amplifierTower)
     {
         if (basicEffectListRoot == null) return;
 
@@ -722,12 +722,21 @@ public class TowerInfoUI : PopUpUI
             Destroy(basicEffectListRoot.GetChild(i).gameObject);
         }
 
+        if (amplifierTower == null) return;
+
+        var ampData = amplifierTower.AmplifierTowerData;
         if (ampData == null) return;
+
+        // ⬇️ 새 조건: 실제로 버프를 적용한 타워가 하나도 없으면 표시하지 않음
+        if (!amplifierTower.HasAppliedBaseBuffs)
+            return;
+
+        // ===== 여기부터는 기존 내용 그대로 유지 =====
 
         // 공격력 (DamageBuff: add, 0.4 -> +40%)
         if (!Mathf.Approximately(ampData.DamageBuff, 0f))
         {
-            float delta = ampData.DamageBuff;  // 0 기준
+            float delta = ampData.DamageBuff;
             string value = FormatPercentFromAdd(delta); // "+40%"
             string line = BuildStatChangeLine("공격력", delta, value);
             AddEffectLine(basicEffectListRoot, line);
@@ -736,8 +745,8 @@ public class TowerInfoUI : PopUpUI
         // 공속 (FireRateBuff: mul, 1.2 -> +20%)
         if (!Mathf.Approximately(ampData.FireRateBuff, 1f))
         {
-            float delta = ampData.FireRateBuff - 1f;   // 1 기준
-            string value = FormatPercentFromMul(ampData.FireRateBuff); // "+20%"
+            float delta = ampData.FireRateBuff - 1f;
+            string value = FormatPercentFromMul(ampData.FireRateBuff);
             string line = BuildStatChangeLine("공격 속도", delta, value);
             AddEffectLine(basicEffectListRoot, line);
         }
@@ -745,7 +754,7 @@ public class TowerInfoUI : PopUpUI
         // 투사체 수 +N
         if (ampData.ProjectileCountBuff != 0)
         {
-            int delta = ampData.ProjectileCountBuff;
+            float delta = ampData.ProjectileCountBuff;
             string value = delta > 0 ? $"+{delta}" : delta.ToString();
             string line = BuildStatChangeLine("투사체 수", delta, value);
             AddEffectLine(basicEffectListRoot, line);
@@ -754,7 +763,7 @@ public class TowerInfoUI : PopUpUI
         // 타겟 수 +N
         if (ampData.TargetNumberBuff != 0)
         {
-            int delta = ampData.TargetNumberBuff;
+            float delta = ampData.TargetNumberBuff;
             string value = delta > 0 ? $"+{delta}" : delta.ToString();
             string line = BuildStatChangeLine("타겟 수", delta, value);
             AddEffectLine(basicEffectListRoot, line);
@@ -797,6 +806,7 @@ public class TowerInfoUI : PopUpUI
         }
     }
 
+
     private void FillRandomAbilityEffects(TowerAmplifier amplifierTower)
     {
         if (randomEffectListRoot == null) return;
@@ -813,59 +823,202 @@ public class TowerInfoUI : PopUpUI
         var abilities = amplifierTower.Abilities;
         if (ampData == null || abilities == null || abilities.Count == 0) return;
 
-        int randAbilityId = abilities[0];
-        var raRow = DataTableManager.RandomAbilityTable?.Get(randAbilityId);
-        if (raRow == null) return;
+        if (!amplifierTower.HasAppliedRandomAbilities) return;
 
-        int baseBuffSlotCount = Mathf.Max(1, ampData.FixedBuffedSlotCount);
-        int addSlotNum = Mathf.Max(0, raRow.AddSlotNum);
-        int randomSlotNum = Mathf.Max(0, raRow.RandonSlotNum);
-        int placeType = raRow.PlaceType;
-        int duplicateType = raRow.DuplicateType;
+        bool hasAnyLine = false;
 
-        // 버프 슬롯 수 증가
-        if (addSlotNum != 0)
+        // 현재 증폭 타워가 가진 "랜덤 능력" ID 들 기준으로 한 줄씩 생성
+        foreach (var abilityId in abilities)
         {
-            // baseBuffSlotCount -> baseBuffSlotCount + addSlotNum
-            int delta = addSlotNum;
-            string value = delta > 0 ? $"+{delta}" : delta.ToString();
-            string line = BuildStatChangeLine("버프 슬롯 수", delta, value);
-            AddEffectLine(randomEffectListRoot, line);
+            var raRow = DataTableManager.RandomAbilityTable?.Get(abilityId);
+            if (raRow == null) continue;
+
+            string abilityName = raRow.RandomAbilityName;
+            float effectValue = raRow.SpecialEffectValue;
+
+            var lines = BuildRandomAbilityStatLines(abilityId, abilityName, effectValue);
+            if (lines == null || lines.Count == 0)
+                continue;
+
+            foreach (var line in lines)
+            {
+                AddEffectLine(randomEffectListRoot, line);
+                hasAnyLine = true;
+            }
         }
 
-        // 랜덤 슬롯 수
-        if (randomSlotNum != 0)
+        // 아무 줄도 못 만들었으면 안내 한 줄이라도
+        if (!hasAnyLine)
         {
-            int delta = randomSlotNum;
-            string value = delta > 0 ? $"+{delta}" : delta.ToString();
-            string line = BuildStatChangeLine("랜덤 슬롯 수", delta, value);
-            AddEffectLine(randomEffectListRoot, line);
+            AddEffectLine(randomEffectListRoot, "랜덤 능력으로 변화하는 스탯 없음");
         }
+    }
 
-        // 배치 타입 설명 (숫자지만, 정보성 문구로 한 줄 추가)
-        string placeDesc = null;
-        switch (placeType)
+    private List<string> BuildRandomAbilityStatLines(
+    int abilityId,
+    string abilityName,
+    float effectValue)
+    {
+        var result = new List<string>();
+
+        // 숫자 변화가 없고, 이름만 의미있는 특수 효과형인 경우도 있어서
+        // effectValue == 0 이라고 무조건 버리지는 않는다.
+        // (히트스캔 / 유도 등)
+
+        switch (abilityId)
         {
-            case 0:
-                placeDesc = "랜덤 슬롯 배치: 버프 슬롯과 별도 슬롯에 랜덤 능력 배치";
-                break;
-            case 1:
-                placeDesc = "랜덤 슬롯 배치: 기존 버프 슬롯 중 하나에 랜덤 능력 집중";
-                break;
-            case 2:
-                placeDesc = $"랜덤 슬롯 배치: 기본 버프 슬롯 수가 {addSlotNum}개 증가";
-                break;
+            case 200001: // 공격력%
+                {
+                    string formatted = $"{effectValue:+0;-0}%";
+                    string line = BuildStatChangeLine("공격력", effectValue, formatted);
+                    if (line != null) result.Add(line);
+                    break;
+                }
+
+            case 200002: // 공속%
+            case 200017: // 공속% (다른 PlaceType 버전)
+                {
+                    string formatted = $"{effectValue:+0;-0}%";
+                    string line = BuildStatChangeLine("공격 속도", effectValue, formatted);
+                    if (line != null) result.Add(line);
+                    break;
+                }
+
+            case 200003: // 비율 관통력
+                {
+                    string formatted = $"{effectValue:+0;-0}%";
+                    string line = BuildStatChangeLine("비율 관통력", effectValue, formatted);
+                    if (line != null) result.Add(line);
+                    break;
+                }
+
+            case 200004: // 고정 관통력
+                {
+                    string formatted = $"{effectValue:+0.##;-0.##}";
+                    string line = BuildStatChangeLine("고정 관통력", effectValue, formatted);
+                    if (line != null) result.Add(line);
+                    break;
+                }
+
+            case 200005: // 둔화 (이동 속도 감소)
+                {
+                    string formatted = $"{effectValue:+0;-0}%";
+                    string line = BuildStatChangeLine("이동 속도 감소", effectValue, formatted);
+                    if (line != null) result.Add(line);
+                    break;
+                }
+
+            case 200006: // 충돌크기
+                {
+                    string formatted = $"{effectValue:+0;-0}%";
+                    string line = BuildStatChangeLine("충돌 크기", effectValue, formatted);
+                    if (line != null) result.Add(line);
+                    break;
+                }
+
+            case 200007: // 연쇄
+                {
+                    string formatted = $"{effectValue:+0;-0}";
+                    string line = BuildStatChangeLine("연쇄 횟수", effectValue, formatted);
+                    if (line != null) result.Add(line);
+                    break;
+                }
+
+            case 200008: // 폭발
+                {
+                    // 숫자를 굳이 안 쓰고 설명만 원하면 아래 한 줄만 남겨도 됨.
+                    if (!Mathf.Approximately(effectValue, 0f))
+                    {
+                        string formatted = $"{effectValue:+0;-0}";
+                        string line = BuildStatChangeLine("폭발 효과", effectValue, formatted);
+                        if (line != null) result.Add(line);
+                    }
+                    else
+                    {
+                        result.Add("폭발 효과 발동");
+                    }
+                    break;
+                }
+
+            case 200009: // 관통
+                {
+                    string formatted = $"{effectValue:+0;-0}";
+                    string line = BuildStatChangeLine("관통 횟수", effectValue, formatted);
+                    if (line != null) result.Add(line);
+                    break;
+                }
+
+            case 200010: // 분열
+                {
+                    string formatted = $"{effectValue:+0;-0}";
+                    string line = BuildStatChangeLine("분열 투사체 수", effectValue, formatted);
+                    if (line != null) result.Add(line);
+                    break;
+                }
+
+            case 200011: // 투사체 수
+                {
+                    string formatted = $"{effectValue:+0;-0}";
+                    string line = BuildStatChangeLine("투사체 수", effectValue, formatted);
+                    if (line != null) result.Add(line);
+                    break;
+                }
+
+            case 200012: // 타겟 수
+                {
+                    string formatted = $"{effectValue:+0;-0}";
+                    string line = BuildStatChangeLine("타겟 수", effectValue, formatted);
+                    if (line != null) result.Add(line);
+                    break;
+                }
+
+            case 200013: // 히트스캔
+                {
+                    result.Add("히트스캔 공격 활성");
+                    break;
+                }
+
+            case 200014: // 유도
+                {
+                    result.Add("유도 탄환 발사");
+                    break;
+                }
+
+            case 200015: // 유지시간
+                {
+                    string formatted = $"{effectValue:+0;-0}초";
+                    string line = BuildStatChangeLine("투사체 유지 시간", effectValue, formatted);
+                    if (line != null) result.Add(line);
+                    break;
+                }
+
+            case 200016: // 명중률
+                {
+                    string formatted = $"{effectValue:+0;-0}%";
+                    string line = BuildStatChangeLine("명중률", effectValue, formatted);
+                    if (line != null) result.Add(line);
+                    break;
+                }
+
             default:
-                placeDesc = $"랜덤 슬롯 배치 타입: {placeType}";
-                break;
-        }
-        if (!string.IsNullOrEmpty(placeDesc))
-        {
-            AddEffectLine(randomEffectListRoot, placeDesc);
+                {
+                    // 혹시 새로운 랜덤 능력이 추가되면:
+                    if (!Mathf.Approximately(effectValue, 0f))
+                    {
+                        string formatted = $"{effectValue:+0.##;-0.##}";
+                        string line = BuildStatChangeLine(abilityName, effectValue, formatted);
+                        if (line != null) result.Add(line);
+                    }
+                    else
+                    {
+                        // 값이 0이어도 이름만으로 의미 있으면 그냥 이름 표시
+                        if (!string.IsNullOrEmpty(abilityName))
+                            result.Add(abilityName);
+                    }
+                    break;
+                }
         }
 
-        // 중첩 여부
-        string dupDesc = duplicateType == 0 ? "랜덤 능력 중첩 가능" : "랜덤 능력 중첩 불가";
-        AddEffectLine(randomEffectListRoot, dupDesc);
+        return result;
     }
 }

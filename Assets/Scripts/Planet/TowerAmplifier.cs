@@ -23,6 +23,8 @@ public class TowerAmplifier : MonoBehaviour
 
     private readonly Dictionary<TowerAttack, Dictionary<int, int>> appliedAbilityMap
        = new Dictionary<TowerAttack, Dictionary<int, int>>();
+    public bool HasAppliedBaseBuffs => buffedTargets.Count > 0;
+    public bool HasAppliedRandomAbilities => appliedAbilityMap.Count > 0;
 
     //Reinforce Field --------------------------------------
     [Header("Reinforce (Buff Tower)")]
