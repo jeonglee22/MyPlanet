@@ -27,11 +27,6 @@ public class LazerPattern : ShootingPattern
 
     protected override void Shoot()
     {
-        if(lazerPool.Count == 0)
-        {
-            LoadLaserSettings();
-        }
-
         Vector3 shootPosition = owner.transform.position;
         Vector3 shootDirection = GetLaserDirection();
 
@@ -65,14 +60,7 @@ public class LazerPattern : ShootingPattern
 
     protected virtual Vector3 GetLaserDirection()
     {
-        return Vector3.down;
-    }
-
-    private void LoadLaserSettings()
-    {
-        duration = 2f;
-        laserWidth = 0.2f;
-        tickInterval = 0.1f;
+        return (target.position - owner.transform.position).normalized;
     }
 
     private void OnLazerComplete()

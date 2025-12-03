@@ -32,7 +32,7 @@ public class EnemyStatusUI : MonoBehaviour
             return;
         }
 
-        canvas.transform.rotation = Quaternion.LookRotation(canvas.transform.position - cameraTransform.position);
+        canvas.transform.rotation = Quaternion.identity;
     }
 
     private void OnEnable()
