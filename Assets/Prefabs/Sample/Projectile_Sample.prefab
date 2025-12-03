@@ -118,7 +118,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
 --- !u!135 &5610308567675685228
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -160,6 +160,7 @@ MonoBehaviour:
   currentPierceCount: 1
   hitRadius: 10
   acceleration: 0
+  splitCount: 0
 --- !u!114 &8188470898701761425
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -296,3 +297,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c628bd82655c9eb41b156f3aecd2fb53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  borderOffset: 0
