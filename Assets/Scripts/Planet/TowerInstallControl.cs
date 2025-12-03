@@ -276,19 +276,18 @@ public class TowerInstallControl : MonoBehaviour
         return availableTowerDatas[idx];
     }
     public TowerDataSO GetRandomAttackTowerDataForCard(
-    ICollection<TowerDataSO> extraExcludes)
+    ICollection<TowerDataSO> extraExcludes = null)
     {
         if (availableTowerDatas == null || availableTowerDatas.Count == 0)
             return null;
 
         HashSet<TowerDataSO> excludeSet = new HashSet<TowerDataSO>();
+
         for (int i = 0; i < towerCount; i++)
         {
             var data = GetTowerData(i);
             if (data != null)
-            {
                 excludeSet.Add(data);
-            }
         }
 
         if (extraExcludes != null)

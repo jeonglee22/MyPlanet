@@ -50,7 +50,8 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     //Upgrade System -------------------------
     private struct TowerOptionKey
     {
-        public int towerId;
+        public TowerInstallType InstallType;
+        public int towerKey;
         public int abilityId;
     }
     private static bool hasLastChosenOption = false;
@@ -58,6 +59,8 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     private TowerOptionKey[] initialOptionKeys;
     private HashSet<TowerDataSO> usedAttackTowerTypesThisRoll
         = new HashSet<TowerDataSO>();
+    private HashSet<AmplifierTowerDataSO> usedAmplifierTowerTypesThisRoll
+    = new HashSet<AmplifierTowerDataSO>();
     //----------------------------------------
 
     private void Start()
@@ -142,6 +145,45 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         installControl.IsReadyInstall = false;
 
         numlist = new List<int>();
+
+        int totalTowerCount = GetTotalTowerCount();
+
+        if (totalTowerCount == 0)
+        {
+            List<int> emptySlot = new List<int>();
+            for (int i = 0; i < installControl.TowerCount; i++)
+            {
+                if (!installControl.IsUsedSlot(i) &&
+                    installControl.CurrentTowerCount < installControl.MaxTowerCount)
+                {
+                    emptySlot.Add(i);
+                }
+            }
+
+            usedAttackTowerTypesThisRoll.Clear();
+            usedAmplifierTowerTypesThisRoll.Clear();
+            initialOptionKeys = new TowerOptionKey[upgradeUIs.Length];
+
+            for (int cardIndex = 0; cardIndex < uiTexts.Length; cardIndex++)
+            {
+                if (emptySlot.Count == 0)
+                {
+                    numlist.Add(-1);
+                    uiTexts[cardIndex].text = "No Slot";
+                    continue;
+                }
+
+                int slotIdx = UnityEngine.Random.Range(0, emptySlot.Count);
+                int slotNumber = emptySlot[slotIdx];
+                emptySlot.RemoveAt(slotIdx);
+
+                numlist.Add(slotNumber);
+                SetUpNewAttackCard(cardIndex, slotNumber, isInitial: true);
+            }
+
+            return;
+        }
+
         usedAttackTowerTypesThisRoll.Clear();
         initialOptionKeys = new TowerOptionKey[upgradeUIs.Length];
 
@@ -195,14 +237,36 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 chooseNew = (r < newProb);
             }
 
-            if (chooseNew)
-            {
+            if(chooseNew)
+{
                 int slotIdx = UnityEngine.Random.Range(0, emptySlots.Count);
                 int slotNumber = emptySlots[slotIdx];
                 emptySlots.RemoveAt(slotIdx);
 
                 numlist.Add(slotNumber);
-                SetUpNewAttackCard(cardIndex, slotNumber, isInitial: true);
+
+                bool canPickAttack = true; 
+                bool canPickAmp = (allAmplifierTowers != null && allAmplifierTowers.Length > 0);
+
+                if (GetTotalTowerCount() == 0)
+                {
+                    canPickAmp = false;
+                }
+
+                bool pickAttack = true;
+                if (canPickAmp)
+                {
+                    pickAttack = (UnityEngine.Random.value < 0.5f);
+                }
+
+                if (pickAttack)
+                {
+                    SetUpNewAttackCard(cardIndex, slotNumber, isInitial: true);
+                }
+                else
+                {
+                    SetUpNewAmplifierCard(cardIndex, slotNumber, isInitial: true);
+                }
             }
             else
             {
@@ -250,7 +314,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         }
     }
 
-
     private void SetUpCard(int i, int slotNumber)
     {
         //Random Tower Type (0: Attack, 1: Amplifier)
@@ -281,7 +344,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         if(towerType==1)
         {
-            var ampData = GetRandomAmplifier();
+            var ampData = GetRandomAmplifierForCard();
 
             choices[i].InstallType = TowerInstallType.Amplifier;
             choices[i].AmplifierTowerData = ampData;
@@ -369,25 +432,32 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
     private void SetUpNewAttackCard(int i, int slotNumber, bool isInitial)
     {
-        TowerDataSO towerData = null;
-        int abilityId = -1;
-        towerData = installControl.GetRandomAttackTowerDataForCard(usedAttackTowerTypesThisRoll);
+        TowerDataSO towerData = isInitial
+        ? installControl.GetRandomAttackTowerDataForCard(usedAttackTowerTypesThisRoll)
+        : installControl.GetRandomAttackTowerDataForCard();
+
         if (towerData == null)
         {
-            uiTexts[i].text = "No Tower";
+            uiTexts[i].text = "No Attack Tower";
             abilities[i] = -1;
             return;
         }
-        usedAttackTowerTypesThisRoll.Add(towerData);
 
+        if (isInitial)
+        {
+            usedAttackTowerTypesThisRoll.Add(towerData);
+        }
+
+        int abilityId = -1;
         int safe = 0;
+
         do
         {
             abilityId = GetAbilityIdForAttackTower(towerData);
             safe++;
-            if (safe > 20) break; 
+            if (safe > 20) break;
         }
-        while (abilityId > 0 && IsForbiddenCombo(towerData, abilityId, isInitial));
+        while (abilityId > 0 && IsForbiddenAttackCombo(towerData, abilityId, isInitial));
 
         abilities[i] = abilityId;
 
@@ -398,14 +468,129 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         choices[i].RandomAbilitySlotIndex = null;
         choices[i].ability = abilityId;
 
-        var key = MakeKey(towerData, abilityId);
         if (isInitial && initialOptionKeys != null && i < initialOptionKeys.Length)
-            initialOptionKeys[i] = key;
+        {
+            initialOptionKeys[i] = MakeKey(towerData, abilityId);
+        }
 
-        string towerName = towerData != null ? towerData.towerId : "AttackTower";
+        string towerName = towerData.towerId;
         string abilityName = GetAbilityName(abilityId);
+
         uiTexts[i].text = $"{towerName}\n\n{abilityName}";
     }
+
+    private void SetUpNewAmplifierCard(int i, int slotNumber, bool isInitial)
+    {
+        var ampData = GetRandomAmplifierForCard(usedAmplifierTowerTypesThisRoll);
+        if (ampData == null)
+        {
+            uiTexts[i].text = "No Amp Tower";
+            abilities[i] = -1;
+            return;
+        }
+
+        if (isInitial)
+        {
+            usedAmplifierTowerTypesThisRoll.Add(ampData);
+        }
+
+        int ampAbilityId = -1;
+        int safe = 0;
+
+        do
+        {
+            ampAbilityId = GetRandomAbilityForAmplifier(ampData);
+            safe++;
+            if (safe > 20) break;
+        }
+        while (ampAbilityId > 0 && IsForbiddenAmplifierCombo(ampData, ampAbilityId, isInitial));
+
+        choices[i].InstallType = TowerInstallType.Amplifier;
+        choices[i].AmplifierTowerData = ampData;
+        choices[i].AttackTowerData = null;
+        choices[i].ability = ampAbilityId;
+        abilities[i] = ampAbilityId;
+
+        // ---------- PlaceType / RandomSlotNum / AddSlotNum ----------
+        int[] buffOffsets = null;
+        int[] randomOffsets = null;
+
+        int placeType = 0;
+        int randomSlotNum = 0;
+        int addSlotNum = 0;
+
+        var raRow = DataTableManager.RandomAbilityTable.Get(ampAbilityId);
+        if (raRow != null)
+        {
+            placeType = raRow.PlaceType;
+            randomSlotNum = Mathf.Max(0, raRow.RandonSlotNum);
+            addSlotNum = Mathf.Max(0, raRow.AddSlotNum);
+        }
+
+        int baseBuffCount = Mathf.Max(1, ampData.FixedBuffedSlotCount);
+        int effectiveBuffCount = baseBuffCount;
+
+        switch (placeType)
+        {
+            case 0:
+            default:
+                {
+                    effectiveBuffCount = baseBuffCount;
+                    buffOffsets = GetRandomBuffSlot(effectiveBuffCount);
+
+                    if (randomSlotNum > 0)
+                        randomOffsets = GetRandomBuffSlot(randomSlotNum);
+                    break;
+                }
+            case 1:
+                {
+                    effectiveBuffCount = baseBuffCount;
+                    buffOffsets = GetRandomBuffSlot(effectiveBuffCount);
+
+                    if (buffOffsets != null && buffOffsets.Length > 0)
+                    {
+                        int idx = Random.Range(0, buffOffsets.Length);
+                        randomOffsets = new int[] { buffOffsets[idx] };
+                    }
+                    break;
+                }
+            case 2:
+                {
+                    effectiveBuffCount = baseBuffCount + addSlotNum;
+                    buffOffsets = GetRandomBuffSlot(effectiveBuffCount);
+
+                    if (randomSlotNum > 0)
+                        randomOffsets = GetRandomBuffSlot(randomSlotNum);
+                    break;
+                }
+        }
+
+        choices[i].BuffSlotIndex = buffOffsets;
+        choices[i].RandomAbilitySlotIndex = randomOffsets;
+
+        if (isInitial && initialOptionKeys != null && i < initialOptionKeys.Length)
+        {
+            initialOptionKeys[i] = MakeKey(ampData, ampAbilityId);
+        }
+
+        string ampName = string.IsNullOrEmpty(ampData.BuffTowerName)
+            ? ampData.AmplifierType.ToString()
+            : ampData.BuffTowerName;
+
+        string buffBlock = FormatOffsetArray(buffOffsets);
+        string randomBlock = FormatOffsetArray(randomOffsets);
+
+        string ampAbilityName = GetAbilityName(ampAbilityId);
+
+        uiTexts[i].text =
+            $"{ampName}\n" +
+            buffBlock +
+            $"---\n" +
+            $"{ampAbilityName}\n" +
+            randomBlock;
+    }
+
+
     private string FormatOffsetArray(int[] offsets)
     {
         if (offsets == null || offsets.Length == 0)
@@ -526,20 +711,17 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 safe++;
                 if (safe > 20) break;
             }
-            while (abilityId > 0 && IsForbiddenCombo(towerData, abilityId, isInitial));
-
-            abilities[index] = abilityId;
-            choices[index].ability = abilityId;
-
-            string towerN = towerData.towerId;
-
-            uiTexts[index].text = $"Upgrade\n{number}\n{towerN}\n{GetAbilityName(abilityId)}";
+            while (abilityId > 0 && IsForbiddenAttackCombo(towerData, abilityId, isInitial));
 
             if (isInitial && initialOptionKeys != null && index < initialOptionKeys.Length)
             {
                 initialOptionKeys[index] = MakeKey(towerData, abilityId);
             }
+            //check duplication
             usedAttackTowerTypesThisRoll.Add(towerData);
+
+            uiTexts[index].text =
+                $"Upgrade\n{number}\n{towerData.towerId}\n{GetAbilityName(abilityId)}";
         }
         else if (ampTower != null && ampTower.AmplifierTowerData != null)
         {
@@ -549,14 +731,26 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             choices[index].BuffSlotIndex = null;
             choices[index].RandomAbilitySlotIndex = null;
 
-            abilityId = GetRandomAbilityForAmplifier(ampTower.AmplifierTowerData);
+            int safe2 = 0;
+            do
+            {
+                abilityId = GetRandomAbilityForAmplifier(ampTower.AmplifierTowerData);
+                safe2++;
+                if (safe2 > 20) break;
+            }
+            while (abilityId > 0 &&
+                   IsForbiddenAmplifierCombo(ampTower.AmplifierTowerData, abilityId, isInitial));
+
+            if (isInitial && initialOptionKeys != null && index < initialOptionKeys.Length)
+            {
+                initialOptionKeys[index] = MakeKey(ampTower.AmplifierTowerData, abilityId);
+            }
         }
 
         abilities[index] = abilityId;
         choices[index].ability = abilityId;
 
         string towerName = "-";
-
         if (towerData != null)
         {
             towerName = towerData.towerId;
@@ -599,7 +793,20 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         if (choices[index].InstallType == TowerInstallType.Attack &&
         choices[index].AttackTowerData != null)
         {
-            RegisterLastChosenOption(choices[index].AttackTowerData, choices[index].ability);
+            RegisterLastChosenOption(
+                TowerInstallType.Attack,
+                choices[index].AttackTowerData,
+                null,
+                choices[index].ability);
+        }
+        else if (choices[index].InstallType == TowerInstallType.Amplifier &&
+                 choices[index].AmplifierTowerData != null)
+        {
+            RegisterLastChosenOption(
+                TowerInstallType.Amplifier,
+                null,
+                choices[index].AmplifierTowerData,
+                choices[index].ability);
         }
 
         if (installControl.IsUsedSlot(numlist[index]))
@@ -763,15 +970,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         return results;
     }
-    private AmplifierTowerDataSO GetRandomAmplifier()
-    {
-        if (allAmplifierTowers == null || allAmplifierTowers.Length == 0)
-            return null;
-
-        int idx = Random.Range(0, allAmplifierTowers.Length);
-
-        return allAmplifierTowers[idx];
-    }
 
     private int GetAbilityIdForAttackTower(TowerDataSO towerData)
     {
@@ -792,18 +990,51 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     {
         return new TowerOptionKey
         {
-            towerId = towerData != null ? towerData.towerIdInt : -1,
+            InstallType = TowerInstallType.Attack,
+            towerKey = towerData != null ? towerData.towerIdInt : -1,
             abilityId = abilityId
         };
     }
 
-    private bool IsForbiddenCombo(TowerDataSO towerData, int abilityId, bool isInitial)
+    private TowerOptionKey MakeKey(AmplifierTowerDataSO ampData, int abilityId)
     {
-        if (towerData == null) return false;
-        int tid = towerData.towerIdInt;
+        return new TowerOptionKey
+        {
+            InstallType = TowerInstallType.Amplifier,
+            towerKey = ampData != null ? ampData.GetInstanceID() : -1,
+            abilityId = abilityId
+        };
+    }
+
+    private bool IsForbiddenCombo(
+        TowerInstallType type,
+        TowerDataSO towerData,
+        AmplifierTowerDataSO ampData,
+        int abilityId,
+        bool isInitial)
+    {
+        if (abilityId <= 0) return false;
+
+        int towerKey = -1;
+
+        if (type == TowerInstallType.Attack)
+        {
+            if (towerData == null) return false;
+            towerKey = towerData.towerIdInt;
+        }
+        else if (type == TowerInstallType.Amplifier)
+        {
+            if (ampData == null) return false;
+            towerKey = ampData.GetInstanceID();
+        }
+        else
+        {
+            return false;
+        }
 
         if (hasLastChosenOption &&
-            lastChosenOption.towerId == tid &&
+            lastChosenOption.InstallType == type &&
+            lastChosenOption.towerKey == towerKey &&
             lastChosenOption.abilityId == abilityId)
         {
             return true;
@@ -813,55 +1044,70 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         {
             for (int i = 0; i < initialOptionKeys.Length; i++)
             {
-                if (initialOptionKeys[i].towerId == tid &&
-                    initialOptionKeys[i].abilityId == abilityId)
+                var key = initialOptionKeys[i];
+                if (key.InstallType == type &&
+                    key.towerKey == towerKey &&
+                    key.abilityId == abilityId)
                 {
                     return true;
                 }
             }
         }
+
         return false;
     }
 
-    private void RegisterLastChosenOption(TowerDataSO towerData, int abilityId)
+    private bool IsForbiddenAttackCombo(TowerDataSO towerData, int abilityId, bool isInitial)
     {
-        if (towerData == null) return;
+        return IsForbiddenCombo(TowerInstallType.Attack, towerData, null, abilityId, isInitial);
+    }
 
-        lastChosenOption = MakeKey(towerData, abilityId);
+    private bool IsForbiddenAmplifierCombo(AmplifierTowerDataSO ampData, int abilityId, bool isInitial)
+    {
+        return IsForbiddenCombo(TowerInstallType.Amplifier, null, ampData, abilityId, isInitial);
+    }
+
+    private void RegisterLastChosenOption(
+    TowerInstallType type,
+    TowerDataSO towerData,
+    AmplifierTowerDataSO ampData,
+    int abilityId)
+    {
+        if (type == TowerInstallType.Attack && towerData == null) return;
+        if (type == TowerInstallType.Amplifier && ampData == null) return;
+
+        lastChosenOption = (type == TowerInstallType.Attack)
+            ? MakeKey(towerData, abilityId)
+            : MakeKey(ampData, abilityId);
+
         hasLastChosenOption = true;
     }
 
     private void GetNewUpgradeProbabilities(out float newProb, out float upgradeProb)
     {
-        int attackCount = 0;
+        int towerCount = GetTotalTowerCount();
 
-        for (int i = 0; i < installControl.TowerCount; i++)
+        if (towerCount <= 1)
         {
-            var data = installControl.GetTowerData(i);
-            if (data != null) attackCount++;
+            newProb = 0.9f;
+            upgradeProb = 0.1f;
         }
-
-        if (attackCount == 1)
-        {
-            newProb = 0.9f; 
-            upgradeProb = 0.1f; 
-        }
-        else if (attackCount == 2)
+        else if (towerCount == 2)
         {
             newProb = 0.8f;
             upgradeProb = 0.2f;
         }
-        else if (attackCount == 3)
+        else if (towerCount == 3)
         {
             newProb = 0.7f;
             upgradeProb = 0.3f;
         }
-        else if (attackCount == 4)
+        else if (towerCount == 4)
         {
             newProb = 0.5f;
             upgradeProb = 0.5f;
         }
-        else if (attackCount == 5)
+        else if (towerCount == 5)
         {
             newProb = 0.3f;
             upgradeProb = 0.7f;
@@ -871,6 +1117,51 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             newProb = 0.1f;
             upgradeProb = 0.9f;
         }
+    }
+
+    private int GetTotalTowerCount()
+    {
+        return installControl.CurrentTowerCount;
+    }
+    private AmplifierTowerDataSO GetRandomAmplifierForCard(
+    ICollection<AmplifierTowerDataSO> extraExcludes = null)
+    {
+        if (allAmplifierTowers == null || allAmplifierTowers.Length == 0)
+            return null;
+
+        HashSet<AmplifierTowerDataSO> excludeSet = new HashSet<AmplifierTowerDataSO>();
+
+        for (int i = 0; i < installControl.TowerCount; i++)
+        {
+            var amp = installControl.GetAmplifierTower(i);
+            if (amp != null && amp.AmplifierTowerData != null)
+            {
+                excludeSet.Add(amp.AmplifierTowerData);
+            }
+        }
+
+        if (extraExcludes != null)
+        {
+            foreach (var d in extraExcludes)
+            {
+                if (d != null)
+                    excludeSet.Add(d);
+            }
+        }
+
+        List<AmplifierTowerDataSO> candidates = new List<AmplifierTowerDataSO>();
+        foreach (var d in allAmplifierTowers)
+        {
+            if (d == null) continue;
+            if (!excludeSet.Contains(d))
+                candidates.Add(d);
+        }
+
+        if (candidates.Count == 0)
+            return null;
+
+        int idx = UnityEngine.Random.Range(0, candidates.Count);
+        return candidates[idx];
     }
     //----------------------------------------
 }
