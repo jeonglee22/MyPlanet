@@ -16,7 +16,7 @@ public class AsyncRaidManager : MonoBehaviour
 
     private int userPlanetCount;
 
-    private float totalBossDamagePercent = 5f;
+    private float totalBossDamagePercent = 0.05f;
 
     private bool isSettingAsyncUserPlanet = false;
     public bool IsSettingAsyncUserPlanet { get { return isSettingAsyncUserPlanet;} set {isSettingAsyncUserPlanet = value;} }
@@ -32,7 +32,8 @@ public class AsyncRaidManager : MonoBehaviour
     {
         if(WaveManager.Instance.IsBossBattle && !isSettingAsyncUserPlanet && canStartSpawn && IsStartRaid)
         {
-            SpawnAsyncUserPlanet().Forget();
+            var bossHp = Variables.LastBossEnemy != null ? Variables.LastBossEnemy.maxHp : 1;
+            SpawnAsyncUserPlanet(bossHp).Forget();
             canStartSpawn = false;
         }
         else if (WaveManager.Instance.IsBossBattle && isSettingAsyncUserPlanet)
@@ -41,10 +42,10 @@ public class AsyncRaidManager : MonoBehaviour
         }
     }
 
-    private async UniTask SpawnAsyncUserPlanet()
+    private async UniTask SpawnAsyncUserPlanet(float bossHp)
     {
-        // userPlanetCount = Random.Range(1, 4);
-        userPlanetCount = 3;
+        userPlanetCount = Random.Range(1, 4);
+        // userPlanetCount = 3;
         if (userPlanetDatas != null)
             userPlanetDatas.Clear();
         if (asyncUserPlanets != null)
@@ -62,7 +63,7 @@ public class AsyncRaidManager : MonoBehaviour
             var asyncUserPlanet = asyncUserPlanetObj.GetComponent<AsyncUserPlanet>();
             var asyncPlanetData = DataTableManager.AsyncPlanetTable.GetRandomData();
             var towerData = towerDataSOs[asyncPlanetData.TowerType - 1];
-            asyncUserPlanet.InitializePlanet(userPlanetDatas[i] ?? null, totalBossDamagePercent / userPlanetCount, asyncPlanetData, towerData);
+            asyncUserPlanet.InitializePlanet(userPlanetDatas[i] ?? null, bossHp * totalBossDamagePercent / userPlanetCount, asyncPlanetData, towerData);
             asyncUserPlanets.Add(asyncUserPlanet);
         }
 

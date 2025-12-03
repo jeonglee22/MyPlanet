@@ -11,6 +11,7 @@ public class AsyncUserPlanet : LivingEntity
     private float attack = 0f;
     private float dieDps;
     private float attackDps;
+    private float attackTimer = 0f;
 
     private TowerAttack tower;
     private List<int> abilities;
@@ -20,11 +21,12 @@ public class AsyncUserPlanet : LivingEntity
     public string BlurNickname => blurNickname;
     private AsyncPlanetData asyncPlanetData;
     private TowerDataSO towerDataSO;
+    private float currentDamage;
 
     private async void Awake()
     {
-        livingTime = Random.Range(5f, 10f);
-        // livingTime = Random.Range(20f, 40f);
+        // livingTime = Random.Range(5f, 10f);
+        livingTime = Random.Range(20f, 40f);
         abilities = new List<int>();
     }
 
@@ -42,10 +44,15 @@ public class AsyncUserPlanet : LivingEntity
     {
         // elapsedTime += Time.deltaTime;
         OnDamage(dieDps * Time.deltaTime);
-        // if (elapsedTime >= livingTime)
-        // {
-        //     Die();
-        // }
+        
+        attackTimer += Time.deltaTime;
+        if (attackTimer >= 1f)
+        {
+            Variables.LastBossEnemy?.OnDamage(attackDps);
+            currentDamage += attackDps;
+            Debug.Log("AsyncUserPlanet Deal Damage : " + currentDamage);
+            attackTimer = 0f;
+        }
     }
 
     private void OnDisable()
