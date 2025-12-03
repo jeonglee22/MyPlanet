@@ -9,6 +9,7 @@ public class AsyncUserPlanet : LivingEntity
     private float livingTime;
     private float elapsedTime = 0f;
     private float attack = 0f;
+    private float dieDps;
     private float attackDps;
 
     private TowerAttack tower;
@@ -16,6 +17,7 @@ public class AsyncUserPlanet : LivingEntity
 
     private UserPlanetData planetData;
     private string blurNickname;
+    public string BlurNickname => blurNickname;
     private AsyncPlanetData asyncPlanetData;
     private TowerDataSO towerDataSO;
 
@@ -38,16 +40,17 @@ public class AsyncUserPlanet : LivingEntity
 
     private void Update()
     {
-        elapsedTime += Time.deltaTime;
-        if (elapsedTime >= livingTime)
-        {
-            Die();
-        }
+        // elapsedTime += Time.deltaTime;
+        OnDamage(dieDps * Time.deltaTime);
+        // if (elapsedTime >= livingTime)
+        // {
+        //     Die();
+        // }
     }
 
-    private void TestMove()
+    private void OnDisable()
     {
-        // transform.Translate(Vector3.down * Time.deltaTime * 2f);
+        Debug.Log("Damage to Boss : " + attack);
     }
 
     public void InitializePlanet(UserPlanetData data, float damage, AsyncPlanetData asyncData, TowerDataSO towerData)
@@ -60,6 +63,7 @@ public class AsyncUserPlanet : LivingEntity
         planetData = data;
         attack = damage;
         attackDps = attack / livingTime;
+        dieDps = Health / livingTime;
         tower = GetComponent<TowerAttack>();
         tower.IsOtherUserTower = true;
 
@@ -70,7 +74,8 @@ public class AsyncUserPlanet : LivingEntity
         towerDataSO.targetPriority = highestHpPrioritySO;
 
         tower.SetTowerData(towerDataSO);
-        var projectileData = tower.BaseProjectileData;
+        // var projectileData = tower.BaseProjectileData;
+        tower.DamageBuffMMul = 0f;
 
         var targetingSystem = tower.GetComponent<TowerTargetingSystem>();
         targetingSystem.SetTowerData(towerDataSO);

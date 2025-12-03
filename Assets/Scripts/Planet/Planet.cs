@@ -294,4 +294,147 @@ public class Planet : LivingEntity
 
         return tower.GetComponent<TowerAmplifier>();
     }
+
+    //Move Tower ---------------------------------------
+    public void MoveTower(int fromIndex, int toIndex)
+    {
+        if (towers == null) return;
+        if (fromIndex == toIndex) return;
+        if (fromIndex < 0 || fromIndex >= towers.Count) return;
+        if (toIndex < 0 || toIndex >= towers.Count) return;
+
+        var fromGo = towers[fromIndex];
+        var toGo = towers[toIndex];
+
+        // 둘 다 비어 있으면 의미 없음
+        if (fromGo == null && toGo == null) return;
+
+        var fromAmp = fromGo != null ? fromGo.GetComponent<TowerAmplifier>() : null;
+        var toAmp = toGo != null ? toGo.GetComponent<TowerAmplifier>() : null;
+
+        // 실제 월드 오브젝트 스왑
+        towers[fromIndex] = toGo;
+        towers[toIndex] = fromGo;
+
+        // 회전/위치 갱신
+        if (fromGo != null)
+            SetSlotRotation(toIndex);
+        if (toGo != null)
+            SetSlotRotation(fromIndex);
+
+        int slotCount = towers.Count;
+        if (amplifiersSlots != null && amplifiersSlots.Length == slotCount)
+        {
+            amplifiersSlots[fromIndex] = towers[fromIndex]?.GetComponent<TowerAmplifier>();
+            amplifiersSlots[toIndex] = towers[toIndex]?.GetComponent<TowerAmplifier>();
+        }
+
+        if (fromAmp != null)
+        {
+            fromAmp.RebuildSlotsForNewIndex(toIndex, slotCount);
+        }
+        if (toAmp != null)
+        {
+            toAmp.RebuildSlotsForNewIndex(fromIndex, slotCount);
+        }
+        // 증폭 버프 재적용
+        ReapplyAllAmplifierBuffs();
+    }
+    public void ReapplyAllAmplifierBuffs()
+    {
+        if (amplifiersSlots == null || towers == null) return;
+
+        int slotCount = towers.Count;
+
+        // 1) 모든 증폭타워가 걸어둔 버프/능력 일단 제거
+        for (int i = 0; i < amplifiersSlots.Length; i++)
+        {
+            var amp = amplifiersSlots[i];
+            if (amp == null) continue;
+            amp.ClearAllbuffs();
+        }
+
+        // 2) 각 증폭타워가 기억하고 있는 슬롯 인덱스를 기준으로 다시 적용
+        for (int i = 0; i < amplifiersSlots.Length; i++)
+        {
+            var amp = amplifiersSlots[i];
+            if (amp == null || amp.AmplifierTowerData == null) continue;
+
+            var buffSlots = amp.BuffedSlotIndex;
+            var randomSlots = amp.RandomAbilitySlotIndex;
+
+            if ((buffSlots == null || buffSlots.Count == 0) &&
+                (randomSlots == null || randomSlots.Count == 0))
+            {
+                continue;
+            }
+
+            // buffSlots ∪ randomSlots 의 합집합
+            HashSet<int> targetSlots = new HashSet<int>();
+
+            if (buffSlots != null)
+            {
+                foreach (var s in buffSlots)
+                    targetSlots.Add(s);
+            }
+
+            if (randomSlots != null)
+            {
+                foreach (var s in randomSlots)
+                    targetSlots.Add(s);
+            }
+
+            // 실제로 그 슬롯에 앉아있는 공격 타워에게 다시 버프 적용
+            foreach (int slotIndex in targetSlots)
+            {
+                if (slotIndex < 0 || slotIndex >= slotCount) continue;
+
+                var attack = GetAttackTowerToAmpTower(slotIndex);
+                if (attack == null) continue;
+
+                amp.ApplyBuffForNewTower(slotIndex, attack);
+            }
+        }
+    }
+    //--------------------------------------------------
+    //Remove Tower--------------------------------------
+    public int GetAttackTowerCount()
+    {
+        if (planetAttacks == null) return 0;
+        return planetAttacks.Count;
+    }
+
+    public void RemoveTowerAt(int index)
+    {
+        if (towers == null) return;
+        if (index < 0 || index >= towers.Count) return;
+
+        var go = towers[index];
+        if (go == null) return;
+
+        // 공격 타워라면 planetAttacks에서 제거
+        var attack = go.GetComponent<TowerAttack>();
+        if (attack != null)
+        {
+            if (planetAttacks != null)
+            {
+                planetAttacks.Remove(attack);
+            }
+        }
+
+        // 증폭 타워라면 증폭 슬롯에서 제거
+        var amp = go.GetComponent<TowerAmplifier>();
+        if (amp != null && amplifiersSlots != null && index >= 0 && index < amplifiersSlots.Length)
+        {
+            amplifiersSlots[index] = null;
+        }
+
+        // 실제 오브젝트 제거
+        Destroy(go);
+        towers[index] = null;
+
+        // 남아 있는 증폭 버프들 다시 셋업
+        ReapplyAllAmplifierBuffs();
+    }
+    //--------------------------------------------------
 }

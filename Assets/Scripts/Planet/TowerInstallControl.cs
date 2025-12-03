@@ -1,5 +1,6 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -29,8 +30,8 @@ public class TowerInstallControl : MonoBehaviour
     public int CurrentTowerCount
     {
         get { return currentTowerCount; }
-        set 
-        { 
+        set
+        {
             currentTowerCount = value;
             OnTowerInstalled?.Invoke();
         }
@@ -71,12 +72,34 @@ public class TowerInstallControl : MonoBehaviour
     public bool isInstall = true;
     private float dragRotateSpeed = 300f;
 
+    [Header("Drag Settings")]
+    [SerializeField] private Canvas uiCanvas;          
+    [SerializeField] private GameObject dragImagePrefab; 
+
+    private bool isDraggingTower = false;
+    private int dragSourceIndex = -1;
+    private GameObject currentDragGhost;
+    private RectTransform currentDragGhostRect;
+
+    private Image dragSourceImage;
+    private Color dragSourceOriginalColor;
+
+    [Header("Delete Settings")]
+    [SerializeField] private GameObject trashIconObj;      
+    [SerializeField] private RectTransform trashIconRect;  
+    [SerializeField] private GameObject deleteConfirmPanel;
+    [SerializeField] private GameObject yesOrNoPanel;
+    [SerializeField] private Button deleteYesButton;
+    [SerializeField] private Button deleteNoButton;
+
+    private int pendingDeleteIndex = -1;
+
     private void Awake()
     {
         planetTowerUI.TowerCount = towerCount;
 
         emptyTower = new bool[towerCount];
-        
+
         var index = UnityEngine.Random.Range(0, towerCount);
         for (int i = 0; i < towerCount; i++)
         {
@@ -94,6 +117,19 @@ public class TowerInstallControl : MonoBehaviour
         if (towerInfoObj != null)
             towerInfoObj.SetActive(false);
         CurrentTowerCount = 0;
+
+        //rm tower
+        if (trashIconObj != null)
+            trashIconObj.SetActive(false);
+
+        if (deleteConfirmPanel != null)
+            deleteConfirmPanel.SetActive(false);
+
+        if (deleteYesButton != null)
+            deleteYesButton.onClick.AddListener(OnDeleteYes);
+
+        if (deleteNoButton != null)
+            deleteNoButton.onClick.AddListener(OnDeleteNo);
     }
 
     private void Update()
@@ -106,13 +142,13 @@ public class TowerInstallControl : MonoBehaviour
                 currentAngle += dragRotateSpeed * Time.unscaledDeltaTime * (planetTowerUI.TowerRotateClock ? -1f : 1f);
             else
                 currentAngle += rotateSpeed * Time.unscaledDeltaTime * (planetTowerUI.TowerRotateClock ? -1f : 1f);
-            
+
             var newDiff = currentAngle - planetTowerUI.Angle;
             // Debug.Log(currentAngle.ToString() + " / " + planetTowerUI.Angle.ToString() + " / " + beforeDiff.ToString() + " / " + newDiff.ToString());
 
             SettingTowerTransform(currentAngle);
-            
-            if(beforeDiff * newDiff <= 0f)
+
+            if (beforeDiff * newDiff <= 0f)
             {
                 currentAngle = planetTowerUI.Angle;
                 SettingTowerTransform(currentAngle);
@@ -132,8 +168,10 @@ public class TowerInstallControl : MonoBehaviour
             if (emptyTower[index])
             {
                 tower = Instantiate(emptySlotPrefab, PlanetTransform);
+
                 var buttonEmpty = tower.GetComponent<Button>();
                 buttonEmpty.onClick.AddListener(() => IntallNewTower(index));
+
                 towers.Add(tower);
 
                 // Test (Slot Index Text)
@@ -141,6 +179,12 @@ public class TowerInstallControl : MonoBehaviour
                 numtext.text = index.ToString();
 
                 assignedTowerDatas[index] = null;
+
+                var highlight = tower.GetComponent<TowerSlotHighlightUI>();
+                if (highlight != null)
+                {
+                    highlight.RefreshDefaultColorFromImage();
+                }
                 continue;
             }
 
@@ -161,8 +205,13 @@ public class TowerInstallControl : MonoBehaviour
                 targeting.SetTowerData(chosenData);
             }
 
-            var button = tower.GetComponent<Button>();
-            button.onClick.AddListener(() => OpenInfoUI(index));
+            //20251202 16:06 click -> seperate drag move tower 
+            //var button = tower.GetComponent<Button>();
+            //button.onClick.AddListener(() => OpenInfoUI(index));
+            var inputHandler = tower.GetComponent<TowerSlotInputHandler>();
+            if (inputHandler == null)
+                inputHandler = tower.AddComponent<TowerSlotInputHandler>();
+            inputHandler.Initialize(this, index);
 
             // Test (Color)
             var image = tower.GetComponentInChildren<Image>();
@@ -173,9 +222,14 @@ public class TowerInstallControl : MonoBehaviour
 
             towers.Add(tower);
             planet?.SetAttackTower(assignedTowerDatas[index], index);
+
+            var highlight2 = tower.GetComponent<TowerSlotHighlightUI>();
+            if (highlight2 != null) highlight2.RefreshDefaultColorFromImage();
         }
         SettingTowerTransform(0f);
-        currentAngle = 0f;   
+        currentAngle = 0f;
+        RefreshSlotLabels();
+        RefreshSlotInputs();
     }
 
     public bool IsUsedSlot(int index)
@@ -190,7 +244,7 @@ public class TowerInstallControl : MonoBehaviour
         if (!IsReadyInstall) return;
         if (ChoosedData == null) return;
 
-        planet?.UpgradeTower(index);   
+        planet?.UpgradeTower(index);
 
         IsReadyInstall = false;
         isInstall = true;
@@ -225,7 +279,7 @@ public class TowerInstallControl : MonoBehaviour
     {
         if (!IsReadyInstall) return;
 
-        if(currentTowerCount >= maxTowerCount)
+        if (currentTowerCount >= maxTowerCount)
         {
             Debug.Log("Tower limit");
             return;
@@ -239,9 +293,9 @@ public class TowerInstallControl : MonoBehaviour
         Destroy(towers[index]);
 
         GameObject newTower = null;
-        
+
         // Attack||Amplifier Tower Branch ------------
-        if(ChoosedData.InstallType==TowerInstallType.Attack)
+        if (ChoosedData.InstallType == TowerInstallType.Attack)
         {
             //Install Attack Tower
             newTower = Instantiate(towerUIBasePrefab, PlanetTransform);
@@ -262,23 +316,23 @@ public class TowerInstallControl : MonoBehaviour
 
             //Set Attack Tower In Planet
             planet?.SetAttackTower(
-                assignedTowerDatas[index], 
+                assignedTowerDatas[index],
                 index,
                 ChoosedData.ability);
         }
-        else if(ChoosedData.InstallType == TowerInstallType.Amplifier)
+        else if (ChoosedData.InstallType == TowerInstallType.Amplifier)
         {
             //Install Amplifier Tower
             newTower = Instantiate(towerUIBasePrefab, PlanetTransform);
             towers[index] = newTower;
 
             assignedTowerDatas[index] = null; //(assignedTowerDatas: only attack tower)
-            
+
             //Set Amplifier Tower In Planet
             if (ChoosedData.AmplifierTowerData != null)
             {
                 planet?.SetAmplifierTower(
-                    ChoosedData.AmplifierTowerData, 
+                    ChoosedData.AmplifierTowerData,
                     index,
                     ChoosedData.ability,
                     ChoosedData.BuffSlotIndex,
@@ -287,24 +341,38 @@ public class TowerInstallControl : MonoBehaviour
             }
         }
         //---------------------------------------------------------
-
         //UI-------------------------------------------------------
-        if (newTower!=null)
+        if (newTower != null)
         {
-            var button = newTower.GetComponent<Button>();
-            button.onClick.AddListener(() => OpenInfoUI(index));
+
+            //20251202 16:11 click -> seperate drag move tower 
+            //var button = newTower.GetComponent<Button>();
+            //button.onClick.AddListener(() => OpenInfoUI(index));
+            var inputHandler = newTower.GetComponent<TowerSlotInputHandler>();
+            if (inputHandler == null)
+            {
+                inputHandler = newTower.AddComponent<TowerSlotInputHandler>();
+            }
+            inputHandler.Initialize(this, index);
 
             var image = newTower.GetComponentInChildren<Image>();
             var text = newTower.GetComponentInChildren<TextMeshProUGUI>();
 
-            if(ChoosedData.InstallType==TowerInstallType.Attack)
+            if (ChoosedData.InstallType == TowerInstallType.Attack)
             {
                 image.color = Color.Lerp(Color.red, Color.blue, (float)index / (towerCount - 1));
                 text.text = index.ToString();
-            }else
+            }
+            else
             {
                 image.color = Color.yellow;
                 text.text = $"{index}+";
+            }
+
+            var highlight = newTower.GetComponent<TowerSlotHighlightUI>();
+            if (highlight != null)
+            {
+                highlight.RefreshDefaultColorFromImage();
             }
         }
         //----------------------------------------------------------
@@ -318,6 +386,9 @@ public class TowerInstallControl : MonoBehaviour
         IsReadyInstall = false;
         ChoosedData = null;
         isInstall = true;
+
+        RefreshSlotLabels();
+        RefreshSlotInputs();
     }
 
     public void OpenInfoUI(int index)
@@ -325,8 +396,23 @@ public class TowerInstallControl : MonoBehaviour
         if (IsReadyInstall || towerInfoObj == null) return;
 
         towerInfoObj.SetActive(true);
-        towerInfoObj.GetComponent<TowerInfoUI>().SetInfo(index);
+        var info = towerInfoObj.GetComponent<TowerInfoUI>();
+        info.SetInfo(index);
+
+        var attack = GetAttackTower(index);
+        var amp = GetAmplifierTower(index);
+
+        if (amp != null && amp.AmplifierTowerData != null)
+        {
+            HighlightForAmplifierSlot(index);
+        }
+        else if (attack != null && attack.AttackTowerData != null)
+        {
+            HighlightForAttackSlot(index);
+        }
+        else ClearAllSlotHighlights();
     }
+
     public TowerDataSO GetTowerData(int index)
     {
         if (index < 0 || index >= assignedTowerDatas.Length) return null;
@@ -338,7 +424,7 @@ public class TowerInstallControl : MonoBehaviour
         foreach (var tower in towers)
         {
             var pos = new Vector2(
-                Mathf.Cos((baseAngle + 90f) * Mathf.Deg2Rad), 
+                Mathf.Cos((baseAngle + 90f) * Mathf.Deg2Rad),
                 Mathf.Sin((baseAngle + 90f) * Mathf.Deg2Rad)
                 ) * towerRadius;
             var rot = new Vector3(0, 0, baseAngle);
@@ -370,4 +456,641 @@ public class TowerInstallControl : MonoBehaviour
     {
         return PickRandomTowerData();
     }
+
+    //Slot Highliht Helper (TowerSlotHighlightUI) ------------------
+    private TowerSlotHighlightUI GetSlotHighlight(int index)
+    {
+        if (towers == null) return null;
+        if (index < 0 || index >= towers.Count) return null;
+
+        return towers[index].GetComponent<TowerSlotHighlightUI>();
+    }
+
+    private void ClearAllSlotHighlights()
+    {
+        if (towers == null) return;
+
+        foreach (var t in towers)
+        {
+            if (t == null) continue;
+
+            var highlight = t.GetComponent<TowerSlotHighlightUI>();
+            if (highlight != null)
+            {
+                highlight.SetHighlight(TowerHighlightType.None);
+            }
+        }
+    }
+
+    private void HighlightForAttackSlot(int attackIndex)  // buff tower to attack tower
+    {
+        ClearAllSlotHighlights();
+
+        int count = towerCount;
+        if (planet == null || count <= 0) return;
+
+        for (int i = 0; i < count; i++)
+        {
+            var amp = GetAmplifierTower(i);
+            if (amp == null || amp.AmplifierTowerData == null) continue;
+
+            var buffSlots = amp.BuffedSlotIndex;
+            var randomSlots = amp.RandomAbilitySlotIndex;
+
+            bool isBuffTarget = buffSlots != null && buffSlots.Contains(attackIndex);
+            bool isRandomTarget = randomSlots != null && randomSlots.Contains(attackIndex);
+
+            if (!isBuffTarget && !isRandomTarget) continue;
+
+            var highlight = GetSlotHighlight(i);
+            if (highlight == null) continue;
+
+            highlight.SetHighlight(TowerHighlightType.FromAttackSource);
+        }
+    }
+
+    private void HighlightForAmplifierSlot(int ampIndex)
+    {
+        ClearAllSlotHighlights();
+
+        var amp = GetAmplifierTower(ampIndex);
+        if (amp == null || amp.AmplifierTowerData == null) return;
+
+        var buffSlots = amp.BuffedSlotIndex;       
+        var randomSlots = amp.RandomAbilitySlotIndex; 
+
+        if (buffSlots != null) // buff target
+        {
+            foreach (var slot in buffSlots)
+            {
+                var highlight = GetSlotHighlight(slot);
+                if (highlight == null) continue;
+
+                highlight.SetHighlight(TowerHighlightType.BuffTarget);
+            }
+        }
+
+        if (randomSlots != null) // ability target
+        {
+            foreach (var slot in randomSlots)
+            {
+                if (buffSlots != null && buffSlots.Contains(slot))
+                    continue;
+
+                var highlight = GetSlotHighlight(slot);
+                if (highlight == null) continue;
+
+                highlight.SetHighlight(TowerHighlightType.RandomOnlyTarget);
+            }
+        }
+    }
+    //--------------------------------------------------------------
+    //Move Tower----------------------------------------------------
+    public void OnSlotClick(int index)
+    {
+        OpenInfoUI(index);
+    }
+
+    public void OnSlotLongPressStart(int index, Vector2 screenPos)
+    {
+        if (IsReadyInstall) return; //Consider preventing Install mod 
+
+        if (towerInfoObj != null && towerInfoObj.activeSelf) 
+        {
+            towerInfoObj.SetActive(false);
+        }
+
+        ClearAllSlotHighlights();
+
+        if (isDraggingTower) return;
+
+        //tower null check
+        if (towers == null || index < 0 || index >= towers.Count) return;
+        if (emptyTower != null && emptyTower[index]) return; 
+        isDraggingTower = true;
+        dragSourceIndex = index;
+
+
+        //rm tower
+        bool canShowTrash = false;
+        var attack = GetAttackTower(index);
+        var amp = GetAmplifierTower(index);
+
+        if (attack != null)
+        {
+            int attackCount = planet != null ? planet.GetAttackTowerCount() : 0;
+            canShowTrash = attackCount > 1;
+        }
+        else if (amp != null)
+        {
+            canShowTrash = true;
+        }
+
+        if (trashIconObj != null)
+            trashIconObj.SetActive(canShowTrash);
+        //drag prefab
+        if (dragImagePrefab != null && uiCanvas != null)
+        {
+            currentDragGhost = Instantiate(dragImagePrefab, uiCanvas.transform);
+            currentDragGhostRect = currentDragGhost.GetComponent<RectTransform>();
+
+            var sourceObj = towers[index];
+            var sourceImage = sourceObj.GetComponentInChildren<Image>();
+            dragSourceImage = sourceImage; 
+
+            if (sourceImage != null)
+            {
+                dragSourceOriginalColor = sourceImage.color;
+
+                var ghostUI = currentDragGhost.GetComponent<TowerDragImageUI>();
+                if (ghostUI != null && ghostUI.IconImage != null)
+                {
+                    var ghostImage = ghostUI.IconImage;
+                    ghostImage.sprite = sourceImage.sprite;
+                    ghostImage.color = sourceImage.color;
+                    ghostImage.preserveAspect = true;
+                    ghostImage.rectTransform.sizeDelta = new Vector2(25f, 50f);
+                }
+                var c = sourceImage.color;
+                c.a = 0f;
+                sourceImage.color = c;
+            }
+            UpdateDragGhostPosition(screenPos);
+        }
+    }
+
+    public void OnSlotLongPressDrag(int index, Vector2 screenPos)
+    {
+        if (!isDraggingTower) return;
+        if (index != dragSourceIndex) return; 
+
+        UpdateDragGhostPosition(screenPos);
+    }
+    private void UpdateDragGhostPosition(Vector2 screenPos)
+    {
+        if (currentDragGhostRect == null || uiCanvas == null) return;
+
+        RectTransform canvasRect = uiCanvas.transform as RectTransform;
+
+        Vector2 localPos;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            canvasRect,
+            screenPos,
+            uiCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : uiCanvas.worldCamera,
+            out localPos);
+
+        currentDragGhostRect.anchoredPosition = localPos;
+    }
+
+    public void OnSlotLongPressEnd(int index, Vector2 screenPos)
+    {
+        if (!isDraggingTower) return;
+
+        int sourceIndex = dragSourceIndex; // Cleanup 전에 따로 보관
+
+        // ---- 휴지통 영역에 드랍됐는지 먼저 체크 ----
+        bool droppedOnTrash = false;
+        if (trashIconObj != null && trashIconObj.activeSelf && trashIconRect != null && uiCanvas != null)
+        {
+            Camera cam = uiCanvas.renderMode == RenderMode.ScreenSpaceOverlay
+                ? null
+                : uiCanvas.worldCamera;
+
+            if (RectTransformUtility.RectangleContainsScreenPoint(trashIconRect, screenPos, cam))
+            {
+                droppedOnTrash = true;
+            }
+        }
+
+        if (droppedOnTrash)
+        {
+            // 1) 드래그 고스트 정리 & 원래 슬롯 시각 복구
+            CleanupDragVisual();  // 여기서 dragSourceIndex는 -1로 초기화되지만 sourceIndex에 이미 저장해둠
+
+            // 2) 삭제 확인 팝업 세팅
+            pendingDeleteIndex = sourceIndex;
+            ShowDeleteConfirm();
+
+            Debug.Log($"[TowerInstallControl] Drop on trash from {sourceIndex}");
+        }
+        else
+        {
+            // 기존 슬롯 드랍 로직 (스왑/이동)
+            int targetIndex = FindSlotIndexFromScreenPos(screenPos);
+            if (targetIndex >= 0 && targetIndex != sourceIndex)
+            {
+                MoveOrSwapTower(sourceIndex, targetIndex);
+                Debug.Log($"[TowerInstallControl] Long press drag end from {sourceIndex} to {targetIndex}");
+            }
+            else
+            {
+                Debug.Log($"[TowerInstallControl] Long press drag end, no valid target. index={sourceIndex}");
+            }
+
+            // 고스트/투명 처리 복구
+            CleanupDragVisual();
+        }
+
+        // 휴지통 아이콘은 항상 끄기
+        if (trashIconObj != null)
+            trashIconObj.SetActive(false);
+    }
+
+
+    private void CleanupDragVisual()
+    {
+        if (currentDragGhost != null)
+        {
+            Destroy(currentDragGhost);
+            currentDragGhost = null;
+            currentDragGhostRect = null;
+        }
+
+        if (dragSourceImage != null)
+        {
+            dragSourceImage.color = dragSourceOriginalColor;
+            dragSourceImage = null;
+        }
+
+        isDraggingTower = false;
+        dragSourceIndex = -1;
+    }
+    // ---------------------- [UI & 데이터: 공격 타워 -> 빈 슬롯 이동] ----------------------
+    private void MoveAttackSlotUIAndData(int fromIndex, int toIndex)
+    {
+        if (towers == null) return;
+        if (fromIndex < 0 || fromIndex >= towers.Count) return;
+        if (toIndex < 0 || toIndex >= towers.Count) return;
+        if (fromIndex == toIndex) return;
+
+        // from에는 공격 타워 UI, to에는 빈 슬롯 UI라고 가정
+        GameObject fromGO = towers[fromIndex];
+        GameObject toGO = towers[toIndex];
+
+        if (fromGO == null || toGO == null) return;
+
+        // 데이터 쪽: assignedTowerDatas / emptyTower
+        TowerDataSO moveData = assignedTowerDatas[fromIndex];
+        assignedTowerDatas[fromIndex] = null;
+        assignedTowerDatas[toIndex] = moveData;
+
+        emptyTower[fromIndex] = true;
+        emptyTower[toIndex] = false;
+
+        // UI 쪽: from은 EmptySlotUI, to는 towerUIBasePrefab 로 교체
+        // 1) fromIndex -> Empty Slot UI 로 교체
+        Destroy(fromGO);
+        GameObject newEmpty = Instantiate(emptySlotPrefab, PlanetTransform);
+        towers[fromIndex] = newEmpty;
+
+        var buttonEmpty = newEmpty.GetComponent<Button>();
+        if (buttonEmpty != null)
+        {
+            int capturedIndex = fromIndex;
+            buttonEmpty.onClick.AddListener(() => IntallNewTower(capturedIndex));
+        }
+
+        var numTextEmpty = newEmpty.GetComponentInChildren<TextMeshProUGUI>();
+        if (numTextEmpty != null)
+        {
+            numTextEmpty.text = fromIndex.ToString();
+        }
+
+        var highlightEmpty = newEmpty.GetComponent<TowerSlotHighlightUI>();
+        if (highlightEmpty != null)
+        {
+            highlightEmpty.RefreshDefaultColorFromImage();
+        }
+
+        // 2) toIndex -> Attack Slot UI 로 교체
+        Destroy(toGO);
+        GameObject newAttack = Instantiate(towerUIBasePrefab, PlanetTransform);
+        towers[toIndex] = newAttack;
+
+        // Input Handler
+        var inputHandler = newAttack.GetComponent<TowerSlotInputHandler>();
+        if (inputHandler == null)
+            inputHandler = newAttack.AddComponent<TowerSlotInputHandler>();
+        inputHandler.Initialize(this, toIndex);
+
+        // 색 / 텍스트 (인덱스 표시)
+        var img = newAttack.GetComponentInChildren<Image>();
+        var txt = newAttack.GetComponentInChildren<TextMeshProUGUI>();
+        if (img != null)
+            img.color = Color.Lerp(Color.red, Color.blue, (float)toIndex / (towerCount - 1));
+        if (txt != null)
+            txt.text = toIndex.ToString();
+
+        var highlightAttack = newAttack.GetComponent<TowerSlotHighlightUI>();
+        if (highlightAttack != null)
+            highlightAttack.RefreshDefaultColorFromImage();
+
+        // 원형 배치 다시 세팅
+        SettingTowerTransform(currentAngle);
+    }
+    // ---------------------- [UI & 데이터: 공격 타워 <-> 공격 타워 스왑] ----------------------
+    private void SwapAttackSlotUIAndData(int indexA, int indexB)
+    {
+        if (towers == null) return;
+        if (indexA < 0 || indexA >= towers.Count) return;
+        if (indexB < 0 || indexB >= towers.Count) return;
+        if (indexA == indexB) return;
+
+        // 둘 다 비어있지 않고, 공격 타워가 설치되어 있다고 가정 (emptyTower == false)
+        if (emptyTower[indexA] || emptyTower[indexB]) return;
+
+        // 데이터 쪽: assignedTowerDatas 스왑
+        var tmpData = assignedTowerDatas[indexA];
+        assignedTowerDatas[indexA] = assignedTowerDatas[indexB];
+        assignedTowerDatas[indexB] = tmpData;
+
+        // UI 쪽은 실제로 프리팹 타입(Attack/Empty)이 동일하므로
+        // 여기서는 굳이 GameObject를 건들지 않아도 된다.
+        // (각 슬롯은 여전히 Attack 슬롯이므로 색/텍스트는 인덱스 기준 유지)
+
+        // 필요하다면 나중에 "타워 종류에 따라 아이콘" 같은 걸 쓸 때 여기서 Sprite 교체 가능.
+
+        // 원형 배치 다시 세팅 (실제로는 인덱스 고정이므로 크게 변하는 건 없음)
+        SettingTowerTransform(currentAngle);
+    }
+
+    private int FindSlotIndexFromScreenPos(Vector2 screenPos)
+    {
+        if (towers == null || uiCanvas == null) return -1;
+
+        Camera cam = uiCanvas.renderMode == RenderMode.ScreenSpaceOverlay
+            ? null
+            : uiCanvas.worldCamera;
+
+        for (int i = 0; i < towers.Count; i++)
+        {
+            var go = towers[i];
+            if (go == null) continue;
+
+            var rect = go.GetComponent<RectTransform>();
+            if (rect == null) continue;
+
+            if (RectTransformUtility.RectangleContainsScreenPoint(rect, screenPos, cam))
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    private void MoveOrSwapTower(int sourceIndex, int targetIndex)
+    {
+        if (sourceIndex == targetIndex) return;
+        if (towers == null) return;
+        if (sourceIndex < 0 || sourceIndex >= towers.Count) return;
+        if (targetIndex < 0 || targetIndex >= towers.Count) return;
+
+        ClearAllSlotHighlights();
+
+        // 1) Planet 쪽 실제 타워 이동/스왑 (공격 ↔ 증폭 모두 허용)
+        planet?.MoveTower(sourceIndex, targetIndex);
+
+        // 2) UI 오브젝트 스왑
+        var tmpGo = towers[sourceIndex];
+        towers[sourceIndex] = towers[targetIndex];
+        towers[targetIndex] = tmpGo;
+
+        // 3) 공격타워 데이터(assignedTowerDatas) 스왑
+        if (assignedTowerDatas != null)
+        {
+            var tmpData = assignedTowerDatas[sourceIndex];
+            assignedTowerDatas[sourceIndex] = assignedTowerDatas[targetIndex];
+            assignedTowerDatas[targetIndex] = tmpData;
+        }
+
+        // 4) 빈 슬롯 여부 플래그 스왑
+        if (emptyTower != null)
+        {
+            bool tmpEmpty = emptyTower[sourceIndex];
+            emptyTower[sourceIndex] = emptyTower[targetIndex];
+            emptyTower[targetIndex] = tmpEmpty;
+        }
+
+        // 5) 위치/회전 다시 잡기
+        SettingTowerTransform(currentAngle);
+
+        // 6) 슬롯 인풋/버튼 다시 바인딩
+        RefreshSlotInputs();
+        RefreshSlotLabels();
+
+        if (towerInfoObj != null && towerInfoObj.activeSelf)
+        {
+            var info = towerInfoObj.GetComponent<TowerInfoUI>();
+            if (info != null)
+            {
+                int focusIndex = info.CurrentSlotIndex;
+
+                // 유효한 인덱스면, "지금 보고 있던 슬롯"을 다시 열어서
+                // 새 상태 기준으로 하이라이트를 다시 세팅
+                if (focusIndex >= 0 && focusIndex < towerCount)
+                {
+                    OpenInfoUI(focusIndex);
+                }
+                else
+                {
+                    ClearAllSlotHighlights();
+                }
+            }
+            else
+            {
+                ClearAllSlotHighlights();
+            }
+        }
+        else
+        {
+            ClearAllSlotHighlights();
+        }
+    }
+    private void RefreshSlotInputs()
+    {
+        if (towers == null) return;
+
+        for (int i = 0; i < towerCount; i++)
+        {
+            var go = towers[i];
+            if (go == null) continue;
+
+            var input = go.GetComponent<TowerSlotInputHandler>();
+            var button = go.GetComponent<Button>();
+
+            // 빈 슬롯
+            if (emptyTower != null && emptyTower[i])
+            {
+                // 드래그 입력 제거
+                if (input != null)
+                {
+                    Destroy(input);
+                }
+
+                // 설치 버튼 다시 연결
+                if (button != null)
+                {
+                    button.onClick.RemoveAllListeners();
+                    int captured = i;
+                    button.onClick.AddListener(() => IntallNewTower(captured));
+                }
+            }
+            // 타워가 있는 슬롯
+            else
+            {
+                // 드래그/탭 인풋 붙이기
+                if (input == null)
+                {
+                    input = go.AddComponent<TowerSlotInputHandler>();
+                }
+                input.Initialize(this, i);
+
+                // 설치 버튼은 사용 안 하므로 리스너 제거
+                if (button != null)
+                {
+                    button.onClick.RemoveAllListeners();
+                }
+            }
+        }
+    }
+    private void RefreshSlotLabels()
+    {
+        if (towers == null) return;
+
+        for (int i = 0; i < towerCount; i++)
+        {
+            var go = towers[i];
+            if (go == null) continue;
+
+            var text = go.GetComponentInChildren<TextMeshProUGUI>();
+            if (text == null) continue;
+
+            // 빈 슬롯이면
+            if (emptyTower != null && emptyTower[i])
+            {
+                // 디버그용으로 인덱스를 계속 보고 싶으면:
+                text.text = i.ToString();
+                // 완전히 숨기고 싶으면 아래처럼:
+                // text.text = "";
+                continue;
+            }
+
+            // 여기부터는 "타워가 있는 슬롯"
+
+            bool isAttack = assignedTowerDatas != null && assignedTowerDatas[i] != null;
+            bool isAmplifier = !isAttack; // 공격타워가 아니면서 emptyTower=false면 증폭타워
+
+            if (isAttack)
+            {
+                // 공격 타워 슬롯: 인덱스만 출력
+                text.text = i.ToString();
+            }
+            else if (isAmplifier)
+            {
+                // 증폭 타워 슬롯: 기존처럼 "i+"
+                text.text = $"{i}+";
+            }
+        }
+    }
+    //--------------------------------------------------------------
+    //rm tower -----------------------------------------------------
+    private void ShowDeleteConfirm()
+    {
+        if (deleteConfirmPanel != null)
+        {
+            deleteConfirmPanel.SetActive(true);
+            yesOrNoPanel.gameObject.SetActive(true);
+            deleteYesButton.gameObject.SetActive(true);
+            deleteNoButton.gameObject.SetActive(true);
+        }
+    }
+
+    private void OnDeleteYes()
+    {
+        if (pendingDeleteIndex >= 0)
+        {
+            PerformDelete(pendingDeleteIndex);
+        }
+
+        pendingDeleteIndex = -1;
+
+        if (deleteConfirmPanel != null)
+        {
+            deleteConfirmPanel.SetActive(false);
+            yesOrNoPanel.gameObject.SetActive(false);
+            deleteYesButton.gameObject.SetActive(false);
+            deleteNoButton.gameObject.SetActive(false);
+        }
+    }
+
+    private void OnDeleteNo()
+    {
+        pendingDeleteIndex = -1;
+
+        if (deleteConfirmPanel != null)
+            deleteConfirmPanel.SetActive(false);
+    }
+    private void PerformDelete(int index)
+    {
+        if (towers == null) return;
+        if (index < 0 || index >= towers.Count) return;
+
+        // 이미 빈 슬롯이면 할 일 없음
+        if (emptyTower != null && emptyTower[index])
+            return;
+
+        // 1) Planet에 실제 타워 삭제 요청 (공격/증폭 모두)
+        planet?.RemoveTowerAt(index);
+
+        // 2) UI 쪽 슬롯을 EmptySlotUI로 교체
+        var oldUI = towers[index];
+        if (oldUI != null)
+        {
+            Destroy(oldUI);
+        }
+
+        GameObject newEmpty = Instantiate(emptySlotPrefab, PlanetTransform);
+        towers[index] = newEmpty;
+
+        // 버튼: 설치 버튼 연결
+        var button = newEmpty.GetComponent<Button>();
+        if (button != null)
+        {
+            button.onClick.RemoveAllListeners();
+            int captured = index;
+            button.onClick.AddListener(() => IntallNewTower(captured));
+        }
+
+        // 슬롯 번호 텍스트
+        var numText = newEmpty.GetComponentInChildren<TextMeshProUGUI>();
+        if (numText != null)
+        {
+            numText.text = index.ToString();
+        }
+
+        // 하이라이트 기본 색 갱신
+        var highlight = newEmpty.GetComponent<TowerSlotHighlightUI>();
+        if (highlight != null)
+        {
+            highlight.RefreshDefaultColorFromImage();
+        }
+
+        // 3) 내부 플래그/데이터 갱신
+        if (emptyTower != null)
+            emptyTower[index] = true;
+
+        if (assignedTowerDatas != null)
+            assignedTowerDatas[index] = null;
+
+        // 설치된 타워 수 감소 (최소 0 보장)
+        CurrentTowerCount = Mathf.Max(0, CurrentTowerCount - 1);
+
+        // 4) 전체 인풋/하이라이트 갱신
+        RefreshSlotInputs();
+        ClearAllSlotHighlights();
+        SettingTowerTransform(currentAngle);
+    }
+
+    //--------------------------------------------------------------
 }
