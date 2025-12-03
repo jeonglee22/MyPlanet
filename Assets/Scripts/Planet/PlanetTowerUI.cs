@@ -5,8 +5,6 @@ using UnityEngine.UI;
 
 public class PlanetTowerUI : MonoBehaviour
 {
-    [SerializeField] private Button leftButton;
-    [SerializeField] private Button rightButton;
     [SerializeField] private Button battleButton;
     [SerializeField] private Button goToTitleButton;
     [SerializeField] private TowerInfoUI towerInfoUI;
@@ -30,8 +28,6 @@ public class PlanetTowerUI : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        leftButton.onClick.AddListener(OnLetfMoveClicked);
-        rightButton.onClick.AddListener(OnRightMoveClicked);
         battleButton.onClick.AddListener(OnStartBattelClicked);
         goToTitleButton?.onClick.AddListener(OnGoToTitleClicked);
 

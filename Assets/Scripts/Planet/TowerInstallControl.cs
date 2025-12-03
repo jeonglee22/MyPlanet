@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -112,6 +113,8 @@ public class TowerInstallControl : MonoBehaviour
     {
         planet = planetObj.GetComponent<Planet>();
 
+        SetPlanetSize();
+
         ResetTowerSlot(towerCount);
 
         if (towerInfoObj != null)
@@ -154,6 +157,17 @@ public class TowerInstallControl : MonoBehaviour
                 SettingTowerTransform(currentAngle);
             }
         }
+    }
+
+    private void SetPlanetSize()
+    {
+        var size = uiCanvas.GetComponent<RectTransform>().sizeDelta;
+        Debug.Log("Canvas Size : " + size.ToString());
+
+        var xSize = size.x;
+        xSize += 20f;
+        towerRadius = xSize * 0.5f;
+        gameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(xSize, xSize);
     }
 
     private void ResetTowerSlot(int slotCount)
@@ -421,19 +435,36 @@ public class TowerInstallControl : MonoBehaviour
 
     private void SettingTowerTransform(float baseAngle)
     {
+        baseAngle = baseAngle % 360f;
+        if (baseAngle < 0f)
+            baseAngle += 360f;
+        Debug.Log("SettingTowerTransform Angle : " + baseAngle.ToString());
+
+        var sb = new StringBuilder();
         foreach (var tower in towers)
         {
             var pos = new Vector2(
-                Mathf.Cos((baseAngle + 90f) * Mathf.Deg2Rad),
-                Mathf.Sin((baseAngle + 90f) * Mathf.Deg2Rad)
-                ) * towerRadius;
+                Mathf.Cos(baseAngle * Mathf.Deg2Rad),
+                Mathf.Sin(baseAngle * Mathf.Deg2Rad)
+                ) * (towerRadius + 17f);
+            
             var rot = new Vector3(0, 0, baseAngle);
+
             var towerRect = tower.GetComponent<RectTransform>();
             towerRect.localPosition = pos;
             towerRect.rotation = Quaternion.Euler(rot);
 
-            baseAngle += 360f / towerCount;
+            baseAngle += 270f / towerCount;
+            if (baseAngle >= 135f && baseAngle < 225f)
+                baseAngle += 90f;
+
+            if (baseAngle >= 360f)
+                baseAngle -= 360f;
+
+            sb.Append(baseAngle);
+            sb.Append(" / ");
         }
+        Debug.Log(sb.ToString());
     }
 
     public TowerAttack GetAttackTower(int index)
