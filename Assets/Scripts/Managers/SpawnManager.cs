@@ -30,6 +30,8 @@ public class SpawnManager : MonoBehaviour
 
     public event Action OnBossSpawn;
 
+    private bool isTutorial = false;
+
     private void Awake()
     {
         if (instance == null)
@@ -52,11 +54,20 @@ public class SpawnManager : MonoBehaviour
         ChangeSpawningState();
 
         CameraManager.Instance.OnZoomOut += SetScreenBounds;
+
+        TutorialManager.Instance.OnTutorialModeChanged += SetIsTutorial;
     }
 
     private void OnDisable()
     {
         CameraManager.Instance.OnZoomOut -= SetScreenBounds;
+
+        TutorialManager.Instance.OnTutorialModeChanged -= SetIsTutorial;
+    }
+
+    private void OnDestroy()
+    {
+        TutorialManager.Instance.OnTutorialModeChanged -= SetIsTutorial;
     }
 
     public void ChangeSpawningState() => IsSpawning = !IsSpawning;
@@ -184,5 +195,15 @@ public class SpawnManager : MonoBehaviour
         }
 
         OnBossSpawn?.Invoke();
+
+        if(isTutorial || Variables.Stage == 1)
+        {
+            TutorialManager.Instance.ShowTutorialStep(5);
+        }
+    }
+
+    private void SetIsTutorial(bool isTutorialMode)
+    {
+        isTutorial = isTutorialMode;
     }
 }

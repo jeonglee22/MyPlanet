@@ -94,7 +94,10 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         }
         SettingUpgradeCards();
 
-        TutorialManager.Instance.ShowTutorialStep(2);
+        if(isTutorial || Variables.Stage == 1)
+        {
+            TutorialManager.Instance.ShowTutorialStep(2);
+        }
     }
 
     private void SetTowerInstallText()
@@ -115,6 +118,11 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         isStartTouch = false;
         towerImageIsDraging = false;
         isFirstInstall = false;
+
+        if(isTutorial || Variables.Stage == 1)
+        {
+            TutorialManager.Instance.ShowTutorialStep(1);
+        }
 
         TutorialManager.Instance.OnTutorialModeChanged -= SetIsTutorial;
     }
@@ -411,6 +419,11 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             choices[index].RandomAbilitySlotIndex = null;
 
             abilityId = GetRandomAbilityForAmplifier(ampTower.AmplifierTowerData);
+
+            if(isTutorial || Variables.Stage == 1)
+            {
+                TutorialManager.Instance.ShowTutorialStep(4);
+            }
         }
 
         abilities[index] = abilityId;

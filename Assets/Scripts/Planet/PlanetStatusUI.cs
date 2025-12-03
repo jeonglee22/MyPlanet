@@ -13,6 +13,8 @@ public class PlanetStatusUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI levelText;
     [SerializeField] private TowerInstallControl towerInstallControl;
 
+    private bool isTutorial = false;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -23,6 +25,8 @@ public class PlanetStatusUI : MonoBehaviour
 
         towerSettingUi.SetActive(true);
         Initialize();
+
+        TutorialManager.Instance.OnTutorialModeChanged += SetIsTutorial;
         //test
     }
 
@@ -38,6 +42,8 @@ public class PlanetStatusUI : MonoBehaviour
         planet.HpDecreseEvent -= HpValueChanged;
         planet.levelUpEvent -= OpenTowerUpgradeUI;
         planet.levelUpEvent -= ChangeLevelText;
+
+        TutorialManager.Instance.OnTutorialModeChanged -= SetIsTutorial;
     }
 
     private void Initialize()
@@ -60,6 +66,11 @@ public class PlanetStatusUI : MonoBehaviour
         towerSettingUi.SetActive(true);
             GamePauseManager.Instance.Pause();
         towerInstallControl.isInstall = false;
+
+        if(isTutorial || Variables.Stage == 1)
+        {
+            //TutorialManager.Instance.ShowTutorialStep(3);
+        }
     }
 
     private void HpValueChanged(float hp)
@@ -75,5 +86,10 @@ public class PlanetStatusUI : MonoBehaviour
     public async UniTaskVoid AddExp(float exp = 10f)
     {
         planet.CurrentExp += exp;
+    }
+
+    private void SetIsTutorial(bool isTutorialMode)
+    {
+        isTutorial = isTutorialMode;
     }
 }

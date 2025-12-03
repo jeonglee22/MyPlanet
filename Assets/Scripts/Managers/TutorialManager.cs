@@ -22,6 +22,7 @@ public class TutorialManager : MonoBehaviour
 
     public event Action<bool> OnTutorialModeChanged;
 
+    [SerializeField] private GameObject tutorialPanel;
     [SerializeField] private TutorialUI tutorialUI;
     [SerializeField] private RectTransform tutorialRect;
     [SerializeField] private List<TextPoint> textPoints = new List<TextPoint>();
@@ -33,6 +34,7 @@ public class TutorialManager : MonoBehaviour
     private List<TutorialTextData> currentTexts = new List<TutorialTextData>();
 
     private Dictionary<int, List<TutorialTextData>> tutorialData = new Dictionary<int, List<TutorialTextData>>();
+    private Dictionary<int, bool> completedSteps = new Dictionary<int, bool>();
 
     private void Awake()
     {
@@ -50,6 +52,13 @@ public class TutorialManager : MonoBehaviour
 
     private void InitializeTutorialData()
     {
+        IsTutorialMode = (Variables.Stage <= 2);
+        if(!IsTutorialMode)
+        {
+            tutorialPanel.SetActive(false);
+            return;
+        }
+
         //Stage 1
         tutorialData[1] = new List<TutorialTextData>
         {
@@ -123,6 +132,8 @@ public class TutorialManager : MonoBehaviour
             return;
         }
 
+        tutorialPanel.SetActive(true);
+
         currentStep = step;
         currentTextIndex = 0;
         currentTexts = tutorialData[step];
@@ -134,6 +145,11 @@ public class TutorialManager : MonoBehaviour
 
     private void ShowCurrentText()
     {
+        if(completedSteps.ContainsKey(currentStep) && completedSteps[currentStep])
+        {
+            return;
+        }
+
         if(currentTextIndex < currentTexts.Count)
         {
             TutorialTextData data = currentTexts[currentTextIndex];
@@ -164,6 +180,8 @@ public class TutorialManager : MonoBehaviour
         currentStep = -1;
         currentTextIndex = 0;
         currentTexts.Clear();
+
+        tutorialPanel.SetActive(false);
     }
 
     private void ApplyTextPoint(TutorialPoint pointType)
