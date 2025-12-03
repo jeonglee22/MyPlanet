@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using UnityEngine;
 
 public class CameraManager : MonoBehaviour
@@ -11,6 +12,9 @@ public class CameraManager : MonoBehaviour
 
     private Camera mainCamera;
     private float targetZ;
+
+    public bool IsZoomedOut { get; private set; }
+
     private bool isFinalBossAlive;
 
     private Vector3 currentPos = Vector3.zero;
@@ -59,11 +63,13 @@ public class CameraManager : MonoBehaviour
     public void ZoomOut()
     {
         targetZ = zoomedOutZ;
+        IsZoomedOut = true;
     }
 
     public void ZoomIn()
     {
         targetZ = normalZ;
+        IsZoomedOut = false;
     }
 
     private void OnLastBossSpawned()
