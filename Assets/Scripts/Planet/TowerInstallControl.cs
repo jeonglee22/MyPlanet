@@ -9,6 +9,7 @@ public enum TowerInstallType
 {
     Attack,
     Amplifier,
+    //Gold,
 }
 
 public class TowerInstallChoice
@@ -274,6 +275,45 @@ public class TowerInstallControl : MonoBehaviour
         // idx = 4; // ShootGun
         return availableTowerDatas[idx];
     }
+    public TowerDataSO GetRandomAttackTowerDataForCard(
+    ICollection<TowerDataSO> extraExcludes)
+    {
+        if (availableTowerDatas == null || availableTowerDatas.Count == 0)
+            return null;
+
+        HashSet<TowerDataSO> excludeSet = new HashSet<TowerDataSO>();
+        for (int i = 0; i < towerCount; i++)
+        {
+            var data = GetTowerData(i);
+            if (data != null)
+            {
+                excludeSet.Add(data);
+            }
+        }
+
+        if (extraExcludes != null)
+        {
+            foreach (var d in extraExcludes)
+            {
+                if (d != null)
+                    excludeSet.Add(d);
+            }
+        }
+
+        List<TowerDataSO> candidates = new List<TowerDataSO>();
+        foreach (var d in availableTowerDatas)
+        {
+            if (d == null) continue;
+            if (!excludeSet.Contains(d))
+                candidates.Add(d);
+        }
+
+        if (candidates.Count == 0)
+            return null;
+
+        int idx = UnityEngine.Random.Range(0, candidates.Count);
+        return candidates[idx];
+    }
 
     public void IntallNewTower(int index)
     {
@@ -454,7 +494,7 @@ public class TowerInstallControl : MonoBehaviour
     }
     public TowerDataSO GetRandomAttackTowerDataForCard() //For Pick Card
     {
-        return PickRandomTowerData();
+        return GetRandomAttackTowerDataForCard(null);
     }
 
     //Slot Highliht Helper (TowerSlotHighlightUI) ------------------
