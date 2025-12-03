@@ -126,6 +126,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     {
         base.Die();
 
+        BossDie(data.EnemyType);
+
         StopLifeTime();
 
         if (ShouldDropItems)
@@ -151,8 +153,6 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         }
 
         transform.localScale = originalScale;
-
-        BossDie(data.EnemyType);
 
         objectPoolManager?.Return(enemyId, this);
     }
