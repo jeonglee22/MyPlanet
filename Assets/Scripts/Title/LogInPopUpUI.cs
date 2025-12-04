@@ -5,17 +5,17 @@ using UnityEngine.UI;
 
 public class LogInPopUpUI : MonoBehaviour
 {
-    [SerializeField] private TMP_InputField emailInputField;
-    [SerializeField] private TMP_InputField passwordInputField;
+    [SerializeField] private InputField nickNameInputField;
     
     [SerializeField] private MainTitleCanvasManager canvasManager;
 
-    [SerializeField] private Button loginButton;
     [SerializeField] private Button signUpButton;
     [SerializeField] private Button closeButton;
+    [SerializeField] private Text errorMessageText;
+    [SerializeField] private InfoPopUpUI infoPopUpUI;
+    [SerializeField] private MainTitleUI mainTitleUI;
 
-    private string email = string.Empty;
-    private string password = string.Empty;
+    private string nickName = string.Empty;
 
     private async UniTaskVoid Start()
     {
@@ -23,44 +23,81 @@ public class LogInPopUpUI : MonoBehaviour
 
         await UniTask.WaitUntil(() => canvasManager.IsInitialized);
 
-        emailInputField.onValueChanged.AddListener(OnEmailValueChanged);
-        passwordInputField.onValueChanged.AddListener(OnPasswordValueChanged);
+        nickNameInputField.onValueChanged.AddListener(OnNickNameValueChanged);
 
-        loginButton.onClick.AddListener(() => OnLoginButtonClicked().Forget());
-        signUpButton.onClick.AddListener(() => canvasManager.SwitchToTargetPopUp(MainTitleCanvasManager.PopupName.SignUp));
+        // loginButton.onClick.AddListener(() => OnLoginButtonClicked().Forget());
+        signUpButton.onClick.AddListener(() => OnSignInButtonClicked());
         closeButton.onClick.AddListener(() => canvasManager.SwitchToTargetPopUp(MainTitleCanvasManager.PopupName.None));
+
+        SetErrorMessage(string.Empty);
 
         InteractableButtons(true);
     }
 
     private void InteractableButtons(bool interactable)
     {
-        loginButton.interactable = interactable;
         signUpButton.interactable = interactable;
         closeButton.interactable = interactable;
     }
 
-    private void OnEmailValueChanged(string value)
+    private void OnNickNameValueChanged(string value)
     {
-        email = value;
+        nickName = value;
     }
 
-    private void OnPasswordValueChanged(string value)
+    private async void OnSignInButtonClicked()
     {
-        password = value;
-    }
-
-    private async UniTaskVoid OnLoginButtonClicked()
-    {
+        if (nickName == string.Empty)
+        {
+            SetErrorMessage("Please enter a nickname.");
+            return;
+        }
+        
         InteractableButtons(false);
 
-        var result = await AuthManager.Instance.SignInWithEmailAsync(email, password);
-        canvasManager.SwitchToTargetPopUp(MainTitleCanvasManager.PopupName.None);
-        if (result)
+        var result = await AuthManager.Instance.SignInAnonymousAsync(nickName);
+
+        if (result == false)
         {
-            canvasManager.UpdateUIDText();
+            SetErrorMessage("Anonymous sign-in failed.");
+            InteractableButtons(true);
+            return;
         }
+
+        var uploadNickName = await UserPlanetManager.Instance.SaveUserPlanetAsync(nickName, 0);
+
+        if (uploadNickName == false)
+        {
+            SetErrorMessage("Failed to save nickname.");
+            InteractableButtons(true);
+            return;
+        }
+
+        canvasManager.SwitchToTargetPopUp(MainTitleCanvasManager.PopupName.None);
+        infoPopUpUI.SetNickNameText(AuthManager.Instance.UserNickName);
+
+        mainTitleUI.SetExplainText($"Welcome, {AuthManager.Instance.UserNickName}!");
+        mainTitleUI.SetActivePlayText(true);
 
         InteractableButtons(true);
     }
+
+    public void SetErrorMessage(string message)
+    {
+        errorMessageText.text = message;
+    }
+
+    // private async UniTaskVoid OnLoginButtonClicked()
+    // {
+    //     InteractableButtons(false);
+
+    //     var result = await AuthManager.Instance.SignInWithEmailAsync(email, password);
+    //     canvasManager.SwitchToTargetPopUp(MainTitleCanvasManager.PopupName.None);
+    //     // if (result)
+    //     // {
+    //     //     canvasManager.UpdateUIDText();
+    //     // }
+
+    //     InteractableButtons(true);
+    // }
 }

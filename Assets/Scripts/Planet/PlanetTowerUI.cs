@@ -5,8 +5,6 @@ using UnityEngine.UI;
 
 public class PlanetTowerUI : MonoBehaviour
 {
-    [SerializeField] private Button leftButton;
-    [SerializeField] private Button rightButton;
     [SerializeField] private Button battleButton;
     [SerializeField] private Button goToTitleButton;
     [SerializeField] private TowerInfoUI towerInfoUI;
@@ -14,13 +12,16 @@ public class PlanetTowerUI : MonoBehaviour
     private RectTransform dragAreaRect;
     private TowerUpgradeSlotUI towerUpgradeSlotUI;
 
-    public float Angle { get; private set; }
+    public float Angle { get; set; }
     public int TowerCount { get; set; }
     public bool TowerRotateClock { get; private set; }
 
     private float dragBeforePosX;
     private bool isStartDrag = false;
     public bool IsStartDrag => isStartDrag;
+
+    private Vector2 circleCenter = new Vector2(0f, -20f);
+    private float controlRadius;
 
     void Awake()
     {
@@ -30,8 +31,6 @@ public class PlanetTowerUI : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        leftButton.onClick.AddListener(OnLetfMoveClicked);
-        rightButton.onClick.AddListener(OnRightMoveClicked);
         battleButton.onClick.AddListener(OnStartBattelClicked);
         goToTitleButton?.onClick.AddListener(OnGoToTitleClicked);
 
@@ -40,6 +39,8 @@ public class PlanetTowerUI : MonoBehaviour
         battleButton.gameObject.SetActive(!towerUpgradeSlotUI.IsFirstInstall);
         if(installControl != null)
             dragAreaRect = installControl.gameObject.GetComponent<RectTransform>();
+
+        controlRadius = Screen.width * 0.5f;
     }
 
     void OnEnable()
@@ -64,8 +65,13 @@ public class PlanetTowerUI : MonoBehaviour
             return;
         }
 
+        if (installControl.CurrentDragGhost != null)
+            return;
+
+        circleCenter = new Vector2(controlRadius,-20f);
         if (RectTransformUtility.RectangleContainsScreenPoint(dragAreaRect, TouchManager.Instance.StartTouchPos) &&
-            RectTransformUtility.RectangleContainsScreenPoint(dragAreaRect, TouchManager.Instance.TouchPos))
+            RectTransformUtility.RectangleContainsScreenPoint(dragAreaRect, TouchManager.Instance.TouchPos) &&
+            Vector2.Distance(TouchManager.Instance.TouchPos, circleCenter) < controlRadius)
             OnDragTowerSlots();
     }
 
@@ -117,6 +123,6 @@ public class PlanetTowerUI : MonoBehaviour
 
     private void OnGoToTitleClicked()
     {
-        SceneControlManager.Instance.LoadScene(SceneName.LoginScene).Forget();
+        SceneControlManager.Instance.LoadScene(SceneName.StageSelectScene).Forget();
     }
 }
