@@ -83,6 +83,7 @@ public class TowerInstallControl : MonoBehaviour
     [Header("Drag Settings")]
     [SerializeField] private Canvas uiCanvas;          
     [SerializeField] private GameObject dragImagePrefab; 
+    [SerializeField] private TowerUpgradeSlotUI towerUpgradeSlotUI;
 
     [SerializeField] private RectTransform leftRotateRect;
     public RectTransform LeftRotateRect => leftRotateRect;
@@ -154,7 +155,7 @@ public class TowerInstallControl : MonoBehaviour
 
     private void Update()
     {
-        if(currentDragGhost != null && TouchManager.Instance.IsTouching)
+        if((currentDragGhost != null || (towerUpgradeSlotUI != null && towerUpgradeSlotUI.DragImage != null)) && TouchManager.Instance.IsTouching)
         {
             if(RectTransformUtility.RectangleContainsScreenPoint(leftRotateRect, TouchManager.Instance.TouchPos))
             {
