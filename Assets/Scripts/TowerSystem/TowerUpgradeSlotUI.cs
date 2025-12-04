@@ -47,6 +47,10 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     public bool IsFirstInstall => isFirstInstall;
     [SerializeField] private Button[] refreshButtons;
 
+    //debug
+    [SerializeField] private bool debugForceAmplifier = false;
+    [SerializeField] private int debugAmplifierIndex = 0; 
+
     //Upgrade System -------------------------
     private struct TowerOptionKey
     {
@@ -1204,6 +1208,16 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     private AmplifierTowerDataSO GetRandomAmplifierForCard(
     ICollection<AmplifierTowerDataSO> extraExcludes = null)
     {
+        // debug
+        if (debugForceAmplifier)
+        {
+            if (allAmplifierTowers == null || allAmplifierTowers.Length == 0)
+                return null;
+
+            int id = Mathf.Clamp(debugAmplifierIndex, 0, allAmplifierTowers.Length - 1);
+            return allAmplifierTowers[id];
+        }
+
         if (allAmplifierTowers == null || allAmplifierTowers.Length == 0)
             return null;
 
