@@ -212,6 +212,13 @@ public class Projectile : MonoBehaviour , IDisposable
     
     public float CalculateTotalDamage(float enemyDef)
     {
+        if (damage < 0f)
+        {
+            Debug.LogWarning($"[Projectile] 음수 damage 감지: {damage}, 0으로 클램프");
+            damage = 0f;
+        }
+
+
         var RatePanetration = Mathf.Clamp(this.RatePanetration, 0f, 100f);
         // Debug.Log(damage);
         var totalEnemyDef = enemyDef * (1 - RatePanetration / 100f) - FixedPanetration;
