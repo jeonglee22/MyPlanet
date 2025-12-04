@@ -17,6 +17,8 @@ public class AttackTowerTableRow
     public float ProjectileNum { get; set; }
     public int Projectile_ID { get; set; }
     public int RandomAbilityGroup_ID { get; set; }
+    public int Order { get; set; }
+    public int TowerText_ID { get; set; }
 
     [Name("TowerReinforceUpgrade_ID")]
     public string TowerReinforceUpgrade_ID_Raw { get; set; }
@@ -95,5 +97,15 @@ public class AttackTowerTable : DataTable
             return row;
         }
         return null;
+    }
+
+    public int GetTowerTextIdById(int id)
+    {
+        var row = GetById(id);
+        if (row != null)
+        {
+            return row.TowerText_ID;
+        }
+        return -1;
     }
 }
