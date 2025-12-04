@@ -30,7 +30,7 @@ public class TowerAmplifier : MonoBehaviour
 
     //Reinforce Field --------------------------------------
     [Header("Reinforce (Buff Tower)")]
-    [SerializeField] private int reinforceLevel = 0;
+    [SerializeField] private int reinforceLevel = 4;
     public int ReinforceLevel => reinforceLevel;
 
     [SerializeField] private float reinforceScale = 1f;

@@ -293,7 +293,7 @@ public class TowerInstallControl : MonoBehaviour
 
         int abilityId = ChoosedData.ability;
 
-        planet?.UpgradeTower(index, abilityId);
+        planet?.UpgradeTower(index);
 
         IsReadyInstall = false;
         isInstall = true;

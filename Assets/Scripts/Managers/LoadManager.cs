@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
-using Unity.Android.Gradle.Manifest;
+// using Unity.Android.Gradle.Manifest;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
