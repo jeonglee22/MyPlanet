@@ -76,7 +76,7 @@ public class TowerInstallControl : MonoBehaviour
     private float dragRotateSpeed = 300f;
 
     //reinforceLevel
-    private int maxReinforceLevel = 0;
+    private int maxReinforceLevel = 4;
     public int MaxReinforceLevel => maxReinforceLevel;
 
     [Header("Drag Settings")]
