@@ -133,18 +133,8 @@ public class TowerInstallControl : MonoBehaviour
 
         if (deleteNoButton != null)
             deleteNoButton.onClick.AddListener(OnDeleteNo);
-
-        TutorialManager.Instance.OnTutorialModeChanged += SetIsTutorial;
-    }
-
-    private void OnDisable()
-    {
-        TutorialManager.Instance.OnTutorialModeChanged -= SetIsTutorial;
-    }
-
-    private void OnDestroy()
-    {
-        TutorialManager.Instance.OnTutorialModeChanged -= SetIsTutorial;
+        
+        SetIsTutorial(TutorialManager.Instance.IsTutorialMode);
     }
 
     private void Update()
@@ -280,7 +270,7 @@ public class TowerInstallControl : MonoBehaviour
         int idx = UnityEngine.Random.Range(0, availableTowerDatas.Count);
 
         //tutorial
-        if(isTutorial || Variables.Stage == 1)
+        if(isTutorial && Variables.Stage == 1)
         {
             idx = 1; // Basic Tower
         }      
@@ -337,6 +327,11 @@ public class TowerInstallControl : MonoBehaviour
         }
         else if (ChoosedData.InstallType == TowerInstallType.Amplifier)
         {
+            if(isTutorial && Variables.Stage == 1)
+            {
+                TutorialManager.Instance.ShowTutorialStep(4);
+            }
+
             //Install Amplifier Tower
             newTower = Instantiate(towerUIBasePrefab, PlanetTransform);
             towers[index] = newTower;

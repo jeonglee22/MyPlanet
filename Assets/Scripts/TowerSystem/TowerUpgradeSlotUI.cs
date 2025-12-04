@@ -58,14 +58,17 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         // SetActiveRefreshButtons(false);
         installControl.OnTowerInstalled += SetTowerInstallText;
 
-        TutorialManager.Instance.OnTutorialModeChanged += SetIsTutorial;
+        SetIsTutorial(TutorialManager.Instance.IsTutorialMode);
+
+        if(isTutorial && Variables.Stage == 1)
+        {
+            TutorialManager.Instance.ShowTutorialStep(2);
+        }
     }
 
     void OnDestroy()
     {
         installControl.OnTowerInstalled -= SetTowerInstallText;
-
-        TutorialManager.Instance.OnTutorialModeChanged -= SetIsTutorial;
     }
 
     private async UniTaskVoid OnEnable()
@@ -93,11 +96,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             refreshButton.interactable = true;
         }
         SettingUpgradeCards();
-
-        if(isTutorial || Variables.Stage == 1)
-        {
-            TutorialManager.Instance.ShowTutorialStep(2);
-        }
     }
 
     private void SetTowerInstallText()
@@ -119,12 +117,10 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         towerImageIsDraging = false;
         isFirstInstall = false;
 
-        if(isTutorial || Variables.Stage == 1)
+        if(isTutorial && Variables.Stage == 1)
         {
             TutorialManager.Instance.ShowTutorialStep(1);
         }
-
-        TutorialManager.Instance.OnTutorialModeChanged -= SetIsTutorial;
     }
 
     private void Update()
@@ -210,6 +206,11 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         if(towerType==1)
         {
+            if(isTutorial && Variables.Stage == 1)
+            {
+                TutorialManager.Instance.ShowTutorialStep(3);
+            }
+
             var ampData = GetRandomAmplifier();
 
             choices[i].InstallType = TowerInstallType.Amplifier;
@@ -419,11 +420,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             choices[index].RandomAbilitySlotIndex = null;
 
             abilityId = GetRandomAbilityForAmplifier(ampTower.AmplifierTowerData);
-
-            if(isTutorial || Variables.Stage == 1)
-            {
-                TutorialManager.Instance.ShowTutorialStep(4);
-            }
         }
 
         abilities[index] = abilityId;
@@ -637,7 +633,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             return null;
 
         int idx = Random.Range(0, allAmplifierTowers.Length);
-        if(isTutorial || Variables.Stage == 1)
+        if(isTutorial && Variables.Stage == 1)
         {
             idx = Random.Range(0, 2); // Basic Amplifier Towers Only
         }

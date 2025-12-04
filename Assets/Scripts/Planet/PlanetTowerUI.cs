@@ -22,6 +22,8 @@ public class PlanetTowerUI : MonoBehaviour
     private bool isStartDrag = false;
     public bool IsStartDrag => isStartDrag;
 
+    private bool isOpen = false;
+
     void Awake()
     {
         towerUpgradeSlotUI = GetComponent<TowerUpgradeSlotUI>();
@@ -44,7 +46,16 @@ public class PlanetTowerUI : MonoBehaviour
 
     void OnEnable()
     {
-        GamePauseManager.Instance.Pause();
+        if (!isOpen)
+        {
+            GamePauseManager.Instance.Pause();
+            isOpen = true;
+        }
+    }
+
+    void OnDisable()
+    {
+        isOpen = false;
     }
 
     void Update()

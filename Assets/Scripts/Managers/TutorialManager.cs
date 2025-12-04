@@ -20,8 +20,6 @@ public class TutorialManager : MonoBehaviour
     private static TutorialManager instance;
     public static TutorialManager Instance => instance;
 
-    public event Action<bool> OnTutorialModeChanged;
-
     [SerializeField] private GameObject tutorialPanel;
     [SerializeField] private TutorialUI tutorialUI;
     [SerializeField] private RectTransform tutorialRect;
@@ -50,7 +48,7 @@ public class TutorialManager : MonoBehaviour
         InitializeTutorialData();
     }
 
-    private void InitializeTutorialData()
+    private void Start()
     {
         IsTutorialMode = (Variables.Stage <= 2);
         if(!IsTutorialMode)
@@ -59,6 +57,11 @@ public class TutorialManager : MonoBehaviour
             return;
         }
 
+        tutorialPanel.SetActive(true);
+    }
+
+    private void InitializeTutorialData()
+    {
         //Stage 1
         tutorialData[1] = new List<TutorialTextData>
         {
@@ -118,6 +121,8 @@ public class TutorialManager : MonoBehaviour
         {
           new TutorialTextData("최종 보스를 처치하면 스테이지를 클리어하고 보상을 획득할 수 있습니다.", TutorialPoint.CenterMidium)
         };
+
+        completedSteps.Clear();
     }
 
     public void ShowTutorialStep(int step)
@@ -127,7 +132,7 @@ public class TutorialManager : MonoBehaviour
             return;
         }
 
-        if(!tutorialData.ContainsKey(step))
+        if((completedSteps.ContainsKey(step) && completedSteps[step]) || !tutorialData.ContainsKey(step))
         {
             return;
         }
@@ -145,11 +150,6 @@ public class TutorialManager : MonoBehaviour
 
     private void ShowCurrentText()
     {
-        if(completedSteps.ContainsKey(currentStep) && completedSteps[currentStep])
-        {
-            return;
-        }
-
         if(currentTextIndex < currentTexts.Count)
         {
             TutorialTextData data = currentTexts[currentTextIndex];
@@ -177,6 +177,7 @@ public class TutorialManager : MonoBehaviour
     {
         GamePauseManager.Instance.Resume();
 
+        completedSteps.Add(currentStep, true);
         currentStep = -1;
         currentTextIndex = 0;
         currentTexts.Clear();

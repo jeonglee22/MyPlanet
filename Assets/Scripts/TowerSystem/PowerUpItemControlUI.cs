@@ -41,6 +41,8 @@ public class PowerUpItemControlUI : MonoBehaviour
         set { isInfiniteItem = value; }
     }
 
+    private bool isTutorial = false;
+
     private void Start()
     {
         towerCountUpgradeButton.onClick.AddListener(OnMaxTowerCountUpgradeClicked);
@@ -53,6 +55,8 @@ public class PowerUpItemControlUI : MonoBehaviour
             var button = upgradeUis[index].GetComponent<Button>();
             button.onClick.AddListener(() => OnNewAbilityCardClicked(index));
         }
+
+        SetIsTutorial(TutorialManager.Instance.IsTutorialMode);
     }
 
     private async UniTaskVoid OnEnable()
@@ -254,5 +258,10 @@ public class PowerUpItemControlUI : MonoBehaviour
         var ability = AbilityManager.GetAbility(abilities[i]);
         uiTexts[i].text = $"new\n{ability}";
         return;
+    }
+
+    private void SetIsTutorial(bool isTutorial)
+    {
+        this.isTutorial = isTutorial;
     }
 }

@@ -26,7 +26,7 @@ public class PlanetStatusUI : MonoBehaviour
         towerSettingUi.SetActive(true);
         Initialize();
 
-        TutorialManager.Instance.OnTutorialModeChanged += SetIsTutorial;
+        SetIsTutorial(TutorialManager.Instance.IsTutorialMode);
         //test
     }
 
@@ -42,8 +42,6 @@ public class PlanetStatusUI : MonoBehaviour
         planet.HpDecreseEvent -= HpValueChanged;
         planet.levelUpEvent -= OpenTowerUpgradeUI;
         planet.levelUpEvent -= ChangeLevelText;
-
-        TutorialManager.Instance.OnTutorialModeChanged -= SetIsTutorial;
     }
 
     private void Initialize()
@@ -64,13 +62,8 @@ public class PlanetStatusUI : MonoBehaviour
     private void OpenTowerUpgradeUI()
     {
         towerSettingUi.SetActive(true);
-            GamePauseManager.Instance.Pause();
+        
         towerInstallControl.isInstall = false;
-
-        if(isTutorial || Variables.Stage == 1)
-        {
-            //TutorialManager.Instance.ShowTutorialStep(3);
-        }
     }
 
     private void HpValueChanged(float hp)
