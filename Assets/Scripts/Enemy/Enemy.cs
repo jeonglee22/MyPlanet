@@ -320,12 +320,14 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
     private void BossAppearance(int enemyType)
     {
+        var radius = gameObject.GetComponent<SphereCollider>().radius * transform.localScale.x;
+
         switch (enemyType)
         {
             case 3:
                 Variables.MiddleBossEnemy = this;
                 WaveManager.Instance.OnBossSpawned(false);
-                transform.position = SpawnManager.Instance.BossSpawnPosition.position;
+                transform.position = Spawner.transform.position + new Vector3(0f, radius, 0f);
 
                 if(isTutorial && Variables.Stage == 2)
                 {
@@ -335,7 +337,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
             case 4:
                 Variables.LastBossEnemy = this;
                 WaveManager.Instance.OnBossSpawned(true);
-                transform.position = SpawnManager.Instance.BossSpawnPosition.position;
+                transform.position = Spawner.transform.position + new Vector3(0f, radius, 0f);
 
                 if(isTutorial && Variables.Stage == 2)
                 {
