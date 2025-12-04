@@ -67,6 +67,34 @@ public class TowerInfoUI : PopUpUI
 
         if (attackTowerDataPanel != null) attackTowerDataPanel.SetActive(false);
         if (buffTowerDataPanel != null) buffTowerDataPanel.SetActive(false);
+
+        if (installControl == null) return;
+
+        foreach (var amp in installControl.GetAllAmplifiers())
+        {
+            if (amp == null) continue;
+            amp.OnBuffTargetsChanged -= HandleBuffChanged; 
+            amp.OnBuffTargetsChanged += HandleBuffChanged;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (installControl == null) return;
+
+        foreach (var amp in installControl.GetAllAmplifiers())
+        {
+            if (amp == null) continue;
+            amp.OnBuffTargetsChanged -= HandleBuffChanged;
+        }
+    }
+
+    private void HandleBuffChanged()
+    {
+        if (gameObject.activeSelf && CurrentSlotIndex >= 0)
+        {
+            SetInfo(CurrentSlotIndex);
+        }
     }
 
     public void SetInfo(int index)
@@ -147,14 +175,6 @@ public class TowerInfoUI : PopUpUI
         base.Update();
     }
 
-    private float CalculateEachAbility(int abilityId, List<int> abilities, float baseValue)
-    {
-        if (abilities == null || abilities.Count == 0) return baseValue;
-
-        int count = abilities.FindAll(x => x == abilityId).Count;
-        return CalculateAbilityUpgradeValue(abilityId, count, baseValue);
-    }
-
     private float CalculateAbilityUpgradeValue(int abilityId, int count, float baseValue)
     {
         var ability = AbilityManager.GetAbility(abilityId);
@@ -223,7 +243,7 @@ public class TowerInfoUI : PopUpUI
 
         if (!hasBase && !hasFinal)
         {
-            tmp.text = "-";
+            tmp.text = $"0{suffix}";
             return;
         }
 
@@ -232,7 +252,6 @@ public class TowerInfoUI : PopUpUI
             tmp.text = $"{baseValue.ToString(format)}{suffix}";
             return;
         }
-
         tmp.text = $"{finalValue.ToString(format)}{suffix}";
     }
 
@@ -260,20 +279,12 @@ public class TowerInfoUI : PopUpUI
         var attackTowerData = attackTower.AttackTowerData;
         int level = attackTower.ReinforceLevel;
 
-        //
-        if (nameText != null)
-        {
-            nameText.text = $"{attackTowerData.towerId} (Lv.{level})";
-        }
+        if (nameText != null) nameText.text = $"{attackTowerData.towerId} (Lv.{level})";
 
         isSameTower = (infoIndex == index);
         var abilities = attackTower.Abilities;
 
-        //
-        SetText(
-            towerIdValueText,
-            $"{attackTowerData.towerId} (Lv.{level})"
-        );
+        SetText(towerIdValueText, $"{attackTowerData.towerId} (Lv.{level})");
 
         var baseProj = attackTower.BaseProjectileData ?? attackTowerData.projectileType;
         var buffedProj = attackTower.BuffedProjectileData ?? baseProj;
@@ -282,43 +293,31 @@ public class TowerInfoUI : PopUpUI
         {
             // Attack(base + ability + amp)
             float baseDamage = baseProj.Attack;
-            float ampDamage = buffedProj.Attack;
-            float finalDamage = CalculateEachAbility((int)AbilityId.AttackDamage, abilities, ampDamage);
+            float finalDamage = buffedProj.Attack;
             SetStatText(damageValueText, baseDamage, finalDamage, "0.00");
-
             // Fixed Penetration
             float baseFixedPen = baseProj.FixedPenetration;
-            float ampFixedPen = buffedProj.FixedPenetration;
-            float finalFixedPen = CalculateEachAbility((int)AbilityId.FixedPanetration, abilities, ampFixedPen);
+            float finalFixedPen = buffedProj.FixedPenetration;
             SetStatText(fixedPenetrationValueText, baseFixedPen, finalFixedPen, "0.00");
-
             // Percent Penetration
             float baseRatePen = baseProj.RatePenetration;
-            float ampRatePen = buffedProj.RatePenetration;
-            float finalRatePen = CalculateEachAbility((int)AbilityId.PercentPenetration, abilities, ampRatePen);
+            float finalRatePen = buffedProj.RatePenetration;
             SetStatText(percentPenetrationValueText, baseRatePen, finalRatePen, "0.00", "%");
-
-            // Proejctile Count
+            // Projectile Count
             float baseCount = attackTower.BaseProjectileCount;
             float finalCount = attackTower.CurrentProjectileCount;
             SetStatText(projectileNumberValueText, baseCount, finalCount, "0");
-
             // Target Num
             float baseTargets = baseProj.TargetNum;
-            float ampTargets = buffedProj.TargetNum;
-            float finalTargets = CalculateEachAbility(
-                (int)AbilityId.TargetCount, abilities, ampTargets);
+            float finalTargets = buffedProj.TargetNum;
             SetStatText(targetNumberValueText, baseTargets, finalTargets, "0");
-
             // LifeTime
             float baseLifeTime = baseProj.RemainTime;
             float finalLifeTime = buffedProj.RemainTime;
             SetStatText(lifeTimeValueText, baseLifeTime, finalLifeTime, "0.00");
-
             // Hitbox Size
             float baseSize = baseProj.CollisionSize;
-            float ampSize = buffedProj.CollisionSize;
-            float finalSize = CalculateEachAbility((int)AbilityId.CollisionSize, abilities, ampSize);
+            float finalSize = buffedProj.CollisionSize;
             SetStatText(projectileSizeValueText, baseSize, finalSize, "0.00");
         }
         else
@@ -336,7 +335,7 @@ public class TowerInfoUI : PopUpUI
         float finalFireRate = attackTower.CurrentFireRate;
         SetStatText(fireRateValueText, baseFireRate, finalFireRate, "0.00");
 
-        //Hit Rate
+        //Hit Rate (명중률)
         float baseHitRate = attackTowerData.Accuracy;
         float finalHitRate = attackTower.FinalHitRate;
         SetStatText(hitRateValueText, baseHitRate, finalHitRate, "0.00", "%");
@@ -346,8 +345,7 @@ public class TowerInfoUI : PopUpUI
             spreadAccuracyValueText.text = attackTowerData.grouping.ToString("0.00") + "%";
 
         //Range 
-        SetText(rangeValueText,
-            attackTowerData.rangeData != null
+        SetText(rangeValueText, attackTowerData.rangeData != null
                 ? attackTowerData.rangeData.GetRange().ToString("0.0") : null);
     }
 
@@ -390,11 +388,8 @@ public class TowerInfoUI : PopUpUI
         int level = amplifierTower.ReinforceLevel;
 
         //Name Object
-        if (nameText != null)
-            nameText.text = $"{baseName} (Lv.{level})";
-
+        if (nameText != null) nameText.text = $"{baseName} (Lv.{level})";
         SetText(towerIdValueText, $"{baseName} (Lv.{level})");
-        //
 
         //Slot Index Info
         if (buffSlotInfoText != null)
@@ -411,7 +406,7 @@ public class TowerInfoUI : PopUpUI
         }
 
         ClearBuffEffectLists();
-        FillBasicBuffEffects(ampData);
+        FillBasicBuffEffects(amplifierTower);
         FillRandomAbilityEffects(amplifierTower);
 
         // Buff Panel--------------------------------
@@ -561,38 +556,80 @@ public class TowerInfoUI : PopUpUI
         float p = (mul - 1f) * 100f;
         return $"{p:+0.##;-0.##}%";
     }
-
     private string FormatOffsetArray(IReadOnlyList<int> targetSlots, int selfIndex)
     {
+        // 카드 쪽이랑 맞추기: 슬롯이 없으면 빈 문자열
         if (targetSlots == null || targetSlots.Count == 0)
-            return "버프 슬롯 없음";
+            return string.Empty;
 
-        // selfIndex 기준 상대 오프셋 계산
-        List<int> offsets = new List<int>();
-        for (int i = 0; i < targetSlots.Count; i++)
+        if (installControl == null)
+            return string.Empty;
+
+        int towerCount = installControl.TowerCount;
+        if (towerCount <= 1)
+            return string.Empty;
+
+        // 오른쪽 / 왼쪽 상대 거리 리스트
+        List<int> rightList = new List<int>();
+        List<int> leftList = new List<int>();
+
+        foreach (int slot in targetSlots)
         {
-            int slot = targetSlots[i];
-            if (slot == selfIndex) continue; // 자기 자신은 제외
-            int offset = slot - selfIndex;
-            offsets.Add(offset);
+            if (slot < 0) continue;       // 안전장치
+            if (slot == selfIndex) continue; // 자기 자신은 표시 안 함
+
+            // 원형(시계 방향 / 반시계 방향) 기준 거리 계산
+            int cw = (slot - selfIndex + towerCount) % towerCount;   // 시계 방향(오른쪽) 거리
+            int ccw = (selfIndex - slot + towerCount) % towerCount;  // 반시계 방향(왼쪽) 거리
+
+            // 둘 다 0이면 자기 자신이라 스킵(원래 위에서 걸러짐)
+            if (cw == 0 && ccw == 0)
+                continue;
+
+            // 더 가까운 방향을 선택 (동일하면 오른쪽으로 처리)
+            if (cw <= ccw)
+            {
+                if (cw > 0)
+                    rightList.Add(cw);    // 오른쪽 n칸
+            }
+            else
+            {
+                if (ccw > 0)
+                    leftList.Add(ccw);    // 왼쪽 n칸
+            }
         }
 
-        if (offsets.Count == 0)
-            return "버프 슬롯 없음";
+        // 진짜 표시할 게 없으면 빈 문자열
+        if (rightList.Count == 0 && leftList.Count == 0)
+            return string.Empty;
 
-        var parts = new List<string>();
-        foreach (int o in offsets)
+        rightList.Sort();
+        leftList.Sort();
+
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("증폭타워 기준");
+
+        if (rightList.Count > 0)
         {
-            string dir = o > 0 ? "오른쪽" : "왼쪽";
-            int n = Mathf.Abs(o);
-            parts.Add($"{dir} {n}번째");
+            var rightPos = new List<string>();
+            foreach (int v in rightList)
+                rightPos.Add($"{v}번째");
+
+            sb.AppendLine($"왼쪽 {string.Join(", ", rightPos)}");
         }
 
-        var sb = new StringBuilder();
-        sb.AppendLine("요격타워 기준");
-        sb.Append(string.Join(", ", parts));
+        if (leftList.Count > 0)
+        {
+            var leftPos = new List<string>();
+            foreach (int v in leftList)
+                leftPos.Add($"{v}번째");
+
+            sb.AppendLine($"오른쪽 {string.Join(", ", leftPos)}");
+        }
+
         return sb.ToString();
     }
+
 
     private string BuildRandomSlotInfo(TowerAmplifier amp)
     {
@@ -670,22 +707,26 @@ public class TowerInfoUI : PopUpUI
         return $"{statName} 능력치 {dir} ({formattedValue})";
     }
 
-    private void FillBasicBuffEffects(AmplifierTowerDataSO ampData)
+    private void FillBasicBuffEffects(TowerAmplifier amplifierTower)
     {
         if (basicEffectListRoot == null) return;
 
-        // 먼저 비우기
         for (int i = basicEffectListRoot.childCount - 1; i >= 0; i--)
         {
             Destroy(basicEffectListRoot.GetChild(i).gameObject);
         }
 
+        if (amplifierTower == null) return;
+
+        var ampData = amplifierTower.AmplifierTowerData;
         if (ampData == null) return;
 
+        if (!amplifierTower.HasAppliedBaseBuffs) return;
+       
         // 공격력 (DamageBuff: add, 0.4 -> +40%)
         if (!Mathf.Approximately(ampData.DamageBuff, 0f))
         {
-            float delta = ampData.DamageBuff;  // 0 기준
+            float delta = ampData.DamageBuff;
             string value = FormatPercentFromAdd(delta); // "+40%"
             string line = BuildStatChangeLine("공격력", delta, value);
             AddEffectLine(basicEffectListRoot, line);
@@ -694,8 +735,8 @@ public class TowerInfoUI : PopUpUI
         // 공속 (FireRateBuff: mul, 1.2 -> +20%)
         if (!Mathf.Approximately(ampData.FireRateBuff, 1f))
         {
-            float delta = ampData.FireRateBuff - 1f;   // 1 기준
-            string value = FormatPercentFromMul(ampData.FireRateBuff); // "+20%"
+            float delta = ampData.FireRateBuff - 1f;
+            string value = FormatPercentFromMul(ampData.FireRateBuff);
             string line = BuildStatChangeLine("공격 속도", delta, value);
             AddEffectLine(basicEffectListRoot, line);
         }
@@ -703,7 +744,7 @@ public class TowerInfoUI : PopUpUI
         // 투사체 수 +N
         if (ampData.ProjectileCountBuff != 0)
         {
-            int delta = ampData.ProjectileCountBuff;
+            float delta = ampData.ProjectileCountBuff;
             string value = delta > 0 ? $"+{delta}" : delta.ToString();
             string line = BuildStatChangeLine("투사체 수", delta, value);
             AddEffectLine(basicEffectListRoot, line);
@@ -712,27 +753,28 @@ public class TowerInfoUI : PopUpUI
         // 타겟 수 +N
         if (ampData.TargetNumberBuff != 0)
         {
-            int delta = ampData.TargetNumberBuff;
+            float delta = ampData.TargetNumberBuff;
             string value = delta > 0 ? $"+{delta}" : delta.ToString();
             string line = BuildStatChangeLine("타겟 수", delta, value);
             AddEffectLine(basicEffectListRoot, line);
         }
 
-        // 히트 반경 (HitRadiusBuff: add, 0.25 -> +25%)
+        // 충돌 크기 (HitRadiusBuff: add, 0.25 -> +25%)
         if (!Mathf.Approximately(ampData.HitRadiusBuff, 0f))
         {
             float delta = ampData.HitRadiusBuff;
             string value = FormatPercentFromAdd(delta);
-            string line = BuildStatChangeLine("히트 반경", delta, value);
+            string line = BuildStatChangeLine("충돌 크기", delta, value);
             AddEffectLine(basicEffectListRoot, line);
         }
 
-        // 관통률 (PercentPenetrationBuff: mul, 1.5 -> +50%)
-        if (!Mathf.Approximately(ampData.PercentPenetrationBuff, 1f))
+        // 비율 관통력 (PercentPenetrationBuff: add, 0.2 -> +20%)
+        if (!Mathf.Approximately(ampData.PercentPenetrationBuff, 0f))
         {
-            float delta = ampData.PercentPenetrationBuff - 1f;
-            string value = FormatPercentFromMul(ampData.PercentPenetrationBuff);
-            string line = BuildStatChangeLine("관통률", delta, value);
+            float delta = ampData.PercentPenetrationBuff; // 0.2 → +20%
+            float percent = delta * 100f;
+            string value = $"{percent:+0.##;-0.##}%";
+            string line = BuildStatChangeLine("비율 관통력", delta, value);
             AddEffectLine(basicEffectListRoot, line);
         }
 
@@ -741,7 +783,7 @@ public class TowerInfoUI : PopUpUI
         {
             float delta = ampData.FixedPenetrationBuff;
             string value = delta > 0 ? $"+{delta:0.##}" : $"{delta:0.##}";
-            string line = BuildStatChangeLine("고정 관통", delta, value);
+            string line = BuildStatChangeLine("고정\n관통력", delta, value);
             AddEffectLine(basicEffectListRoot, line);
         }
 
@@ -759,7 +801,6 @@ public class TowerInfoUI : PopUpUI
     {
         if (randomEffectListRoot == null) return;
 
-        // 먼저 비우기
         for (int i = randomEffectListRoot.childCount - 1; i >= 0; i--)
         {
             Destroy(randomEffectListRoot.GetChild(i).gameObject);
@@ -771,59 +812,187 @@ public class TowerInfoUI : PopUpUI
         var abilities = amplifierTower.Abilities;
         if (ampData == null || abilities == null || abilities.Count == 0) return;
 
-        int randAbilityId = abilities[0];
-        var raRow = DataTableManager.RandomAbilityTable?.Get(randAbilityId);
-        if (raRow == null) return;
+        if (!amplifierTower.HasAppliedRandomAbilities) return;
 
-        int baseBuffSlotCount = Mathf.Max(1, ampData.FixedBuffedSlotCount);
-        int addSlotNum = Mathf.Max(0, raRow.AddSlotNum);
-        int randomSlotNum = Mathf.Max(0, raRow.RandonSlotNum);
-        int placeType = raRow.PlaceType;
-        int duplicateType = raRow.DuplicateType;
+        bool hasAnyLine = false;
 
-        // 버프 슬롯 수 증가
-        if (addSlotNum != 0)
+        foreach (var abilityId in abilities)
         {
-            // baseBuffSlotCount -> baseBuffSlotCount + addSlotNum
-            int delta = addSlotNum;
-            string value = delta > 0 ? $"+{delta}" : delta.ToString();
-            string line = BuildStatChangeLine("버프 슬롯 수", delta, value);
-            AddEffectLine(randomEffectListRoot, line);
+            var raRow = DataTableManager.RandomAbilityTable?.Get(abilityId);
+            if (raRow == null) continue;
+
+            string abilityName = raRow.RandomAbilityName;
+            float effectValue = raRow.SpecialEffectValue;
+
+            var lines = BuildRandomAbilityStatLines(abilityId, abilityName, effectValue);
+            if (lines == null || lines.Count == 0)
+                continue;
+
+            foreach (var line in lines)
+            {
+                AddEffectLine(randomEffectListRoot, line);
+                hasAnyLine = true;
+            }
         }
+    }
 
-        // 랜덤 슬롯 수
-        if (randomSlotNum != 0)
-        {
-            int delta = randomSlotNum;
-            string value = delta > 0 ? $"+{delta}" : delta.ToString();
-            string line = BuildStatChangeLine("랜덤 슬롯 수", delta, value);
-            AddEffectLine(randomEffectListRoot, line);
-        }
+    private List<string> BuildRandomAbilityStatLines(
+    int abilityId,
+    string abilityName,
+    float effectValue)
+    {
+        var result = new List<string>();
 
-        // 배치 타입 설명 (숫자지만, 정보성 문구로 한 줄 추가)
-        string placeDesc = null;
-        switch (placeType)
+        switch (abilityId)
         {
-            case 0:
-                placeDesc = "랜덤 슬롯 배치: 버프 슬롯과 별도 슬롯에 랜덤 능력 배치";
-                break;
-            case 1:
-                placeDesc = "랜덤 슬롯 배치: 기존 버프 슬롯 중 하나에 랜덤 능력 집중";
-                break;
-            case 2:
-                placeDesc = $"랜덤 슬롯 배치: 기본 버프 슬롯 수가 {addSlotNum}개 증가";
-                break;
+            case 200001: // 공격력%
+                {
+                    string formatted = $"{effectValue:+0;-0}%";
+                    string line = BuildStatChangeLine("공격력", effectValue, formatted);
+                    if (line != null) result.Add(line);
+                    break;
+                }
+
+            case 200002: // 공속%
+            case 200017: // 공속% (다른 PlaceType 버전)
+                {
+                    string formatted = $"{effectValue:+0;-0}%";
+                    string line = BuildStatChangeLine("공격 속도", effectValue, formatted);
+                    if (line != null) result.Add(line);
+                    break;
+                }
+
+            case 200003: // 비율 관통력
+                {
+                    string formatted = $"{effectValue:+0;-0}%";
+                    string line = BuildStatChangeLine("비율 관통력", effectValue, formatted);
+                    if (line != null) result.Add(line);
+                    break;
+                }
+
+            case 200004: // 고정 관통력
+                {
+                    string formatted = $"{effectValue:+0.##;-0.##}";
+                    string line = BuildStatChangeLine("고정 관통력", effectValue, formatted);
+                    if (line != null) result.Add(line);
+                    break;
+                }
+
+            case 200005: // 둔화 (이동 속도 감소)
+                {
+                    string formatted = $"{effectValue:+0;-0}%";
+                    string line = BuildStatChangeLine("이동 속도 감소", effectValue, formatted);
+                    if (line != null) result.Add(line);
+                    break;
+                }
+
+            case 200006: // 충돌크기
+                {
+                    string formatted = $"{effectValue:+0;-0}%";
+                    string line = BuildStatChangeLine("충돌 크기", effectValue, formatted);
+                    if (line != null) result.Add(line);
+                    break;
+                }
+
+            case 200007: // 연쇄
+                {
+                    string formatted = $"{effectValue:+0;-0}";
+                    string line = BuildStatChangeLine("연쇄 횟수", effectValue, formatted);
+                    if (line != null) result.Add(line);
+                    break;
+                }
+
+            case 200008: // 폭발
+                {
+                    if (!Mathf.Approximately(effectValue, 0f))
+                    {
+                        string formatted = $"{effectValue:+0;-0}";
+                        string line = BuildStatChangeLine("폭발 효과", effectValue, formatted);
+                        if (line != null) result.Add(line);
+                    }
+                    else
+                    {
+                        result.Add("폭발 효과 발동");
+                    }
+                    break;
+                }
+
+            case 200009: // 관통
+                {
+                    string formatted = $"{effectValue:+0;-0}";
+                    string line = BuildStatChangeLine("관통 횟수", effectValue, formatted);
+                    if (line != null) result.Add(line);
+                    break;
+                }
+
+            case 200010: // 분열
+                {
+                    string formatted = $"{effectValue:+0;-0}";
+                    string line = BuildStatChangeLine("분열 투사체 수", effectValue, formatted);
+                    if (line != null) result.Add(line);
+                    break;
+                }
+
+            case 200011: // 투사체 수
+                {
+                    string formatted = $"{effectValue:+0;-0}";
+                    string line = BuildStatChangeLine("투사체 수", effectValue, formatted);
+                    if (line != null) result.Add(line);
+                    break;
+                }
+
+            case 200012: // 타겟 수
+                {
+                    string formatted = $"{effectValue:+0;-0}";
+                    string line = BuildStatChangeLine("타겟 수", effectValue, formatted);
+                    if (line != null) result.Add(line);
+                    break;
+                }
+
+            case 200013: // 히트스캔
+                {
+                    result.Add("히트스캔 공격 활성");
+                    break;
+                }
+
+            case 200014: // 유도
+                {
+                    result.Add("유도 탄환 발사");
+                    break;
+                }
+
+            case 200015: // 유지시간
+                {
+                    string formatted = $"{effectValue:+0;-0}초";
+                    string line = BuildStatChangeLine("투사체 유지 시간", effectValue, formatted);
+                    if (line != null) result.Add(line);
+                    break;
+                }
+
+            case 200016: // 명중률
+                {
+                    string formatted = $"{effectValue:+0;-0}%";
+                    string line = BuildStatChangeLine("명중률", effectValue, formatted);
+                    if (line != null) result.Add(line);
+                    break;
+                }
+
             default:
-                placeDesc = $"랜덤 슬롯 배치 타입: {placeType}";
-                break;
+                {
+                    if (!Mathf.Approximately(effectValue, 0f))
+                    {
+                        string formatted = $"{effectValue:+0.##;-0.##}";
+                        string line = BuildStatChangeLine(abilityName, effectValue, formatted);
+                        if (line != null) result.Add(line);
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrEmpty(abilityName))
+                            result.Add(abilityName);
+                    }
+                    break;
+                }
         }
-        if (!string.IsNullOrEmpty(placeDesc))
-        {
-            AddEffectLine(randomEffectListRoot, placeDesc);
-        }
-
-        // 중첩 여부
-        string dupDesc = duplicateType == 0 ? "랜덤 능력 중첩 가능" : "랜덤 능력 중첩 불가";
-        AddEffectLine(randomEffectListRoot, dupDesc);
+        return result;
     }
 }

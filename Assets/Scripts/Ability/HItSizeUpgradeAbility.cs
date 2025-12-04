@@ -1,3 +1,4 @@
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class HItSizeUpgradeAbility : PassiveAbility
@@ -12,22 +13,10 @@ public class HItSizeUpgradeAbility : PassiveAbility
     {
         base.ApplyAbility(gameObject);
 
-        var projectile = gameObject.GetComponent<Projectile>();
-        if (projectile != null)
+        var tower = gameObject.GetComponent<TowerAttack>();
+        if (tower != null)
         {
-            projectile.gameObject.transform.localScale += new Vector3(0.2f,0.2f,0.2f) * upgradeAmount;
-        }
-        var lazer = gameObject.GetComponent<LazertowerAttack>();
-        if (lazer != null)
-        {
-            var lineRenderer = lazer.GetComponentInChildren<LineRenderer>();
-            lineRenderer.startWidth += lazer.InitLineRendererWidth * upgradeAmount;
-
-            var boxCollider = lazer.GetComponent<BoxCollider>();
-            var size = boxCollider.size;
-            size.x += lazer.InitColliderWidth * upgradeAmount;
-            size.z += lazer.InitColliderWidth * upgradeAmount;
-            boxCollider.size = size;
+            tower.AddHitRadiusFromAbilitySource(upgradeAmount);
         }
     }
 
@@ -35,10 +24,10 @@ public class HItSizeUpgradeAbility : PassiveAbility
     {
         base.RemoveAbility(gameObject);
 
-        var projectile = gameObject.GetComponent<Projectile>();
-        if (projectile != null)
+        var tower = gameObject.GetComponent<TowerAttack>();
+        if (tower != null)
         {
-            projectile.gameObject.transform.localScale -= new Vector3(0.2f,0.2f,0.2f) * upgradeAmount;
+            tower.RemoveHitRadiusFromAbilitySource(upgradeAmount);
         }
     }
 
@@ -49,7 +38,9 @@ public class HItSizeUpgradeAbility : PassiveAbility
 
     public override string ToString()
     {
-        return $"Hit\nSize\n{upgradeAmount * 100f}%\nUp!!";
+        float percent = upgradeAmount * 100f;
+        string dir = percent >= 0f ? "Up!!" : "Down!!";
+        return $"Hit\nSize\n{percent:+0;-0}%\n{dir}";
     }
 
     public override IAbility Copy()

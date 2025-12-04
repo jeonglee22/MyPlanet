@@ -9,6 +9,7 @@ public enum TowerInstallType
 {
     Attack,
     Amplifier,
+    //Gold,
 }
 
 public class TowerInstallChoice
@@ -71,6 +72,10 @@ public class TowerInstallControl : MonoBehaviour
 
     public bool isInstall = true;
     private float dragRotateSpeed = 300f;
+
+    //reinforceLevel
+    private int maxReinforceLevel = 4;
+    public int MaxReinforceLevel => maxReinforceLevel;
 
     [Header("Drag Settings")]
     [SerializeField] private Canvas uiCanvas;          
@@ -243,8 +248,11 @@ public class TowerInstallControl : MonoBehaviour
     {
         if (!IsReadyInstall) return;
         if (ChoosedData == null) return;
+        if (IsSlotMaxLevel(index)) return;
 
-        planet?.UpgradeTower(index);
+        int abilityId = ChoosedData.ability;
+
+        planet?.UpgradeTower(index, abilityId);
 
         IsReadyInstall = false;
         isInstall = true;
@@ -273,6 +281,44 @@ public class TowerInstallControl : MonoBehaviour
         // idx = 2; // Lazer
         // idx = 4; // ShootGun
         return availableTowerDatas[idx];
+    }
+    public TowerDataSO GetRandomAttackTowerDataForCard(
+    ICollection<TowerDataSO> extraExcludes = null)
+    {
+        if (availableTowerDatas == null || availableTowerDatas.Count == 0)
+            return null;
+
+        HashSet<TowerDataSO> excludeSet = new HashSet<TowerDataSO>();
+
+        for (int i = 0; i < towerCount; i++)
+        {
+            var data = GetTowerData(i);
+            if (data != null)
+                excludeSet.Add(data);
+        }
+
+        if (extraExcludes != null)
+        {
+            foreach (var d in extraExcludes)
+            {
+                if (d != null)
+                    excludeSet.Add(d);
+            }
+        }
+
+        List<TowerDataSO> candidates = new List<TowerDataSO>();
+        foreach (var d in availableTowerDatas)
+        {
+            if (d == null) continue;
+            if (!excludeSet.Contains(d))
+                candidates.Add(d);
+        }
+
+        if (candidates.Count == 0)
+            return null;
+
+        int idx = UnityEngine.Random.Range(0, candidates.Count);
+        return candidates[idx];
     }
 
     public void IntallNewTower(int index)
@@ -454,7 +500,7 @@ public class TowerInstallControl : MonoBehaviour
     }
     public TowerDataSO GetRandomAttackTowerDataForCard() //For Pick Card
     {
-        return PickRandomTowerData();
+        return GetRandomAttackTowerDataForCard(null);
     }
 
     //Slot Highliht Helper (TowerSlotHighlightUI) ------------------
@@ -1035,25 +1081,16 @@ public class TowerInstallControl : MonoBehaviour
     {
         if (towers == null) return;
         if (index < 0 || index >= towers.Count) return;
+        if (emptyTower != null && emptyTower[index]) return;
 
-        // 이미 빈 슬롯이면 할 일 없음
-        if (emptyTower != null && emptyTower[index])
-            return;
-
-        // 1) Planet에 실제 타워 삭제 요청 (공격/증폭 모두)
         planet?.RemoveTowerAt(index);
 
-        // 2) UI 쪽 슬롯을 EmptySlotUI로 교체
         var oldUI = towers[index];
-        if (oldUI != null)
-        {
-            Destroy(oldUI);
-        }
+        if (oldUI != null) Destroy(oldUI);
 
         GameObject newEmpty = Instantiate(emptySlotPrefab, PlanetTransform);
         towers[index] = newEmpty;
 
-        // 버튼: 설치 버튼 연결
         var button = newEmpty.GetComponent<Button>();
         if (button != null)
         {
@@ -1062,35 +1099,64 @@ public class TowerInstallControl : MonoBehaviour
             button.onClick.AddListener(() => IntallNewTower(captured));
         }
 
-        // 슬롯 번호 텍스트
         var numText = newEmpty.GetComponentInChildren<TextMeshProUGUI>();
         if (numText != null)
         {
             numText.text = index.ToString();
         }
 
-        // 하이라이트 기본 색 갱신
         var highlight = newEmpty.GetComponent<TowerSlotHighlightUI>();
         if (highlight != null)
         {
             highlight.RefreshDefaultColorFromImage();
         }
 
-        // 3) 내부 플래그/데이터 갱신
         if (emptyTower != null)
             emptyTower[index] = true;
 
         if (assignedTowerDatas != null)
             assignedTowerDatas[index] = null;
 
-        // 설치된 타워 수 감소 (최소 0 보장)
         CurrentTowerCount = Mathf.Max(0, CurrentTowerCount - 1);
 
-        // 4) 전체 인풋/하이라이트 갱신
         RefreshSlotInputs();
         ClearAllSlotHighlights();
         SettingTowerTransform(currentAngle);
     }
-
     //--------------------------------------------------------------
+    public IEnumerable<TowerAmplifier> GetAllAmplifiers()
+    {
+        if (planet == null) yield break;
+
+        int count = towerCount;
+        for (int i = 0; i < count; i++)
+        {
+            var amp = GetAmplifierTower(i);
+            if (amp != null && amp.AmplifierTowerData != null)
+            {
+                yield return amp;
+            }
+        }
+    }
+
+    public int GetSlotReinforceLevel(int index)
+    {
+        var attack = GetAttackTower(index);
+        if (attack != null)
+        {
+            return Mathf.Max(0, attack.ReinforceLevel);
+        }
+
+        var amp = GetAmplifierTower(index);
+        if (amp != null)
+        {
+            return Mathf.Max(0, amp.ReinforceLevel);
+        }
+        return 0;
+    }
+
+    public bool IsSlotMaxLevel(int index)
+    {
+        return GetSlotReinforceLevel(index) >= maxReinforceLevel;
+    }
 }

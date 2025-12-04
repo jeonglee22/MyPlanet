@@ -1769,11 +1769,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6687394493264662134, guid: a3ba0402da80b294fbc9c7f3252f3bef, type: 3}
       propertyPath: m_ActionEvents.Array.data[1].m_ActionName
-      value: 'UI/UITouchPosition[/Device Simulator Touchscreen/primaryTouch/position]'
+      value: UI/UITouchPosition[/Device Simulator Touchscreen/primaryTouch/position]
       objectReference: {fileID: 0}
     - target: {fileID: 6687394493264662134, guid: a3ba0402da80b294fbc9c7f3252f3bef, type: 3}
       propertyPath: m_ActionEvents.Array.data[2].m_ActionName
-      value: 'UI/UIPressCheck[/Device Simulator Touchscreen/press]'
+      value: UI/UIPressCheck[/Device Simulator Touchscreen/press]
       objectReference: {fileID: 0}
     - target: {fileID: 6965101979763091209, guid: a3ba0402da80b294fbc9c7f3252f3bef, type: 3}
       propertyPath: m_IsActive
@@ -1788,7 +1788,7 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8387510778051826307, guid: a3ba0402da80b294fbc9c7f3252f3bef, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
+      propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: -2310514774154243031, guid: 9d545067f133f434bb4296a6d3e6f0ca, type: 3}
     m_RemovedComponents: []
@@ -3280,23 +3280,23 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1060066670136191017, guid: 4e8f4480959c9304c91fae63831304fe, type: 3}
     - target: {fileID: 7004810841361380358, guid: 798ad3db1a72670449d2bc191ce39170, type: 3}
-      propertyPath: 'spawnPoints.Array.data[0]'
+      propertyPath: spawnPoints.Array.data[0]
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 7004810841361380358, guid: 798ad3db1a72670449d2bc191ce39170, type: 3}
-      propertyPath: 'spawnPoints.Array.data[1]'
+      propertyPath: spawnPoints.Array.data[1]
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 7004810841361380358, guid: 798ad3db1a72670449d2bc191ce39170, type: 3}
-      propertyPath: 'spawnPoints.Array.data[2]'
+      propertyPath: spawnPoints.Array.data[2]
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 7004810841361380358, guid: 798ad3db1a72670449d2bc191ce39170, type: 3}
-      propertyPath: 'spawnPoints.Array.data[3]'
+      propertyPath: spawnPoints.Array.data[3]
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 7004810841361380358, guid: 798ad3db1a72670449d2bc191ce39170, type: 3}
-      propertyPath: 'spawnPoints.Array.data[4]'
+      propertyPath: spawnPoints.Array.data[4]
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 8310431769271838183, guid: 798ad3db1a72670449d2bc191ce39170, type: 3}
@@ -3581,10 +3581,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 6688653873941373363, guid: e422beeb38f3d85458f873802aa840fe, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 746372772}
+    m_AddedComponents: [{targetCorrespondingSourceObject: {fileID: 6688653873941373363, guid: e422beeb38f3d85458f873802aa840fe, type: 3}, insertIndex: -1, addedObject: {fileID: 746372772}}]
   m_SourcePrefab: {fileID: 100100000, guid: e422beeb38f3d85458f873802aa840fe, type: 3}
 --- !u!1 &277925340 stripped
 GameObject:
@@ -11419,6 +11416,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 969658794650730944}
     m_Modifications:
+    - target: {fileID: 62202210612325622, guid: 1a99b136979765e4e958e4054c6f764c, type: 3}
+      propertyPath: m_ChildAlignment
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 62202210612325622, guid: 1a99b136979765e4e958e4054c6f764c, type: 3}
+      propertyPath: m_ChildControlWidth
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 272261319903015578, guid: 1a99b136979765e4e958e4054c6f764c, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
@@ -12354,6 +12359,14 @@ PrefabInstance:
     - target: {fileID: 6727278719532233214, guid: 1a99b136979765e4e958e4054c6f764c, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -31.947258
+      objectReference: {fileID: 0}
+    - target: {fileID: 6745897319360274324, guid: 1a99b136979765e4e958e4054c6f764c, type: 3}
+      propertyPath: m_ChildAlignment
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6745897319360274324, guid: 1a99b136979765e4e958e4054c6f764c, type: 3}
+      propertyPath: m_ChildControlWidth
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6761447825171955472, guid: 1a99b136979765e4e958e4054c6f764c, type: 3}
       propertyPath: m_AnchorMax.y
@@ -15981,7 +15994,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
     m_ActionId: 069954fb-d0cc-4e74-9cbb-0808a958788d
-    m_ActionName: 'UI/UIPressCheck[/Device Simulator Touchscreen/press]'
+    m_ActionName: UI/UIPressCheck[/Device Simulator Touchscreen/press]
   - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1488899773}
@@ -15997,7 +16010,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
     m_ActionId: 653474ff-24df-4d12-aa88-6cc21af0390f
-    m_ActionName: 'UI/UITouchPos[/Device Simulator Touchscreen/position]'
+    m_ActionName: UI/UITouchPos[/Device Simulator Touchscreen/position]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: UI
@@ -17562,6 +17575,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1586267327}
   m_CullTransparentMesh: 1
+--- !u!114 &1571672657 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7295072281405744502, guid: 1a99b136979765e4e958e4054c6f764c, type: 3}
+  m_PrefabInstance: {fileID: 1183045309}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1601829626
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -23877,7 +23901,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   installControl: {fileID: 2834448803939915530}
-  nameText: {fileID: 1078144148}
+  nameText: {fileID: 1571672657}
   attackTowerDataPanel: {fileID: 1183045327}
   buffTowerDataPanel: {fileID: 1183045316}
   buffSlotInfoText: {fileID: 1183045315}
