@@ -504,12 +504,25 @@ public class TowerInstallControl : MonoBehaviour
         if (amp != null && amp.AmplifierTowerData != null)
         {
             HighlightForAmplifierSlot(index);
+            SizeUpSlot(index);
         }
         else if (attack != null && attack.AttackTowerData != null)
         {
             HighlightForAttackSlot(index);
+            SizeUpSlot(index);
         }
-        else ClearAllSlotHighlights();
+        else 
+        {
+            ClearAllSlotHighlights();
+        }
+    }
+
+    private void SizeUpSlot(int index)
+    {
+        var tower = towers[index];
+        if (tower == null) return;
+
+        tower.GetComponent<RectTransform>().localScale = Vector3.one * 1.5f;
     }
 
     public TowerDataSO GetTowerData(int index)
@@ -595,6 +608,8 @@ public class TowerInstallControl : MonoBehaviour
             {
                 highlight.SetHighlight(TowerHighlightType.None);
             }
+
+            t.GetComponent<RectTransform>().localScale = Vector3.one;
         }
     }
 
