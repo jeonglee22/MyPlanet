@@ -82,7 +82,9 @@ public class TowerAttack : MonoBehaviour
     public float BasicFireRate => towerData.fireRate;
 
     private float accuracyBuffAdd = 0f;
+    private float accuracyFromAmplifier = 0f;
     public float AccuracyBuffAdd { get { return accuracyBuffAdd; } set { accuracyBuffAdd = value; } }
+    
     public float HitRateBuffMultiplier => hitRateBuffMul;
 
     public float BasicHitRate => towerData.Accuracy;
@@ -92,10 +94,11 @@ public class TowerAttack : MonoBehaviour
         {
             if (towerData == null) return 0f;
 
-            float final = towerData.Accuracy * hitRateBuffMul;
-            final += accuracyBuffAdd; 
-
-            return final;
+            float baseAcc = towerData.Accuracy;  
+            float final = baseAcc
+                          + accuracyFromAmplifier    
+                          + accuracyBuffAdd;          
+            return Mathf.Clamp(final, 0f, 100f);
         }
     }
 
@@ -451,7 +454,7 @@ public class TowerAttack : MonoBehaviour
     {
         var rand01 = UnityEngine.Random.Range(0f, 1f);
 
-        var finalAccuracy = accuracy * (1 + accuracyBuffAdd / 100f);
+        float finalAccuracy = Mathf.Clamp(FinalHitRate, 0f, 100f);
 
         if (rand01 < finalAccuracy / 100f)
         {
@@ -563,8 +566,7 @@ public class TowerAttack : MonoBehaviour
         ampHitRadiusMul = 1f; 
         percentPenetrationFromAmplifier = 0f;
         targetNumberFromAmplifier = 0;
-        hitRateBuffMul = 1f;
-
+        accuracyFromAmplifier = 0f;
         float oldAmpFixed = fixedPenetrationFromAmplifier;
         fixedPenetrationFromAmplifier = 0f;
 
@@ -584,7 +586,7 @@ public class TowerAttack : MonoBehaviour
 
             fixedPenetrationFromAmplifier += amp.FixedPenetrationBuff;
             targetNumberFromAmplifier += amp.TargetNumberBuff;
-            hitRateBuffMul *= amp.HitRateBuff;
+            accuracyFromAmplifier += amp.HitRateBuff;
         }
 
         RecalculateHitRadiusBuffMul();
