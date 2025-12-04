@@ -27,7 +27,7 @@ public class TowerInfoUI : MonoBehaviour
     [SerializeField] private RectTransform randomEffectListRoot;
     [SerializeField] private GameObject effectLinePrefab;
 
-    [Header("Attack Tower Basic Data")]
+    [Header("Attack Tower Buffed Data")]
     [SerializeField] private TextMeshProUGUI damageValueText;
     [SerializeField] private TextMeshProUGUI fireRateValueText;
     [SerializeField] private TextMeshProUGUI fixedPenetrationValueText;
@@ -40,6 +40,19 @@ public class TowerInfoUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI projectileNumberValueText;
     [SerializeField] private TextMeshProUGUI lifeTimeValueText;
     [SerializeField] private TextMeshProUGUI projectileSizeValueText;
+
+    [Header("Attack Tower Additional Data")]
+    [SerializeField] private TextMeshProUGUI damageValueAdditionalText;
+    [SerializeField] private TextMeshProUGUI fireRateValueAdditionalText;
+    [SerializeField] private TextMeshProUGUI fixedPenetrationValueAdditionalText;
+    [SerializeField] private TextMeshProUGUI percentPenetrationValueAdditionalText;
+    [SerializeField] private TextMeshProUGUI hitRateValueAdditionalText;
+    [SerializeField] private TextMeshProUGUI spreadAccuracyValueAdditionalText;
+
+    //ADD VALUE
+    [SerializeField] private TextMeshProUGUI targetNumberValueAdditionalText;
+    [SerializeField] private TextMeshProUGUI projectileNumberValueAdditionalText;
+    [SerializeField] private TextMeshProUGUI lifeTimeValueAdditionalText;
 
     private TextMeshProUGUI rangeValueText;
     private TextMeshProUGUI towerIdValueText;
@@ -218,12 +231,37 @@ public class TowerInfoUI : MonoBehaviour
             return;
         }
 
-        if (Mathf.Approximately(baseValue, finalValue))
+        // if (Mathf.Approximately(baseValue, finalValue))
+        // {
+        //     tmp.text = $"{baseValue.ToString(format)}{suffix}";
+        //     return;
+        // }
+        tmp.text = $"{finalValue.ToString(format)}{suffix}";
+    }
+
+    private void SetAdditionalStatText(TextMeshProUGUI tmp, float baseValue, float finalValue, string format = "0.00", string suffix = "")
+    {
+        if (tmp == null) return;
+
+        tmp.transform.parent.gameObject.SetActive(true);
+        bool hasBase = !Mathf.Approximately(baseValue, 0f);
+        bool hasFinal = !Mathf.Approximately(finalValue, 0f);
+
+        if (!hasBase && !hasFinal)
         {
-            tmp.text = $"{baseValue.ToString(format)}{suffix}";
+            tmp.text = $"0{suffix}";
             return;
         }
-        tmp.text = $"{finalValue.ToString(format)}{suffix}";
+
+        if (Mathf.Approximately(baseValue, finalValue))
+        {
+            tmp.transform.parent.gameObject.SetActive(false);
+            return;
+        }
+
+        float delta = finalValue - baseValue;
+        string sign = delta > 0f ? "+" : "";
+        tmp.text = $"{sign}{delta.ToString(format)}{suffix}";
     }
 
     private void SetAllText(string value)
@@ -243,6 +281,18 @@ public class TowerInfoUI : MonoBehaviour
 
         SetText(towerIdValueText, value);
         SetText(rangeValueText, value);
+
+        SetText(damageValueAdditionalText, value);
+        SetText(fireRateValueAdditionalText, value);
+        SetText(fixedPenetrationValueAdditionalText, value);
+        SetText(percentPenetrationValueAdditionalText, value);
+        SetText(hitRateValueAdditionalText, value);
+        SetText(spreadAccuracyValueAdditionalText, value);
+
+        SetText(targetNumberValueAdditionalText, value);
+        SetText(projectileNumberValueAdditionalText, value);
+
+        SetText(lifeTimeValueAdditionalText, value);
     }
 
     private void FillAttackTowerInfo(int index, TowerAttack attackTower)
@@ -272,30 +322,37 @@ public class TowerInfoUI : MonoBehaviour
             float baseDamage = baseProj.Attack;
             float finalDamage = buffedProj.Attack;
             SetStatText(damageValueText, baseDamage, finalDamage, "0.00");
+            SetAdditionalStatText(damageValueAdditionalText, baseDamage, finalDamage, "0.00");
             // Fixed Penetration
             float baseFixedPen = baseProj.FixedPenetration;
             float finalFixedPen = buffedProj.FixedPenetration;
             SetStatText(fixedPenetrationValueText, baseFixedPen, finalFixedPen, "0.00");
+            SetAdditionalStatText(fixedPenetrationValueAdditionalText, baseFixedPen, finalFixedPen, "0.00");
             // Percent Penetration
             float baseRatePen = baseProj.RatePenetration;
             float finalRatePen = buffedProj.RatePenetration;
             SetStatText(percentPenetrationValueText, baseRatePen, finalRatePen, "0.00", "%");
+            SetAdditionalStatText(percentPenetrationValueAdditionalText, baseRatePen, finalRatePen, "0.00");
             // Projectile Count
             float baseCount = attackTower.BaseProjectileCount;
             float finalCount = attackTower.CurrentProjectileCount;
             SetStatText(projectileNumberValueText, baseCount, finalCount, "0");
+            SetAdditionalStatText(projectileNumberValueAdditionalText, baseCount, finalCount, "0.00");
             // Target Num
             float baseTargets = baseProj.TargetNum;
             float finalTargets = buffedProj.TargetNum;
             SetStatText(targetNumberValueText, baseTargets, finalTargets, "0");
+            SetAdditionalStatText(targetNumberValueAdditionalText, baseTargets, finalTargets, "0.00");
             // LifeTime
             float baseLifeTime = baseProj.RemainTime;
             float finalLifeTime = buffedProj.RemainTime;
             SetStatText(lifeTimeValueText, baseLifeTime, finalLifeTime, "0.00");
+            SetAdditionalStatText(lifeTimeValueAdditionalText, baseLifeTime, finalLifeTime, "0.00");
             // Hitbox Size
             float baseSize = baseProj.CollisionSize;
             float finalSize = buffedProj.CollisionSize;
             SetStatText(projectileSizeValueText, baseSize, finalSize, "0.00");
+            // SetAdditionalStatText(projectileSizeValueAdditionalText, baseDamage, finalDamage, "0.00");
         }
         else
         {
@@ -311,15 +368,19 @@ public class TowerInfoUI : MonoBehaviour
         float baseFireRate = attackTower.BasicFireRate;
         float finalFireRate = attackTower.CurrentFireRate;
         SetStatText(fireRateValueText, baseFireRate, finalFireRate, "0.00");
+        SetAdditionalStatText(fireRateValueAdditionalText, baseFireRate, finalFireRate, "0.00");
 
         //Hit Rate (명중률)
         float baseHitRate = attackTowerData.Accuracy;
         float finalHitRate = attackTower.FinalHitRate;
         SetStatText(hitRateValueText, baseHitRate, finalHitRate, "0.00", "%");
+        SetAdditionalStatText(hitRateValueAdditionalText, baseHitRate, finalHitRate, "0.00");
 
         //Spread Accuracy
         if (spreadAccuracyValueText != null)
             spreadAccuracyValueText.text = attackTowerData.grouping.ToString("0.00") + "%";
+        if (spreadAccuracyValueAdditionalText != null)
+            spreadAccuracyValueAdditionalText.gameObject.SetActive(false);
 
         //Range 
         SetText(rangeValueText, attackTowerData.rangeData != null
@@ -790,7 +851,7 @@ public class TowerInfoUI : MonoBehaviour
         var abilities = amplifierTower.Abilities;
         if (ampData == null || abilities == null || abilities.Count == 0) return;
 
-        if (!amplifierTower.HasAppliedRandomAbilities) return;
+        // if (!amplifierTower.HasAppliedRandomAbilities) return;
 
         bool hasAnyLine = false;
 
