@@ -172,6 +172,10 @@ public class Projectile : MonoBehaviour , IDisposable
         float sizeMul = 1f;
         if (baseSize > 0f)
             sizeMul = finalSize / baseSize;
+
+        //add debug size
+        sizeMul = Mathf.Clamp(sizeMul * 1.5f, 0.7f, 2.5f);
+
         transform.localScale = baseScale * sizeMul;
 
         Cancel();

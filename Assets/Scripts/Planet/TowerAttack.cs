@@ -577,7 +577,7 @@ public class TowerAttack : MonoBehaviour
             accelerationBuffAdd += amp.AccelerationBuff;
             projectileCountBuffAdd += amp.ProjectileCountBuff;
 
-            ampHitRadiusMul *= (1f + amp.HitRadiusBuff);
+            ampHitRadiusMul *= (1f + amp.HitRadiusBuff/100f);
 
             percentPenetrationFromAmplifier =
                 CombinePercentPenetration01(percentPenetrationFromAmplifier, amp.PercentPenetrationBuff);
@@ -739,7 +739,7 @@ public class TowerAttack : MonoBehaviour
         rate = Mathf.Clamp(rate, -0.99f, 10f);
         if (Mathf.Approximately(rate, 0f)) return;
 
-        hitRadiusAbilitySources.Add(rate);
+        hitRadiusAbilitySources.Add(rate/100f);
         RecalculateHitRadiusBuffMul();
     }
 
