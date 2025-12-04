@@ -202,6 +202,11 @@ public class PowerUpItemControlUI : MonoBehaviour
 
         if (!itemChoosePanel.activeSelf)
         {
+            if(isTutorial && Variables.Stage == 2)
+            {
+                TutorialManager.Instance.ShowTutorialStep(7);
+            }
+
             itemChoosePanel.SetActive(true);
             towerUpgradeSlotUI.IsNotUpgradeOpen = true;
             towerUpgradeSlotUI.gameObject.SetActive(true);
@@ -223,6 +228,11 @@ public class PowerUpItemControlUI : MonoBehaviour
 
     private void OnNewAbilityUpgradeClicked()
     {
+        if(isTutorial && Variables.Stage == 2)
+        {
+            TutorialManager.Instance.ShowTutorialStep(8);
+        }
+
         chooseTowerPanel.SetActive(true);
         towerCountUpgradeButton.gameObject.SetActive(false);
         newAbilityUpgradeButton.gameObject.SetActive(false);

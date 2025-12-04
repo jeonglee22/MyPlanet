@@ -56,6 +56,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
     public bool ShouldDropItems { get; set; } = true;
 
+    private bool isTutorial = false;
+
     protected override void OnEnable()
     {
         base.OnEnable();
@@ -70,6 +72,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         OnLifeTimeOverEvent += SpawnManager.Instance.OnEnemyDied;
 
         OnCollisionDamageCalculate = null;
+
+        SetIsTutorial(TutorialManager.Instance.IsTutorialMode);
     }
 
     protected virtual void OnDisable() 
@@ -149,6 +153,10 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
             case 3:
                 Variables.MiddleBossEnemy = null;
                 WaveManager.Instance.OnBossDefeated(false);
+                if(isTutorial && Variables.Stage == 2)
+                {
+                    TutorialManager.Instance.ShowTutorialStep(10);
+                }
                 break;
             case 4:
                 Variables.LastBossEnemy = null;
@@ -318,11 +326,21 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
                 Variables.MiddleBossEnemy = this;
                 WaveManager.Instance.OnBossSpawned(false);
                 transform.position = SpawnManager.Instance.BossSpawnPosition.position;
+
+                if(isTutorial && Variables.Stage == 2)
+                {
+                    TutorialManager.Instance.ShowTutorialStep(9);
+                }
                 break;
             case 4:
                 Variables.LastBossEnemy = this;
                 WaveManager.Instance.OnBossSpawned(true);
                 transform.position = SpawnManager.Instance.BossSpawnPosition.position;
+
+                if(isTutorial && Variables.Stage == 2)
+                {
+                    TutorialManager.Instance.ShowTutorialStep(11);
+                }
                 break;
         }
 
@@ -381,5 +399,10 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     public void Dispose()
     {
         
+    }
+
+    private void SetIsTutorial(bool isTutorialMode)
+    {
+        isTutorial = isTutorialMode;
     }
 }

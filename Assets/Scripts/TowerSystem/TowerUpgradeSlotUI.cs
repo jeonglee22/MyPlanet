@@ -69,7 +69,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     private HashSet<AmplifierTowerDataSO> usedAmplifierTowerTypesThisRoll
     = new HashSet<AmplifierTowerDataSO>();
 
-    private const int MaxReinforceLevel = 4;
+    private const int MaxReinforceLevel = 0;
     //----------------------------------------
 
     private void Start()
@@ -82,11 +82,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         installControl.OnTowerInstalled += SetTowerInstallText;
 
         SetIsTutorial(TutorialManager.Instance.IsTutorialMode);
-
-        if(isTutorial && Variables.Stage == 1)
-        {
-            TutorialManager.Instance.ShowTutorialStep(2);
-        }
     }
 
     void OnDestroy()
@@ -143,6 +138,10 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         if(isTutorial && Variables.Stage == 1)
         {
             TutorialManager.Instance.ShowTutorialStep(1);
+        }
+        if(isTutorial && Variables.Stage == 2)
+        {
+            TutorialManager.Instance.ShowTutorialStep(6);
         }
     }
 
@@ -805,6 +804,11 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
             uiTexts[index].text =
                 $"Upgrade\n{number}\n{ampName}";
+            
+            if(isTutorial && Variables.Stage == 1)
+            {
+                TutorialManager.Instance.ShowTutorialStep(4);
+            }
         }
         else
         {
