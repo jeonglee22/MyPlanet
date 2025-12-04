@@ -1,7 +1,10 @@
+using Unity.Android.Gradle.Manifest;
 using UnityEngine;
 
 public class EnemyMovement : MonoBehaviour
 {
+    private Enemy owner;
+
     public float moveSpeed = 5f;
     private float initMoveSpeed;
 
@@ -28,6 +31,8 @@ public class EnemyMovement : MonoBehaviour
         {
             target = GameObject.FindGameObjectWithTag(TagName.Planet).transform;
         }
+
+        owner = gameObject.GetComponent<Enemy>();
 
         isDebuff = false;
         isDirectionSet = false;
@@ -73,7 +78,7 @@ public class EnemyMovement : MonoBehaviour
         isDirectionSet = false;
 
         currentMovement = movement;
-        currentMovement?.Initialize();
+        currentMovement?.Initialize(owner.Data.EnemyType);
     }
 
     private void SetTargetDirection()

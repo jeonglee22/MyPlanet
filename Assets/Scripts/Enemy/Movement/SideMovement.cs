@@ -11,6 +11,8 @@ public class SideMovement : IMovement
     private bool isInitialized = false;
     private float yPos;
 
+    private int enemyType;
+
     public Vector3 GetFinalDirection(Vector3 baseDirection, Transform ownerTransform, Transform target)
     {
         Vector3 currentPos = ownerTransform.position;
@@ -48,7 +50,7 @@ public class SideMovement : IMovement
         return direction;
     }
 
-    public void Initialize()
+    public void Initialize(int enemyType)
     {
         screenBounds = SpawnManager.Instance.ScreenBounds;
         
@@ -60,6 +62,8 @@ public class SideMovement : IMovement
         currentTarget = Vector3.zero;
 
         isInitialized = false;
+
+        this.enemyType = enemyType;
     }
 
     public bool IsCompleted() => false;

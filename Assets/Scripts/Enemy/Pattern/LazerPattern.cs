@@ -70,6 +70,8 @@ public class LazerPattern : ShootingPattern
             movement.CanMove = true;
         }
 
+        planet.IsLazerHit = false;
+
         lazerCompletionSource?.TrySetResult();
     }
 

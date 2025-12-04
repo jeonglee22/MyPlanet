@@ -7,10 +7,21 @@ public class HomingMovement : IMovement
     private bool isDirectionSet = false;
     private Vector3 currentMoveDirection;
 
-    public void Initialize()
+    private int enemyType;
+
+    public void Initialize(int enemyType)
     {
-        isPatternLine = false;
         isDirectionSet = false;
+        this.enemyType = enemyType;
+
+        if(enemyType <= 1)
+        {
+            isPatternLine = true;
+        }
+        else
+        {
+            isPatternLine = false;
+        }
     }
 
     public Vector3 GetFinalDirection(Vector3 baseDirection, Transform ownerTransform, Transform target)
@@ -32,6 +43,10 @@ public class HomingMovement : IMovement
 
     public void OnPatternLine()
     {
+        if(enemyType <= 1)
+        {
+            return;
+        }
         isPatternLine = true;
     }
 

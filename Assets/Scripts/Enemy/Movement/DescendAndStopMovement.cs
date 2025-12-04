@@ -11,7 +11,9 @@ public class DescendAndStopMovement : IMovement
 
     private float offset = 0.5f;
 
-    public void Initialize()
+    private int enemyType;
+
+    public void Initialize(int enemyType)
     {
         isArrived = false;
         colliderRadius = 0f;
@@ -19,6 +21,8 @@ public class DescendAndStopMovement : IMovement
         Rect offSetBounds = SpawnManager.Instance.OffSetBounds;
 
         targetPosition = new Vector3(offSetBounds.center.x, offSetBounds.yMin - offset, 0f);
+
+        this.enemyType = enemyType;
     }
 
     public Vector3 GetFinalDirection(Vector3 baseDirection, Transform ownerTransform, Transform target)

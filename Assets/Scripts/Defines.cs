@@ -160,7 +160,7 @@ public static class DataTableIds
 public static class Variables
 {
     public static int Stage {get; set;} = 3;
-    private static int quasar = 0;
+    private static int quasar = 1;
     public static int Quasar
     {
         get => quasar;

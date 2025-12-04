@@ -9,6 +9,7 @@ using UnityEngine.UI;
 public class TowerUpgradeSlotUI : MonoBehaviour
 {
     [SerializeField] private GameObject[] upgradeUIs;
+    [SerializeField] private Button gameResumeButton;
     [SerializeField] private TowerInstallControl installControl;
     [SerializeField] private TowerInfoUI towerInfoUI;
     [SerializeField] private GameObject dragImagePrefab;
@@ -100,6 +101,8 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             return;
         }
 
+        gameResumeButton.interactable = false;
+
         if (upgradeUIs == null || upgradeUIs.Length == 0)
             return;
         if (refreshButtons == null || refreshButtons.Length != upgradeUIs.Length)
@@ -143,6 +146,8 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         {
             TutorialManager.Instance.ShowTutorialStep(6);
         }
+
+        gameResumeButton.interactable = true;
     }
 
     private void Update()

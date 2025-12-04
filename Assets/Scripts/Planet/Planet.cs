@@ -53,6 +53,8 @@ public class Planet : LivingEntity
 
     private CancellationTokenSource colorResetCts;
 
+    public bool IsLazerHit = false;
+
     private void Awake()
     {
         planetAttacks = new List<TowerAttack>();

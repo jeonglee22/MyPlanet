@@ -16,8 +16,6 @@ public class CameraManager : MonoBehaviour
 
     public bool IsZoomedOut { get; private set; }
 
-    private bool isFinalBossAlive = false;
-
     private Vector3 currentPos = Vector3.zero;
 
     public event Action OnZoomOut;
@@ -65,7 +63,7 @@ public class CameraManager : MonoBehaviour
         currentPos.z = Mathf.Lerp(currentPos.z, targetZ, Time.deltaTime * transitionSpeed);
         mainCamera.transform.position = currentPos;
 
-        if(isChangeZoom && currentPos.z - targetZ < 0.01f)
+        if(isChangeZoom && Mathf.Abs(currentPos.z - targetZ) < 0.01f)
         {
             OnZoomOut?.Invoke();
             isChangeZoom = false;
@@ -90,7 +88,6 @@ public class CameraManager : MonoBehaviour
 
     private void OnLastBossSpawned()
     {
-        isFinalBossAlive = true;
         ZoomOut();
     }
 }

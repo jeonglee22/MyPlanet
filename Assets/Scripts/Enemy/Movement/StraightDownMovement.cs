@@ -5,9 +5,11 @@ public class StraightDownMovement : IMovement
     private bool isPatternLine = false;
     public bool IsPatternLine => isPatternLine;
 
-    public void Initialize()
+    private int enemyType;
+
+    public void Initialize(int enemyType)
     {
-        
+        this.enemyType = enemyType;
     }
 
     public Vector3 GetFinalDirection(Vector3 baseDirection, Transform ownerTransform, Transform target)

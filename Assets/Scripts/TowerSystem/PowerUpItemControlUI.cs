@@ -101,6 +101,12 @@ public class PowerUpItemControlUI : MonoBehaviour
 
         SetTowerOpenInfoTouch();
         SetActiveItemUseButton(false);
+        Variables.Quasar--;
+
+        if(Variables.Quasar > 0)
+        {
+            SetActiveItemUseButton(true);
+        }
     }
 
     private void SetTowerOpenInfoTouch()
@@ -176,17 +182,26 @@ public class PowerUpItemControlUI : MonoBehaviour
         SetTowerInstallText();
         itemChoosePanel.SetActive(false);
         SetActiveItemUseButton(false);
+
+        Variables.Quasar--;
+
+        if(Variables.Quasar > 0)
+        {
+            SetActiveItemUseButton(true);
+        }
     }
 
     public void SetActiveItemUseButton(bool isActive)
     {
-        itemUseButton.interactable = isActive;
-        isUsedItem = !isActive;
-
-        if(isInfiniteItem)
+        if(Variables.Quasar > 0 || isInfiniteItem)
         {
             itemUseButton.interactable = true;
             isUsedItem = false;
+        }
+        else
+        {
+            itemUseButton.interactable = isActive;
+            isUsedItem = !isActive;
         }
     }
 
