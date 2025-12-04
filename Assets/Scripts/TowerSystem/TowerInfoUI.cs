@@ -11,7 +11,10 @@ public class TowerInfoUI : MonoBehaviour
     [SerializeField] private TowerInstallControl installControl;
     
     //TowerNameInfo
-    [SerializeField] private TextMeshProUGUI nameText;
+    [SerializeField] private TextMeshProUGUI attackTowerNameText;
+    [SerializeField] private TextMeshProUGUI amplifierNameText;
+    [SerializeField] private TextMeshProUGUI attackTowerExplainText;
+    [SerializeField] private TextMeshProUGUI amplifierExplainText;
 
     [Header("Switch Data Panel")]
     [SerializeField] private GameObject attackTowerDataPanel;
@@ -42,9 +45,6 @@ public class TowerInfoUI : MonoBehaviour
     private TextMeshProUGUI towerIdValueText;
 
     [Header("Ability Panel")]
-    [SerializeField] private TextMeshProUGUI abilityExplainText;
-    [SerializeField] private Button openAbilityInfoButton;
-    [SerializeField] private GameObject abilityInfoPanel;
     [SerializeField] private ScrollRect scrollRect;
     [SerializeField] private GameObject abilityExplainContent;
     private RectTransform contentRect;
@@ -53,17 +53,9 @@ public class TowerInfoUI : MonoBehaviour
     public int CurrentSlotIndex => infoIndex;
     private bool isSameTower;
 
-    private void Start()
-    {
-        abilityInfoPanel.SetActive(false);
-        openAbilityInfoButton.onClick.AddListener(
-            () => abilityInfoPanel.SetActive(!abilityInfoPanel.activeSelf));
-    }
-
     private void OnEnable()
     {
         contentRect = scrollRect?.content;
-        abilityInfoPanel.SetActive(false);
 
         if (attackTowerDataPanel != null) attackTowerDataPanel.SetActive(false);
         if (buffTowerDataPanel != null) buffTowerDataPanel.SetActive(false);
@@ -107,7 +99,8 @@ public class TowerInfoUI : MonoBehaviour
 
         if (installControl == null)
         {
-            nameText.text = "No data";
+            attackTowerNameText.text = "No data";
+            amplifierNameText.text = "No data";
             SetAllText(null);
 
             if (attackTowerDataPanel != null) attackTowerDataPanel.SetActive(false);
@@ -142,7 +135,8 @@ public class TowerInfoUI : MonoBehaviour
             return;
         }
 
-        if (nameText != null) nameText.text = $"Empty Slot {index}";
+        if (attackTowerNameText != null) attackTowerNameText.text = $"Empty Slot {index}";
+        if (amplifierNameText != null) amplifierNameText.text = $"Empty Slot {index}";
         SetAllText("-");
 
         if (attackTowerDataPanel != null) attackTowerDataPanel.SetActive(false);
@@ -150,27 +144,6 @@ public class TowerInfoUI : MonoBehaviour
 
         var textEmpty = Instantiate(abilityExplainContent, contentRect);
         SetText(textEmpty.GetComponent<TextMeshProUGUI>(), "no tower");
-    }
-
-    protected void Update()
-    {
-        var touchPos = TouchManager.Instance.TouchPos;
-        
-        if (infoIndex == -1) return;
-
-        if (RectTransformUtility.RectangleContainsScreenPoint(
-               installControl.Towers[infoIndex].GetComponent<RectTransform>(),
-               touchPos))
-        {
-            return;
-        }
-
-        if (RectTransformUtility.RectangleContainsScreenPoint(
-               scrollRect.gameObject.GetComponent<RectTransform>(),
-               touchPos))
-        {
-            return;
-        }
     }
 
     private float CalculateAbilityUpgradeValue(int abilityId, int count, float baseValue)
@@ -277,7 +250,13 @@ public class TowerInfoUI : MonoBehaviour
         var attackTowerData = attackTower.AttackTowerData;
         int level = attackTower.ReinforceLevel;
 
-        if (nameText != null) nameText.text = $"{attackTowerData.towerId} (Lv.{level})";
+        var attackTowerTextId = DataTableManager.AttackTowerTable.GetTowerTextIdById(attackTowerData.towerIdInt);
+        var towerExplainData = DataTableManager.TowerExplainTable.Get(attackTowerTextId);
+        var towerName = towerExplainData != null ? towerExplainData.TowerName : "No Name";
+        var towerDescribe = towerExplainData != null ? towerExplainData.TowerDescribe : "No Description";
+
+        if (attackTowerNameText != null) attackTowerNameText.text = $"{towerName} (Lv.{level})";
+        if (attackTowerExplainText != null) attackTowerExplainText.text = towerDescribe;
 
         isSameTower = (infoIndex == index);
         var abilities = attackTower.Abilities;
@@ -372,7 +351,7 @@ public class TowerInfoUI : MonoBehaviour
 
         if (ampData == null)
         {
-            if (nameText != null) nameText.text = $"Amplifier {index}";
+            if (amplifierNameText != null) amplifierNameText.text = $"Amplifier {index}";
             SetAllText("no data");
 
             if (buffSlotInfoText != null) buffSlotInfoText.text = "버프 슬롯 없음";
@@ -380,14 +359,20 @@ public class TowerInfoUI : MonoBehaviour
             return;
         }
 
-        string baseName = !string.IsNullOrEmpty(ampData.BuffTowerName)
-            ? ampData.BuffTowerName : $"Amplifier {index}";
+        var amplifierTowerTextId = DataTableManager.BuffTowerTable.GetTowerTextIdById(ampData.BuffTowerId);
+        var towerExplainData = DataTableManager.TowerExplainTable.Get(amplifierTowerTextId);
+        var towerName = towerExplainData != null ? towerExplainData.TowerName : "No Name";
+        var towerDescribe = towerExplainData != null ? towerExplainData.TowerDescribe : "No Description";
+
+        // string baseName = !string.IsNullOrEmpty(ampData.BuffTowerName)
+        //     ? ampData.BuffTowerName : $"Amplifier {index}";
 
         int level = amplifierTower.ReinforceLevel;
 
         //Name Object
-        if (nameText != null) nameText.text = $"{baseName} (Lv.{level})";
-        SetText(towerIdValueText, $"{baseName} (Lv.{level})");
+        if (amplifierNameText != null) amplifierNameText.text = $"{towerName} (Lv.{level})";
+        if (amplifierExplainText != null) amplifierExplainText.text = towerDescribe;
+        SetText(towerIdValueText, $"{towerName} (Lv.{level})");
 
         //Slot Index Info
         if (buffSlotInfoText != null)
@@ -451,12 +436,12 @@ public class TowerInfoUI : MonoBehaviour
             ? $"{ampData.FixedPenetrationBuff:+0.##;-0.##}"
             : "-";
         SetText(projectileSizeValueText, fixedPenText);
+
+        Debug.Log("Filled amplifier buff effects");
     }
 
     private void SetAbilityExplainForAmplifier(TowerAmplifier amplifierTower)
     {
-        if (abilityExplainText == null) return;
-
         var ampData = amplifierTower.AmplifierTowerData;
         var slots = amplifierTower.BuffedSlotIndex;
 
@@ -605,7 +590,6 @@ public class TowerInfoUI : MonoBehaviour
         leftList.Sort();
 
         var sb = new System.Text.StringBuilder();
-        sb.AppendLine("증폭타워 기준");
 
         if (rightList.Count > 0)
         {
@@ -627,7 +611,6 @@ public class TowerInfoUI : MonoBehaviour
 
         return sb.ToString();
     }
-
 
     private string BuildRandomSlotInfo(TowerAmplifier amp)
     {
@@ -663,7 +646,7 @@ public class TowerInfoUI : MonoBehaviour
             return randomBlock;
 
         // 둘 다 있으면: 카드와 비슷하게 "이름\n슬롯 설명"
-        return $"{abilityName}\n{randomBlock}";
+        return $"{randomBlock}";
     }
 
     //Buffed List
@@ -693,7 +676,8 @@ public class TowerInfoUI : MonoBehaviour
         if (string.IsNullOrEmpty(text)) return;
 
         var go = Instantiate(effectLinePrefab, root);
-        var tmp = go.GetComponent<TextMeshProUGUI>();
+        var tmp = go.GetComponentInChildren<TextMeshProUGUI>();
+        Debug.Log(tmp);
         if (tmp != null)
             tmp.text = text;
     }
@@ -719,7 +703,7 @@ public class TowerInfoUI : MonoBehaviour
         var ampData = amplifierTower.AmplifierTowerData;
         if (ampData == null) return;
 
-        if (!amplifierTower.HasAppliedBaseBuffs) return;
+        // if (!amplifierTower.HasAppliedBaseBuffs) return;
        
         // 공격력 (DamageBuff: add, 0.4 -> +40%)
         if (!Mathf.Approximately(ampData.DamageBuff, 0f))
@@ -793,6 +777,8 @@ public class TowerInfoUI : MonoBehaviour
             string line = BuildStatChangeLine("명중률", delta, value);
             AddEffectLine(basicEffectListRoot, line);
         }
+
+        Debug.Log("Filled basic buff effects");
     }
 
     private void FillRandomAbilityEffects(TowerAmplifier amplifierTower)

@@ -154,6 +154,7 @@ public static class DataTableIds
     public const string TowerReinforceUpgrade = "TowerReinforceUpgradeTable";
     public static readonly string BuffTowerReinforceUpgrade = "BuffTowerReinforceUpgradeTable";
     public static readonly string AsyncPlanet = "AsyncPlanetTable";
+    public static readonly string TowerExplain = "TowerExplainTable";
 }
 
 public static class Variables
