@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-public class TowerInfoUI : PopUpUI
+public class TowerInfoUI : MonoBehaviour
 {
     [SerializeField] private TowerInstallControl installControl;
     
@@ -152,9 +152,9 @@ public class TowerInfoUI : PopUpUI
         SetText(textEmpty.GetComponent<TextMeshProUGUI>(), "no tower");
     }
 
-    protected override void Update()
+    protected void Update()
     {
-        touchPos = TouchManager.Instance.TouchPos;
+        var touchPos = TouchManager.Instance.TouchPos;
         
         if (infoIndex == -1) return;
 
@@ -171,8 +171,6 @@ public class TowerInfoUI : PopUpUI
         {
             return;
         }
-
-        base.Update();
     }
 
     private float CalculateAbilityUpgradeValue(int abilityId, int count, float baseValue)

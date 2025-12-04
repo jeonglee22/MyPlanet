@@ -5,6 +5,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.AddressableAssets;
 using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
+using NUnit.Framework;
 
 public class SceneControlManager : MonoBehaviour
 {
@@ -13,6 +15,7 @@ public class SceneControlManager : MonoBehaviour
 
     private string currentSceneName;
     public string CurrentSceneName { get => currentSceneName; set => currentSceneName = value; }
+    public bool IsLoading { get; private set; }
 
     [SerializeField] private GameObject loadingCanvas;
 
@@ -25,6 +28,7 @@ public class SceneControlManager : MonoBehaviour
         else
         {
             Destroy(gameObject);
+            return;
         }
 
         DontDestroyOnLoad(gameObject);
@@ -35,11 +39,7 @@ public class SceneControlManager : MonoBehaviour
     {
         Debug.Log(loadingCanvas == null);
 
-        loadingCanvas.SetActive(true);
-
         await FireBaseInitializer.Instance.WaitInitialization();
-
-        loadingCanvas.SetActive(false);
 
         currentSceneName = SceneManager.GetActiveScene().name;
     }
@@ -51,6 +51,7 @@ public class SceneControlManager : MonoBehaviour
     public async UniTask LoadScene(string sceneName, List<UniTask> additionalTasks = null)
     {
         loadingCanvas.SetActive(true);
+        IsLoading = true;
         // Time.timeScale = 0f;
 
         var sceneLoad = Addressables.LoadSceneAsync(SceneName.LoadingScene).ToUniTask();
@@ -62,7 +63,7 @@ public class SceneControlManager : MonoBehaviour
         Debug.Log("LoadingScene Loaded");
 
         tasks = additionalTasks ?? new List<UniTask>();
-        tasks.Add(WaitSceneLoadMinimun(2000));
+        tasks.Add(WaitSceneLoadMinimun(1000));
 
         await UniTask.WhenAll(tasks);
 
@@ -71,6 +72,8 @@ public class SceneControlManager : MonoBehaviour
         tasks = new List<UniTask>() { newSceneLoad };
 
         await UniTask.WhenAll(tasks);
+
+        IsLoading = false;
 
         Debug.Log("Scene Loaded");
 

@@ -5,28 +5,27 @@ using UnityEngine.UI;
 
 public class StageSelectUI : MonoBehaviour
 {
-    [SerializeField] private ScrollRect scrollRect;
-    [SerializeField] private Button stageButtonSample;
+    // [SerializeField] private ScrollRect scrollRect;
+    [SerializeField] private Button[] stageButtons;
+    [SerializeField] private Button enemyTestSceneButton; 
 
     private void Start()
     {
         InitializeStageButtons();
+
+        enemyTestSceneButton.onClick.AddListener(() => SceneControlManager.Instance.LoadScene(SceneName.EnemyTestScene).Forget());
     }
 
     private void InitializeStageButtons()
     {
         int stageCount = DataTableManager.WaveTable.GetStageCount();
 
-        Transform content = scrollRect.content;
-
         for(int i = 0; i < stageCount; i++)
         {
             int stageIndex = i;
+            Button stageButton = stageButtons[stageIndex];
 
-            Button stageButton = Instantiate(stageButtonSample, content);
-            stageButton.gameObject.SetActive(true);
-
-            TextMeshProUGUI buttonText = stageButton.GetComponentInChildren<TextMeshProUGUI>();
+            TextMeshProUGUI buttonText = stageButton.GetComponent<TextMeshProUGUI>();
             if(buttonText != null)
             {
                 buttonText.text = $"Stage {stageIndex + 1}";

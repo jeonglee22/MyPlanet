@@ -1,108 +1,169 @@
-using System;
-using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 using UnityEngine.UI;
 
 public class MainTitleUI : MonoBehaviour
 {
-    [SerializeField] private Button gameStartButton;
+    // [SerializeField] private Button gameStartButton;
     [SerializeField] private Button logInOutButton;
+    [SerializeField] private GameObject infoPanel;
     [SerializeField] private Button exitButton;
-    [SerializeField] private Button enemyTestButton;
-    [SerializeField] private Button cameraTestButton;
-    [SerializeField] private Button asyncRaidTestButton;
+    [SerializeField] private GameObject exitPanel;
+    [SerializeField] private GameObject SignInPanel;
+    [SerializeField] private Button exitCanelButton;
+    [SerializeField] private Button exitAcceptButton;
+    [SerializeField] private TextMeshProUGUI explainText;
+    [SerializeField] private GameObject playText;
+    [SerializeField] private InfoPopUpUI infoPopUpUI;
+    // [SerializeField] private Button enemyTestButton;
+    // [SerializeField] private Button cameraTestButton;
+    // [SerializeField] private Button asyncRaidTestButton;
     [SerializeField] private MainTitleCanvasManager canvasManager;
 
     [SerializeField] private TextMeshProUGUI uidText;
 
     [SerializeField] private LoadManager loadManager;
+    private bool isNotGameStart = true;
+    private bool finishLoading;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private async UniTaskVoid Start()
     {
         InteractableButtons(false);
 
+        playText.SetActive(false);
+
+        await CheckLogin();
+
         await UniTask.WaitUntil(() => canvasManager.IsInitialized);
 
-        canvasManager.UpdateUIDText();
+        // canvasManager.UpdateUIDText();
 
-        gameStartButton.onClick.AddListener(() => OnStartGameButtonClicked().Forget());
-        logInOutButton.onClick.AddListener(() => OnLogInOutButtonClicked());
-        enemyTestButton.onClick.AddListener(() => OnEnemyTestButtonClicked().Forget());
-        cameraTestButton.onClick.AddListener(() => OnCameraTestButtonClicked().Forget());
-        asyncRaidTestButton.onClick.AddListener(() => OnAsyncRaidTestButtonclicked().Forget());
+        // gameStartButton?.onClick.AddListener(() => OnStartGameButtonClicked().Forget());
+        logInOutButton?.onClick.AddListener(() => OnLogInOutButtonClicked());
+        // enemyTestButton?.onClick.AddListener(() => OnEnemyTestButtonClicked().Forget());
+        // cameraTestButton?.onClick.AddListener(() => OnCameraTestButtonClicked().Forget());
+        // asyncRaidTestButton?.onClick.AddListener(() => OnAsyncRaidTestButtonclicked().Forget());
+
+        exitButton?.onClick.AddListener(() => exitPanel.SetActive(true));
+        exitCanelButton?.onClick.AddListener(() => exitPanel.SetActive(false));
 
 #if UNITY_EDITOR
-        exitButton.onClick.AddListener(() => UnityEditor.EditorApplication.isPlaying = false);
+        exitAcceptButton?.onClick.AddListener(() => UnityEditor.EditorApplication.isPlaying = false);
 #elif UNITY_ANDROID
-        exitButton.onClick.AddListener(() => Application.Quit());
+        exitAcceptButton?.onClick.AddListener(() => Application.Quit());
 #endif
 
         InteractableButtons(true);
 
-        gameStartButton.interactable = false;
+        exitPanel.SetActive(false);
+
+        finishLoading = true;
+
+        // gameStartButton.interactable = false;
+    }
+
+    private async UniTask CheckLogin()
+    {
+        SetExplainText("Checking login status...");
+
+        await UniTask.WaitUntil(() => AuthManager.Instance.IsInitialized);
+
+        if (AuthManager.Instance.IsSignedIn)
+        {
+            SetExplainText($"Welcome back, {AuthManager.Instance.UserNickName}!");
+            infoPopUpUI.SetNickNameText(AuthManager.Instance.UserNickName);
+            playText.SetActive(true);
+        }
+        else
+        {
+            SetExplainText("Please log in to continue.");
+            canvasManager.SwitchToTargetPopUp(MainTitleCanvasManager.PopupName.LogIn);
+        }
     }
 
     private void OnLogInOutButtonClicked()
     {
         if(AuthManager.Instance.IsSignedIn)
         {
-            AuthManager.Instance.SignOut();
-            logInOutButton.GetComponentInChildren<TextMeshProUGUI>().text = "Log In";
-            canvasManager.UpdateUIDText();
-            gameStartButton.interactable = false;
+            canvasManager.SwitchToTargetPopUp(MainTitleCanvasManager.PopupName.Info);
+            // logInOutButton.GetComponentInChildren<TextMeshProUGUI>().text = "Log In";
+            // canvasManager.UpdateUIDText();
+            // gameStartButton.interactable = false;
         }
         else
         {
             canvasManager.SwitchToTargetPopUp(MainTitleCanvasManager.PopupName.LogIn);
-            logInOutButton.GetComponentInChildren<TextMeshProUGUI>().text = "Log Out";
-            canvasManager.UpdateUIDText();
-            gameStartButton.interactable = true;
+            // logInOutButton.GetComponentInChildren<TextMeshProUGUI>().text = "Log Out";
+            // canvasManager.UpdateUIDText();
+            // gameStartButton.interactable = true;
         }
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (!finishLoading) return;
+
         if(AuthManager.Instance.IsSignedIn)
         {
-            gameStartButton.interactable = true;
+            if (TouchManager.Instance.IsTouching && isNotGameStart && CheckAllPanelClosed() &&
+                !RectTransformUtility.RectangleContainsScreenPoint(logInOutButton.GetComponent<RectTransform>(), TouchManager.Instance.TouchPos) &&
+                !RectTransformUtility.RectangleContainsScreenPoint(exitButton.GetComponent<RectTransform>(), TouchManager.Instance.TouchPos))
+            {
+                Debug.Log("Game Start Button Clicked");
+                isNotGameStart = false;
+                SceneControlManager.Instance.LoadScene(SceneName.StageSelectScene).Forget();
+            }
         }
+    }
+
+    private bool CheckAllPanelClosed()
+    {
+        return !exitPanel.activeSelf && !infoPanel.activeSelf && !SignInPanel.activeSelf;
     }
 
     private void InteractableButtons(bool interactable)
     {
-        gameStartButton.interactable = interactable;
+        // gameStartButton.interactable = interactable;
         // signUpButton.interactable = interactable;
         // closeButton.interactable = interactable;
     }
 
-    private async UniTaskVoid OnStartGameButtonClicked()
+    public void SetExplainText(string message)
     {
-        // List<UniTask> loadTasks = new List<UniTask>
-        // {
-        //     loadManager.LoadGamePrefabAsync(AddressLabel.Prefab),
-        // };
-
-        Debug.Log("Game Start Button Clicked");
-        await SceneControlManager.Instance.LoadScene(SceneName.StageSelectScene);
+        explainText.text = message;
     }
 
-    private async UniTaskVoid OnEnemyTestButtonClicked()
+    public void SetActivePlayText(bool active)
     {
-        await SceneControlManager.Instance.LoadScene(SceneName.EnemyTestScene);
+        playText.SetActive(active);
     }
 
-    private async UniTaskVoid OnCameraTestButtonClicked()
-    {
-        await SceneControlManager.Instance.LoadScene(SceneName.CameraTestScene);
-    }
+    // private async UniTaskVoid OnStartGameButtonClicked()
+    // {
+    //     // List<UniTask> loadTasks = new List<UniTask>
+    //     // {
+    //     //     loadManager.LoadGamePrefabAsync(AddressLabel.Prefab),
+    //     // };
 
-    private async UniTaskVoid OnAsyncRaidTestButtonclicked()
-    {
-        await SceneControlManager.Instance.LoadScene(SceneName.AsyncRaidTestScene);
-    }
+    //     Debug.Log("Game Start Button Clicked");
+    //     await SceneControlManager.Instance.LoadScene(SceneName.StageSelectScene);
+    // }
+
+    // private async UniTaskVoid OnEnemyTestButtonClicked()
+    // {
+    //     await SceneControlManager.Instance.LoadScene(SceneName.EnemyTestScene);
+    // }
+
+    // private async UniTaskVoid OnCameraTestButtonClicked()
+    // {
+    //     await SceneControlManager.Instance.LoadScene(SceneName.CameraTestScene);
+    // }
+
+    // private async UniTaskVoid OnAsyncRaidTestButtonclicked()
+    // {
+    //     await SceneControlManager.Instance.LoadScene(SceneName.AsyncRaidTestScene);
+    // }
 }

@@ -23,16 +23,11 @@ public class AsyncUserPlanet : LivingEntity
     private TowerDataSO towerDataSO;
     private float currentDamage;
 
-    private async void Awake()
+    private void Awake()
     {
         // livingTime = Random.Range(5f, 10f);
         livingTime = Random.Range(20f, 40f);
         abilities = new List<int>();
-    }
-
-    private async void Start()
-    {
-        
     }
 
     protected override void OnEnable()
