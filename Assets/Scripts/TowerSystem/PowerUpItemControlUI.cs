@@ -101,6 +101,12 @@ public class PowerUpItemControlUI : MonoBehaviour
 
         SetTowerOpenInfoTouch();
         SetActiveItemUseButton(false);
+        Variables.Quasar--;
+
+        if(Variables.Quasar > 0)
+        {
+            SetActiveItemUseButton(true);
+        }
     }
 
     private void SetTowerOpenInfoTouch()
