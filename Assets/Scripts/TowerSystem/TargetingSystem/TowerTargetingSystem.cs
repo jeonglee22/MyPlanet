@@ -91,9 +91,13 @@ public class TowerTargetingSystem : MonoBehaviour
             if (target == null) continue;
             if (!target.isAlive) continue;
 
-            //Enemy Data Null Check
+            //Boss Enemy
             var enemy = target as Enemy;
-            if (enemy != null && enemy.Data == null) continue;
+            if(enemy!=null)
+            {
+                if (enemy.Data == null) continue;
+                if (enemy.Data.EnemyType == 4 && Variables.MiddleBossEnemy != null) continue;
+            }
 
             //View Check
             Vector3 vp = cam.WorldToViewportPoint(target.position);

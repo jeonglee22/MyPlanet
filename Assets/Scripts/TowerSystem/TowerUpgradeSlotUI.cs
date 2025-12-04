@@ -68,7 +68,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     private HashSet<AmplifierTowerDataSO> usedAmplifierTowerTypesThisRoll
     = new HashSet<AmplifierTowerDataSO>();
 
-    private const int MaxReinforceLevel = 4;
+    private const int MaxReinforceLevel = 0;
     //----------------------------------------
 
     private void Start()
