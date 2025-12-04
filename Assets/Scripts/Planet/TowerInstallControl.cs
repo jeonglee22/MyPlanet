@@ -83,6 +83,7 @@ public class TowerInstallControl : MonoBehaviour
     [Header("Drag Settings")]
     [SerializeField] private Canvas uiCanvas;          
     [SerializeField] private GameObject dragImagePrefab; 
+    [SerializeField] private TowerUpgradeSlotUI towerUpgradeSlotUI;
 
     [SerializeField] private RectTransform leftRotateRect;
     public RectTransform LeftRotateRect => leftRotateRect;
@@ -154,7 +155,7 @@ public class TowerInstallControl : MonoBehaviour
 
     private void Update()
     {
-        if(currentDragGhost != null && TouchManager.Instance.IsTouching)
+        if((currentDragGhost != null || (towerUpgradeSlotUI != null && towerUpgradeSlotUI.DragImage != null)) && TouchManager.Instance.IsTouching)
         {
             if(RectTransformUtility.RectangleContainsScreenPoint(leftRotateRect, TouchManager.Instance.TouchPos))
             {
@@ -498,12 +499,25 @@ public class TowerInstallControl : MonoBehaviour
         if (amp != null && amp.AmplifierTowerData != null)
         {
             HighlightForAmplifierSlot(index);
+            SizeUpSlot(index);
         }
         else if (attack != null && attack.AttackTowerData != null)
         {
             HighlightForAttackSlot(index);
+            SizeUpSlot(index);
         }
-        else ClearAllSlotHighlights();
+        else 
+        {
+            ClearAllSlotHighlights();
+        }
+    }
+
+    private void SizeUpSlot(int index)
+    {
+        var tower = towers[index];
+        if (tower == null) return;
+
+        tower.GetComponent<RectTransform>().localScale = Vector3.one * 1.5f;
     }
 
     public TowerDataSO GetTowerData(int index)
@@ -589,6 +603,8 @@ public class TowerInstallControl : MonoBehaviour
             {
                 highlight.SetHighlight(TowerHighlightType.None);
             }
+
+            t.GetComponent<RectTransform>().localScale = Vector3.one;
         }
     }
 

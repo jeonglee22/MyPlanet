@@ -41,6 +41,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     }
 
     private GameObject dragImage = null;
+    public GameObject DragImage => dragImage;
     private int choosedIndex = -1;
     private int firstTouchIndex = -1;
     private bool isFirstInstall = true;
@@ -973,6 +974,8 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         towerImageIsDraging = true;
         dragImage.SetActive(true);
         dragImage.transform.position = touchPos;
+        installControl.LeftRotateRect.gameObject.SetActive(true);
+        installControl.RightRotateRect.gameObject.SetActive(true);
     }
 
     public void OnTouchStateCheck()
@@ -996,6 +999,9 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
             Destroy(dragImage);
             dragImage = null;
+
+            installControl.LeftRotateRect.gameObject.SetActive(false);
+            installControl.RightRotateRect.gameObject.SetActive(false);
 
             choosedIndex = -1;
             firstTouchIndex = -1;

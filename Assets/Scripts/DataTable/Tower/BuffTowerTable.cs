@@ -10,6 +10,9 @@ public class BuffTowerData
     public int SpecialEffectCombination_ID { get; set; }
     public int RandomAbilityGroup_ID { get; set; }
     public int[] BuffTowerReinforceUpgrade_ID { get; set; }
+    public int TowerWeight { get; set; }
+    public int Order { get; set; }
+    public int TowerText_ID { get; set; }
 
     public override string ToString()
     {
@@ -34,7 +37,7 @@ public class BuffTowerTable : DataTable
         {
             if (!dictionary.TryAdd(item.BuffTower_ID, item))
             {
-                Debug.LogError($"[BuffTowerTable] �ߺ� Ű: {item.BuffTower_ID}");
+                Debug.LogError($"[BuffTowerTable] �ߺ� Ű: {item.BuffTower_ID}");
             }
         }
     }
@@ -49,4 +52,15 @@ public class BuffTowerTable : DataTable
     }
 
     public IReadOnlyDictionary<int, BuffTowerData> GetAll() => dictionary;
+
+    
+    public int GetTowerTextIdById(int id)
+    {
+        var data = Get(id);
+        if (data != null)
+        {
+            return data.TowerText_ID;
+        }
+        return -1;
+    }
 }
