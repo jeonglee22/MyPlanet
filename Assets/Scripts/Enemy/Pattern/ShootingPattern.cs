@@ -20,18 +20,25 @@ public abstract class ShootingPattern : IPattern
     protected float lastExecuteTime;
     protected bool isExecuteOneTime;
 
+    protected Transform target;
+
     public virtual void Initialize(Enemy enemy, EnemyMovement movement, EnemyTableData enemyData)
     {
-        this.owner = enemy;
+        owner = enemy;
         this.movement = movement;
         this.enemyData = enemyData;
-        this.spawner = PatternSpawner.Instance;
-        this.executor = enemy.GetComponent<PatternExecutor>();
+        spawner = PatternSpawner.Instance;
+        executor = enemy.GetComponent<PatternExecutor>();
 
         patternData = enemy.CurrentPatternData;
 
         lastExecuteTime = Time.time;
         isExecuteOneTime = false;
+
+        if(target == null)
+        {
+            target = GameObject.FindGameObjectWithTag(TagName.Planet).transform;
+        }
     }
 
     public virtual bool CanExecute()

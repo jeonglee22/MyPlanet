@@ -23,6 +23,8 @@ public class PlanetTowerUI : MonoBehaviour
     private Vector2 circleCenter = new Vector2(0f, -20f);
     private float controlRadius;
 
+    private bool isOpen = false;
+
     void Awake()
     {
         towerUpgradeSlotUI = GetComponent<TowerUpgradeSlotUI>();
@@ -45,7 +47,16 @@ public class PlanetTowerUI : MonoBehaviour
 
     void OnEnable()
     {
-        Time.timeScale = 0f;
+        if (!isOpen)
+        {
+            GamePauseManager.Instance.Pause();
+            isOpen = true;
+        }
+    }
+
+    void OnDisable()
+    {
+        isOpen = false;
     }
 
     void Update()
@@ -118,7 +129,7 @@ public class PlanetTowerUI : MonoBehaviour
         if (towerInfoUI != null)
             towerInfoUI.gameObject.SetActive(false);
         gameObject.SetActive(false);
-        Time.timeScale = 1f;
+        GamePauseManager.Instance.Resume();
     }
 
     private void OnGoToTitleClicked()

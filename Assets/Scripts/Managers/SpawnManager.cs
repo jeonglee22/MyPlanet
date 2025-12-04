@@ -50,6 +50,13 @@ public class SpawnManager : MonoBehaviour
     private void Start()
     {
         ChangeSpawningState();
+
+        CameraManager.Instance.OnZoomOut += SetScreenBounds;
+    }
+
+    private void OnDisable()
+    {
+        CameraManager.Instance.OnZoomOut -= SetScreenBounds;
     }
 
     public void ChangeSpawningState() => IsSpawning = !IsSpawning;
@@ -177,5 +184,7 @@ public class SpawnManager : MonoBehaviour
         }
 
         OnBossSpawn?.Invoke();
+
+        
     }
 }

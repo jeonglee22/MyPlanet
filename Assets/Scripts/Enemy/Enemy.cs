@@ -164,7 +164,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
             OnPatternLineTrigger();
         }
 
-        if(other.CompareTag(TagName.CenterStone) || (data.EnemyType == 4 && Variables.MiddleBossEnemy != null))
+        if(other.CompareTag(TagName.CenterStone) || data.EnemyType == 4 || data.EnemyType == 3)
         {
             return;
         }

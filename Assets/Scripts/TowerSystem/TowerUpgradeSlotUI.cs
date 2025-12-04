@@ -47,6 +47,8 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     public bool IsFirstInstall => isFirstInstall;
     [SerializeField] private Button[] refreshButtons;
 
+    private bool isTutorial = false;
+
     //Upgrade System -------------------------
     private struct TowerOptionKey
     {
@@ -73,6 +75,13 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         // SetActiveRefreshButtons(false);
         installControl.OnTowerInstalled += SetTowerInstallText;
+
+        SetIsTutorial(TutorialManager.Instance.IsTutorialMode);
+
+        if(isTutorial && Variables.Stage == 1)
+        {
+            TutorialManager.Instance.ShowTutorialStep(2);
+        }
     }
 
     void OnDestroy()
@@ -119,12 +128,17 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             ui.SetActive(false);
         SetActiveRefreshButtons(false);
 
-        Time.timeScale = 1f;
+        GamePauseManager.Instance.Resume();
         numlist = null;
         choosedIndex = -1;
         isStartTouch = false;
         towerImageIsDraging = false;
         isFirstInstall = false;
+
+        if(isTutorial && Variables.Stage == 1)
+        {
+            TutorialManager.Instance.ShowTutorialStep(1);
+        }
     }
 
     private void Update()
@@ -325,7 +339,12 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         if(towerType==1)
         {
-            var ampData = GetRandomAmplifierForCard();
+            if(isTutorial && Variables.Stage == 1)
+            {
+                TutorialManager.Instance.ShowTutorialStep(3);
+            }
+
+            var ampData = GetRandomAmplifier();
 
             choices[i].InstallType = TowerInstallType.Amplifier;
             choices[i].AmplifierTowerData = ampData;
@@ -1002,6 +1021,15 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         return results;
     }
+    private AmplifierTowerDataSO GetRandomAmplifier()
+    {
+        if (allAmplifierTowers == null || allAmplifierTowers.Length == 0)
+            return null;
+
+        int idx = Random.Range(0, allAmplifierTowers.Length);
+
+        return allAmplifierTowers[idx];
+    }
 
     private int GetAbilityIdForAttackTower(TowerDataSO towerData)
     {
@@ -1015,6 +1043,11 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 useWeight: true);
         }
         return abilityId;
+    }
+
+    private void SetIsTutorial(bool isTutorial)
+    {
+        this.isTutorial = isTutorial;
     }
 
     //Upgrade System -------------------------
@@ -1181,12 +1214,20 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     {
         return installControl.CurrentTowerCount;
     }
+
     private AmplifierTowerDataSO GetRandomAmplifierForCard(
     ICollection<AmplifierTowerDataSO> extraExcludes = null)
     {
         if (allAmplifierTowers == null || allAmplifierTowers.Length == 0)
             return null;
 
+        int tutorialIdx = Random.Range(0, allAmplifierTowers.Length);
+        if(isTutorial && Variables.Stage == 1)
+        {
+            tutorialIdx = Random.Range(0, 2); // Basic Amplifier Towers Only
+            return allAmplifierTowers[idx];
+        }
+        
         HashSet<AmplifierTowerDataSO> excludeSet = new HashSet<AmplifierTowerDataSO>();
 
         for (int i = 0; i < installControl.TowerCount; i++)
@@ -1219,6 +1260,8 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             return null;
 
         int idx = UnityEngine.Random.Range(0, candidates.Count);
+
+
         return candidates[idx];
     }
 

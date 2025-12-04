@@ -13,6 +13,8 @@ public class PlanetStatusUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI levelText;
     [SerializeField] private TowerInstallControl towerInstallControl;
 
+    private bool isTutorial = false;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -23,6 +25,8 @@ public class PlanetStatusUI : MonoBehaviour
 
         towerSettingUi.SetActive(true);
         Initialize();
+
+        SetIsTutorial(TutorialManager.Instance.IsTutorialMode);
         //test
     }
 
@@ -58,7 +62,7 @@ public class PlanetStatusUI : MonoBehaviour
     private void OpenTowerUpgradeUI()
     {
         towerSettingUi.SetActive(true);
-            Time.timeScale = 0f;
+        
         towerInstallControl.isInstall = false;
     }
 
@@ -75,5 +79,10 @@ public class PlanetStatusUI : MonoBehaviour
     public void AddExp(float exp = 10f)
     {
         planet.CurrentExp += exp;
+    }
+
+    private void SetIsTutorial(bool isTutorialMode)
+    {
+        isTutorial = isTutorialMode;
     }
 }
