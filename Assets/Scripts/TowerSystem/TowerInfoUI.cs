@@ -613,7 +613,7 @@ public class TowerInfoUI : MonoBehaviour
             foreach (int v in rightList)
                 rightPos.Add($"{v}번째");
 
-            sb.AppendLine($"왼쪽 {string.Join(", ", rightPos)}");
+            sb.AppendLine($"오른쪽 {string.Join(", ", rightPos)}");
         }
 
         if (leftList.Count > 0)
@@ -622,7 +622,7 @@ public class TowerInfoUI : MonoBehaviour
             foreach (int v in leftList)
                 leftPos.Add($"{v}번째");
 
-            sb.AppendLine($"오른쪽 {string.Join(", ", leftPos)}");
+            sb.AppendLine($"왼쪽 {string.Join(", ", leftPos)}");
         }
 
         return sb.ToString();
