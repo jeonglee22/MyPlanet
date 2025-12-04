@@ -53,6 +53,8 @@ public class WaveManager : MonoBehaviour
     public event Action LastBossSpawned;
     public event Action MiddleBossDefeated;
 
+    private bool isTutorial = false;
+
     private void Awake()
     {
         if (instance == null)
@@ -67,6 +69,8 @@ public class WaveManager : MonoBehaviour
         Cancel();
         ResetWave();
         Variables.Reset();
+
+        SetIsTutorial(TutorialManager.Instance.IsTutorialMode);
     }
 
     private void OnDestroy()
@@ -354,5 +358,10 @@ public class WaveManager : MonoBehaviour
                 StartNextWave(waveCts.Token).Forget();
             }
         }
+    }
+
+    private void SetIsTutorial(bool isTutorialMode)
+    {
+        isTutorial = isTutorialMode;
     }
 }

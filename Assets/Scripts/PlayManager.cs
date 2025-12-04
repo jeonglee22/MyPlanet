@@ -7,11 +7,15 @@ public class PlayManager : MonoBehaviour
 
     [SerializeField] private GameObject gameOverUI;
 
+    private bool isTutorial = false;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         planet.OnDeathEvent += GameOver;
         gameOverUI.SetActive(false);
+
+        SetIsTutorial(TutorialManager.Instance.IsTutorialMode);
     }
 
     void OnDestroy()
@@ -36,8 +40,18 @@ public class PlayManager : MonoBehaviour
 
     private void GameClear()
     {
+        if(isTutorial && Variables.Stage == 2)
+        {
+            TutorialManager.Instance.ShowTutorialStep(12);
+        }
+
         gameOverUI.GetComponent<GameResultUI>().SetResultText(true);
         gameOverUI.SetActive(true);
         GamePauseManager.Instance.Pause();
+    }
+
+    private void SetIsTutorial(bool isTutorialMode)
+    {
+        isTutorial = isTutorialMode;
     }
 }

@@ -415,11 +415,6 @@ public class TowerInstallControl : MonoBehaviour
         }
         else if (ChoosedData.InstallType == TowerInstallType.Amplifier)
         {
-            if(isTutorial && Variables.Stage == 1)
-            {
-                TutorialManager.Instance.ShowTutorialStep(4);
-            }
-
             //Install Amplifier Tower
             newTower = Instantiate(towerUIBasePrefab, PlanetTransform);
             towers[index] = newTower;

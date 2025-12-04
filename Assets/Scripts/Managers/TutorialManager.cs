@@ -56,8 +56,6 @@ public class TutorialManager : MonoBehaviour
             tutorialPanel?.SetActive(false);
             return;
         }
-
-        tutorialPanel?.SetActive(true);
     }
 
     private void InitializeTutorialData()

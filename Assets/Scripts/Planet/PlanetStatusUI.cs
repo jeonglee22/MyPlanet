@@ -64,6 +64,11 @@ public class PlanetStatusUI : MonoBehaviour
         towerSettingUi.SetActive(true);
         
         towerInstallControl.isInstall = false;
+
+        if(isTutorial && Variables.Stage == 1)
+        {
+            TutorialManager.Instance.ShowTutorialStep(2);
+        }
     }
 
     private void HpValueChanged(float hp)
