@@ -248,10 +248,11 @@ public class TowerInstallControl : MonoBehaviour
     {
         if (!IsReadyInstall) return;
         if (ChoosedData == null) return;
-
         if (IsSlotMaxLevel(index)) return;
 
-        planet?.UpgradeTower(index);
+        int abilityId = ChoosedData.ability;
+
+        planet?.UpgradeTower(index, abilityId);
 
         IsReadyInstall = false;
         isInstall = true;

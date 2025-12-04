@@ -441,26 +441,26 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
                 SetUpgradeCardForUsedSlot(i, randomSlot, isInitial);
             }
-            else
+            else                                                    //max: gold card
             {
-                //gold card
-
                 abilities[i] = -1;
 
-                choices[i].InstallType = TowerInstallType.Attack;
+                choices[i].InstallType = TowerInstallType.Attack; //default
                 choices[i].AttackTowerData = null;
                 choices[i].AmplifierTowerData = null;
                 choices[i].BuffSlotIndex = null;
                 choices[i].RandomAbilitySlotIndex = null;
                 choices[i].ability = -1;
 
-                uiTexts[i].text = string.Empty;
-
                 var btn = upgradeUIs[i].GetComponent<Button>();
                 if (btn != null)
                     btn.interactable = false;
+                
+                if (i == uiTexts.Length - 1)
+                    uiTexts[i].text = "100\nGOLD";
+                else
+                    uiTexts[i].text = string.Empty;
             }
-
             return;
         }
 
@@ -504,15 +504,12 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         var ampData = GetRandomAmplifierForCard(usedAmplifierTowerTypesThisRoll);
         if (ampData == null)
         {
-            uiTexts[i].text = "No Amp Tower";
-            abilities[i] = -1;
+            SetUpNewAttackCard(i, slotNumber, isInitial);
             return;
         }
 
-        if (isInitial)
-        {
+        if (isInitial) 
             usedAmplifierTowerTypesThisRoll.Add(ampData);
-        }
 
         int ampAbilityId = -1;
         int safe = 0;
@@ -781,24 +778,23 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             {
                 initialOptionKeys[index] = MakeKey(ampTower.AmplifierTowerData, abilityId);
             }
-        }
+            string ampName = !string.IsNullOrEmpty(ampTower.AmplifierTowerData.BuffTowerName)
+            ? ampTower.AmplifierTowerData.BuffTowerName
+            : ampTower.AmplifierTowerData.AmplifierType.ToString();
 
+            string abilityName = GetAbilityName(abilityId);
+            uiTexts[index].text =
+                $"Upgrade\n{number}\n{ampName}\n{abilityName}";
+        }
+        else
+        {
+            abilities[index] = -1;
+            choices[index].ability = -1;
+            uiTexts[index].text = "Upgrade\n-\n-";
+            return;
+        }
         abilities[index] = abilityId;
         choices[index].ability = abilityId;
-
-        string towerName = "-";
-        if (towerData != null)
-        {
-            towerName = towerData.towerId;
-        }
-        else if (ampTower != null && ampTower.AmplifierTowerData != null)
-        {
-            var ampData = ampTower.AmplifierTowerData;
-            towerName = !string.IsNullOrEmpty(ampData.BuffTowerName)
-                ? ampData.BuffTowerName
-                : ampData.AmplifierType.ToString();
-        }
-        uiTexts[index].text = $"Upgrade\n{number}\n{towerName}";
     }
 
     public void OnClickRefreshButton(int index)
