@@ -49,7 +49,7 @@ public class AmplifierTowerDataSO : ScriptableObject
     [SerializeField] private float fixedPenetrationBuff = 0f;
     [SerializeField] private int projectileCountBuff = 0;
     [SerializeField] private int targetNumberBuff = 0;
-    [SerializeField] private float hitRateBuff = 1f;
+    [SerializeField] private float hitRateBuff = 0f;
     private int[] buffTowerReinforceUpgradeIds;
 
     public float DamageBuff => damageBuff;
@@ -74,7 +74,7 @@ public class AmplifierTowerDataSO : ScriptableObject
         fixedPenetrationBuff = 0f;
         projectileCountBuff = 0;
         targetNumberBuff = 0;
-        hitRateBuff = 1f;
+        hitRateBuff = 0f;
     }
 
     public void RefreshFromTables() //Runtime
@@ -169,7 +169,7 @@ public class AmplifierTowerDataSO : ScriptableObject
                 break;
 
             case AmplifierStatKind.HitRate:
-                hitRateBuff *= (1f + asRate);
+                hitRateBuff += value;
                 break;
 
             case AmplifierStatKind.HitRadius:

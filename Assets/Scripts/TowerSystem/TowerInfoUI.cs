@@ -522,8 +522,8 @@ public class TowerInfoUI : MonoBehaviour
             buffParts.Add($"관통률 {FormatPercentFromMul(ampData.PercentPenetrationBuff)}");
         if (!Mathf.Approximately(ampData.FixedPenetrationBuff, 0f))
             buffParts.Add($"고정 관통 {ampData.FixedPenetrationBuff:+0.##;-0.##}");
-        if (!Mathf.Approximately(ampData.HitRateBuff, 1f))
-            buffParts.Add($"명중률 {FormatPercentFromMul(ampData.HitRateBuff)}");
+        if (!Mathf.Approximately(ampData.HitRateBuff, 0f))
+            buffParts.Add($"명중률 {ampData.HitRateBuff:+0.##;-0.##}%");
 
         if (buffParts.Count > 0)
         {
@@ -556,7 +556,6 @@ public class TowerInfoUI : MonoBehaviour
     }
     private string FormatOffsetArray(IReadOnlyList<int> targetSlots, int selfIndex)
     {
-        // 카드 쪽이랑 맞추기: 슬롯이 없으면 빈 문자열
         if (targetSlots == null || targetSlots.Count == 0)
             return string.Empty;
 
@@ -567,37 +566,32 @@ public class TowerInfoUI : MonoBehaviour
         if (towerCount <= 1)
             return string.Empty;
 
-        // 오른쪽 / 왼쪽 상대 거리 리스트
         List<int> rightList = new List<int>();
         List<int> leftList = new List<int>();
 
         foreach (int slot in targetSlots)
         {
-            if (slot < 0) continue;       // 안전장치
-            if (slot == selfIndex) continue; // 자기 자신은 표시 안 함
+            if (slot < 0) continue;   
+            if (slot == selfIndex) continue; 
 
-            // 원형(시계 방향 / 반시계 방향) 기준 거리 계산
-            int cw = (slot - selfIndex + towerCount) % towerCount;   // 시계 방향(오른쪽) 거리
-            int ccw = (selfIndex - slot + towerCount) % towerCount;  // 반시계 방향(왼쪽) 거리
+            int cw = (slot - selfIndex + towerCount) % towerCount;  
+            int ccw = (selfIndex - slot + towerCount) % towerCount; 
 
-            // 둘 다 0이면 자기 자신이라 스킵(원래 위에서 걸러짐)
             if (cw == 0 && ccw == 0)
                 continue;
 
-            // 더 가까운 방향을 선택 (동일하면 오른쪽으로 처리)
             if (cw <= ccw)
             {
                 if (cw > 0)
-                    rightList.Add(cw);    // 오른쪽 n칸
+                    rightList.Add(cw); 
             }
             else
             {
                 if (ccw > 0)
-                    leftList.Add(ccw);    // 왼쪽 n칸
+                    leftList.Add(ccw);    
             }
         }
 
-        // 진짜 표시할 게 없으면 빈 문자열
         if (rightList.Count == 0 && leftList.Count == 0)
             return string.Empty;
 
@@ -786,10 +780,10 @@ public class TowerInfoUI : MonoBehaviour
         }
 
         // 명중률 (HitRateBuff: mul, 1.2 -> +20%)
-        if (!Mathf.Approximately(ampData.HitRateBuff, 1f))
+        if (!Mathf.Approximately(ampData.HitRateBuff, 0f))
         {
-            float delta = ampData.HitRateBuff - 1f;
-            string value = FormatPercentFromMul(ampData.HitRateBuff);
+            float delta = ampData.HitRateBuff;           
+            string value = $"{delta:+0.##;-0.##}%";           
             string line = BuildStatChangeLine("명중률", delta, value);
             AddEffectLine(basicEffectListRoot, line);
         }
