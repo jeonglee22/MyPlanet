@@ -65,7 +65,7 @@ public class CameraManager : MonoBehaviour
         currentPos.z = Mathf.Lerp(currentPos.z, targetZ, Time.deltaTime * transitionSpeed);
         mainCamera.transform.position = currentPos;
 
-        if(isChangeZoom && currentPos.z - targetZ < 0.01f)
+        if(isChangeZoom && Mathf.Abs(currentPos.z - targetZ) < 0.01f)
         {
             OnZoomOut?.Invoke();
             isChangeZoom = false;
