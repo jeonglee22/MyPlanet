@@ -155,6 +155,9 @@ public class PowerUpItemControlUI : MonoBehaviour
                 int ability = DataTableManager.RandomAbilityGroupTable.GetRandomAbilityInGroup(abilityGroupId);
                 if (!(towerAbilities.Contains(ability) && DataTableManager.RandomAbilityTable.Get(ability).DuplicateType == 1))
                 {
+                    if (abilities.Contains(ability))
+                        continue;
+                    
                     abilities.Add(ability);
                 }
             }
