@@ -216,10 +216,14 @@ public class Lazer : MonoBehaviour
             }
 
             var damagable = hit.collider.GetComponent<IDamagable>();
-            if(damagable != null)
+            if(damagable != null && damagable is Planet planet)
             {
-                damagable.OnDamage(damage);
-                damageTarget = damagable;
+                if(!planet.IsLazerHit)
+                {
+                    damagable.OnDamage(damage);
+                    damageTarget = damagable;
+                    planet.IsLazerHit = true;
+                }
             }
         }
     }

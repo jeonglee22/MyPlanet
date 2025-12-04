@@ -21,6 +21,7 @@ public abstract class ShootingPattern : IPattern
     protected bool isExecuteOneTime;
 
     protected Transform target;
+    protected Planet planet;
 
     public virtual void Initialize(Enemy enemy, EnemyMovement movement, EnemyTableData enemyData)
     {
@@ -37,7 +38,8 @@ public abstract class ShootingPattern : IPattern
 
         if(target == null)
         {
-            target = GameObject.FindGameObjectWithTag(TagName.Planet).transform;
+            planet = GameObject.FindGameObjectWithTag(TagName.Planet).GetComponent<Planet>();
+            target = planet.transform;
         }
     }
 

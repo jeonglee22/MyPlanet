@@ -142,6 +142,8 @@ public class RootLazerPattern : LazerPattern
             activeLazers.Clear();
             completedLazerCount = 0;
 
+            planet.IsLazerHit = false;
+
             lazerCompletionSource?.TrySetResult();
         }
     }
