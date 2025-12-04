@@ -45,7 +45,7 @@ public class InfoPopUpUI : MonoBehaviour
         closeButton.interactable = interactable;
     }
 
-    private async void OnLogOutButtonClicked()
+    private void OnLogOutButtonClicked()
     {
         InteractableButtons(false);
 

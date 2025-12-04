@@ -72,7 +72,7 @@ public class PlanetStatusUI : MonoBehaviour
         expSlider.value = exp / planet.MaxExp;
     }
 
-    public async UniTaskVoid AddExp(float exp = 10f)
+    public void AddExp(float exp = 10f)
     {
         planet.CurrentExp += exp;
     }

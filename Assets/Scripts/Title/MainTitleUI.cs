@@ -1,8 +1,5 @@
-using System;
-using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using TMPro;
-using Unity.Android.Gradle.Manifest;
 using UnityEngine;
 using UnityEngine.UI;
 

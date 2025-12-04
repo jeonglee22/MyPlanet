@@ -435,17 +435,17 @@ public class TowerInstallControl : MonoBehaviour
 
     private void SettingTowerTransform(float baseAngle)
     {
-        baseAngle = baseAngle % 360f;
-        if (baseAngle < 0f)
-            baseAngle += 360f;
-        Debug.Log("SettingTowerTransform Angle : " + baseAngle.ToString());
+        // baseAngle = baseAngle % 360f;
+        // if (baseAngle < 0f)
+        //     baseAngle += 360f;
+        // Debug.Log("SettingTowerTransform Angle : " + baseAngle.ToString());
 
         var sb = new StringBuilder();
         foreach (var tower in towers)
         {
             var pos = new Vector2(
-                Mathf.Cos(baseAngle * Mathf.Deg2Rad),
-                Mathf.Sin(baseAngle * Mathf.Deg2Rad)
+                Mathf.Cos((baseAngle + 90f) * Mathf.Deg2Rad),
+                Mathf.Sin((baseAngle + 90f) * Mathf.Deg2Rad)
                 ) * (towerRadius + 17f);
             
             var rot = new Vector3(0, 0, baseAngle);
@@ -454,15 +454,16 @@ public class TowerInstallControl : MonoBehaviour
             towerRect.localPosition = pos;
             towerRect.rotation = Quaternion.Euler(rot);
 
-            baseAngle += 270f / towerCount;
-            if (baseAngle >= 135f && baseAngle < 225f)
-                baseAngle += 90f;
+            baseAngle += 360f / towerCount;
+            // baseAngle += 270f / towerCount;
+            // if (baseAngle >= 135f && baseAngle < 225f)
+            //     baseAngle += 90f;
 
-            if (baseAngle >= 360f)
-                baseAngle -= 360f;
+            // if (baseAngle >= 360f)
+            //     baseAngle -= 360f;
 
-            sb.Append(baseAngle);
-            sb.Append(" / ");
+            // sb.Append(baseAngle);
+            // sb.Append(" / ");
         }
         Debug.Log(sb.ToString());
     }
