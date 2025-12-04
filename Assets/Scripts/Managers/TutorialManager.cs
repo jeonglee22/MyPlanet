@@ -53,11 +53,11 @@ public class TutorialManager : MonoBehaviour
         IsTutorialMode = (Variables.Stage <= 2);
         if(!IsTutorialMode)
         {
-            tutorialPanel.SetActive(false);
+            tutorialPanel?.SetActive(false);
             return;
         }
 
-        tutorialPanel.SetActive(true);
+        tutorialPanel?.SetActive(true);
     }
 
     private void InitializeTutorialData()
@@ -137,7 +137,7 @@ public class TutorialManager : MonoBehaviour
             return;
         }
 
-        tutorialPanel.SetActive(true);
+        tutorialPanel?.SetActive(true);
 
         currentStep = step;
         currentTextIndex = 0;
@@ -182,7 +182,7 @@ public class TutorialManager : MonoBehaviour
         currentTextIndex = 0;
         currentTexts.Clear();
 
-        tutorialPanel.SetActive(false);
+        tutorialPanel?.SetActive(false);
     }
 
     private void ApplyTextPoint(TutorialPoint pointType)
