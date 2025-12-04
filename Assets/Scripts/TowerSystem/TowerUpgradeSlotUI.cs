@@ -632,7 +632,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         var sb = new StringBuilder();
 
-        sb.AppendLine("요격타워 기준");
+        sb.AppendLine("증폭타워 기준");
 
         if (rightList.Count > 0)
         {
