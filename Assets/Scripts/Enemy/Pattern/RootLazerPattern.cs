@@ -19,7 +19,7 @@ public class RootLazerPattern : LazerPattern
     private int minBrances = 1;
     private int maxBranches = 2;
     private float segmentLength = 1.5f;
-    private float angleVariance = 60f; //각도분산
+    private float angleVariance = 80f; //각도분산
     private float downwardBias = 0.6f; //하향 편향
 
     private List<Lazer> activeLazers = new List<Lazer>();
