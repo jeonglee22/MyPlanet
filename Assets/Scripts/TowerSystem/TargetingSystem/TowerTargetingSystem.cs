@@ -61,15 +61,15 @@ public class TowerTargetingSystem : MonoBehaviour
 
     private void ScanForTargets()
     {
-        if (rangeData == null || targetStrategy == null)
+        if (targetStrategy == null)
         {
             currentTarget = null;
             currentTargets.Clear();
             return;
         }
 
-        float radius = rangeData.GetRange();
-        float radiusSqr = radius * radius;
+        //float radius = rangeData != null ? rangeData.GetRange() : 999f;
+        //float radiusSqr = radius * radius;
         Vector3 firingPoint = towerFiringPoint.position;
 
         var visibleTargets = VisibleTargetManager.Instance != null
@@ -84,16 +84,23 @@ public class TowerTargetingSystem : MonoBehaviour
         Camera cam = Camera.main;
         if (cam == null) return;
 
+        RangeType preferredRangeType = rangeData != null ? rangeData.RangeType : RangeType.Short;
+
         List<ITargetable> validTargets = new List<ITargetable>();
+        List<(ITargetable target, float distSqr)> allAreaTargets = new List<(ITargetable, float)>();
 
         foreach (var target in visibleTargets)
         {
             if (target == null) continue;
             if (!target.isAlive) continue;
 
-            //Enemy Data Null Check
+            //Boss Enemy
             var enemy = target as Enemy;
-            if (enemy != null && enemy.Data == null) continue;
+            if(enemy!=null)
+            {
+                if (enemy.Data == null) continue;
+                if (enemy.Data.EnemyType == 4 && Variables.MiddleBossEnemy != null) continue;
+            }
 
             //View Check
             Vector3 vp = cam.WorldToViewportPoint(target.position);
@@ -105,18 +112,49 @@ public class TowerTargetingSystem : MonoBehaviour
             Vector3 targetPos = target.position;
             float distSqr = (targetPos - firingPoint).sqrMagnitude;
             // if (distSqr > radiusSqr) continue;
+            
+            RangeType targetAreaType = GetRangeTypeFromViewportY(vp.y);
 
-            validTargets.Add(target);
+            allAreaTargets.Add((target, distSqr));
+
+            if(targetAreaType==preferredRangeType)
+            {
+                validTargets.Add(target);
+            }
         }
 
-        if (validTargets.Count == 0)
+        if (validTargets.Count == 0&&allAreaTargets.Count==0)
         {
             currentTarget = null;
             return;
         }
 
         int maxTargets = MaxTargetCount;
-        for(int i=0; i<maxTargets&& validTargets.Count>0; i++)
+
+        if (validTargets.Count > 0)
+        {
+            List<ITargetable> candidates = validTargets;
+
+            for (int i = 0; i < maxTargets && candidates.Count > 0; i++)
+            {
+                ITargetable best = targetStrategy.SelectTarget(candidates);
+                if (best == null) break;
+
+                currentTargets.Add(best);
+                candidates.Remove(best);
+            }
+        }
+        else
+        {
+            allAreaTargets.Sort((a, b) => a.distSqr.CompareTo(b.distSqr));
+
+            for (int i = 0; i < maxTargets && i < allAreaTargets.Count; i++)
+            {
+                currentTargets.Add(allAreaTargets[i].target);
+            }
+        }
+
+        for (int i=0; i<maxTargets&& validTargets.Count>0; i++)
         {
             ITargetable best = targetStrategy.SelectTarget(validTargets);
             if (best == null) break;
@@ -125,6 +163,14 @@ public class TowerTargetingSystem : MonoBehaviour
         }
         currentTarget = currentTargets.Count > 0 ? currentTargets[0] : null;
     }
+
+    private RangeType GetRangeTypeFromViewportY(float y)
+    {
+        if (y < 1f / 3f) return RangeType.Short;
+        else if (y < 2f / 3f) return RangeType.Mid;
+        else return RangeType.Long;
+    }
+
     public ITargetable GetCurrentTarget() => currentTarget;
 
     public void SetTowerData(TowerDataSO data)
