@@ -9,6 +9,8 @@ public class DescendAndStopMovement : IMovement
     private bool isPatternLine = false;
     public bool IsPatternLine => isPatternLine;
 
+    private float offset = 0.5f;
+
     public void Initialize()
     {
         isArrived = false;
@@ -16,7 +18,7 @@ public class DescendAndStopMovement : IMovement
 
         Rect offSetBounds = SpawnManager.Instance.OffSetBounds;
 
-        targetPosition = new Vector3(offSetBounds.center.x, offSetBounds.yMin, 0f);
+        targetPosition = new Vector3(offSetBounds.center.x, offSetBounds.yMin - offset, 0f);
     }
 
     public Vector3 GetFinalDirection(Vector3 baseDirection, Transform ownerTransform, Transform target)

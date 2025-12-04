@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Cysharp.Threading.Tasks.Triggers;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -107,6 +108,8 @@ public class TowerInstallControl : MonoBehaviour
 
     private int pendingDeleteIndex = -1;
 
+    private bool isTutorial = false;
+
     private void Awake()
     {
         planetTowerUI.TowerCount = towerCount;
@@ -145,6 +148,8 @@ public class TowerInstallControl : MonoBehaviour
 
         if (deleteNoButton != null)
             deleteNoButton.onClick.AddListener(OnDeleteNo);
+        
+        SetIsTutorial(TutorialManager.Instance.IsTutorialMode);
     }
 
     private void Update()
@@ -309,7 +314,7 @@ public class TowerInstallControl : MonoBehaviour
         int idx = UnityEngine.Random.Range(0, availableTowerDatas.Count);
 
         //tutorial
-        if(Variables.Stage == 1)
+        if(isTutorial && Variables.Stage == 1)
         {
             idx = 1; // Basic Tower
         }      
@@ -323,6 +328,12 @@ public class TowerInstallControl : MonoBehaviour
     {
         if (availableTowerDatas == null || availableTowerDatas.Count == 0)
             return null;
+
+        if(isTutorial && Variables.Stage == 1)
+        {
+            var tutorialIdx = 1; // Basic Tower
+            return availableTowerDatas[tutorialIdx];
+        }       
 
         HashSet<TowerDataSO> excludeSet = new HashSet<TowerDataSO>();
 
@@ -404,6 +415,11 @@ public class TowerInstallControl : MonoBehaviour
         }
         else if (ChoosedData.InstallType == TowerInstallType.Amplifier)
         {
+            if(isTutorial && Variables.Stage == 1)
+            {
+                TutorialManager.Instance.ShowTutorialStep(4);
+            }
+
             //Install Amplifier Tower
             newTower = Instantiate(towerUIBasePrefab, PlanetTransform);
             towers[index] = newTower;
@@ -1177,6 +1193,11 @@ public class TowerInstallControl : MonoBehaviour
         SettingTowerTransform(currentAngle);
     }
     //--------------------------------------------------------------
+
+    private void SetIsTutorial(bool isTutorial)
+    {
+        this.isTutorial = isTutorial;
+    }
     public IEnumerable<TowerAmplifier> GetAllAmplifiers()
     {
         if (planet == null) yield break;

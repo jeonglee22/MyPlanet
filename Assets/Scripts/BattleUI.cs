@@ -22,7 +22,10 @@ public class BattleUI : MonoBehaviour
     
     private float battleTime = 0f;
 
+    private bool isTutorial = false;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
+
     void Start()
     {
         statusUIButton.onClick.AddListener(OnOpenTowerStatusClicked);
@@ -58,6 +61,8 @@ public class BattleUI : MonoBehaviour
 
         bossNameText.gameObject.SetActive(false);
         bossHpSlider.gameObject.SetActive(false);
+
+        SetIsTutorial(TutorialManager.Instance.IsTutorialMode);
     }
 
     public void OnDestroy()
@@ -83,14 +88,15 @@ public class BattleUI : MonoBehaviour
     private void OnOpenInstallUIClicked()
     {
         towerInstallUiObj.SetActive(true);
-        Time.timeScale = 0f;
+        
+        GamePauseManager.Instance.Pause();
     }
 
     private void OnOpenTowerStatusClicked()
     {
         towerInstallUiObj.GetComponent<TowerUpgradeSlotUI>().IsNotUpgradeOpen = true;
         towerInstallUiObj.SetActive(true);
-        Time.timeScale = 0f;
+        GamePauseManager.Instance.Pause();
     }
 
     private void SetBattleTimeText(int minutes, int seconds)
@@ -143,10 +149,20 @@ public class BattleUI : MonoBehaviour
     {
         if(!bossHpSlider.gameObject.activeSelf)
         {
+            if(isTutorial && Variables.Stage == 1)
+            {
+                TutorialManager.Instance.ShowTutorialStep(5);
+            }
+
             bossNameText.gameObject.SetActive(true);
             bossHpSlider.gameObject.SetActive(true);
         }
         bossNameText.text = name;
         bossHpSlider.value = currentHp / maxHp;
+    }
+
+    private void SetIsTutorial(bool isTutorialMode)
+    {
+        isTutorial = isTutorialMode;
     }
 }
