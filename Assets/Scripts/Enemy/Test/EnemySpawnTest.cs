@@ -43,7 +43,7 @@ public class EnemySpawnTest : MonoBehaviour
                 enemyId = 400102;
                 break;
             case 1:
-                enemyId = 400105;
+                enemyId = 400106;
                 break;
             case 2:
                 enemyId = 400201;

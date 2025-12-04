@@ -16,8 +16,6 @@ public class CameraManager : MonoBehaviour
 
     public bool IsZoomedOut { get; private set; }
 
-    private bool isFinalBossAlive = false;
-
     private Vector3 currentPos = Vector3.zero;
 
     public event Action OnZoomOut;
@@ -90,7 +88,6 @@ public class CameraManager : MonoBehaviour
 
     private void OnLastBossSpawned()
     {
-        isFinalBossAlive = true;
         ZoomOut();
     }
 }

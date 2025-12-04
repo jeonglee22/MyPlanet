@@ -12,7 +12,9 @@ public class RevolutionMovement : IMovement
     private bool isPatternLine = false;
     public bool IsPatternLine => isPatternLine;
 
-    public void Initialize()
+    private int enemyType;
+
+    public void Initialize(int enemyType)
     {
         isPatternLine = false;
 
@@ -34,6 +36,8 @@ public class RevolutionMovement : IMovement
 
             isRightTransform = false;
         }
+
+        this.enemyType = enemyType;
     }
 
     public Vector3 GetFinalDirection(Vector3 baseDirection, Transform ownerTransform, Transform target)
