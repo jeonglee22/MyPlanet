@@ -957,6 +957,10 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             }
         }
 
+        // Debug.Log("choosedIndex: " + choosedIndex);
+        if (choosedIndex == -1)
+            return;
+
         int targetSlot = (numlist != null && choosedIndex < numlist.Count) ? numlist[choosedIndex] : -1;
         if (targetSlot < 0 || installControl.IsUsedSlot(targetSlot))
             return;
