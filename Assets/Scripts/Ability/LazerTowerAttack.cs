@@ -213,7 +213,15 @@ public class LazertowerAttack : MonoBehaviour
         transform.position = tower.position;
     }
 
-    public void SetLazer(Transform start, float angle, Transform target, Projectile projectile, TowerAttack towerAttack, float duration = 15f, bool isSplit = false, LazertowerAttack baseLazer = null)
+    public void SetLazer(
+        Transform start, 
+        float angle, 
+        Transform target, 
+        Projectile projectile, 
+        TowerAttack towerAttack, 
+        float duration = 15f, 
+        bool isSplit = false, 
+        LazertowerAttack baseLazer = null)
     {
         lineRenderer.positionCount = pointCount;
         Vector3 newDirection = target == null ? Quaternion.Euler(0, 0, angle) * baseLazer.finalDirection : (target.position - start.position).normalized;
@@ -237,6 +245,8 @@ public class LazertowerAttack : MonoBehaviour
 
         InitColliderWidth = GetComponent<BoxCollider>().size.x;
         InitLineRendererWidth = lineRenderer.endWidth;
+
+        ApplyHitSizeScaleFromProjectile();
 
         foreach (var abilityId in abilities)
         {
@@ -293,5 +303,35 @@ public class LazertowerAttack : MonoBehaviour
         var totalDamage = damage * 100f / (100f + totalEnemyDef);
         
         return totalDamage;
+    }
+
+    private void ApplyHitSizeScaleFromProjectile() 
+    {
+        if (projectile == null) return;
+        if (lineRenderer == null && boxCollider == null) return;
+        var baseData = projectile.BaseData != null
+            ? projectile.BaseData
+            : projectile.projectileData;
+
+        if (baseData == null) return;
+        float baseSize = baseData.CollisionSize;
+        float finalSize = projectile.projectileData.CollisionSize;
+
+        if (baseSize <= 0f) return;
+        float factor = finalSize / baseSize; 
+
+        if (lineRenderer != null)
+        {
+            lineRenderer.startWidth = InitLineRendererWidth * factor;
+            lineRenderer.endWidth = InitLineRendererWidth * factor;
+        }
+
+        if (boxCollider != null)
+        {
+            var size = boxCollider.size;
+            size.x = InitColliderWidth * factor;
+            size.z = InitColliderWidth * factor;
+            boxCollider.size = size;
+        }
     }
 }
