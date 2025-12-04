@@ -57,6 +57,7 @@ public class TowerInstallControl : MonoBehaviour
     public List<GameObject> Towers => towers;
 
     private float towerRadius = 100f;
+    public float TowerRadius { get => towerRadius; }
 
     [SerializeField] private PlanetTowerUI planetTowerUI;
     private float currentAngle;
@@ -77,9 +78,15 @@ public class TowerInstallControl : MonoBehaviour
     [SerializeField] private Canvas uiCanvas;          
     [SerializeField] private GameObject dragImagePrefab; 
 
+    [SerializeField] private RectTransform leftRotateRect;
+    public RectTransform LeftRotateRect => leftRotateRect;
+    [SerializeField] private RectTransform rightRotateRect;
+    public RectTransform RightRotateRect => rightRotateRect;
+
     private bool isDraggingTower = false;
     private int dragSourceIndex = -1;
     private GameObject currentDragGhost;
+    public GameObject CurrentDragGhost => currentDragGhost;
     private RectTransform currentDragGhostRect;
 
     private Image dragSourceImage;
@@ -137,6 +144,21 @@ public class TowerInstallControl : MonoBehaviour
 
     private void Update()
     {
+        if(currentDragGhost != null && TouchManager.Instance.IsTouching)
+        {
+            if(RectTransformUtility.RectangleContainsScreenPoint(leftRotateRect, TouchManager.Instance.TouchPos))
+            {
+                currentAngle += dragRotateSpeed * 0.3f * Time.unscaledDeltaTime * -1f;
+                SettingTowerTransform(currentAngle);
+            }
+            else if (RectTransformUtility.RectangleContainsScreenPoint(rightRotateRect, TouchManager.Instance.TouchPos))
+            {
+                currentAngle += dragRotateSpeed * 0.3f * Time.unscaledDeltaTime * 1f;
+                SettingTowerTransform(currentAngle);
+            }
+            planetTowerUI.Angle = currentAngle;
+            return;
+        }
         if (planetTowerUI != null && currentAngle != planetTowerUI.Angle)
         {
             var beforeDiff = currentAngle - planetTowerUI.Angle;
@@ -465,7 +487,6 @@ public class TowerInstallControl : MonoBehaviour
             // sb.Append(baseAngle);
             // sb.Append(" / ");
         }
-        Debug.Log(sb.ToString());
     }
 
     public TowerAttack GetAttackTower(int index)
@@ -1125,4 +1146,14 @@ public class TowerInstallControl : MonoBehaviour
     }
 
     //--------------------------------------------------------------
+    private void RotatePlanetWithDragImage()
+    {
+        var dragGo = currentDragGhost;
+        var dragRect = currentDragGhostRect;
+
+        if (dragGo == null || dragRect == null || uiCanvas == null) return;
+
+
+    }
+
 }

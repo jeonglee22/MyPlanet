@@ -43,6 +43,8 @@ public class TowerSlotInputHandler : MonoBehaviour, IPointerDownHandler, IPointe
         else if (isLongPressTriggered)
         {
             installControl?.OnSlotLongPressEnd(slotIndex, eventData.position);
+            installControl.LeftRotateRect.gameObject.SetActive(false);
+            installControl.RightRotateRect.gameObject.SetActive(false);
         }
 
         isPointerDown = false;
@@ -60,6 +62,8 @@ public class TowerSlotInputHandler : MonoBehaviour, IPointerDownHandler, IPointe
         {
             isLongPressTriggered = true;
             installControl?.OnSlotLongPressStart(slotIndex, pointerDownPos);
+            installControl.LeftRotateRect.gameObject.SetActive(true);
+            installControl.RightRotateRect.gameObject.SetActive(true);
         }
 
         // 롱프레스 중 드래그
