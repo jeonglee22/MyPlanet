@@ -329,6 +329,12 @@ public class TowerInstallControl : MonoBehaviour
         if (availableTowerDatas == null || availableTowerDatas.Count == 0)
             return null;
 
+        if(isTutorial && Variables.Stage == 1)
+        {
+            var tutorialIdx = 1; // Basic Tower
+            return availableTowerDatas[tutorialIdx];
+        }       
+
         HashSet<TowerDataSO> excludeSet = new HashSet<TowerDataSO>();
 
         for (int i = 0; i < towerCount; i++)

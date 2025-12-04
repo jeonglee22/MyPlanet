@@ -1221,11 +1221,10 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         if (allAmplifierTowers == null || allAmplifierTowers.Length == 0)
             return null;
 
-        int tutorialIdx = Random.Range(0, allAmplifierTowers.Length);
         if(isTutorial && Variables.Stage == 1)
         {
-            tutorialIdx = Random.Range(0, 2); // Basic Amplifier Towers Only
-            return allAmplifierTowers[idx];
+            int tutorialIdx = Random.Range(0, 2); // Basic Amplifier Towers Only
+            return allAmplifierTowers[tutorialIdx];
         }
         
         HashSet<AmplifierTowerDataSO> excludeSet = new HashSet<AmplifierTowerDataSO>();
