@@ -81,11 +81,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         installControl.OnTowerInstalled += SetTowerInstallText;
 
         SetIsTutorial(TutorialManager.Instance.IsTutorialMode);
-
-        if(isTutorial && Variables.Stage == 1)
-        {
-            TutorialManager.Instance.ShowTutorialStep(2);
-        }
     }
 
     void OnDestroy()
@@ -804,6 +799,11 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
             uiTexts[index].text =
                 $"Upgrade\n{number}\n{ampName}";
+            
+            if(isTutorial && Variables.Stage == 1)
+            {
+                TutorialManager.Instance.ShowTutorialStep(4);
+            }
         }
         else
         {
