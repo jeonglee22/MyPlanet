@@ -588,6 +588,7 @@ public class TowerAttack : MonoBehaviour
             targetNumberFromAmplifier += amp.TargetNumberBuff;
             accuracyFromAmplifier += amp.HitRateBuff;
         }
+        damageBuffMul = Mathf.Max(0f, damageBuffMul);
 
         RecalculateHitRadiusBuffMul();
 
@@ -634,7 +635,10 @@ public class TowerAttack : MonoBehaviour
             Mathf.Clamp(finalRate01 * 100f, 0f, 100f);
         //-------------------------------------------
 
-        addBuffProjectileData.Attack = currentProjectileData.Attack * damageBuffMul;
+        float rawAttack = currentProjectileData.Attack * damageBuffMul;
+
+        addBuffProjectileData.Attack = Mathf.Max(0f, rawAttack);
+
         addBuffProjectileData.ProjectileAddSpeed = currentProjectileData.ProjectileAddSpeed + accelerationBuffAdd;
 
         addBuffProjectileData.AttackType = currentProjectileData.AttackType == newProjectileAttackType
@@ -685,6 +689,8 @@ public class TowerAttack : MonoBehaviour
         }
 
         float finalAttack = (originalProjectileData.Attack + addValue) * reinforceAttackScale;
+        finalAttack = Mathf.Max(0f, finalAttack);
+
         currentProjectileData.Attack = finalAttack;
     }
 
