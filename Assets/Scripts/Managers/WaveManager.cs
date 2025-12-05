@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using NUnit.Framework;
 using UnityEngine;
 
 public struct ScaleData
@@ -69,7 +68,10 @@ public class WaveManager : MonoBehaviour
         Cancel();
         ResetWave();
         Variables.Reset();
+    }
 
+    private void Start()
+    {
         SetIsTutorial(TutorialManager.Instance.IsTutorialMode);
     }
 

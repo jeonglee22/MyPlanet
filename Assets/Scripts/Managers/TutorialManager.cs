@@ -45,17 +45,14 @@ public class TutorialManager : MonoBehaviour
             instance = this;
         }
 
-        InitializeTutorialData();
-    }
-
-    private void Start()
-    {
         IsTutorialMode = (Variables.Stage <= 2);
         if(!IsTutorialMode)
         {
             tutorialPanel?.SetActive(false);
             return;
         }
+
+        InitializeTutorialData();
     }
 
     private void InitializeTutorialData()
