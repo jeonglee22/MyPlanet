@@ -1,6 +1,4 @@
 using Cysharp.Threading.Tasks;
-using Cysharp.Threading.Tasks.CompilerServices;
-using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 

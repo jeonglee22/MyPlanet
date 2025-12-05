@@ -1,13 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using NUnit.Framework;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Pool;
-using UnityEngine.UIElements;
 
 public class Enemy : LivingEntity, ITargetable , IDisposable
 {
@@ -58,6 +53,11 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
     private bool isTutorial = false;
 
+    private void Start()
+    {
+        SetIsTutorial(TutorialManager.Instance.IsTutorialMode);
+    }
+
     protected override void OnEnable()
     {
         base.OnEnable();
@@ -72,8 +72,6 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         OnLifeTimeOverEvent += SpawnManager.Instance.OnEnemyDied;
 
         OnCollisionDamageCalculate = null;
-
-        SetIsTutorial(TutorialManager.Instance.IsTutorialMode);
     }
 
     protected virtual void OnDisable() 

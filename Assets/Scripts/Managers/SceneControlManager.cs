@@ -4,9 +4,6 @@ using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.AddressableAssets;
-using System.Threading.Tasks;
-using System.Runtime.CompilerServices;
-using NUnit.Framework;
 
 public class SceneControlManager : MonoBehaviour
 {
