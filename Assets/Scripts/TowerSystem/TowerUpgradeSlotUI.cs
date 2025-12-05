@@ -180,14 +180,12 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         int totalTowerCount = GetTotalTowerCount();
 
-        // Stage1 튜토리얼은 별도 로직
         if (isTutorial && Variables.Stage == 1)
         {
             SettingStage1Cards(totalTowerCount);
             return;
         }
 
-        // 완전 처음: 타워 하나도 없을 때 → 요격타워만
         if (totalTowerCount == 0)
         {
             List<int> emptySlot = new List<int>();
@@ -245,7 +243,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             }
         }
 
-        // ★ 모든 타워가 MaxLevel이고 새로 설치도 못 할 때만 GOLD 카드 세팅
         if (ShouldShowGoldCard())
         {
             for (int cardIndex = 0; cardIndex < uiTexts.Length; cardIndex++)
@@ -260,18 +257,22 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         float newProb, upgradeProb;
         GetNewUpgradeProbabilities(out newProb, out upgradeProb);
 
+        bool allSlotsUsed =
+            (emptySlots.Count == 0 &&
+             installControl.CurrentTowerCount >= installControl.MaxTowerCount);
+
+        bool globalHasAmpCandidate = HasAnyAmplifierCandidateForCard();
+        bool mustGuaranteeAmplifierThisRoll = allSlotsUsed && globalHasAmpCandidate;
+        bool amplifierCardAlreadyMade = false;
+
         for (int cardIndex = 0; cardIndex < uiTexts.Length; cardIndex++)
         {
-            // 🔍 매 카드마다 "새 설치 후보"가 실제로 남아있는지 검사
             bool hasAttackCandidateForNew = HasAnyNewAttackTowerCandidate();
             bool hasAmplifierCandidateForNew = HasAnyAmplifierCandidateForCard();
 
-            // ❗ 이제부터는 "빈 슬롯 여부"와 상관없이,
-            //    설치 가능한 공격/증폭 타워가 하나라도 있으면 canNew = true
             bool canNew = (hasAttackCandidateForNew || hasAmplifierCandidateForNew);
             bool canUpgrade = upgradeSlots.Count > 0;
 
-            // 설치도, 업그레이드도 못 하면 → (조건되면 GOLD, 아니면 빈칸)
             if (!canNew && !canUpgrade)
             {
                 numlist.Add(-1);
@@ -299,12 +300,16 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 chooseNew = (r < newProb);
             }
 
+            if (mustGuaranteeAmplifierThisRoll &&
+                !amplifierCardAlreadyMade &&
+                cardIndex == uiTexts.Length - 1 &&
+                hasAmplifierCandidateForNew)
+            {
+                chooseNew = true;
+            }
+
             if (chooseNew)
             {
-                // ★ 여기 핵심:
-                //    - 빈 슬롯이 있으면: 기존처럼 그 슬롯에 바인딩
-                //    - 슬롯이 꽉 찼어도: slotNumber = -1 로 두고 "설치 카드"는 만들어둔다.
-                //      (드래그/클릭은 불가하지만, 카드가 '보이기'는 함)
                 int slotNumber = -1;
 
                 if (emptySlots.Count > 0)
@@ -315,7 +320,23 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 }
 
                 numlist.Add(slotNumber);
-                SetUpNewInstallCard(cardIndex, slotNumber, isInitial: true);
+                if (mustGuaranteeAmplifierThisRoll &&
+                    !amplifierCardAlreadyMade &&
+                    hasAmplifierCandidateForNew)
+                {
+                    SetUpNewAmplifierCard(cardIndex, slotNumber, isInitial: true);
+                    amplifierCardAlreadyMade = true;
+                }
+                else
+                {
+                    SetUpNewInstallCard(cardIndex, slotNumber, isInitial: true);
+
+                    if (!amplifierCardAlreadyMade &&
+                        choices[cardIndex].InstallType == TowerInstallType.Amplifier)
+                    {
+                        amplifierCardAlreadyMade = true;
+                    }
+                }
             }
             else
             {
@@ -363,6 +384,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             }
         }
     }
+
 
 
 
