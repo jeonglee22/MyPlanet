@@ -167,6 +167,11 @@ public static class Variables
         set
         {
             quasar = value;
+            if(quasar < 0)
+            {
+                quasar = 0;
+            }
+            
             if(quasar > 0)
             {
                 OnQuasarChanged?.Invoke();

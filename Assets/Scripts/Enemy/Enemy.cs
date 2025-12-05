@@ -37,7 +37,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     private float ratePenetration;
     private float fixedPenetration;
     private Vector3 originalScale;
-    private float lifeTime = 15f;
+    private float lifeTime = 45f;
     public float LifeTime => lifeTime;
     private CancellationTokenSource lifeTimeCts;
     private float exp;
