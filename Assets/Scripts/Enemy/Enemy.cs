@@ -37,7 +37,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     private CancellationTokenSource lifeTimeCts;
     private float exp;
 
-    public int EnemyType => data.EnemyType;
+    private int enemyType;
+    public int EnemyType => enemyType;
 
     [SerializeField] private List<DropItem> drops;
 
@@ -237,6 +238,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         transform.localScale *= scaleData.PrefabScale;
 
         exp = data.Exp * scaleData.ExpScale;
+
+        enemyType = data.EnemyType;
 
         BossAppearance(enemyData.EnemyType);
 

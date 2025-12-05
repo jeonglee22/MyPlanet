@@ -10,6 +10,9 @@ public class EnemyStatusUI : MonoBehaviour
     private Transform cameraTransform;
     private BattleUI battleUI;
 
+    private float radius;
+    private Vector3 canvasOffset;
+
     private void Start()
     {
         enemy = GetComponentInParent<Enemy>();
@@ -23,6 +26,9 @@ public class EnemyStatusUI : MonoBehaviour
         {
             battleUI = GameObject.FindGameObjectWithTag(TagName.BattleUI).GetComponent<BattleUI>();        
         }
+
+        radius = enemy.GetComponent<SphereCollider>().radius * enemy.transform.lossyScale.y;
+        canvasOffset = new Vector3(0f, -(radius + 0.1f), 0f);
     }
 
     private void LateUpdate()
@@ -32,6 +38,7 @@ public class EnemyStatusUI : MonoBehaviour
             return;
         }
 
+        canvas.transform.position = enemy.transform.position + canvasOffset;
         canvas.transform.rotation = Quaternion.identity;
     }
 
