@@ -105,7 +105,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             return;
         }
 
-        gameResumeButton.interactable = false;
+        // gameResumeButton.interactable = false;
 
         if (upgradeUIs == null || upgradeUIs.Length == 0)
             return;
