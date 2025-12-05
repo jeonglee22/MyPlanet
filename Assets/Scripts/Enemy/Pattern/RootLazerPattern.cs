@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 public class RootLazerPattern : LazerPattern
@@ -25,7 +26,7 @@ public class RootLazerPattern : LazerPattern
     private List<Lazer> activeLazers = new List<Lazer>();
     private int completedLazerCount = 0;
 
-    protected override void Shoot()
+    protected override void Shoot(CancellationToken token = default)
     {
         Vector3 startPosition = owner.transform.position;
 
@@ -49,7 +50,7 @@ public class RootLazerPattern : LazerPattern
             lazer.SetLazerWidth(laserWidth);
             lazer.SetTickInterval(tickInterval);
 
-            lazer.Initialize(segment.Start, direction, damage, OnSingleLazerComplete, segmentActualLength);
+            lazer.Initialize(segment.Start, direction, damage, OnSingleLazerComplete, segmentActualLength, token);
 
             lazerObject.SetActive(true);
             activeLazers.Add(lazer);

@@ -77,11 +77,11 @@ public abstract class ShootingPattern : IPattern
 
     public virtual UniTask ExecuteAsync(CancellationToken token)
     {
-        Execute();
+        Shoot(token);
         return UniTask.CompletedTask;
     }
 
-    protected abstract void Shoot();
+    protected abstract void Shoot(CancellationToken token = default);
 
     public virtual void Reset()
     {
