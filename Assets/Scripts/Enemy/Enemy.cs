@@ -55,7 +55,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
     private void Start()
     {
-        SetIsTutorial(TutorialManager.Instance.IsTutorialMode);
+        SetIsTutorial(TutorialManager.Instance?.IsTutorialMode ?? false);
     }
 
     protected override void OnEnable()
@@ -153,7 +153,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
                 WaveManager.Instance.OnBossDefeated(false);
                 if(isTutorial && Variables.Stage == 2)
                 {
-                    TutorialManager.Instance.ShowTutorialStep(10);
+                    TutorialManager.Instance?.ShowTutorialStep(10);
                 }
                 break;
             case 4:
@@ -329,7 +329,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
                 if(isTutorial && Variables.Stage == 2)
                 {
-                    TutorialManager.Instance.ShowTutorialStep(9);
+                    TutorialManager.Instance?.ShowTutorialStep(9);
                 }
                 break;
             case 4:
@@ -339,7 +339,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
                 if(isTutorial && Variables.Stage == 2)
                 {
-                    TutorialManager.Instance.ShowTutorialStep(11);
+                    TutorialManager.Instance?.ShowTutorialStep(11);
                 }
                 break;
         }

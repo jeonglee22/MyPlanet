@@ -40,6 +40,7 @@ public static class SceneName
     public static readonly string UiTestScene = "UiTestScene";
     public static readonly string StageSelectScene = "StageSelectScene";
     public static readonly string AsyncRaidTestScene = "AsyncRaidTestScene";
+    public static readonly string BalanceTestScene = "BalanceTestScene";
 }
 
 public enum AbilityId
@@ -189,6 +190,8 @@ public static class Variables
         LastBossEnemy = null;
         MiddleBossEnemy = null;
     }
+
+    public static bool IsTestMode {get; set;} = false;
 }
 
 public static class AddressLabel

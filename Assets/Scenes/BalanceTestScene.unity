@@ -289,6 +289,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 3552576874918135698, guid: a3ba0402da80b294fbc9c7f3252f3bef, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3552576874918135698, guid: a3ba0402da80b294fbc9c7f3252f3bef, type: 3}
       propertyPath: xAxisLimit
       value: 1.25
       objectReference: {fileID: 0}
@@ -417,6 +421,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6965101979763091209, guid: a3ba0402da80b294fbc9c7f3252f3bef, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1429513900}
+    - targetCorrespondingSourceObject: {fileID: 6965101979763091209, guid: a3ba0402da80b294fbc9c7f3252f3bef, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1429513901}
   m_SourcePrefab: {fileID: 100100000, guid: a3ba0402da80b294fbc9c7f3252f3bef, type: 3}
 --- !u!4 &112521780 stripped
 Transform:
@@ -719,8 +726,8 @@ PrefabInstance:
       value: ProjectilePool
       objectReference: {fileID: 0}
     m_RemovedComponents:
-    - {fileID: 2982303365931922393, guid: e422beeb38f3d85458f873802aa840fe, type: 3}
     - {fileID: 2284796864250797210, guid: e422beeb38f3d85458f873802aa840fe, type: 3}
+    - {fileID: 2982303365931922393, guid: e422beeb38f3d85458f873802aa840fe, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -1014,10 +1021,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 8058390613731225110, guid: 560bd00dc53c32740bdeb24fbcd3017f, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1366700317}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 560bd00dc53c32740bdeb24fbcd3017f, type: 3}
 --- !u!1 &1055978224
 GameObject:
@@ -1126,24 +1130,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5619869323305318227, guid: a3ba0402da80b294fbc9c7f3252f3bef, type: 3}
   m_PrefabInstance: {fileID: 112521779}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1366700316 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8058390613731225110, guid: 560bd00dc53c32740bdeb24fbcd3017f, type: 3}
-  m_PrefabInstance: {fileID: 1030911501}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1366700317
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1366700316}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 723cc45d29bfa7c4e9976bc8e788c931, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  fpsText: {fileID: 0}
 --- !u!1 &1405701171
 GameObject:
   m_ObjectHideFlags: 0
@@ -1249,6 +1235,21 @@ MonoBehaviour:
   baseColor: {r: 1, g: 1, b: 1, a: 1}
   hitColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   IsLazerHit: 0
+--- !u!114 &1429513901
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1429513896}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a31c395e569fc2049bc7750c2c18e32d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 10
+  attackSpeed: 1
+  range: 5
 --- !u!1 &1488899771
 GameObject:
   m_ObjectHideFlags: 0

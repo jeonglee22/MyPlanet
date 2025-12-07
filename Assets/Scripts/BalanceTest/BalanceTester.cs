@@ -10,7 +10,7 @@ public class BalanceTester : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (TouchManager.Instance.IsTouching)
         {
             TestBalance();
         }

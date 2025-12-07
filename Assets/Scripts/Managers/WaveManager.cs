@@ -72,7 +72,7 @@ public class WaveManager : MonoBehaviour
 
     private void Start()
     {
-        SetIsTutorial(TutorialManager.Instance.IsTutorialMode);
+        SetIsTutorial(TutorialManager.Instance?.IsTutorialMode ?? false);
     }
 
     private void OnDestroy()
@@ -149,6 +149,11 @@ public class WaveManager : MonoBehaviour
 
     public async UniTask InitializeStage(int stageId)
     {
+        if (Variables.IsTestMode)
+        {
+            return;
+        }
+
         Cancel();
 
         CancellationToken cts = waveCts.Token;
