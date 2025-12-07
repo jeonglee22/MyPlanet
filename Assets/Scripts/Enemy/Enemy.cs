@@ -54,6 +54,9 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
     private bool isTutorial = false;
 
+    private bool isInvincible = false;
+    private bool hasReachedStartPosition = false;
+
     private void Start()
     {
         SetIsTutorial(TutorialManager.Instance.IsTutorialMode);
@@ -100,8 +103,35 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         StopLifeTime();
     }
 
+    private void Update()
+    {
+        if((enemyType == 3 || enemyType == 4) && !hasReachedStartPosition)
+        {
+            if(movement?.CurrentMovement != null && movement.CurrentMovement.IsCompleted())
+            {
+                OnReachedStartPosition();
+            }
+        }
+    }
+
+    private void OnReachedStartPosition()
+    {
+        hasReachedStartPosition = true;
+        isInvincible = false;
+
+        if(patternExecutor != null)
+        {
+            patternExecutor.OnBossReady();
+        }
+    }
+
     public override void OnDamage(float damage)
     {
+        if(isInvincible)
+        {
+            return;
+        }
+
         if(data.EnemyType == 4 && Variables.MiddleBossEnemy != null)
         {
             return;
@@ -321,14 +351,24 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
     private void BossAppearance(int enemyType)
     {
+        if(enemyType != 3 && enemyType != 4)
+        {
+            return;
+        }
+
+        SpawnManager.Instance.DespawnAllEnemiesExceptBoss();
+
         var radius = gameObject.GetComponent<SphereCollider>().radius * transform.localScale.x;
+        transform.position = Spawner.transform.position + new Vector3(0f, radius, 0f);
+
+        isInvincible = true;
+        hasReachedStartPosition = false;
 
         switch (enemyType)
         {
             case 3:
                 Variables.MiddleBossEnemy = this;
                 WaveManager.Instance.OnBossSpawned(false);
-                transform.position = Spawner.transform.position + new Vector3(0f, radius, 0f);
 
                 if(isTutorial && Variables.Stage == 2)
                 {
@@ -338,18 +378,12 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
             case 4:
                 Variables.LastBossEnemy = this;
                 WaveManager.Instance.OnBossSpawned(true);
-                transform.position = Spawner.transform.position + new Vector3(0f, radius, 0f);
 
                 if(isTutorial && Variables.Stage == 2)
                 {
                     TutorialManager.Instance.ShowTutorialStep(11);
                 }
                 break;
-        }
-
-        if(enemyType == 3 || enemyType == 4)
-        {
-            SpawnManager.Instance.DespawnAllEnemiesExceptBoss();
         }
     }
 

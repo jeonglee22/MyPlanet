@@ -7,4 +7,5 @@ public interface IMovement
     public void OnPatternLine();
     public bool IsCompleted();
     public bool IsPatternLine { get; }
+    public float GetSpeedMultiplier();
 }

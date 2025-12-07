@@ -50,5 +50,7 @@ public class HomingMovement : IMovement
         isPatternLine = true;
     }
 
-    public bool IsCompleted() => false;
+    public bool IsCompleted() => isDirectionSet;
+
+    public float GetSpeedMultiplier() => 1f;
 }
