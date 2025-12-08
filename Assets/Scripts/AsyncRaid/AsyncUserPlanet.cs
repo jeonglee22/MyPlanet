@@ -77,7 +77,7 @@ public class AsyncUserPlanet : LivingEntity
 
         tower.SetTowerData(towerDataSO);
         // var projectileData = tower.BaseProjectileData;
-        tower.DamageBuffMMul = 0f;
+        tower.DamageBuffMul = 0f;
 
         var targetingSystem = tower.GetComponent<TowerTargetingSystem>();
         targetingSystem.SetTowerData(towerDataSO);
