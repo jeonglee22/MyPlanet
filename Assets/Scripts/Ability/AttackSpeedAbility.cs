@@ -15,8 +15,7 @@ public class AttackSpeedAbility : TowerAbility
         var towerAttack = gameObject.GetComponent<TowerAttack>();
         if (towerAttack != null)
         {
-            towerAttack.fireRateBuffMul += upgradeAmount;
-            // Debug.Log("Damage Apply");
+            towerAttack.AddFireRateFromAbilitySource(upgradeAmount * 100f);
         }
     }
 
@@ -27,8 +26,7 @@ public class AttackSpeedAbility : TowerAbility
         var towerAttack = gameObject.GetComponent<TowerAttack>();
         if (towerAttack != null)
         {
-            towerAttack.fireRateBuffMul -= upgradeAmount;
-            // Debug.Log("Damage Apply");
+            towerAttack.RemoveFireRateFromAbilitySource(upgradeAmount * 100f);
         }
     }
 

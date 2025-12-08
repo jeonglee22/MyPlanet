@@ -123,7 +123,7 @@ public class TowerAmplifier : MonoBehaviour
         {
             foreach (var abilityId in abilities)
             {
-                target.AddAbility(abilityId);
+                target.AddAmplifierAbility(this,abilityId);
 
                 var ability = AbilityManager.GetAbility(abilityId);
                 if (ability != null)
@@ -180,7 +180,7 @@ public class TowerAmplifier : MonoBehaviour
                         ability.RemoveAbility(target.gameObject);
                     }
 
-                    target.RemoveAbility(abilityId);
+                    target.RemoveAmplifierAbility(this,abilityId,count);
                 }
                 var raRow = DataTableManager.RandomAbilityTable?.Get(abilityId);
                 if (raRow != null)
@@ -196,7 +196,6 @@ public class TowerAmplifier : MonoBehaviour
                     }
                 }
             }
-
             appliedAbilityMap.Remove(target);
         }
         if (buffedTargets.Contains(target))
@@ -204,7 +203,6 @@ public class TowerAmplifier : MonoBehaviour
             buffedTargets.Remove(target);
             target.RemoveAmplifierBuff(amplifierTowerData);
         }
-
         OnBuffTargetsChanged?.Invoke();
     }
 
@@ -229,7 +227,7 @@ public class TowerAmplifier : MonoBehaviour
                     {
                         ability.RemoveAbility(target.gameObject);
                     }
-                    target.RemoveAbility(abilityId);
+                    target.RemoveAmplifierAbility(this,abilityId,count);
                 }
                 var raRow = DataTableManager.RandomAbilityTable?.Get(abilityId);
                 if (raRow != null)
@@ -253,6 +251,7 @@ public class TowerAmplifier : MonoBehaviour
             target.RemoveAmplifierBuff(amplifierTowerData);
         }
         buffedTargets.Clear();
+        OnBuffTargetsChanged?.Invoke(); 
     }
 
     private void OnDestroy()
@@ -286,6 +285,7 @@ public class TowerAmplifier : MonoBehaviour
         buffedTargets.Clear();
         buffedSlotIndex.Clear();
         randomAbilitySlotIndex.Clear();
+        appliedAbilityMap.Clear();
 
         //Candidate Buffed Tower: Attack Tower-------------------
         List<int> buffAbleTowers = new List<int>();
@@ -381,7 +381,6 @@ public class TowerAmplifier : MonoBehaviour
                 if (!resolvedRandom.Contains(targetIndex))
                     resolvedRandom.Add(targetIndex);
             }
-
             randomAbilitySlotIndex.AddRange(resolvedRandom);
         }
         //--------------------------------------------------------
@@ -421,13 +420,11 @@ public class TowerAmplifier : MonoBehaviour
     }
 
     //Move Tower
-    // Move Tower
     public void RebuildSlotsForNewIndex(int newSelfIndex, int towerCount)
     {
         bool hasBuff = buffedSlotIndex != null && buffedSlotIndex.Count > 0;
         bool hasRandom = randomAbilitySlotIndex != null && randomAbilitySlotIndex.Count > 0;
 
-        // 버프/랜덤 슬롯이 아예 없으면 인덱스만 갱신하고 끝
         if (!hasBuff && !hasRandom)
         {
             selfIndex = newSelfIndex;
@@ -435,9 +432,8 @@ public class TowerAmplifier : MonoBehaviour
         }
 
         int oldSelf = selfIndex;
-
-        // 1) 현재 절대 슬롯 기준으로 상대 오프셋 계산
         List<int> buffOffsets = null;
+
         if (hasBuff)
         {
             buffOffsets = new List<int>(buffedSlotIndex.Count);
@@ -459,24 +455,18 @@ public class TowerAmplifier : MonoBehaviour
             }
         }
 
-        // 2) 기존에 걸린 버프/랜덤능력 전부 제거 (타워 스탯 원상복구)
         ClearAllbuffs();
-
-        // 3) selfIndex를 새 인덱스로 바꾸고, 슬롯 리스트 초기화
         selfIndex = newSelfIndex;
         buffedSlotIndex.Clear();
         randomAbilitySlotIndex.Clear();
 
-        // 4) 새 selfIndex 기준으로 절대 슬롯 재계산 (원형 인덱스)
         if (buffOffsets != null)
         {
             foreach (var offset in buffOffsets)
             {
                 int target = newSelfIndex + offset;
-
                 target %= towerCount;
                 if (target < 0) target += towerCount;
-
                 if (target == newSelfIndex) continue;
                 if (!buffedSlotIndex.Contains(target))
                     buffedSlotIndex.Add(target);
@@ -491,17 +481,14 @@ public class TowerAmplifier : MonoBehaviour
 
                 target %= towerCount;
                 if (target < 0) target += towerCount;
-
                 if (target == newSelfIndex) continue;
                 if (!randomAbilitySlotIndex.Contains(target))
                     randomAbilitySlotIndex.Add(target);
             }
         }
 
-        // 5) 새 슬롯 기준으로 다시 버프/랜덤능력 적용
         if (planet == null) return;
 
-        // 기본 버프 슬롯
         foreach (int slotIndex in buffedSlotIndex)
         {
             var attackTower = planet.GetAttackTowerToAmpTower(slotIndex);
@@ -510,11 +497,9 @@ public class TowerAmplifier : MonoBehaviour
             ApplyBuff(attackTower, slotIndex);
         }
 
-        // 랜덤능력 슬롯 (버프 슬롯과 겹치지 않는 것만)
         foreach (int slotIndex in randomAbilitySlotIndex)
         {
-            if (buffedSlotIndex.Contains(slotIndex))
-                continue;
+            if (buffedSlotIndex.Contains(slotIndex)) continue;
 
             var attackTower = planet.GetAttackTowerToAmpTower(slotIndex);
             if (attackTower == null) continue;
@@ -525,7 +510,6 @@ public class TowerAmplifier : MonoBehaviour
 
     public void ResetLocalBuffStateOnly()
     {
-        appliedAbilityMap.Clear();
-        buffedTargets.Clear();
+        ClearAllbuffs();
     }
 }

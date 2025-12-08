@@ -9,6 +9,7 @@ public class SideMovement : IMovement
     private Vector3 rightPoint;
     private Vector3 currentTarget;
     private bool isInitialized = false;
+    private bool hasReachedFistTarget = false;
     private float yPos;
 
     private int enemyType;
@@ -42,6 +43,10 @@ public class SideMovement : IMovement
         float distanceToTarget = Vector3.Distance(currentPos, currentTarget);
         if (distanceToTarget < 0.05f)
         {
+            if(!hasReachedFistTarget)
+            {
+                hasReachedFistTarget = true;
+            }
             currentTarget = currentTarget == leftPoint ? rightPoint : leftPoint;
         }
 
@@ -62,14 +67,17 @@ public class SideMovement : IMovement
         currentTarget = Vector3.zero;
 
         isInitialized = false;
+        hasReachedFistTarget = false;
 
         this.enemyType = enemyType;
     }
 
-    public bool IsCompleted() => false;
+    public bool IsCompleted() => hasReachedFistTarget;
 
     public void OnPatternLine()
     {
         
     }
+
+    public float GetSpeedMultiplier() => hasReachedFistTarget ? 1f : 2.5f;
 }

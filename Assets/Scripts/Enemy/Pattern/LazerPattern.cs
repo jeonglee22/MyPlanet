@@ -25,7 +25,7 @@ public class LazerPattern : ShootingPattern
         Trigger = ExecutionTrigger.OnInterval;
     }
 
-    protected override void Shoot()
+    protected override void Shoot(CancellationToken token = default)
     {
         Vector3 shootPosition = owner.transform.position;
         Vector3 shootDirection = GetLaserDirection();
@@ -44,7 +44,7 @@ public class LazerPattern : ShootingPattern
             movement.CanMove = false;
         }
 
-        lazer.Initialize(shootPosition, shootDirection, damage, OnLazerComplete);
+        lazer.Initialize(shootPosition, shootDirection, damage, OnLazerComplete, null, token);
 
         lazerObject.SetActive(true);
     }
@@ -53,7 +53,7 @@ public class LazerPattern : ShootingPattern
     {
         lazerCompletionSource = new UniTaskCompletionSource();
 
-        Shoot();
+        Shoot(token);
 
         await lazerCompletionSource.Task.AttachExternalCancellation(token);
     }

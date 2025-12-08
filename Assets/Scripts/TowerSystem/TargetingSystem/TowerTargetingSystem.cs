@@ -38,6 +38,7 @@ public class TowerTargetingSystem : MonoBehaviour
     private int baseMaxTargetCount = 1; //only Var
     private int extraTargetCount = 0; //Add Buffed Data
     public int MaxTargetCount => Mathf.Max(1, baseMaxTargetCount + extraTargetCount);
+    public int BaseTargetCount => Mathf.Max(1, baseMaxTargetCount);
 
     private void Awake()
     {
@@ -154,13 +155,13 @@ public class TowerTargetingSystem : MonoBehaviour
             }
         }
 
-        // for (int i=0; i<maxTargets&& validTargets.Count>0; i++)
-        // {
-        //     ITargetable best = targetStrategy.SelectTarget(validTargets);
-        //     if (best == null) break;
-        //     currentTargets.Add(best);
-        //     validTargets.Remove(best);
-        // }
+/*        for (int i=0; i<maxTargets&& validTargets.Count>0; i++)
+        {
+            ITargetable best = targetStrategy.SelectTarget(validTargets);
+            if (best == null) break;
+            currentTargets.Add(best);
+            validTargets.Remove(best);
+        }*/
         currentTarget = currentTargets.Count > 0 ? currentTargets[0] : null;
     }
 

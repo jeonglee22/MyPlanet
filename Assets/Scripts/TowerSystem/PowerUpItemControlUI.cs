@@ -86,7 +86,7 @@ public class PowerUpItemControlUI : MonoBehaviour
         {
             ability?.ApplyAbility(towerAttack.gameObject);
             ability?.Setting(towerAttack.gameObject);
-            towerAttack.AddAbility(abilities[index]);
+            towerAttack.AddBaseAbility(abilities[index]);
         }
         else if (amplifierTower != null)
         {
@@ -100,13 +100,9 @@ public class PowerUpItemControlUI : MonoBehaviour
         abilities.Clear();
 
         SetTowerOpenInfoTouch();
-        SetActiveItemUseButton(false);
-        Variables.Quasar--;
 
-        if(Variables.Quasar > 0)
-        {
-            SetActiveItemUseButton(true);
-        }
+        Variables.Quasar--;
+        SetActiveItemUseButton(false);
     }
 
     private void SetTowerOpenInfoTouch()
@@ -181,14 +177,9 @@ public class PowerUpItemControlUI : MonoBehaviour
         installControl.UpgradeMaxTowerCount();
         SetTowerInstallText();
         itemChoosePanel.SetActive(false);
-        SetActiveItemUseButton(false);
 
         Variables.Quasar--;
-
-        if(Variables.Quasar > 0)
-        {
-            SetActiveItemUseButton(true);
-        }
+        SetActiveItemUseButton(false);
     }
 
     public void SetActiveItemUseButton(bool isActive)

@@ -114,7 +114,7 @@ public class MainTitleUI : MonoBehaviour
             {
                 Debug.Log("Game Start Button Clicked");
                 isNotGameStart = false;
-                SceneControlManager.Instance.LoadScene(SceneName.StageSelectScene).Forget();
+                SceneControlManager.Instance.LoadScene(SceneName.LobbyScene).Forget();
             }
         }
     }
