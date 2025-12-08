@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -13,7 +13,6 @@ public class AbilityManager : MonoBehaviour
 {
     private static Dictionary<int, IAbility> abilityDict;
     public static Dictionary<int, IAbility> AbilityDict => abilityDict;
-
     public static bool IsInitialized => abilityDict != null;
 
     private async UniTaskVoid Start()
@@ -39,8 +38,8 @@ public class AbilityManager : MonoBehaviour
         abilityDict.Add((int)AbilityId.Duration, new DurationUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Duration).SpecialEffectValue));
         abilityDict.Add((int)AbilityId.TargetCount, new TargetCountUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.TargetCount).SpecialEffectValue));
         abilityDict.Add((int)AbilityId.Hitscan, new HitScanUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Hitscan).SpecialEffectValue));
+        abilityDict.Add((int)AbilityId.Accuracy, new AccuracyAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Accuracy).SpecialEffectValue));
         
-        abilityDict.Add((int)AbilityId.Accuracy, new AttackUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.AttackDamage).SpecialEffectValue));
         abilityDict.Add((int)AbilityId.AttackSpeedOneTarget, new AttackUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.AttackDamage).SpecialEffectValue));
         
     }
@@ -98,7 +97,7 @@ public class AbilityManager : MonoBehaviour
     public static int GetRandomAbilityFromGroup(int randomAbilityGroupId, int requiredTowerType, bool useWeight = false)
     {
         var groupRow = DataTableManager.RandomAbilityGroupTable.Get(randomAbilityGroupId);
-        
+
         string idListString = groupRow.RandomAbilityGroup;
         string[] tokens = idListString.Split(',');
         List<int> candidateIds = new List<int>();
