@@ -37,6 +37,11 @@ public class Explosion : MonoBehaviour
         {
             particle.Play();
         }
+
+        if (explosionRadius < initRadius)
+        {
+            Destroy(gameObject);
+        }
     }
 
     // Update is called once per frame

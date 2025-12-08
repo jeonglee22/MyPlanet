@@ -13,8 +13,13 @@ public class PlayManager : MonoBehaviour
     void Start()
     {
         planet.OnDeathEvent += GameOver;
-        gameOverUI.SetActive(false);
+        if (gameOverUI != null)
+            gameOverUI.SetActive(false);
 
+        if (Variables.IsTestMode)
+        {
+            return;
+        }
         SetIsTutorial(TutorialManager.Instance.IsTutorialMode);
     }
 
@@ -33,20 +38,33 @@ public class PlayManager : MonoBehaviour
     
     private void GameOver()
     {
-        gameOverUI.GetComponent<GameResultUI>().SetResultText(false);
-        gameOverUI.SetActive(true);
+        if (gameOverUI != null)
+        {
+            gameOverUI?.GetComponent<GameResultUI>().SetResultText(false);
+            gameOverUI?.SetActive(true);
+        }
+        
         GamePauseManager.Instance.Pause();
     }
 
     private void GameClear()
     {
+        if (Variables.IsTestMode)
+        {
+            return;
+        }
+
         if(isTutorial && Variables.Stage == 2)
         {
             TutorialManager.Instance.ShowTutorialStep(12);
         }
 
-        gameOverUI.GetComponent<GameResultUI>().SetResultText(true);
-        gameOverUI.SetActive(true);
+        if (gameOverUI != null)
+        {
+            gameOverUI?.GetComponent<GameResultUI>().SetResultText(true);
+            gameOverUI?.SetActive(true);
+        }
+        
         GamePauseManager.Instance.Pause();
     }
 

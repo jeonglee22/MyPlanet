@@ -59,7 +59,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
     private void Start()
     {
-        SetIsTutorial(TutorialManager.Instance.IsTutorialMode);
+        SetIsTutorial(TutorialManager.Instance?.IsTutorialMode ?? false);
     }
 
     protected override void OnEnable()
@@ -72,16 +72,22 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         movement?.Initialize(moveSpeed, -1, movement.CurrentMovement);
         patternExecutor?.Initialize(this);
 
-        OnDeathEvent += SpawnManager.Instance.OnEnemyDied;
-        OnLifeTimeOverEvent += SpawnManager.Instance.OnEnemyDied;
+        if (!Variables.IsTestMode)
+        {
+            OnDeathEvent += SpawnManager.Instance.OnEnemyDied;
+            OnLifeTimeOverEvent += SpawnManager.Instance.OnEnemyDied;
 
-        OnCollisionDamageCalculate = null;
+            OnCollisionDamageCalculate = null;
+        }
     }
 
     protected virtual void OnDisable() 
     {
-        OnDeathEvent -= SpawnManager.Instance.OnEnemyDied;
-        OnLifeTimeOverEvent -= SpawnManager.Instance.OnEnemyDied;
+        if (!Variables.IsTestMode)
+        {
+            OnDeathEvent -= SpawnManager.Instance.OnEnemyDied;
+            OnLifeTimeOverEvent -= SpawnManager.Instance.OnEnemyDied;
+        }
 
         if(patternExecutor != null)
         {
@@ -137,6 +143,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
             return;
         }
 
+        DpsCalculator.AddDamage(damage);
+
         base.OnDamage(damage);
     }
 
@@ -148,7 +156,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
         StopLifeTime();
 
-        if (ShouldDropItems)
+        if (ShouldDropItems && Variables.IsTestMode == false)
         {
             foreach (var drop in drops)
             {
@@ -184,7 +192,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
                 WaveManager.Instance.OnBossDefeated(false);
                 if(isTutorial && Variables.Stage == 2)
                 {
-                    TutorialManager.Instance.ShowTutorialStep(10);
+                    TutorialManager.Instance?.ShowTutorialStep(10);
                 }
                 break;
             case 4:
@@ -252,6 +260,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         objectPoolManager = poolManager;
 
         data = enemyData;
+        enemyType = data.EnemyType;
         ScaleData = scaleData;
         maxHealth = data.Hp * scaleData.HpScale;
         Health = maxHealth;
@@ -372,7 +381,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
                 if(isTutorial && Variables.Stage == 2)
                 {
-                    TutorialManager.Instance.ShowTutorialStep(9);
+                    TutorialManager.Instance?.ShowTutorialStep(9);
                 }
                 break;
             case 4:
@@ -381,7 +390,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
                 if(isTutorial && Variables.Stage == 2)
                 {
-                    TutorialManager.Instance.ShowTutorialStep(11);
+                    TutorialManager.Instance?.ShowTutorialStep(11);
                 }
                 break;
         }

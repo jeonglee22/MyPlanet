@@ -30,12 +30,18 @@ public class EnemySpawnTest : MonoBehaviour
 
         var bossObject = GameObject.FindGameObjectWithTag("Boss");
         Variables.TestBossEnemyObject = bossObject;
-        Debug.Log($"{bossObject.transform.position}");
+        // Debug.Log($"{bossObject.transform.position}");
     }
 
     public void SpawnEnemy()
     {
         Vector3 spawnPosition = spawner.transform.position + new Vector3(0f, 2f, 0f);
+        if (Variables.IsTestMode)
+        {
+            spawnPosition = spawner.transform.position - new Vector3(0f, 5f, 0f);
+            spawner.SpawnEnemiesWithScale(enemyId, 1, scaleData, spawnPosition);
+            return;
+        }
         
         spawner.SpawnEnemiesWithScale(enemyId, 1, scaleData);
     }
@@ -73,6 +79,12 @@ public class EnemySpawnTest : MonoBehaviour
                 break;
             case 9:
                 enemyId = 400403;
+                break;
+            case 10:
+                enemyId = 409999;
+                break;
+            case 11:
+                enemyId = 408888;
                 break;
         }
     }

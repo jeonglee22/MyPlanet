@@ -21,6 +21,10 @@ public class TowerAttack : MonoBehaviour
     private bool isOtherUserTower = false;
     public bool IsOtherUserTower { get { return isOtherUserTower; } set { isOtherUserTower = value; } }
 
+    private List<IAbility> testAbilities;
+    public List<IAbility> TestAbilities { get { return testAbilities; } set { testAbilities = value; } }
+
+    //test
     //ability ----------------------------------------
     //------------------------------------------------
     //ability from attack
@@ -443,6 +447,18 @@ public class TowerAttack : MonoBehaviour
         if (attackType == (int)ProjectileType.Homing)
         {
             projectile.SetHomingTarget(target);
+        }
+
+        if (Variables.IsTestMode)
+        {
+            foreach (var ability in testAbilities)
+            {
+                ability.Setting(gameObject);
+                ability.ApplyAbility(projectile.gameObject);
+                projectile.abilityAction += ability.ApplyAbility;
+                projectile.abilityRelease += ability.RemoveAbility;
+            }
+            return;
         }
 
         foreach (var abilityId in Abilities)
