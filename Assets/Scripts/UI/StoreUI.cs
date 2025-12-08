@@ -13,9 +13,12 @@ public class StoreUI : MonoBehaviour
     [SerializeField] private GameObject gachaButtonPrefab;
     [SerializeField] private GameObject itemButtonPrefab;
 
+    [SerializeField] private BuyPanelUI buyPanelUI;
+
     private void Start()
     {
         backBtn.onClick.AddListener(OnBackBtnClicked);
+        buyPanelUI.gameObject.SetActive(false);
         InitializeShop();
     }
 
@@ -39,7 +42,13 @@ public class StoreUI : MonoBehaviour
         var categoryObj = Instantiate(shopCategoryPrefab, scrollViewContent);
         var categoryUI = categoryObj.GetComponent<ShopCategori>();
 
-        categoryUI.Initialize(category, categoryName, buttonPrefab);
+        categoryUI.Initialize(category, categoryName, buttonPrefab, OnGachaButtonClick);
 
+    }
+
+    private void OnGachaButtonClick((int needCurrencyValue, int drawGroup, string gachaName) info)
+    {
+        buyPanelUI.Initialize(info.needCurrencyValue, info.drawGroup, info.gachaName);
+        buyPanelUI.gameObject.SetActive(true);
     }
 }

@@ -152,7 +152,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         {
             foreach (var drop in drops)
             {
-                if(drop is QuasarItem && data.EnemyGrade != 2)
+                if(drop is QuasarItem && (enemyType != 3 || Variables.LastBossEnemy != null))
                 {
                     continue;
                 }

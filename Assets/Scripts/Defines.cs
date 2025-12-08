@@ -149,6 +149,14 @@ public enum ShopCategory
     Others,
 }
 
+public enum CurrencyType
+{
+    Gold = 701,
+    FreeDia,
+    FreePlusChargedDia,
+    ChargedDia,
+}
+
 public static class DataTableIds
 {
     public static readonly string Item = "ItemTable";
@@ -177,6 +185,9 @@ public static class DataTableIds
 public static class Variables
 {
     public static int Stage {get; set;} = 3;
+    public static int Gold {get; set;} = 100000;
+    public static int FreeDia {get; set;} = 2000;
+    public static int ChargedDia {get; set;} = 3000;
     private static int quasar = 1;
     public static int Quasar
     {

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -11,11 +12,18 @@ public class GachaButton : MonoBehaviour
 
     private string gachaName;
     private int drawGroup;
+    private int needCurrencyValue;
 
-    public void Initialize(int drawGroup, string name)
+    public event Action<(int, int, string)> OnGachaButtonClicked;
+
+    public void Initialize(int needCurrencyValue, int drawGroup, string name, Action<(int, int, string)> onClickCallback)
     {
         gachaName = name;
-        nameText.text = name;
+        nameText.text = needCurrencyValue.ToString();
+        this.drawGroup = drawGroup;
+        this.needCurrencyValue = needCurrencyValue;
+
+        OnGachaButtonClicked += onClickCallback;
 
         button.onClick.RemoveAllListeners();
         button.onClick.AddListener(OnButtonClick);
@@ -23,6 +31,6 @@ public class GachaButton : MonoBehaviour
 
     private void OnButtonClick()
     {
-        Debug.Log($"Item {gachaName} button clicked.");
+        OnGachaButtonClicked?.Invoke((needCurrencyValue, drawGroup, gachaName));
     }
 }

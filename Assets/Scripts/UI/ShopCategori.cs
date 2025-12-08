@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TMPro;
@@ -12,7 +13,7 @@ public class ShopCategori : MonoBehaviour
 
     private GameObject buttonPrefab;
 
-    public void Initialize(ShopCategory category, string categoryName, GameObject buttonPrefab)
+    public void Initialize(ShopCategory category, string categoryName, GameObject buttonPrefab, Action<(int, int, string)> onButtonClick)
     {
         categoryText.text = categoryName;
         this.buttonPrefab = buttonPrefab;
@@ -27,7 +28,7 @@ public class ShopCategori : MonoBehaviour
         switch(category)
         {
             case ShopCategory.Gacha:
-                SetUpGachaData();
+                SetUpGachaData(onButtonClick);
                 break;
             case ShopCategory.Others:
                 break;
@@ -50,7 +51,7 @@ public class ShopCategori : MonoBehaviour
         }
     }
 
-    private void SetUpGachaData()
+    private void SetUpGachaData(Action<(int, int, string)> onButtonClick)
     {
         var gachaList = DataTableManager.DrawTable.GetGachaList();
 
@@ -58,7 +59,7 @@ public class ShopCategori : MonoBehaviour
         {
             var gachaBtnObj = Instantiate(buttonPrefab, buttonsContainer);
             var gachaBtn = gachaBtnObj.GetComponent<GachaButton>();
-            gachaBtn.Initialize(gacha.Item1, gacha.Item2);
+            gachaBtn.Initialize(gacha.Item1, gacha.Item2, gacha.Item3, onButtonClick);
         }
     }
 }

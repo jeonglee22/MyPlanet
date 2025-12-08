@@ -64,16 +64,16 @@ public class DrawTable : DataTable
         return dictionary[key];
     }
 
-    public List<(int, string)> GetGachaList()
+    public List<(int, int, string)> GetGachaList()
     {
-        List<(int, string)> gachaList = new List<(int, string)>();
+        List<(int, int, string)> gachaList = new List<(int, int, string)>();
         int currentGroup = -1;
         foreach (var draw in dictionary.Values)
         {
             if (draw.DrawGroup != currentGroup)
             {
                 currentGroup = draw.DrawGroup;
-                gachaList.Add((currentGroup, draw.DrawTypeText));
+                gachaList.Add((draw.NeedCurrencyValue, currentGroup, draw.DrawTypeText));
             }
         }
 
