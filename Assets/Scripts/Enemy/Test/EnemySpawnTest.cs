@@ -75,6 +75,12 @@ public class EnemySpawnTest : MonoBehaviour
             case 9:
                 enemyId = 400403;
                 break;
+            case 10:
+                enemyId = 409999;
+                break;
+            case 11:
+                enemyId = 408888;
+                break;
         }
     }
 

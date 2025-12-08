@@ -154,13 +154,13 @@ public class TowerTargetingSystem : MonoBehaviour
             }
         }
 
-        for (int i=0; i<maxTargets&& validTargets.Count>0; i++)
-        {
-            ITargetable best = targetStrategy.SelectTarget(validTargets);
-            if (best == null) break;
-            currentTargets.Add(best);
-            validTargets.Remove(best);
-        }
+        // for (int i=0; i<maxTargets&& validTargets.Count>0; i++)
+        // {
+        //     ITargetable best = targetStrategy.SelectTarget(validTargets);
+        //     if (best == null) break;
+        //     currentTargets.Add(best);
+        //     validTargets.Remove(best);
+        // }
         currentTarget = currentTargets.Count > 0 ? currentTargets[0] : null;
     }
 

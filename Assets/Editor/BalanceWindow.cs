@@ -10,24 +10,48 @@ public class BalanceWindow : EditorWindow
         Planet,
         Tower,
         Enemy,
-        Test,
+        RandomAbility,
     }
 
     private Page currentPage = Page.Base;
 
+    [System.Flags]
+    public enum RandomAbilityType
+    {
+    None      = 0,
+    Explosion = 1 << 0,
+    Homing    = 1 << 1,
+    Split     = 1 << 2,
+    Slow      = 1 << 3,
+    Chain     = 1 << 4,
+    Pierce    = 1 << 5,
+    }
+
+    RandomAbilityType abilityMask;
+
+    private SerializedProperty explosionRadius;
+    private SerializedProperty homing;
+    private SerializedProperty splitCount;
+    private SerializedProperty slowPercent;
+    private SerializedProperty chainCount;
+    private SerializedProperty pierceCount;
 
     private SerializedObject so;
 
     private SerializedProperty towerAttackIdProp;
     private SerializedProperty damageProp;
     private SerializedProperty attackSpeedProp;
-    private SerializedProperty rangeProp;
+    private SerializedProperty targetRangeProp;
 
     private SerializedProperty accuracyProp;
     private SerializedProperty groupingProp;
     private SerializedProperty projectileNumProp;
-    private SerializedProperty projectileIDProp;
-    private SerializedProperty randomAbilityGroupIDProp;
+    private SerializedProperty targetNumProp;
+    private SerializedProperty hitSizeProp;
+    private SerializedProperty ratePenetrationProp;
+    private SerializedProperty fixedPenetrationProp;
+    private SerializedProperty projectileSpeedProp;
+    private SerializedProperty durationProp;
 
     private BalanceTester targetTester;
     private TowerAttackTester towerAttackTester;
@@ -66,7 +90,6 @@ public class BalanceWindow : EditorWindow
             so = new SerializedObject(targetTester);
             damageProp = so.FindProperty("damage");
             attackSpeedProp = so.FindProperty("attackSpeed");
-            rangeProp = so.FindProperty("range");
         }
         else if (towerTester != null)
         {
@@ -74,13 +97,25 @@ public class BalanceWindow : EditorWindow
             so = new SerializedObject(towerAttackTester);
 
             towerAttackIdProp = so.FindProperty("towerAttackId");
+            targetRangeProp = so.FindProperty("targetRange");
             damageProp = so.FindProperty("damage");
             attackSpeedProp = so.FindProperty("attackSpeed");
             accuracyProp = so.FindProperty("accuracy");
             groupingProp = so.FindProperty("grouping");
             projectileNumProp = so.FindProperty("projectileNum");
-            projectileIDProp = so.FindProperty("projectile_ID");
-            randomAbilityGroupIDProp = so.FindProperty("randomAbilityGroup_ID");
+            targetNumProp = so.FindProperty("targetNum");
+            hitSizeProp = so.FindProperty("hitSize");
+            ratePenetrationProp = so.FindProperty("ratePenetration");
+            fixedPenetrationProp = so.FindProperty("fixedPenetration");
+            projectileSpeedProp = so.FindProperty("projectileSpeed");
+            durationProp = so.FindProperty("duration");
+
+            pierceCount = so.FindProperty("pierceCount");
+            chainCount = so.FindProperty("chainCount");
+            slowPercent = so.FindProperty("slowPercent");
+            splitCount = so.FindProperty("splitCount");
+            homing = so.FindProperty("homing");
+            explosionRadius = so.FindProperty("explosionRadius");
         }
         else
         {
@@ -111,40 +146,126 @@ public class BalanceWindow : EditorWindow
             case Page.Planet:
                 DrawPlanetPage();
                 break;
-            case Page.Test:
-                DrawTestPage();
+            case Page.RandomAbility:
+                DrawRandomAbilityPage();
                 break;
         }
     }
 
-    private void DrawTestPage()
+    private void DrawRandomAbilityPage()
     {
+        EditorGUILayout.LabelField("랜덤 능력 설정", EditorStyles.boldLabel);
+        GUILayout.Space(4);
 
-        if (so == null || targetTester == null)
+        // 1) 어떤 랜덤 능력들을 쓸지 묶어서 선택
+        abilityMask = (RandomAbilityType)EditorGUILayout.EnumFlagsField(
+            new GUIContent("활성화 능력들"),
+            abilityMask
+        );
+
+        GUILayout.Space(8);
+
+        if (Selection.activeGameObject == null)
         {
-            EditorGUILayout.HelpBox(
-                "씬에서 BalanceTester가 붙어있는 오브젝트를 선택하면 조절할 수 있어요.",
-                MessageType.Info
-            );
-            if (GUILayout.Button("선택된 오브젝트에서 찾기"))
-            {
-                TrySetTargetFromSelection();
-            }
             return;
         }
 
-        EditorGUILayout.ObjectField("Target", targetTester, typeof(BalanceTester), true);
-        EditorGUILayout.Space();
+        var towerTester = Selection.activeGameObject.GetComponent<TowerAttackTester>();
+        if (towerTester == null)
+            return;
 
         so.Update();
 
-        EditorGUILayout.PropertyField(damageProp);
-        EditorGUILayout.PropertyField(attackSpeedProp);
-        EditorGUILayout.PropertyField(rangeProp);
+        // 2) 능력별 카드/행으로 파라미터 표시
+        using (new EditorGUILayout.VerticalScope("box"))
+        {
+            DrawExplosionAbility();
+            DrawHomingAbility();
+            DrawSplitAbility();
+            DrawSlowAbility();
+            DrawChainAbility();
+            DrawPierceAbility();
+        }
 
         so.ApplyModifiedProperties();
+    }
 
-        EditorGUILayout.Space();
+    private void DrawPierceAbility()
+    {
+        if (!abilityMask.HasFlag(RandomAbilityType.Pierce))
+            return;
+
+        EditorGUILayout.LabelField("관통", EditorStyles.boldLabel);
+
+        pierceCount.intValue = EditorGUILayout.IntSlider("관통 수", pierceCount.intValue, 0, 100);
+
+        EditorGUILayout.HelpBox("0이면 관통 없음", MessageType.Info);
+        GUILayout.Space(4);
+    }
+
+    private void DrawChainAbility()
+    {
+        if (!abilityMask.HasFlag(RandomAbilityType.Chain))
+            return;
+
+        EditorGUILayout.LabelField("연쇄", EditorStyles.boldLabel);
+
+        chainCount.intValue = EditorGUILayout.IntSlider("연쇄 수", chainCount.intValue, 0, 100);
+
+        EditorGUILayout.HelpBox("0이면 연쇄 없음", MessageType.Info);
+        GUILayout.Space(4);
+    }
+
+    private void DrawSlowAbility()
+    {
+        if (!abilityMask.HasFlag(RandomAbilityType.Slow))
+            return;
+
+        EditorGUILayout.LabelField("둔화", EditorStyles.boldLabel);
+
+        EditorGUILayout.PropertyField(slowPercent);
+
+        EditorGUILayout.HelpBox("0%이면 둔화 없음", MessageType.Info);
+        GUILayout.Space(4);
+    }
+
+    private void DrawSplitAbility()
+    {
+        if (!abilityMask.HasFlag(RandomAbilityType.Split))
+            return;
+
+        EditorGUILayout.LabelField("분열", EditorStyles.boldLabel);
+
+        splitCount.intValue = EditorGUILayout.IntSlider("분열 횟수", splitCount.intValue, 0, 100);
+
+        EditorGUILayout.HelpBox("0이면 분열 없음, 그 이상은 분열 횟수", MessageType.Info);
+        GUILayout.Space(4);
+    }
+
+    private void DrawHomingAbility()
+    {
+        if (!abilityMask.HasFlag(RandomAbilityType.Homing))
+            return;
+
+        EditorGUILayout.LabelField("유도", EditorStyles.boldLabel);
+
+        homing.intValue = EditorGUILayout.IntSlider("유도 여부 (0/1)", homing.intValue, 0, 1);
+
+        EditorGUILayout.HelpBox("0 : 유도 없음, 1 : 유도 있음", MessageType.Info);
+        GUILayout.Space(4);
+    }
+
+    private void DrawExplosionAbility()
+    {
+        if (!abilityMask.HasFlag(RandomAbilityType.Explosion))
+            return;
+
+        EditorGUILayout.LabelField("폭발", EditorStyles.boldLabel);
+
+        EditorGUILayout.PropertyField(explosionRadius);
+
+        EditorGUILayout.HelpBox("0이면 폭발 효과 없음", MessageType.Info);
+        GUILayout.Space(4);
     }
 
     private void DrawPlanetPage()
@@ -156,7 +277,7 @@ public class BalanceWindow : EditorWindow
         if (so == null || towerAttackTester == null)
         {
             EditorGUILayout.HelpBox(
-                "씬에서 BalanceTester가 붙어있는 오브젝트를 선택하면 조절할 수 있어요.",
+                "씬에서 TowerAttackTester가 붙어있는 오브젝트를 선택하면 조절할 수 있어요.",
                 MessageType.Info
             );
             if (GUILayout.Button("선택된 오브젝트에서 찾기"))
@@ -188,14 +309,35 @@ public class BalanceWindow : EditorWindow
             towerAttackIdProp.intValue = newId;
         }
 
+        int[] rangeIds = { 0, 1, 2 };
+        string[] rangeNames = { "근거리", "중거리", "원거리" };
+
+        EditorGUI.BeginChangeCheck();
+
+        int rangeId = EditorGUILayout.IntPopup(
+            "TowerRange ID",
+            targetRangeProp.intValue,
+            rangeNames,
+            rangeIds
+        );
+
+        if (EditorGUI.EndChangeCheck())
+        {
+            targetRangeProp.intValue = rangeId;
+        }
+
         EditorGUILayout.PropertyField(towerAttackIdProp);
         EditorGUILayout.PropertyField(damageProp);
         EditorGUILayout.PropertyField(attackSpeedProp);
         EditorGUILayout.PropertyField(accuracyProp);
         EditorGUILayout.PropertyField(groupingProp);
         EditorGUILayout.PropertyField(projectileNumProp);
-        EditorGUILayout.PropertyField(projectileIDProp);
-        EditorGUILayout.PropertyField(randomAbilityGroupIDProp);
+        EditorGUILayout.PropertyField(targetNumProp);
+        EditorGUILayout.PropertyField(hitSizeProp);
+        EditorGUILayout.PropertyField(ratePenetrationProp);
+        EditorGUILayout.PropertyField(fixedPenetrationProp);
+        EditorGUILayout.PropertyField(projectileSpeedProp);
+        EditorGUILayout.PropertyField(durationProp);
 
         so.ApplyModifiedProperties();
     }
@@ -224,8 +366,8 @@ public class BalanceWindow : EditorWindow
         if (GUILayout.Toggle(currentPage == Page.Planet, "행성 설정", EditorStyles.toolbarButton))
             currentPage = Page.Planet;
 
-        if (GUILayout.Toggle(currentPage == Page.Test, "테스트", EditorStyles.toolbarButton))
-            currentPage = Page.Test;
+        if (GUILayout.Toggle(currentPage == Page.RandomAbility, "능력", EditorStyles.toolbarButton))
+            currentPage = Page.RandomAbility;
 
         GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();

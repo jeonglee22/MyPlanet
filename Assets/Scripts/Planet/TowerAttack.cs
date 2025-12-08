@@ -24,6 +24,9 @@ public class TowerAttack : MonoBehaviour
     private List<int> abilities;
     public List<int> Abilities => abilities;
 
+    private List<IAbility> testAbilities;
+    public List<IAbility> TestAbilities { get { return testAbilities; } set { testAbilities = value; } }
+
     //test
     private ProjectilePoolManager projectilePoolManager;
 
@@ -413,6 +416,18 @@ public class TowerAttack : MonoBehaviour
         if (attackType == (int)ProjectileType.Homing)
         {
             projectile.SetHomingTarget(target);
+        }
+
+        if (Variables.IsTestMode)
+        {
+            foreach (var ability in testAbilities)
+            {
+                ability.Setting(gameObject);
+                ability.ApplyAbility(projectile.gameObject);
+                projectile.abilityAction += ability.ApplyAbility;
+                projectile.abilityRelease += ability.RemoveAbility;
+            }
+            return;
         }
 
         foreach (var abilityId in abilities)
