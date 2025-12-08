@@ -1,3 +1,4 @@
+using System.Threading;
 using UnityEngine;
 
 public class SimpleShotPattern : ShootingPattern
@@ -11,7 +12,7 @@ public class SimpleShotPattern : ShootingPattern
         TriggerValue = 2f;
     }
 
-    protected override void Shoot()
+    protected override void Shoot(CancellationToken token = default)
     {
         Vector3 spawnPosition = owner.transform.position;
         Vector3 shootDirection = Vector3.down;

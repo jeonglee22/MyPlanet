@@ -10,6 +10,7 @@ public class DescendAndStopMovement : IMovement
     public bool IsPatternLine => isPatternLine;
 
     private float offset = 0.5f;
+    private float initialSpeedMultiplier = 2.5f;
 
     private int enemyType;
 
@@ -23,6 +24,10 @@ public class DescendAndStopMovement : IMovement
         targetPosition = new Vector3(offSetBounds.center.x, offSetBounds.yMin - offset, 0f);
 
         this.enemyType = enemyType;
+        if(enemyType <= 2)
+        {
+            initialSpeedMultiplier = 1f;
+        }
     }
 
     public Vector3 GetFinalDirection(Vector3 baseDirection, Transform ownerTransform, Transform target)
@@ -64,4 +69,6 @@ public class DescendAndStopMovement : IMovement
     }
 
     public bool IsCompleted() => isArrived;
+
+    public float GetSpeedMultiplier() => isArrived ? 1f : initialSpeedMultiplier;
 }

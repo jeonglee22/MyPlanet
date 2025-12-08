@@ -23,4 +23,6 @@ public class StraightDownMovement : IMovement
     }
 
     public bool IsCompleted() => false;
+
+    public float GetSpeedMultiplier() => 1f;
 }

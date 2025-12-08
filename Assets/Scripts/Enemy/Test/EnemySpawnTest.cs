@@ -18,6 +18,11 @@ public class EnemySpawnTest : MonoBehaviour
         ExpScale = 1f
     };
 
+    private void Start()
+    {
+        spawner.transform.position = SpawnManager.Instance.Spawners[2].transform.position;
+    }
+
     void OnEnable()
     {
         enemyDropdown.onValueChanged.AddListener((i) => SetEnemyId(i));

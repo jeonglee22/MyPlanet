@@ -12,11 +12,14 @@ public class RevolutionMovement : IMovement
     private bool isPatternLine = false;
     public bool IsPatternLine => isPatternLine;
 
+    private float speedMultiplier = 2.5f;
+
     private int enemyType;
 
     public void Initialize(int enemyType)
     {
         isPatternLine = false;
+        isRightTransform = false;
 
         Enemy lastBoss = Variables.LastBossEnemy;
         if(lastBoss != null)
@@ -33,11 +36,13 @@ public class RevolutionMovement : IMovement
             {
                 revolutionRadius = 3f;
             }
-
-            isRightTransform = false;
         }
 
         this.enemyType = enemyType;
+        if(enemyType <= 2)
+        {
+            speedMultiplier = 1f;
+        }
     }
 
     public Vector3 GetFinalDirection(Vector3 baseDirection, Transform ownerTransform, Transform target)
@@ -67,10 +72,12 @@ public class RevolutionMovement : IMovement
         return toCircleDirection;
     }
 
-    public bool IsCompleted() => false;
+    public bool IsCompleted() => isRightTransform;
 
     public void OnPatternLine()
     {
         
     }
+
+    public float GetSpeedMultiplier() => isRightTransform ? 1f : speedMultiplier;
 }

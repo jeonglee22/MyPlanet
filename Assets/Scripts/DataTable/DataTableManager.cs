@@ -42,6 +42,10 @@ public static class DataTableManager
             LoadTableAsync<BuffTowerReinforceUpgradeTable>(DataTableIds.BuffTowerReinforceUpgrade),
             LoadTableAsync<AsyncPlanetTable>(DataTableIds.AsyncPlanet),
             LoadTableAsync<TowerExplainTable>(DataTableIds.TowerExplain),
+            LoadTableAsync<CurrencyTable>(DataTableIds.Currency),
+            LoadTableAsync<DrawTable>(DataTableIds.Draw),
+            LoadTableAsync<RewardTable>(DataTableIds.Reward),
+            LoadTableAsync<ItemTable>(DataTableIds.Item),
         };
 
         await UniTask.WhenAll(tasks);
@@ -171,6 +175,38 @@ public static class DataTableManager
     public static TowerExplainTable TowerExplainTable
     {
         get { return Get<TowerExplainTable>(DataTableIds.TowerExplain); }
+    }
+
+    public static CurrencyTable CurrencyTable
+    {
+        get 
+        { 
+            return Get<CurrencyTable>(DataTableIds.Currency); 
+        }
+    }
+
+    public static DrawTable DrawTable
+    {
+        get 
+        { 
+            return Get<DrawTable>(DataTableIds.Draw); 
+        }
+    }
+
+    public static RewardTable RewardTable
+    {
+        get 
+        { 
+            return Get<RewardTable>(DataTableIds.Reward); 
+        }
+    }
+
+    public static ItemTable ItemTable
+    {
+        get
+        {
+            return Get<ItemTable>(DataTableIds.Item);
+        }
     }
 
     public static T Get<T>(string id) where T : DataTable

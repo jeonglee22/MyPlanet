@@ -40,6 +40,14 @@ public static class SceneName
     public static readonly string UiTestScene = "UiTestScene";
     public static readonly string StageSelectScene = "StageSelectScene";
     public static readonly string AsyncRaidTestScene = "AsyncRaidTestScene";
+    public static readonly string LobbyScene = "LobbyScene";
+    public static readonly string StoreScene = "StoreScene";
+}
+
+public static class CategoryName
+{
+    public static readonly string Gacha = "가챠";
+    public static readonly string Others = "다른 아이템 분류";
 }
 
 public enum AbilityId
@@ -135,6 +143,20 @@ public enum TutorialPoint
     BottomBig,
 }
 
+public enum ShopCategory
+{
+    Gacha,
+    Others,
+}
+
+public enum CurrencyType
+{
+    Gold = 701,
+    FreeDia,
+    FreePlusChargedDia,
+    ChargedDia,
+}
+
 public static class DataTableIds
 {
     public static readonly string Item = "ItemTable";
@@ -155,11 +177,17 @@ public static class DataTableIds
     public static readonly string BuffTowerReinforceUpgrade = "BuffTowerReinforceUpgradeTable";
     public static readonly string AsyncPlanet = "AsyncPlanetTable";
     public static readonly string TowerExplain = "TowerExplainTable";
+    public static readonly string Currency = "CurrencyTable";
+    public static readonly string Draw = "DrawTable";
+    public static readonly string Reward = "RewardTable";
 }
 
 public static class Variables
 {
     public static int Stage {get; set;} = 3;
+    public static int Gold {get; set;} = 100000;
+    public static int FreeDia {get; set;} = 2000;
+    public static int ChargedDia {get; set;} = 3000;
     private static int quasar = 1;
     public static int Quasar
     {

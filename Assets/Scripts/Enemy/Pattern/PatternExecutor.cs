@@ -17,8 +17,6 @@ public class PatternExecutor : MonoBehaviour
     private bool isExecutePattern = false;
     private CancellationTokenSource patternCts;
 
-    private float patternStartDelay = 2.0f;
-    private float delayTimer = 0f;
     private bool canExecutePattern = false;
 
     private void OnDisable()
@@ -33,12 +31,7 @@ public class PatternExecutor : MonoBehaviour
 
     private void Start()
     {
-        if(owner.Data.EnemyType == 3 || owner.Data.EnemyType == 4)
-        {
-            canExecutePattern = false;
-            delayTimer = 0f;
-        }
-        else
+        if(owner.Data.EnemyType != 3 && owner.Data.EnemyType != 4)
         {
             canExecutePattern = true;
         }
@@ -57,6 +50,8 @@ public class PatternExecutor : MonoBehaviour
 
         Cancel();
     }
+
+    public void OnBossReady() => canExecutePattern = true;
 
     public void AddPattern(IPattern pattern)
     {
@@ -118,15 +113,7 @@ public class PatternExecutor : MonoBehaviour
 
         if(!canExecutePattern)
         {
-            delayTimer += Time.deltaTime;
-            if(delayTimer >= patternStartDelay)
-            {
-                canExecutePattern = true;
-            }
-            else
-            {
-                return;
-            }
+            return;
         }
 
         foreach (var pattern in patterns)
