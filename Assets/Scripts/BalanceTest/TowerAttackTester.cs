@@ -63,7 +63,7 @@ public class TowerAttackTester : MonoBehaviour
         attackSpeed = 0f;
         accuracy = 50f;
         grouping = 0f;
-        projectileNum = 1;
+        projectileNum = 0;
         targetNum = 1;
         hitSize = 10f;
         ratePenetration = 0f;
@@ -151,7 +151,7 @@ public class TowerAttackTester : MonoBehaviour
         towerAttack.AttackTowerData.fireRate = attackSpeed;
         towerAttack.AttackTowerData.Accuracy = accuracy;
         towerAttack.AttackTowerData.grouping = grouping;
-        towerAttack.AttackTowerData.projectileCount = (int)projectileNum;
+        towerAttack.ProjectileCountFromAbility = (int)projectileNum;
         towerAttack.TargetingSystem.SetExtraTargetCount(targetNum - 1);
         projectileData.CollisionSize = hitSize;
         projectileData.RatePenetration = ratePenetration;
@@ -183,7 +183,7 @@ public class TowerAttackTester : MonoBehaviour
         attackSpeed = towerAttack.AttackTowerData.fireRate;
         accuracy = towerAttack.AttackTowerData.Accuracy;
         grouping = towerAttack.AttackTowerData.grouping;
-        projectileNum = towerAttack.AttackTowerData.projectileCount;
+        projectileNum = towerAttack.ProjectileCountFromAbility;
         targetNum = towerAttack.TargetingSystem.MaxTargetCount;
         hitSize = projectileData.CollisionSize;
         ratePenetration = projectileData.RatePenetration;
