@@ -21,25 +21,49 @@ public class TowerAttack : MonoBehaviour
     private bool isOtherUserTower = false;
     public bool IsOtherUserTower { get { return isOtherUserTower; } set { isOtherUserTower = value; } }
 
-    private List<int> abilities;
-    public List<int> Abilities => abilities;
-
-    //test
+    //ability ----------------------------------------
+    //------------------------------------------------
+    //ability from attack
+    private readonly List<int> baseAbilityIds = new List<int>();
+    //ability from buff
+    private readonly Dictionary<TowerAmplifier, List<int>> amplifierAbilityIds = new Dictionary<TowerAmplifier, List<int>>();
+    //merged ability list
+    private readonly List<int> mergedAbilityIds = new List<int>();
+    private bool abilitiesDirty = true;
+    public List<int> Abilities
+    {
+        get 
+        {
+            if (abilitiesDirty) RebuildMergedAbilities();
+            return mergedAbilityIds;
+        }
+    }
+    //------------------------------------------------
     private ProjectilePoolManager projectilePoolManager;
 
     //------------ Amplifier Buff Field ---------------------
     private float damageBuffMul=1f; //damage = baseDamage * damageBuffMul
     public float DamageBuffMMul { get { return damageBuffMul; } set { damageBuffMul = value; } }
     private float accelerationBuffAdd=0f;  // +=
+
+    //fire rate --------------------------------------------------
+
+    public float fireRateAbilityMul = 1f;
+    private readonly List<float> fireRateAbilitySources = new List<float>();
+    public float BasicFireRate => towerData.fireRate;
     public float fireRateBuffMul = 1f; //fireRate = baseFireRate * fireRateBuffMul
     public float CurrentFireRate
     {
         get
         {
             if (towerData == null) return 0f;
-            return towerData.fireRate * fireRateBuffMul;
+            float baseRate = towerData.fireRate;
+            float finalMul = fireRateAbilityMul * fireRateBuffMul;
+            return towerData.fireRate * finalMul;
         }
     }
+
+    //------------------------------------------------------------
 
     private int newProjectileAttackType;
     public int NewProjectileAttackType { get { return newProjectileAttackType; } set { newProjectileAttackType = value; } }
@@ -77,14 +101,12 @@ public class TowerAttack : MonoBehaviour
     }
     private int TotalTargetNumberBuffAdd => targetNumberFromAbility + targetNumberFromAmplifier;
     //------------------------------------
-    private float hitRateBuffMul = 1f;
 
-    public float BasicFireRate => towerData.fireRate;
 
     private float accuracyBuffAdd = 0f;
     private float accuracyFromAmplifier = 0f;
     public float AccuracyBuffAdd { get { return accuracyBuffAdd; } set { accuracyBuffAdd = value; } }
-    
+    private float hitRateBuffMul = 1f;
     public float HitRateBuffMultiplier => hitRateBuffMul;
 
     public float BasicHitRate => towerData.Accuracy;
@@ -153,9 +175,6 @@ public class TowerAttack : MonoBehaviour
     private void Awake()
     {
         targetingSystem = GetComponent<TowerTargetingSystem>();
-        abilities = new List<int>();
-        // abilities.Add(AbilityManager.Instance.AbilityDict[0]);
-        // SetRandomAbility();
 
         if (firePoint == null) firePoint = transform;
 
@@ -170,6 +189,15 @@ public class TowerAttack : MonoBehaviour
     {
         towerData = data;
         if (towerData == null) return;
+
+        baseAbilityIds.Clear();
+        amplifierAbilityIds.Clear();
+        abilitiesDirty = true;
+
+        //firerate
+        fireRateAbilitySources.Clear();
+        fireRateAbilityMul = 1f;
+
         //Connect Data Table To baseProjectileData(=currentProjectileData) 
         originalProjectileData = DataTableManager.ProjectileTable.Get(towerData.projectileIdFromTable);
         //Connect Tower Data
@@ -184,9 +212,8 @@ public class TowerAttack : MonoBehaviour
 
         if (towerData.towerIdInt == (int)AttackTowerId.Missile)
         {
-            abilities.Add((int)AbilityId.Explosion);
+            AddBaseAbility((int)AbilityId.Explosion);
         }
-        //reinforce calculator
         RecalculateReinforcedBase();
     }
 
@@ -415,7 +442,7 @@ public class TowerAttack : MonoBehaviour
             projectile.SetHomingTarget(target);
         }
 
-        foreach (var abilityId in abilities)
+        foreach (var abilityId in Abilities)
         {
             var ability = AbilityManager.GetAbility(abilityId);
             if (ability == null) continue;
@@ -470,52 +497,90 @@ public class TowerAttack : MonoBehaviour
         direction = rot * direction;
     }
 
+    //ability ------------------------------------------------
+    private void RebuildMergedAbilities()
+    {
+        mergedAbilityIds.Clear();
+        mergedAbilityIds.AddRange(baseAbilityIds);
+        foreach(var kv in amplifierAbilityIds)
+        {
+            var list = kv.Value;
+            if (list == null) continue;
+            mergedAbilityIds.AddRange(list);
+        }
+        abilitiesDirty = false;
+    }
+    public void AddBaseAbility(int abilityId)
+    {
+        if(!baseAbilityIds.Contains(abilityId))
+        {
+            baseAbilityIds.Add(abilityId);
+            abilitiesDirty = true;
+        }
+    }
+
+    public void AddAmplifierAbility(TowerAmplifier source, int abilityId)
+    {
+        if (source == null) return;
+        if(!amplifierAbilityIds.TryGetValue(source,out var list))
+        {
+            list = new List<int>();
+            amplifierAbilityIds[source] = list;
+        }
+        list.Add(abilityId);
+        abilitiesDirty = true;
+    }
+
+    public void RemoveAmplifierAbility(TowerAmplifier source, int abilityId, int count = 1)
+    {
+        if (source == null) return;
+        if (!amplifierAbilityIds.TryGetValue(source, out var list)) return;
+
+        for (int i = 0; i < count; i++)
+        {
+            int idx = list.IndexOf(abilityId);
+            if (idx < 0) break;
+            list.RemoveAt(idx);
+        }
+
+        if (list.Count == 0)
+            amplifierAbilityIds.Remove(source);
+
+        abilitiesDirty = true;
+    }
+
+    public void ClearAmplifierAbilitiesFromSource(TowerAmplifier source)
+    {
+        if (source == null) return;
+        if(amplifierAbilityIds.Remove(source))
+        {
+            abilitiesDirty = true;
+        }
+    }
+
     public void AddAbility(int ability)
     {
-        if (abilities == null) abilities = new List<int>();
-        // if(!abilities.Contains(ability)) //preventing all duplication
-            abilities.Add(ability);
+        AddBaseAbility(ability);
     }
     public void RemoveAbility(int ability)
     {
-        if (abilities == null) return;
-        abilities.Remove(ability);
+        int idx = baseAbilityIds.IndexOf(ability);
+        if(idx>=0)
+        {
+            baseAbilityIds.RemoveAt(idx);
+            abilitiesDirty = true;
+        }
     }
 
     public void SetRandomAbility()
     {
         var ability = AbilityManager.GetRandomAbility();
-        abilities.Add(ability);
+        AddBaseAbility(ability);
         AbilityManager.GetAbility(ability)?.ApplyAbility(gameObject);
         AbilityManager.GetAbility(ability)?.Setting(gameObject);
-        // Debug.Log(ability);
     }
-/*
-    public void Shoot(Vector3 direction, bool IsHit)
-    {
-        if (towerData == null || towerData.projectileType == null) return;
 
-        var baseData = currentProjectileData;
-        var buffedData = CurrentProjectileData;
-        currentProjectileData = baseData;
-
-        Projectile projectile = ProjectilePoolManager.Instance.GetProjectile(currentProjectileData);
-        projectile.transform.position = transform.position;
-        projectile.transform.rotation = Quaternion.LookRotation(direction);
-        projectile.Initialize(buffedData,baseData, direction, IsHit, projectilePoolManager.ProjectilePool);
-      
-        foreach (var abilityId in abilities)
-        {
-            var ability = AbilityManager.GetAbility(abilityId);
-            if (ability == null) continue;
-            // ability.Setting(projectile.gameObject);
-            // ability.ApplyAbility(projectile.gameObject);
-            ability.ApplyAbility(projectile.gameObject);
-            projectile.abilityAction += ability.ApplyAbility;
-            projectile.abilityRelease += ability.RemoveAbility;
-        }
-    }
-*/
+    //--------------------------------------------------------
     public void SetUpBuff(AmplifierTowerDataSO amp)
     {
         if (amp == null)
@@ -649,7 +714,6 @@ public class TowerAttack : MonoBehaviour
         return addBuffProjectileData;
     }
 
-
     //Reinforce ----------------------------------------------------
     public void SetReinforceLevel(int newLevel)
     {
@@ -770,6 +834,40 @@ public class TowerAttack : MonoBehaviour
             abilityMul *= (1f + r);
         }
         hitRadiusBuffMul = ampHitRadiusMul * abilityMul;
+    }
+    //-----------------------------------------
+    //fireRate----------------------------------
+    public void AddFireRateFromAbilitySource(float ratePercent)
+    {
+        float r = Mathf.Clamp(ratePercent / 100f, -0.99f, 10f);
+        if (Mathf.Approximately(r, 0f)) return;
+
+        fireRateAbilitySources.Add(r);
+        RecalculateFireRateFromAbility();
+    }
+
+    public void RemoveFireRateFromAbilitySource(float ratePercent)
+    {
+        float r = Mathf.Clamp(ratePercent / 100f, -0.99f, 10f);
+
+        int idx = fireRateAbilitySources.FindIndex(x => Mathf.Approximately(x, r));
+        if (idx >= 0)
+        {
+            fireRateAbilitySources.RemoveAt(idx);
+            RecalculateFireRateFromAbility();
+        }
+    }
+
+    private void RecalculateFireRateFromAbility()
+    {
+        float mul = 1f;
+
+        foreach (var r in fireRateAbilitySources)
+        {
+            mul *= (1f + r); 
+        }
+
+        fireRateAbilityMul = mul;
     }
     //-----------------------------------------
 }

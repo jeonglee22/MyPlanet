@@ -1250,8 +1250,5 @@ public class TowerInstallControl : MonoBehaviour
         var dragRect = currentDragGhostRect;
 
         if (dragGo == null || dragRect == null || uiCanvas == null) return;
-
-
     }
-
 }
