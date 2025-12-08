@@ -86,7 +86,7 @@ public class PowerUpItemControlUI : MonoBehaviour
         {
             ability?.ApplyAbility(towerAttack.gameObject);
             ability?.Setting(towerAttack.gameObject);
-            towerAttack.AddAbility(abilities[index]);
+            towerAttack.AddBaseAbility(abilities[index]);
         }
         else if (amplifierTower != null)
         {
