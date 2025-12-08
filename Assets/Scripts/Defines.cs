@@ -149,12 +149,41 @@ public enum ShopCategory
     Others,
 }
 
+public enum RewardType
+{
+    Currency = 1,
+    EnhanceItem,
+    PlanetPiece,
+    Planet = 10,
+}
+
 public enum CurrencyType
 {
     Gold = 701,
     FreeDia,
     FreePlusChargedDia,
     ChargedDia,
+}
+
+public enum PlanetType
+{
+    HealthPlanet = 0,
+    DefensePlanet,
+    ShieldPlanet,
+    BloodAbsorbPlanet,
+    ExpPlanet,
+    HealthRegenerationPlanet,
+}
+
+public enum PlanetPieceType
+{
+    HealthPlanetPiece = 0,
+    DefensePlanetPiece,
+    ShieldPlanetPiece,
+    BloodAbsorbPlanetPiece,
+    ExpPlanetPiece,
+    HealthRegenerationPlanetPiece,
+    CommonPlanetPiece,
 }
 
 public static class DataTableIds
@@ -215,24 +244,6 @@ public static class Variables
         LastBossEnemy = null;
         MiddleBossEnemy = null;
     }
-}
-
-public static class ItemInventory
-{
-    public static int Gold {get; set;} = 100000;
-    public static int FreeDia {get; set;} = 2000;
-    public static int ChargedDia {get; set;} = 3000;
-    public static int TowerDictionaryRate {get; set;} = 0;
-    public static int AbilityDictionaryRate {get; set;} = 0;
-    public static int TowerEnhanceItem {get; set;} = 0;
-    public static int PlanetEnhanceItem {get; set;} = 0;
-    public static int HealthPlanetPiece {get; set;} = 0;
-    public static int DefensePlanetPiece {get; set;} = 0;
-    public static int ShieldPlanetPiece {get; set;} = 0;
-    public static int BloodAbsorbPlanetPiece {get; set;} = 0;
-    public static int ExpPlanetPiece {get; set;} = 0;
-    public static int HealthRegenerationPlanetPiece {get; set;} = 0;
-    public static int CommonPlanetPiece {get; set;} = 0;
 }
 
 public static class AddressLabel
