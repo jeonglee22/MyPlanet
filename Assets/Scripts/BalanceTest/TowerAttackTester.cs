@@ -2,18 +2,36 @@ using UnityEngine;
 
 public class TowerAttackTester : MonoBehaviour
 {
-    public int towerAttackId;
+    public int towerAttackId = -1;
     private TowerAttack towerAttack;
-    public float damage;
-    public float attackSpeed;
-    public float attackRange;
-    public float accuracy;
-    public float grouping;
-    public float projectileNum;
-    public int projectile_ID;
-    public int randomAbilityGroup_ID;
+    public float damage = 0f;
+    public float attackSpeed = 0f;
+    public float accuracy = 50f;
+    public float grouping = 0f;
+    public float projectileNum = 1f;
+    public int projectile_ID = -1;
+    public int randomAbilityGroup_ID = -1;
+
+    private int currentTowerAttackId = -1;
 
     [SerializeField] private TowerDataSO[] towerDataSOs;
+
+    void Start()
+    {
+    }
+
+    private void Initialize()
+    {
+        towerAttackId = -1;
+        damage = 0f;
+        attackSpeed = 0f;
+        accuracy = 50f;
+        grouping = 0f;
+        projectileNum = 1f;
+        projectile_ID = -1;
+        randomAbilityGroup_ID = -1;
+        currentTowerAttackId = -1;
+    }
 
     void FixedUpdate()
     {
@@ -26,20 +44,27 @@ public class TowerAttackTester : MonoBehaviour
         if (planet == null)
             return;
 
-        planet?.SetAttackTower(towerDataSOs[towerAttackId],0);
-        if (towerAttack == null)
-            towerAttack = planet.GetAttackTowerToAmpTower(0);
+        if (currentTowerAttackId == towerAttackId || towerAttackId == -1)
+            return;
 
-        // towerAttack.Damage = damage;
-        // towerAttack.AttackSpeed = attackSpeed;
-        // towerAttack.AttackRange = attackRange;
-        // towerAttack.Accuracy = accuracy;
-        // towerAttack.grouping = grouping;
-        // towerAttack.ProjectileNum = projectileNum;
-        // towerAttack.Projectile_ID = projectile_ID;
-        // towerAttack.RandomAbilityGroup_ID = randomAbilityGroup_ID;
+        planet.RemoveTowerAt(0);
 
-        transform.Rotate(Vector3.up, attackSpeed * 10f * Time.deltaTime);
-        Debug.Log($"Testing Tower Attack:");
+        planet.SetAttackTower(towerDataSOs[towerAttackId],0);
+
+        towerAttack = planet.GetAttackTowerToAmpTower(0);
+
+        var projectileData = towerAttack.BaseProjectileData;
+        if (projectileData == null)
+            return;
+
+        projectile_ID = projectileData.Projectile_ID;
+        damage = projectileData.Attack;
+        attackSpeed = towerAttack.AttackTowerData.fireRate;
+        accuracy = towerAttack.AttackTowerData.Accuracy;
+        grouping = towerAttack.AttackTowerData.grouping;
+        projectileNum = towerAttack.AttackTowerData.projectileCount;
+        randomAbilityGroup_ID = towerAttack.AttackTowerData.randomAbilityGroupId;
+
+        currentTowerAttackId = towerAttackId;
     }
 }

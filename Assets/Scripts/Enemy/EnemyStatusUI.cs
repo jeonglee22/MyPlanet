@@ -17,7 +17,7 @@ public class EnemyStatusUI : MonoBehaviour
 
         cameraTransform = Camera.main.transform;
 
-        hpSlider.gameObject.SetActive(false);
+        hpSlider?.gameObject.SetActive(false);
 
         if(enemy.EnemyType == 4)
         {
@@ -41,7 +41,7 @@ public class EnemyStatusUI : MonoBehaviour
 
         if(enemy != null && enemy.EnemyType == 4 && battleUI != null)
         {
-            battleUI.SetBossHp(enemy.Data.EnemyTextName, enemy.Health, enemy.MaxHealth);
+            battleUI?.SetBossHp(enemy.Data.EnemyTextName, enemy.Health, enemy.MaxHealth);
         }
     }
 
@@ -59,7 +59,7 @@ public class EnemyStatusUI : MonoBehaviour
     {
         if(enemy.EnemyType == 4)
         {
-            battleUI.SetBossHp(enemy.Data.EnemyTextName, enemy.Health, enemy.MaxHealth);
+            battleUI?.SetBossHp(enemy.Data.EnemyTextName, enemy.Health, enemy.MaxHealth);
         }
         else
         {

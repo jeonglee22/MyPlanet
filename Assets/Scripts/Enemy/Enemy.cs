@@ -124,7 +124,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
         StopLifeTime();
 
-        if (ShouldDropItems)
+        if (ShouldDropItems && Variables.IsTestMode == false)
         {
             foreach (var drop in drops)
             {

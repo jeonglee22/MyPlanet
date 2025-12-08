@@ -8,14 +8,14 @@ public class BalanceTester : MonoBehaviour
     public float attackSpeed = 1f;
     public float range = 5f;
 
-    void Update()
-    {
-        TestBalance();
-    }
+    // void Update()
+    // {
+    //     TestBalance();
+    // }
 
-    protected virtual void TestBalance()
-    {
-        transform.Rotate(Vector3.up, attackSpeed * 10f * Time.deltaTime);
-        Debug.Log($"Testing Balance: Damage={damage}, AttackSpeed={attackSpeed}, Range={range}");
-    }
+    // protected virtual void TestBalance()
+    // {
+    //     transform.Rotate(Vector3.up, attackSpeed * 10f * Time.deltaTime);
+    //     Debug.Log($"Testing Balance: Damage={damage}, AttackSpeed={attackSpeed}, Range={range}");
+    // }
 }

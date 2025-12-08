@@ -76,7 +76,6 @@ public class BalanceWindow : EditorWindow
             towerAttackIdProp = so.FindProperty("towerAttackId");
             damageProp = so.FindProperty("damage");
             attackSpeedProp = so.FindProperty("attackSpeed");
-            rangeProp = so.FindProperty("attackRange");
             accuracyProp = so.FindProperty("accuracy");
             groupingProp = so.FindProperty("grouping");
             projectileNumProp = so.FindProperty("projectileNum");
@@ -172,7 +171,7 @@ public class BalanceWindow : EditorWindow
 
         so.Update();
 
-        int[] towerIds = { 1001001, 1000001, 1001002, 1002002, 1000002, 1002001 };
+        int[] towerIds = { 0, 1, 2, 3, 4, 5 };
         string[] towerNames = { "케틀링", "권총", "레이저", "미사일", "샷건", "스나이퍼" };
 
         EditorGUI.BeginChangeCheck();
@@ -192,7 +191,6 @@ public class BalanceWindow : EditorWindow
         EditorGUILayout.PropertyField(towerAttackIdProp);
         EditorGUILayout.PropertyField(damageProp);
         EditorGUILayout.PropertyField(attackSpeedProp);
-        EditorGUILayout.PropertyField(rangeProp);
         EditorGUILayout.PropertyField(accuracyProp);
         EditorGUILayout.PropertyField(groupingProp);
         EditorGUILayout.PropertyField(projectileNumProp);
