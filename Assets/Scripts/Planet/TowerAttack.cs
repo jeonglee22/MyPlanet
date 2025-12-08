@@ -43,7 +43,7 @@ public class TowerAttack : MonoBehaviour
 
     //------------ Amplifier Buff Field ---------------------
     private float damageBuffMul=1f; //damage = baseDamage * damageBuffMul
-    public float DamageBuffMMul { get { return damageBuffMul; } set { damageBuffMul = value; } }
+    public float DamageBuffMul { get { return damageBuffMul; } set { damageBuffMul = value; } }
     private float accelerationBuffAdd=0f;  // +=
 
     //fire rate --------------------------------------------------
