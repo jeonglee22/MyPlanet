@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -19,6 +20,8 @@ public class BuyPanelUI : MonoBehaviour
     [SerializeField] private GameObject noCurrencyText;
     [SerializeField] private Button confirmYesBtn;
     [SerializeField] private Button confirmNoBtn;
+
+    private Dictionary<int, int> rewardStacks = new Dictionary<int, int>();
 
     public void Initialize(int needCurrencyValue, int drawGroup, string gachaName)
     {
@@ -84,26 +87,56 @@ public class BuyPanelUI : MonoBehaviour
 
     private void OnConfirmNoBtnClicked()
     {
-        buyConfirmUI.gameObject.SetActive(false);
-        noCurrencyText.gameObject.SetActive(false);
+        buyConfirmUI.SetActive(false);
+        noCurrencyText.SetActive(false);
     }
 
     private bool TryPay()
     {
         bool isEnough = false;
+        int totalCost = needCurrencyValue * drawCount;
+
         switch ((CurrencyType)drawGroup)
         {
             case CurrencyType.Gold:
-                isEnough = Variables.Gold >= needCurrencyValue * drawCount;
+                isEnough = ItemInventory.Gold >= totalCost;
+                if(isEnough)
+                {
+                    ItemInventory.Gold -= totalCost;
+                }
                 break;
             case CurrencyType.FreeDia:
-                isEnough = Variables.FreeDia >= needCurrencyValue * drawCount;
+                isEnough = ItemInventory.FreeDia >= totalCost;
+                if(isEnough)
+                {
+                    ItemInventory.FreeDia -= totalCost;
+                }
                 break;
             case CurrencyType.FreePlusChargedDia:
-                isEnough = (Variables.FreeDia + Variables.ChargedDia) >= needCurrencyValue * drawCount;
+                isEnough = (ItemInventory.FreeDia + ItemInventory.ChargedDia) >= totalCost;
+                if(isEnough)
+                {
+                    while(totalCost > 0 && ItemInventory.FreeDia > 0)
+                    {
+                        int minus = Mathf.Min(ItemInventory.FreeDia, totalCost);
+                        ItemInventory.FreeDia -= minus;
+                        totalCost -= minus;
+                    }
+
+                    while(totalCost > 0 && ItemInventory.ChargedDia > 0)
+                    {
+                        int minus = Mathf.Min(ItemInventory.ChargedDia, totalCost);
+                        ItemInventory.ChargedDia -= minus;
+                        totalCost -= minus;
+                    }
+                }
                 break;
             case CurrencyType.ChargedDia:
-                isEnough = Variables.ChargedDia >= needCurrencyValue * drawCount;
+                isEnough = ItemInventory.ChargedDia >= totalCost;
+                if(isEnough)
+                {
+                    ItemInventory.ChargedDia -= totalCost;
+                }
                 break;
         }
 
@@ -112,6 +145,8 @@ public class BuyPanelUI : MonoBehaviour
 
     private void OnGacha()
     {
-        
+        var rewards = DataTableManager.DrawTable.GetRandomDrawData(drawGroup, drawCount);
+
+
     }
 }

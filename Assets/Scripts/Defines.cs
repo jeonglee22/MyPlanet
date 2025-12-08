@@ -185,9 +185,7 @@ public static class DataTableIds
 public static class Variables
 {
     public static int Stage {get; set;} = 3;
-    public static int Gold {get; set;} = 100000;
-    public static int FreeDia {get; set;} = 2000;
-    public static int ChargedDia {get; set;} = 3000;
+
     private static int quasar = 1;
     public static int Quasar
     {
@@ -217,6 +215,24 @@ public static class Variables
         LastBossEnemy = null;
         MiddleBossEnemy = null;
     }
+}
+
+public static class ItemInventory
+{
+    public static int Gold {get; set;} = 100000;
+    public static int FreeDia {get; set;} = 2000;
+    public static int ChargedDia {get; set;} = 3000;
+    public static int TowerDictionaryRate {get; set;} = 0;
+    public static int AbilityDictionaryRate {get; set;} = 0;
+    public static int TowerEnhanceItem {get; set;} = 0;
+    public static int PlanetEnhanceItem {get; set;} = 0;
+    public static int HealthPlanetPiece {get; set;} = 0;
+    public static int DefensePlanetPiece {get; set;} = 0;
+    public static int ShieldPlanetPiece {get; set;} = 0;
+    public static int BloodAbsorbPlanetPiece {get; set;} = 0;
+    public static int ExpPlanetPiece {get; set;} = 0;
+    public static int HealthRegenerationPlanetPiece {get; set;} = 0;
+    public static int CommonPlanetPiece {get; set;} = 0;
 }
 
 public static class AddressLabel
