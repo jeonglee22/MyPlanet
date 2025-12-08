@@ -15,7 +15,7 @@ public class ProjectileCountUpgradeAbility : TowerAbility
         var towerAttack = gameObject.GetComponent<TowerAttack>();
         if (towerAttack != null)
         {
-            towerAttack.ProjectileCountBuffAdd += Mathf.FloorToInt(upgradeAmount);
+            towerAttack.ProjectileCountFromAbility += Mathf.FloorToInt(upgradeAmount);
         }
     }
 
@@ -26,7 +26,7 @@ public class ProjectileCountUpgradeAbility : TowerAbility
          var towerAttack = gameObject.GetComponent<TowerAttack>();
         if (towerAttack != null)
         {
-            towerAttack.ProjectileCountBuffAdd -= Mathf.FloorToInt(upgradeAmount);
+            towerAttack.ProjectileCountFromAbility -= Mathf.FloorToInt(upgradeAmount);
         }
     }
 

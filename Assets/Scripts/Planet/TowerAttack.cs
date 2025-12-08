@@ -127,13 +127,20 @@ public class TowerAttack : MonoBehaviour
 
     //projectile Count---------------------------------------
     private int baseProjectileCount = 1; //Only Var
-    private int projectileCountBuffAdd = 0; 
-    public int ProjectileCountBuffAdd { get { return projectileCountBuffAdd; } set { projectileCountBuffAdd = value; } }
+    private int projectileCountFromAmplifier = 0;
+    private int projectileCountFromAbility = 0;
+    public int ProjectileCountFromAbility 
+    { 
+        get => projectileCountFromAbility;
+        set => projectileCountFromAbility = value;
+    }
+    public int ProjectileCountFromAmplifier => projectileCountFromAmplifier;
+    public int TotalProjectilecountvBuffAdd => projectileCountFromAmplifier + projectileCountFromAbility;
     public int CurrentProjectileCount
     {
         get
         {
-            int finalCount = baseProjectileCount + projectileCountBuffAdd;
+            int finalCount = baseProjectileCount + TotalProjectilecountvBuffAdd;
             return Mathf.Max(1, finalCount);
         }
     }
@@ -622,7 +629,7 @@ public class TowerAttack : MonoBehaviour
         damageBuffMul = 1f;
         fireRateBuffMul = 0f;
         accelerationBuffAdd = 0f;
-        projectileCountBuffAdd = 0;
+        projectileCountFromAmplifier = 0;
 
         ampHitRadiusMul = 1f; 
         percentPenetrationFromAmplifier = 0f;
@@ -641,7 +648,7 @@ public class TowerAttack : MonoBehaviour
             fireRateBuffMul += (fireRateMul - 1f);
 
             accelerationBuffAdd += amp.AccelerationBuff;
-            projectileCountBuffAdd += amp.ProjectileCountBuff;
+            projectileCountFromAmplifier += amp.ProjectileCountBuff;
 
             ampHitRadiusMul *= (1f + amp.HitRadiusBuff/100f);
 
