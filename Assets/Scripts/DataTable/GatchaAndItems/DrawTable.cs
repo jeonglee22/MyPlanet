@@ -110,6 +110,8 @@ public class DrawTable : DataTable
                     break;
                 }
             }
+
+            drawCount--;
         }
 
         return resultList;

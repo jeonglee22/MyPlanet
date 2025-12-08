@@ -78,6 +78,11 @@ public class BuyPanelUI : MonoBehaviour
         if (TryPay())
         {
             OnGacha();
+
+            foreach(var reward in rewardResults)
+            {
+                Debug.Log($"획득 보상: {reward.Key.Target_Id} x{reward.Value}");
+            }
         }
         else
         {
@@ -173,6 +178,8 @@ public class BuyPanelUI : MonoBehaviour
             {
                 rewardResults.Add(reward, draw.RewardQty);
             }
+
+            Debug.Log($"획득 보상: {draw.Draw_Id} / {reward.RewardNameText}");
         }
     }
 }
