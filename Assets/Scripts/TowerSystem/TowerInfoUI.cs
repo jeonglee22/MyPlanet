@@ -339,8 +339,14 @@ public class TowerInfoUI : MonoBehaviour
             SetStatText(projectileNumberValueText, baseCount, finalCount, "0");
             SetAdditionalStatText(projectileNumberValueAdditionalText, baseCount, finalCount, "0.00");
             // Target Num
-            float baseTargets = baseProj.TargetNum;
-            float finalTargets = buffedProj.TargetNum;
+            float baseTargets = 1f;
+            float finalTargets = 1f;
+            var ts = attackTower.TargetingSystem;
+            if(ts!=null)
+            {
+                baseTargets = ts.BaseTargetCount;
+                finalTargets = ts.MaxTargetCount;
+            }
             SetStatText(targetNumberValueText, baseTargets, finalTargets, "0");
             SetAdditionalStatText(targetNumberValueAdditionalText, baseTargets, finalTargets, "0.00");
             // LifeTime
