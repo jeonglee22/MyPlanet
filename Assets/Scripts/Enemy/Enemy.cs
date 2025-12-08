@@ -37,7 +37,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     private CancellationTokenSource lifeTimeCts;
     private float exp;
 
-    public int EnemyType => data.EnemyType;
+    private int enemyType;
+    public int EnemyType => enemyType;
 
     [SerializeField] private List<DropItem> drops;
 
@@ -68,16 +69,22 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         movement?.Initialize(moveSpeed, -1, movement.CurrentMovement);
         patternExecutor?.Initialize(this);
 
-        OnDeathEvent += SpawnManager.Instance.OnEnemyDied;
-        OnLifeTimeOverEvent += SpawnManager.Instance.OnEnemyDied;
+        if (!Variables.IsTestMode)
+        {
+            OnDeathEvent += SpawnManager.Instance.OnEnemyDied;
+            OnLifeTimeOverEvent += SpawnManager.Instance.OnEnemyDied;
 
-        OnCollisionDamageCalculate = null;
+            OnCollisionDamageCalculate = null;
+        }
     }
 
     protected virtual void OnDisable() 
     {
-        OnDeathEvent -= SpawnManager.Instance.OnEnemyDied;
-        OnLifeTimeOverEvent -= SpawnManager.Instance.OnEnemyDied;
+        if (!Variables.IsTestMode)
+        {
+            OnDeathEvent -= SpawnManager.Instance.OnEnemyDied;
+            OnLifeTimeOverEvent -= SpawnManager.Instance.OnEnemyDied;
+        }
 
         if(patternExecutor != null)
         {
@@ -221,6 +228,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         objectPoolManager = poolManager;
 
         data = enemyData;
+        enemyType = data.EnemyType;
         ScaleData = scaleData;
         maxHealth = data.Hp * scaleData.HpScale;
         Health = maxHealth;

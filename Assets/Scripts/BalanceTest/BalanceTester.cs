@@ -10,13 +10,10 @@ public class BalanceTester : MonoBehaviour
 
     void Update()
     {
-        if (TouchManager.Instance.IsTouching)
-        {
-            TestBalance();
-        }
+        TestBalance();
     }
 
-    private void TestBalance()
+    protected virtual void TestBalance()
     {
         transform.Rotate(Vector3.up, attackSpeed * 10f * Time.deltaTime);
         Debug.Log($"Testing Balance: Damage={damage}, AttackSpeed={attackSpeed}, Range={range}");

@@ -1,14 +1,36 @@
+using System;
 using UnityEditor;
 using UnityEngine;
 
 public class BalanceWindow : EditorWindow
 {
+    enum Page
+    {
+        Base,
+        Planet,
+        Tower,
+        Enemy,
+        Test,
+    }
+
+    private Page currentPage = Page.Base;
+
+
     private SerializedObject so;
+
+    private SerializedProperty towerAttackIdProp;
     private SerializedProperty damageProp;
     private SerializedProperty attackSpeedProp;
     private SerializedProperty rangeProp;
 
+    private SerializedProperty accuracyProp;
+    private SerializedProperty groupingProp;
+    private SerializedProperty projectileNumProp;
+    private SerializedProperty projectileIDProp;
+    private SerializedProperty randomAbilityGroupIDProp;
+
     private BalanceTester targetTester;
+    private TowerAttackTester towerAttackTester;
 
     [MenuItem("MyTools/Balance Window")]
     public static void ShowWindow()
@@ -18,14 +40,12 @@ public class BalanceWindow : EditorWindow
 
     private void OnSelectionChange()
     {
-        // 선택된 오브젝트 바뀔 때마다 타겟 갱신
         TrySetTargetFromSelection();
         Repaint();
     }
 
     private void OnFocus()
     {
-        // 창에 포커스 왔을 때도 갱신
         TrySetTargetFromSelection();
     }
 
@@ -39,6 +59,7 @@ public class BalanceWindow : EditorWindow
         }
 
         var tester = Selection.activeGameObject.GetComponent<BalanceTester>();
+        var towerTester = Selection.activeGameObject.GetComponent<TowerAttackTester>();
         if (tester != null)
         {
             targetTester = tester;
@@ -46,6 +67,21 @@ public class BalanceWindow : EditorWindow
             damageProp = so.FindProperty("damage");
             attackSpeedProp = so.FindProperty("attackSpeed");
             rangeProp = so.FindProperty("range");
+        }
+        else if (towerTester != null)
+        {
+            towerAttackTester = towerTester;
+            so = new SerializedObject(towerAttackTester);
+
+            towerAttackIdProp = so.FindProperty("towerAttackId");
+            damageProp = so.FindProperty("damage");
+            attackSpeedProp = so.FindProperty("attackSpeed");
+            rangeProp = so.FindProperty("attackRange");
+            accuracyProp = so.FindProperty("accuracy");
+            groupingProp = so.FindProperty("grouping");
+            projectileNumProp = so.FindProperty("projectileNum");
+            projectileIDProp = so.FindProperty("projectile_ID");
+            randomAbilityGroupIDProp = so.FindProperty("randomAbilityGroup_ID");
         }
         else
         {
@@ -58,6 +94,32 @@ public class BalanceWindow : EditorWindow
     {
         EditorGUILayout.LabelField("Balance Tuner", EditorStyles.boldLabel);
         EditorGUILayout.Space();
+
+        DrawTopButtons();
+        GUILayout.Space(10);
+
+        switch (currentPage)
+        {
+            case Page.Base:
+                DrawBasePage();
+                break;
+            case Page.Enemy:
+                DrawEnemyPage();
+                break;
+            case Page.Tower:
+                DrawTowerPage();
+                break;
+            case Page.Planet:
+                DrawPlanetPage();
+                break;
+            case Page.Test:
+                DrawTestPage();
+                break;
+        }
+    }
+
+    private void DrawTestPage()
+    {
 
         if (so == null || targetTester == null)
         {
@@ -83,13 +145,91 @@ public class BalanceWindow : EditorWindow
 
         so.ApplyModifiedProperties();
 
-        if (EditorApplication.isPlaying)
+        EditorGUILayout.Space();
+    }
+
+    private void DrawPlanetPage()
+    {
+    }
+
+    private void DrawTowerPage()
+    {
+        if (so == null || towerAttackTester == null)
         {
-            EditorGUILayout.HelpBox("Play 중이므로 값 변경 즉시 게임에 반영됩니다.", MessageType.None);
+            EditorGUILayout.HelpBox(
+                "씬에서 BalanceTester가 붙어있는 오브젝트를 선택하면 조절할 수 있어요.",
+                MessageType.Info
+            );
+            if (GUILayout.Button("선택된 오브젝트에서 찾기"))
+            {
+                TrySetTargetFromSelection();
+            }
+            return;
         }
-        else
+
+        EditorGUILayout.ObjectField("Tower", towerAttackTester, typeof(TowerAttackTester), true);
+        EditorGUILayout.Space();
+
+        so.Update();
+
+        int[] towerIds = { 1001001, 1000001, 1001002, 1002002, 1000002, 1002001 };
+        string[] towerNames = { "케틀링", "권총", "레이저", "미사일", "샷건", "스나이퍼" };
+
+        EditorGUI.BeginChangeCheck();
+
+        int newId = EditorGUILayout.IntPopup(
+            "TowerAttack ID",
+            towerAttackIdProp.intValue,
+            towerNames,
+            towerIds
+        );
+
+        if (EditorGUI.EndChangeCheck())
         {
-            EditorGUILayout.HelpBox("에디터 모드에서는 그냥 일반 Inspector랑 동일하게 동작해요.", MessageType.None);
+            towerAttackIdProp.intValue = newId;
         }
+
+        EditorGUILayout.PropertyField(towerAttackIdProp);
+        EditorGUILayout.PropertyField(damageProp);
+        EditorGUILayout.PropertyField(attackSpeedProp);
+        EditorGUILayout.PropertyField(rangeProp);
+        EditorGUILayout.PropertyField(accuracyProp);
+        EditorGUILayout.PropertyField(groupingProp);
+        EditorGUILayout.PropertyField(projectileNumProp);
+        EditorGUILayout.PropertyField(projectileIDProp);
+        EditorGUILayout.PropertyField(randomAbilityGroupIDProp);
+
+        so.ApplyModifiedProperties();
+    }
+
+    private void DrawEnemyPage()
+    {
+    }
+
+    private void DrawBasePage()
+    {
+    }
+
+    private void DrawTopButtons()
+    {
+        GUILayout.BeginHorizontal(EditorStyles.toolbar);
+
+        if (GUILayout.Toggle(currentPage == Page.Base, "개요", EditorStyles.toolbarButton))
+            currentPage = Page.Base;
+
+        if (GUILayout.Toggle(currentPage == Page.Enemy, "적 설정", EditorStyles.toolbarButton))
+            currentPage = Page.Enemy;
+
+        if (GUILayout.Toggle(currentPage == Page.Tower, "타워 설정", EditorStyles.toolbarButton))
+            currentPage = Page.Tower;
+
+        if (GUILayout.Toggle(currentPage == Page.Planet, "행성 설정", EditorStyles.toolbarButton))
+            currentPage = Page.Planet;
+
+        if (GUILayout.Toggle(currentPage == Page.Test, "테스트", EditorStyles.toolbarButton))
+            currentPage = Page.Test;
+
+        GUILayout.FlexibleSpace();
+        GUILayout.EndHorizontal();
     }
 }
