@@ -6,7 +6,7 @@ using UnityEngine.AddressableAssets;
 public class CurrencyData
 {
     public int Currency_Id { get; set; }
-    public int CurrentType { get; set; }
+    public int CurrencyType { get; set; }
     public int CurrencyGroup { get; set; }
     public string GroupName { get; set; }
     public string GroupNameText { get; set; }
@@ -18,7 +18,7 @@ public class CurrencyData
 
     public override string ToString()
     {
-        return $"Currency_Id: {Currency_Id}, Name: {CurrencyName}, CurrentType: {CurrentType}, CurrencyGroup: {CurrencyGroup}, Priority: {Priority}, MaxStack: {MaxStack}, Description: {CurrencyDescription}";
+        return $"Currency_Id: {Currency_Id}, Name: {CurrencyName}, CurrentType: {CurrencyType}, CurrencyGroup: {CurrencyGroup}, Priority: {Priority}, MaxStack: {MaxStack}, Description: {CurrencyDescription}";
     }
 }
 

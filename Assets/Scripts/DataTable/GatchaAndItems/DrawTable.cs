@@ -8,16 +8,16 @@ public class DrawData
     public int Draw_Id { get; set; }
     public int DrawGroup { get; set; }
     public int DrawType { get; set; }
-    public string DrawTypwText { get; set; }
+    public string DrawTypeText { get; set; }
     public int CurrencyGroup { get; set; }
     public int CostPolicy { get; set; }
     public int NeedCurrencyValue { get; set; }
     public int Reward_Id { get; set; }
-    public string RewardNameText { get; set; }
+    public string RewardName { get; set; }
     public int RewardQty { get; set; }
-    public int Weight { get; set; }
+    public float Weight { get; set; }
     public float ActualRate { get; set; }
-    public float DisplayedRate { get; set; }
+    public string DisplayedRate { get; set; }
 
     public override string ToString()
     {
@@ -62,5 +62,21 @@ public class DrawTable : DataTable
         }
 
         return dictionary[key];
+    }
+
+    public List<(int, string)> GetGachaList()
+    {
+        List<(int, string)> gachaList = new List<(int, string)>();
+        int currentGroup = -1;
+        foreach (var draw in dictionary.Values)
+        {
+            if (draw.DrawGroup != currentGroup)
+            {
+                currentGroup = draw.DrawGroup;
+                gachaList.Add((currentGroup, draw.DrawTypeText));
+            }
+        }
+
+        return gachaList;
     }
 }

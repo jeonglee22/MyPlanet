@@ -15,10 +15,16 @@ public class LobbyUI : MonoBehaviour
     private void Start()
     {
         playBtn.onClick.AddListener(OnPlayBtnClicked);
+        storeBtn.onClick.AddListener(OnStoreBtnClicked);
     }
 
     private void OnPlayBtnClicked()
     {
         SceneControlManager.Instance.LoadScene(SceneName.StageSelectScene).Forget();
+    }
+
+    private void OnStoreBtnClicked()
+    {
+        SceneControlManager.Instance.LoadScene(SceneName.StoreScene).Forget();
     }
 }
