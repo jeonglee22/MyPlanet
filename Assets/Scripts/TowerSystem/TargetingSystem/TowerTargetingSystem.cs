@@ -38,6 +38,7 @@ public class TowerTargetingSystem : MonoBehaviour
     private int baseMaxTargetCount = 1; //only Var
     private int extraTargetCount = 0; //Add Buffed Data
     public int MaxTargetCount => Mathf.Max(1, baseMaxTargetCount + extraTargetCount);
+    public int BaseTargetCount => Mathf.Max(1, baseMaxTargetCount);
 
     private void Awake()
     {

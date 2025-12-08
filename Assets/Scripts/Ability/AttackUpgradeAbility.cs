@@ -17,7 +17,7 @@ public class AttackUpgradeAbility : PassiveAbility
         var towerAttack = gameObject.GetComponent<TowerAttack>();
         if (towerAttack != null)
         {
-            towerAttack.DamageBuffMMul += upgradeAmount;
+            towerAttack.DamageBuffMul += upgradeAmount;
             // Debug.Log("Damage Apply");
         }
     }
