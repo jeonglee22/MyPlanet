@@ -92,15 +92,17 @@ public class TowerAttack : MonoBehaviour
     private float fixedPenetrationFromAmplifier = 0f;
     //TargetNum---------------------------
     private int targetNumberFromAbility = 0;   
-    private int targetNumberFromAmplifier = 0; 
+    private int targetNumberFromAmplifier = 0;
+    public int TargetNumberFromAmplifier => targetNumberFromAmplifier;
     public int TargetNumberBuffAdd
     {
         get => targetNumberFromAbility;
         set => targetNumberFromAbility = value;
     }
     private int TotalTargetNumberBuffAdd => targetNumberFromAbility + targetNumberFromAmplifier;
+    public int TotalTargetNumberExtra => TotalTargetNumberBuffAdd;
+    private int lastAppliedAmplifierTargetExtra = 0;
     //------------------------------------
-
 
     private float accuracyBuffAdd = 0f;
     private float accuracyFromAmplifier = 0f;
@@ -205,6 +207,11 @@ public class TowerAttack : MonoBehaviour
         fireRateAbilityMul = 0f;
         fireRateBuffMul = 0f;
 
+        //target count
+        targetNumberFromAbility = 0;
+        targetNumberFromAmplifier = 0;
+        lastAppliedAmplifierTargetExtra = 0;
+
         //Connect Data Table To baseProjectileData(=currentProjectileData) 
         originalProjectileData = DataTableManager.ProjectileTable.Get(towerData.projectileIdFromTable);
         //Connect Tower Data
@@ -291,6 +298,35 @@ public class TowerAttack : MonoBehaviour
 
         var targets = targetingSystem.CurrentTargets;
 
+        List<ITargetable> validTargets = new List<ITargetable>();
+        if(targets!=null)
+        {
+            foreach(var t in targets)
+            {
+                if (t != null && t.isAlive) validTargets.Add(t);
+            }
+        }
+
+        //debug
+        int targetCount =
+       (targets != null && targets.Count > 0)
+       ? targets.Count
+       : (targetingSystem.CurrentTarget != null ? 1 : 0);
+
+        int expectedProjectiles = targetCount * shotCount;
+
+        Debug.Log(
+            $"[ShootAtTarget] {gameObject.name} " +
+            $"targetCount={targetCount}, shotCount={shotCount}, " +
+            $"expectedProjectiles={expectedProjectiles}, " +
+            $"baseProjCount={baseProjectileCount}, " +
+            $"extraProjFromAbility={projectileCountFromAbility}, " +
+            $"extraProjFromAmp={projectileCountFromAmplifier}, " +
+            $"baseTargets={ (targetingSystem != null ? targetingSystem.BaseTargetCount : 0) }, " +
+            $"extraTargets={TotalTargetNumberBuffAdd}"
+        );
+        //
+
         if (targets == null || targets.Count == 0)
         {
             var single = targetingSystem.CurrentTarget;
@@ -320,6 +356,11 @@ public class TowerAttack : MonoBehaviour
                            vp.y >= 0f && vp.y <= 1f);
         if (!inViewport) return;
 
+        Debug.Log(
+    $"[FireToTarget] {gameObject.name} " +
+    $"target={target} shotCount={shotCount}"
+);
+
         Vector3 baseDirection = (target.position - firePoint.position).normalized;
         float centerIndex = (shotCount - 1) * 0.5f;
 
@@ -331,6 +372,11 @@ public class TowerAttack : MonoBehaviour
 
         for (int i = 0; i < shotCount; i++)
         {
+            Debug.Log(
+           $"[FireToTargetLoop] {gameObject.name} " +
+           $"target={target} projIndex={i + 1}/{shotCount}"
+       );
+
             float offsetIndex = i - centerIndex;
             var projectile = ProjectilePoolManager.Instance.GetProjectile(baseData);
             if (isOtherUserTower)
@@ -684,8 +730,10 @@ public class TowerAttack : MonoBehaviour
 
         if (targetingSystem != null)
         {
-            int finalTargetCount = 1 + TotalTargetNumberBuffAdd;
-            targetingSystem.SetMaxTargetCount(finalTargetCount);
+            int amplifierExtra = targetNumberFromAmplifier;
+            int delta = amplifierExtra - lastAppliedAmplifierTargetExtra;
+            if (delta != 0) targetingSystem.AddExtraTargetCount(delta);
+            lastAppliedAmplifierTargetExtra = amplifierExtra;
         }
     }
 
@@ -695,8 +743,8 @@ public class TowerAttack : MonoBehaviour
 
         addBuffProjectileData = currentProjectileData.Clone();
 
-        float finalTargetNumber = currentProjectileData.TargetNum + TotalTargetNumberBuffAdd;
-        addBuffProjectileData.TargetNum = Mathf.Max(1, finalTargetNumber);
+        float basePierce = currentProjectileData.TargetNum;
+        addBuffProjectileData.TargetNum = Mathf.Max(1, basePierce);
 
         //hit radius------
         float finalHitRadiusMul = hitRadiusBuffMul;
