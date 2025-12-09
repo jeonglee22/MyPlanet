@@ -18,11 +18,19 @@ public class UserData
     public static int ExpPlanetPiece {get; set;} = 0;
     public static int HealthRegenerationPlanetPiece {get; set;} = 0;
     public static int CommonPlanetPiece {get; set;} = 0;
+
+    public static bool isHealthPlanet = false;
+    public static bool isDefensePlanet = false;
+    public static bool isShieldPlanet = false;
+    public static bool isBloodAbsorbPlanet = false;
+    public static bool isExpPlanet = false;
+    public static bool isHealthRegenerationPlanet = false;
 }
 
 public static class UserDataMapper
 {
     private static Dictionary<int, (Func<int> getter, Action<int> setter, int maxStack)> itemMapping;
+    private static Dictionary<int, (Func<bool> getter, Action<bool> setter, int pieceId)> planetMapping;
 
     static UserDataMapper()
     {
@@ -45,6 +53,16 @@ public static class UserDataMapper
         RegisterItem(710305, () => UserData.ExpPlanetPiece, (value) => UserData.ExpPlanetPiece = value);
         RegisterItem(710306, () => UserData.HealthRegenerationPlanetPiece, (value) => UserData.HealthRegenerationPlanetPiece = value);
         RegisterItem(710307, () => UserData.CommonPlanetPiece, (value) => UserData.CommonPlanetPiece = value);
+
+        planetMapping = new Dictionary<int, (Func<bool>, Action<bool>, int)>
+        {
+            { 300002, (() => UserData.isHealthPlanet, (value) => UserData.isHealthPlanet = value, 710301) },
+            { 300003, (() => UserData.isDefensePlanet, (value) => UserData.isDefensePlanet = value, 710302) },
+            { 300004, (() => UserData.isShieldPlanet, (value) => UserData.isShieldPlanet = value, 710303) },
+            { 300005, (() => UserData.isBloodAbsorbPlanet, (value) => UserData.isBloodAbsorbPlanet = value, 710304) },
+            { 300006, (() => UserData.isExpPlanet, (value) => UserData.isExpPlanet = value, 710305) },
+            { 300007, (() => UserData.isHealthRegenerationPlanet, (value) => UserData.isHealthRegenerationPlanet = value, 710306) },
+        };
     }
 
     private static void RegisterItem(int itemId, Func<int> getter, Action<int> setter)
@@ -56,7 +74,10 @@ public static class UserDataMapper
     private static void RegisterCurrency(int currencyId, Func<int> getter, Action<int> setter)
     {
         var currencyData = DataTableManager.CurrencyTable.Get(currencyId);
-        itemMapping[currencyId] = (getter, setter, currencyData.MaxStack);
+        itemMapping[currencyId] = (
+            getter, 
+            (value) => setter(value) , 
+            currencyData.MaxStack);
     }
 
     public static int GetItemCount(int itemId)
@@ -83,22 +104,41 @@ public static class UserDataMapper
     {
         return itemMapping.TryGetValue(itemId, out var mapping) ? mapping.maxStack : 0;
     }
-}
 
-public static class PlanetPieceMapper
-{
-    private static Dictionary<int, int> planetPiece = new Dictionary<int, int>
+    public static bool HasPlanet(int planetId)
     {
-        { 300002, 710301 },
-        { 300003, 710302 },
-        { 300004, 710303 },
-        { 300005, 710304 },
-        { 300006, 710305 },
-        { 300007, 710306 },
-    };
+        if(planetMapping.TryGetValue(planetId, out var mapping))
+        {
+            return mapping.getter();
+        }
 
-    public static int GetPieceId(int planetId)
+        return false;
+    }
+
+    public static void AddPlanet(int planetId)
     {
-        return planetPiece.TryGetValue(planetId, out var fragmentId) ? fragmentId : -1;
+        if(planetMapping.TryGetValue(planetId, out var mapping))
+        {
+            if (mapping.getter())
+            {
+                AddItem(mapping.pieceId, 20);
+            }
+            else
+            {
+                mapping.setter(true);
+            }
+        }
+    }
+
+    public static void AddReward(int rewardType, int targetId, int amount)
+    {
+        if(rewardType == (int)RewardType.Planet)
+        {
+            AddPlanet(targetId);
+        }
+        else
+        {
+            AddItem(targetId, amount);
+        }
     }
 }

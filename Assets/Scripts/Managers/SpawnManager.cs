@@ -130,7 +130,7 @@ public class SpawnManager : MonoBehaviour
 
     private void SpawnSlot(int enemyId, int quantity, int spawnPointIndex, ScaleData scaleData)
     {
-        if(enemyId == 0 || quantity <= 0 || spawnPointIndex - 1 <= 0)
+        if(enemyId == 0 || quantity <= 0 || spawnPointIndex - 1 < 0)
         {
             return;
         }
