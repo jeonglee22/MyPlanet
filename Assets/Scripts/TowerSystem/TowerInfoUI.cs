@@ -119,8 +119,8 @@ public class TowerInfoUI : MonoBehaviour
             if (attackTowerDataPanel != null) attackTowerDataPanel.SetActive(false);
             if (buffTowerDataPanel != null) buffTowerDataPanel.SetActive(false);
 
-            var textNull = Instantiate(abilityExplainContent, contentRect);
-            SetText(textNull.GetComponent<TextMeshProUGUI>(), "no tower");
+            // var textNull = Instantiate(abilityExplainContent, contentRect);
+            // SetText(textNull.GetComponent<TextMeshProUGUI>(), "no tower");
             return;
         }
 
@@ -155,8 +155,8 @@ public class TowerInfoUI : MonoBehaviour
         if (attackTowerDataPanel != null) attackTowerDataPanel.SetActive(false);
         if (buffTowerDataPanel != null) buffTowerDataPanel.SetActive(false);
 
-        var textEmpty = Instantiate(abilityExplainContent, contentRect);
-        SetText(textEmpty.GetComponent<TextMeshProUGUI>(), "no tower");
+        // var textEmpty = Instantiate(abilityExplainContent, contentRect);
+        // SetText(textEmpty.GetComponent<TextMeshProUGUI>(), "no tower");
     }
 
     private float CalculateAbilityUpgradeValue(int abilityId, int count, float baseValue)
@@ -339,8 +339,14 @@ public class TowerInfoUI : MonoBehaviour
             SetStatText(projectileNumberValueText, baseCount, finalCount, "0");
             SetAdditionalStatText(projectileNumberValueAdditionalText, baseCount, finalCount, "0.00");
             // Target Num
-            float baseTargets = baseProj.TargetNum;
-            float finalTargets = buffedProj.TargetNum;
+            float baseTargets = 1f;
+            float finalTargets = 1f;
+            var ts = attackTower.TargetingSystem;
+            if(ts!=null)
+            {
+                baseTargets = ts.BaseTargetCount;
+                finalTargets = ts.MaxTargetCount;
+            }
             SetStatText(targetNumberValueText, baseTargets, finalTargets, "0");
             SetAdditionalStatText(targetNumberValueAdditionalText, baseTargets, finalTargets, "0.00");
             // LifeTime
@@ -392,16 +398,16 @@ public class TowerInfoUI : MonoBehaviour
         var abilities = attackTower.Abilities;
         if (abilities == null || abilities.Count == 0)
         {
-            var text = Instantiate(abilityExplainContent, contentRect);
-            SetText(text.GetComponent<TextMeshProUGUI>(), "no ability");
+            // var text = Instantiate(abilityExplainContent, contentRect);
+            // SetText(text.GetComponent<TextMeshProUGUI>(), "no ability");
             return;
         }
 
         foreach (var abilityId in abilities)
         {
             var ability = AbilityManager.GetAbility(abilityId);
-            var text = Instantiate(abilityExplainContent, contentRect);
-            SetText(text.GetComponent<TextMeshProUGUI>(), ability?.ToString() ?? "no ability");
+            // var text = Instantiate(abilityExplainContent, contentRect);
+            // SetText(text.GetComponent<TextMeshProUGUI>(), ability?.ToString() ?? "no ability");
         }
     }
 
@@ -508,8 +514,8 @@ public class TowerInfoUI : MonoBehaviour
 
         if (ampData == null)
         {
-            var textEmpty = Instantiate(abilityExplainContent, contentRect);
-            SetText(textEmpty.GetComponent<TextMeshProUGUI>(), "no buff");
+            // var textEmpty = Instantiate(abilityExplainContent, contentRect);
+            // SetText(textEmpty.GetComponent<TextMeshProUGUI>(), "no buff");
             return;
         }
 
@@ -581,8 +587,8 @@ public class TowerInfoUI : MonoBehaviour
             sb.AppendLine();
             sb.Append("추가 버프 없음");
         }
-        var text = Instantiate(abilityExplainContent, contentRect);
-        SetText(text.GetComponent<TextMeshProUGUI>(), sb.ToString());
+        // var text = Instantiate(abilityExplainContent, contentRect);
+        // SetText(text.GetComponent<TextMeshProUGUI>(), sb.ToString());
     }
 
     // 0.4 -> "+40%"

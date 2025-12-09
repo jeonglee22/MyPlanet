@@ -42,6 +42,7 @@ public static class SceneName
     public static readonly string AsyncRaidTestScene = "AsyncRaidTestScene";
     public static readonly string LobbyScene = "LobbyScene";
     public static readonly string StoreScene = "StoreScene";
+    public static readonly string BalanceTestScene = "BalanceTestScene";
 }
 
 public static class CategoryName
@@ -244,6 +245,8 @@ public static class Variables
         LastBossEnemy = null;
         MiddleBossEnemy = null;
     }
+
+    public static bool IsTestMode {get; set;} = false;
 }
 
 public static class AddressLabel

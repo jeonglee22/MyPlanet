@@ -137,7 +137,7 @@ public class SplitUpgradeAbility : EffectAbility
         var newProjectiles = ProjectilePoolManager.Instance.GetProjectile(baseData);
         var newDirection = Quaternion.Euler(0, 0, offset) * direction;
 
-        newProjectiles.transform.position = firePoint.position;
+        newProjectiles.transform.position = firePoint.position + newDirection * 0.3f;
         newProjectiles.transform.rotation = Quaternion.LookRotation(newDirection);
 
         //Initialize Buffed Data

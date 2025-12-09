@@ -133,7 +133,7 @@ public class Planet : LivingEntity
             newTowerAttack.SetTowerData(towerData);
             if (abilityId == -1)
             {
-                newTowerAttack.SetRandomAbility();
+                // newTowerAttack.SetRandomAbility();
             }
             else
             {

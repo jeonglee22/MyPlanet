@@ -21,6 +21,10 @@ public class TowerAttack : MonoBehaviour
     private bool isOtherUserTower = false;
     public bool IsOtherUserTower { get { return isOtherUserTower; } set { isOtherUserTower = value; } }
 
+    private List<IAbility> testAbilities;
+    public List<IAbility> TestAbilities { get { return testAbilities; } set { testAbilities = value; } }
+
+    //test
     //ability ----------------------------------------
     //------------------------------------------------
     //ability from attack
@@ -43,31 +47,26 @@ public class TowerAttack : MonoBehaviour
 
     //------------ Amplifier Buff Field ---------------------
     private float damageBuffMul=1f; //damage = baseDamage * damageBuffMul
-    public float DamageBuffMMul { get { return damageBuffMul; } set { damageBuffMul = value; } }
+    public float DamageBuffMul { get { return damageBuffMul; } set { damageBuffMul = value; } }
     private float accelerationBuffAdd=0f;  // +=
 
     //fire rate --------------------------------------------------
-
-    public float fireRateAbilityMul = 1f;
+    public float fireRateAbilityMul = 0f;
     private readonly List<float> fireRateAbilitySources = new List<float>();
     public float BasicFireRate => towerData.fireRate;
-    public float fireRateBuffMul = 1f; //fireRate = baseFireRate * fireRateBuffMul
+    public float fireRateBuffMul = 0f; //fireRate = baseFireRate + fireRateBuffMul
     public float CurrentFireRate
     {
         get
         {
             if (towerData == null) return 0f;
-            float baseRate = towerData.fireRate;
-            float finalMul = fireRateAbilityMul * fireRateBuffMul;
+            float finalMul = 1f+fireRateAbilityMul + fireRateBuffMul;
             return towerData.fireRate * finalMul;
         }
     }
-
     //------------------------------------------------------------
-
     private int newProjectileAttackType;
     public int NewProjectileAttackType { get { return newProjectileAttackType; } set { newProjectileAttackType = value; } }
-
     //hit radius ----------------------
     private float ampHitRadiusMul = 1f;
     private float hitRadiusBuffMul = 1f;
@@ -132,13 +131,20 @@ public class TowerAttack : MonoBehaviour
 
     //projectile Count---------------------------------------
     private int baseProjectileCount = 1; //Only Var
-    private int projectileCountBuffAdd = 0; 
-    public int ProjectileCountBuffAdd { get { return projectileCountBuffAdd; } set { projectileCountBuffAdd = value; } }
+    private int projectileCountFromAmplifier = 0;
+    private int projectileCountFromAbility = 0;
+    public int ProjectileCountFromAbility 
+    { 
+        get => projectileCountFromAbility;
+        set => projectileCountFromAbility = value;
+    }
+    public int ProjectileCountFromAmplifier => projectileCountFromAmplifier;
+    public int TotalProjectilecountvBuffAdd => projectileCountFromAmplifier + projectileCountFromAbility;
     public int CurrentProjectileCount
     {
         get
         {
-            int finalCount = baseProjectileCount + projectileCountBuffAdd;
+            int finalCount = baseProjectileCount + TotalProjectilecountvBuffAdd;
             return Mathf.Max(1, finalCount);
         }
     }
@@ -196,7 +202,8 @@ public class TowerAttack : MonoBehaviour
 
         //firerate
         fireRateAbilitySources.Clear();
-        fireRateAbilityMul = 1f;
+        fireRateAbilityMul = 0f;
+        fireRateBuffMul = 0f;
 
         //Connect Data Table To baseProjectileData(=currentProjectileData) 
         originalProjectileData = DataTableManager.ProjectileTable.Get(towerData.projectileIdFromTable);
@@ -442,6 +449,18 @@ public class TowerAttack : MonoBehaviour
             projectile.SetHomingTarget(target);
         }
 
+        if (Variables.IsTestMode)
+        {
+            foreach (var ability in testAbilities)
+            {
+                ability.Setting(gameObject);
+                ability.ApplyAbility(projectile.gameObject);
+                projectile.abilityAction += ability.ApplyAbility;
+                projectile.abilityRelease += ability.RemoveAbility;
+            }
+            return;
+        }
+
         foreach (var abilityId in Abilities)
         {
             var ability = AbilityManager.GetAbility(abilityId);
@@ -624,9 +643,9 @@ public class TowerAttack : MonoBehaviour
     public void RecalculateAmplifierBuffs()
     {
         damageBuffMul = 1f;
-        fireRateBuffMul = 1f;
+        fireRateBuffMul = 0f;
         accelerationBuffAdd = 0f;
-        projectileCountBuffAdd = 0;
+        projectileCountFromAmplifier = 0;
 
         ampHitRadiusMul = 1f; 
         percentPenetrationFromAmplifier = 0f;
@@ -640,9 +659,12 @@ public class TowerAttack : MonoBehaviour
             if (amp == null) continue;
 
             damageBuffMul += amp.DamageBuff;
-            fireRateBuffMul *= amp.FireRateBuff;
+
+            float fireRateMul = Mathf.Max(0f, amp.FireRateBuff);
+            fireRateBuffMul += (fireRateMul - 1f);
+
             accelerationBuffAdd += amp.AccelerationBuff;
-            projectileCountBuffAdd += amp.ProjectileCountBuff;
+            projectileCountFromAmplifier += amp.ProjectileCountBuff;
 
             ampHitRadiusMul *= (1f + amp.HitRadiusBuff/100f);
 
@@ -808,21 +830,22 @@ public class TowerAttack : MonoBehaviour
     //hit radius ------------------------------
     public void AddHitRadiusFromAbilitySource(float rate)
     {
-        rate = Mathf.Clamp(rate, -0.99f, 10f);
-        if (Mathf.Approximately(rate, 0f)) return;
+        float r = Mathf.Clamp(rate, -0.99f, 10f);
+        if (Mathf.Approximately(r, 0f)) return;
 
-        hitRadiusAbilitySources.Add(rate/100f);
+        hitRadiusAbilitySources.Add(r);
         RecalculateHitRadiusBuffMul();
     }
 
     public void RemoveHitRadiusFromAbilitySource(float rate)
     {
-        rate = Mathf.Clamp(rate, -0.99f, 10f);
-        int idx = hitRadiusAbilitySources.FindIndex(r => Mathf.Approximately(r, rate));
+        float r = Mathf.Clamp(rate, -0.99f, 10f);
+        int idx = hitRadiusAbilitySources.FindIndex(x => Mathf.Approximately(x, r));
         if (idx >= 0)
+        {
             hitRadiusAbilitySources.RemoveAt(idx);
-
-        RecalculateHitRadiusBuffMul();
+            RecalculateHitRadiusBuffMul();
+        }
     }
 
     private void RecalculateHitRadiusBuffMul()
@@ -860,14 +883,12 @@ public class TowerAttack : MonoBehaviour
 
     private void RecalculateFireRateFromAbility()
     {
-        float mul = 1f;
-
+        float sum = 0f;
         foreach (var r in fireRateAbilitySources)
         {
-            mul *= (1f + r); 
+            sum += r;
         }
-
-        fireRateAbilityMul = mul;
+        fireRateAbilityMul = sum;
     }
     //-----------------------------------------
 }

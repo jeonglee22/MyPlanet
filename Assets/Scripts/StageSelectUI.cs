@@ -8,12 +8,18 @@ public class StageSelectUI : MonoBehaviour
     // [SerializeField] private ScrollRect scrollRect;
     [SerializeField] private Button[] stageButtons;
     [SerializeField] private Button enemyTestSceneButton; 
+    [SerializeField] private Button balanceTestSceneButton;
 
     private void Start()
     {
         InitializeStageButtons();
 
         enemyTestSceneButton.onClick.AddListener(() => SceneControlManager.Instance.LoadScene(SceneName.EnemyTestScene).Forget());
+        balanceTestSceneButton.onClick.AddListener(() => 
+        {
+            Variables.IsTestMode = true;
+            SceneControlManager.Instance.LoadScene(SceneName.BalanceTestScene).Forget();
+        });
     }
 
     private void InitializeStageButtons()

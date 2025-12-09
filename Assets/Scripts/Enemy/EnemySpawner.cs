@@ -130,6 +130,16 @@ public class EnemySpawner : MonoBehaviour
         );
     }
 
+    public void SpawnEnemiesWithScale(int enemyId, int quantity, ScaleData scaleData, Vector3 spawnPos)
+    {
+        PreparePool(enemyId);
+
+        for (int i = 0; i < quantity; i++)
+        {
+            SpawnEnemyWithScale(enemyId, spawnPos, scaleData);
+        }
+    }
+
     public void SpawnEnemiesWithScale(int enemyId, int quantity, ScaleData scaleData)
     {
         PreparePool(enemyId);
