@@ -99,6 +99,8 @@ public class GachaPanelUI : MonoBehaviour
     {
         gachaOncePanelUI.SetActive(false);
         gachaTenPanelUI.SetActive(false);
+
+        rewardResults.Clear();
     }
 
     private void OnGachaClicked(int drawCount)
