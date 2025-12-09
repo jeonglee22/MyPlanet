@@ -1392,8 +1392,25 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         towerImageIsDraging = true;
         dragImage.SetActive(true);
         dragImage.transform.position = touchPos;
+
+        BlockUpgradeSlotTouch(true);
+
         installControl.LeftRotateRect.gameObject.SetActive(true);
         installControl.RightRotateRect.gameObject.SetActive(true);
+    }
+
+    private void BlockUpgradeSlotTouch(bool v)
+    {
+        foreach (var refreshButton in refreshButtons)
+        {
+            refreshButton.interactable = !v;
+        }
+        for (int i = 0; i < upgradeUIs.Length; i++)
+        {
+            var button = upgradeUIs[i].GetComponentInChildren<Button>();
+            if (button != null)
+                button.interactable = !v;
+        }
     }
 
     public void OnTouchStateCheck()
@@ -1436,6 +1453,8 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
             Destroy(dragImage);
             dragImage = null;
+
+            BlockUpgradeSlotTouch(false);
 
             installControl.LeftRotateRect.gameObject.SetActive(false);
             installControl.RightRotateRect.gameObject.SetActive(false);
