@@ -42,6 +42,8 @@ public class EnemyMovement : MonoBehaviour
     {
         if(isDebuff)
             Debuff(Time.deltaTime);
+        else
+            ResetMovement();
 
         if (!CanMove || currentMovement == null)
         {
@@ -63,13 +65,13 @@ public class EnemyMovement : MonoBehaviour
         // Debug.Log("Enemy Moving : " + moveSpeed + " / Debuff Time: " + debuffTime);
         if(debuffTime > debuffInterval)
         {
-            ResetSpeed();
             debuffTime = 0f;
             isDebuff = false;
+            Initialize(moveSpeed, spawnPointIndex, owner.EnemyType, currentMovement);
         }
     }
 
-    public virtual void Initialize(float speed, int spawnIndex, IMovement movement)
+    public virtual void Initialize(float speed, int spawnIndex, int enemyType, IMovement movement)
     {
         moveSpeed = speed;
         initMoveSpeed = speed;
@@ -77,7 +79,7 @@ public class EnemyMovement : MonoBehaviour
         isDirectionSet = false;
 
         currentMovement = movement;
-        currentMovement?.Initialize(owner.Data.EnemyType);
+        currentMovement?.Initialize(enemyType);
     }
 
     private void SetTargetDirection()
@@ -122,14 +124,19 @@ public class EnemyMovement : MonoBehaviour
     public void ModifySpeed(float multiplier)
     {
         moveSpeed = initMoveSpeed * multiplier;
-        isDebuff = true;
-        debuffTime = 0f;
     }
 
     public void ResetSpeed()
     {
         moveSpeed = initMoveSpeed;
-        isDebuff = false;
-        debuffTime = 0f;
+    }
+
+    public void ResetMovement()
+    {
+        if(currentMovement != null && currentMovement.IsCompleted())
+        {
+            moveDirection = Vector3.zero;
+            isDirectionSet = false;
+        }
     }
 }

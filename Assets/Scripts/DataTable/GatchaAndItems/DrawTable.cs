@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
@@ -78,5 +79,41 @@ public class DrawTable : DataTable
         }
 
         return gachaList;
+    }
+
+    public List<DrawData> GetRandomDrawData(int drawGroup, int drawCount)
+    {
+        List<DrawData> filteredList = new List<DrawData>();
+        List<DrawData> resultList = new List<DrawData>();
+
+        float totalWeight = 0f;
+        foreach (var draw in dictionary.Values)
+        {
+            if (draw.DrawGroup == drawGroup)
+            {
+                totalWeight += draw.Weight;
+                filteredList.Add(draw);
+            }
+        }
+
+        while(drawCount > 0)
+        {
+            float randomValue = Random.Range(0f, totalWeight);
+            float cumulativeWeight = 0f;
+
+            foreach(var draw in filteredList)
+            {
+                cumulativeWeight += draw.Weight;
+                if (randomValue <= cumulativeWeight)
+                {
+                    resultList.Add(draw);
+                    break;
+                }
+            }
+
+            drawCount--;
+        }
+
+        return resultList;
     }
 }

@@ -22,6 +22,7 @@ public class RewardData
 public class RewardTable : DataTable
 {
     private readonly Dictionary<int, RewardData> dictionary = new Dictionary<int, RewardData>();
+    public Dictionary<int, RewardData> Dictionary => dictionary;
 
     public override async UniTask LoadAsync(string filename)
     {

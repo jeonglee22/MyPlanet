@@ -150,12 +150,41 @@ public enum ShopCategory
     Others,
 }
 
+public enum RewardType
+{
+    Currency = 1,
+    EnhanceItem,
+    PlanetPiece,
+    Planet = 10,
+}
+
 public enum CurrencyType
 {
     Gold = 701,
     FreeDia,
     FreePlusChargedDia,
     ChargedDia,
+}
+
+public enum PlanetType
+{
+    HealthPlanet = 0,
+    DefensePlanet,
+    ShieldPlanet,
+    BloodAbsorbPlanet,
+    ExpPlanet,
+    HealthRegenerationPlanet,
+}
+
+public enum PlanetPieceType
+{
+    HealthPlanetPiece = 0,
+    DefensePlanetPiece,
+    ShieldPlanetPiece,
+    BloodAbsorbPlanetPiece,
+    ExpPlanetPiece,
+    HealthRegenerationPlanetPiece,
+    CommonPlanetPiece,
 }
 
 public static class DataTableIds
@@ -186,9 +215,7 @@ public static class DataTableIds
 public static class Variables
 {
     public static int Stage {get; set;} = 3;
-    public static int Gold {get; set;} = 100000;
-    public static int FreeDia {get; set;} = 2000;
-    public static int ChargedDia {get; set;} = 3000;
+
     private static int quasar = 1;
     public static int Quasar
     {

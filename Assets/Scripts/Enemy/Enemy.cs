@@ -69,7 +69,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         movement = GetComponent<EnemyMovement>();
         patternExecutor = GetComponent<PatternExecutor>();
 
-        movement?.Initialize(moveSpeed, -1, movement.CurrentMovement);
+        movement?.Initialize(moveSpeed, -1, enemyType, movement.CurrentMovement);
         patternExecutor?.Initialize(this);
 
         if (!Variables.IsTestMode)
@@ -365,8 +365,6 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
             return;
         }
 
-        SpawnManager.Instance.DespawnAllEnemiesExceptBoss();
-
         var radius = gameObject.GetComponent<SphereCollider>().radius * transform.localScale.x;
         transform.position = Spawner.transform.position + new Vector3(0f, radius, 0f);
 
@@ -394,6 +392,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
                 }
                 break;
         }
+
+        SpawnManager.Instance.DespawnAllEnemiesExceptBoss();
     }
 
     private void AddMovementComponent(int moveType, int spawnPointIndex)
@@ -405,7 +405,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
         IMovement movementComponent = MovementManager.Instance.GetMovement(moveType);
 
-        movement.Initialize(moveSpeed, spawnPointIndex, movementComponent);
+        movement.Initialize(moveSpeed, spawnPointIndex, enemyType, movementComponent);
     }
 
     private void InitializePatterns(EnemyTableData enemyData)

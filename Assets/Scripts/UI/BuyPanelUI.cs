@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -19,6 +20,8 @@ public class BuyPanelUI : MonoBehaviour
     [SerializeField] private GameObject noCurrencyText;
     [SerializeField] private Button confirmYesBtn;
     [SerializeField] private Button confirmNoBtn;
+
+    private Dictionary<RewardData, int> rewardResults = new Dictionary<RewardData, int>();
 
     public void Initialize(int needCurrencyValue, int drawGroup, string gachaName)
     {
@@ -74,7 +77,12 @@ public class BuyPanelUI : MonoBehaviour
     {
         if (TryPay())
         {
-            
+            OnGacha();
+
+            foreach(var reward in rewardResults)
+            {
+                Debug.Log($"획득 보상: {reward.Key.Target_Id} x{reward.Value}");
+            }
         }
         else
         {
@@ -84,26 +92,56 @@ public class BuyPanelUI : MonoBehaviour
 
     private void OnConfirmNoBtnClicked()
     {
-        buyConfirmUI.gameObject.SetActive(false);
-        noCurrencyText.gameObject.SetActive(false);
+        buyConfirmUI.SetActive(false);
+        noCurrencyText.SetActive(false);
     }
 
     private bool TryPay()
     {
         bool isEnough = false;
+        int totalCost = needCurrencyValue * drawCount;
+
         switch ((CurrencyType)drawGroup)
         {
             case CurrencyType.Gold:
-                isEnough = Variables.Gold >= needCurrencyValue * drawCount;
+                isEnough = UserData.Gold >= totalCost;
+                if(isEnough)
+                {
+                    UserData.Gold -= totalCost;
+                }
                 break;
             case CurrencyType.FreeDia:
-                isEnough = Variables.FreeDia >= needCurrencyValue * drawCount;
+                isEnough = UserData.FreeDia >= totalCost;
+                if(isEnough)
+                {
+                    UserData.FreeDia -= totalCost;
+                }
                 break;
             case CurrencyType.FreePlusChargedDia:
-                isEnough = (Variables.FreeDia + Variables.ChargedDia) >= needCurrencyValue * drawCount;
+                isEnough = (UserData.FreeDia + UserData.ChargedDia) >= totalCost;
+                if(isEnough)
+                {
+                    while(totalCost > 0 && UserData.FreeDia > 0)
+                    {
+                        int minus = Mathf.Min(UserData.FreeDia, totalCost);
+                        UserData.FreeDia -= minus;
+                        totalCost -= minus;
+                    }
+
+                    while(totalCost > 0 && UserData.ChargedDia > 0)
+                    {
+                        int minus = Mathf.Min(UserData.ChargedDia, totalCost);
+                        UserData.ChargedDia -= minus;
+                        totalCost -= minus;
+                    }
+                }
                 break;
             case CurrencyType.ChargedDia:
-                isEnough = Variables.ChargedDia >= needCurrencyValue * drawCount;
+                isEnough = UserData.ChargedDia >= totalCost;
+                if(isEnough)
+                {
+                    UserData.ChargedDia -= totalCost;
+                }
                 break;
         }
 
@@ -112,6 +150,36 @@ public class BuyPanelUI : MonoBehaviour
 
     private void OnGacha()
     {
-        
+        var draws = DataTableManager.DrawTable.GetRandomDrawData(drawGroup, drawCount);
+
+        foreach(var draw in draws)
+        {
+            var reward = DataTableManager.RewardTable.Get(draw.Reward_Id);
+            
+            UserDataMapper.AddItem(reward.Target_Id, draw.RewardQty);
+
+            if(rewardResults.ContainsKey(reward))
+            {
+                if(reward.Stack == 1)
+                {
+                    var addCount = Mathf.Min(rewardResults[reward] + draw.RewardQty, UserDataMapper.GetMaxCount(reward.Target_Id));
+                    UserDataMapper.AddItem(reward.Target_Id, draw.RewardQty);
+                    rewardResults[reward] = addCount;
+                }
+                else if(reward.RewardType == (int)RewardType.Planet)
+                {
+                    var pieceId = PlanetPieceMapper.GetPieceId(reward.Target_Id);
+                    var addCount = Mathf.Min(rewardResults[reward] + 20, UserDataMapper.GetMaxCount(reward.Target_Id));
+                    UserDataMapper.AddItem(pieceId, 20);
+                    rewardResults[reward] = addCount;
+                }
+            }
+            else
+            {
+                rewardResults.Add(reward, draw.RewardQty);
+            }
+
+            Debug.Log($"획득 보상: {draw.Draw_Id} / {reward.RewardNameText}");
+        }
     }
 }
