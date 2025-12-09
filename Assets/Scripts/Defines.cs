@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -235,4 +236,17 @@ public static class DatabaseRef
 {
     public static readonly string UserProfiles = "users";
     public static readonly string UserPlanets = "userplanets";
+}
+
+public static class PrintedAbility
+{
+    public static readonly HashSet<int> SpecialRandomAbilityIds = new HashSet<int>
+    {
+        200007, // 연쇄
+        200008, // 폭발
+        200009, // 관통
+        200010, // 분열
+        200013, // 히트스캔
+        200014  // 유도
+    };
 }
