@@ -163,10 +163,10 @@ public class TowerTargetingSystem : MonoBehaviour
             validTargets.Remove(best);
         }*/
         currentTarget = currentTargets.Count > 0 ? currentTargets[0] : null;
-        Debug.Log(
-    $"[ScanForTargets] {gameObject.name} " +
-    $"maxTargets={MaxTargetCount}, pickedTargets={currentTargets.Count}"
-);
+//         Debug.Log(
+//     $"[ScanForTargets] {gameObject.name} " +
+//     $"maxTargets={MaxTargetCount}, pickedTargets={currentTargets.Count}"
+// );
     }
 
     private RangeType GetRangeTypeFromViewportY(float y)

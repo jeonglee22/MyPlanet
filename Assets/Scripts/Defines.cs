@@ -14,6 +14,8 @@ public static class TagName
     public static readonly string MainCanvas = "MainCanvas";
     public static readonly string Boss = "Boss";
     public static readonly string BattleUI = "BattleUI";
+    public static readonly string TowerAttackTester = "TowerAttackTester";
+    public static readonly string EnemyStatTester = "EnemyStatTester";
 }
 
 public static class ObjectName

@@ -580,6 +580,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: EnemySpawner
       objectReference: {fileID: 0}
+    - target: {fileID: 1847356028021512489, guid: 798ad3db1a72670449d2bc191ce39170, type: 3}
+      propertyPath: m_TagString
+      value: EnemyStatTester
+      objectReference: {fileID: 0}
     - target: {fileID: 7004810841361380358, guid: 798ad3db1a72670449d2bc191ce39170, type: 3}
       propertyPath: spawnPointCount
       value: 5
@@ -652,7 +656,10 @@ PrefabInstance:
     - {fileID: 650853392919980525, guid: 798ad3db1a72670449d2bc191ce39170, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1847356028021512489, guid: 798ad3db1a72670449d2bc191ce39170, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1450416782}
   m_SourcePrefab: {fileID: 100100000, guid: 798ad3db1a72670449d2bc191ce39170, type: 3}
 --- !u!1 &275645279
 GameObject:
@@ -1592,7 +1599,7 @@ GameObject:
   - component: {fileID: 824370129}
   m_Layer: 0
   m_Name: TowerSlots
-  m_TagString: Untagged
+  m_TagString: TowerAttackTester
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2941,6 +2948,45 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1437440741}
   m_CullTransparentMesh: 1
+--- !u!1 &1450416778 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1847356028021512489, guid: 798ad3db1a72670449d2bc191ce39170, type: 3}
+  m_PrefabInstance: {fileID: 252575113}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1450416782
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1450416778}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3d2f7bc21b607a47adbb4827bc62aad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyTypeId: 0
+  hpScale: 1
+  attackScale: 1
+  defenseScale: 1
+  penetrationScale: 1
+  speedScale: 1
+  sizeScale: 1
+  expScale: 1
+  health: 100
+  defense: 0
+  barrior: 0
+  speed: 1
+  attack: 1
+  ratePenetration: 0
+  fixedPenetration: 0
+  exp: 10
+  enemyCount: 1
+  waveId: 37
+  moveTypeId: 0
+  enemyIds: ffffffffe51a0600e61a0600e71a0600e81a0600e91a0600ea1a0600eb1a0600ec1a0600491b06004a1b06004b1b06004c1b06004d1b0600ad1b0600111c0600ae1b06004e1b0600121c0600af1b0600131c06008f410600383d0600
+  moveTypeIds: 0000000001000000020000000a0000000b0000000c000000
+  waveIds: 65d0070066d0070067d0070068d0070069d00700c9d00700cad00700cbd00700ccd00700cdd007002dd107002ed107002fd1070030d1070031d1070032d1070091d1070092d1070093d1070094d1070095d1070096d10700f5d10700f6d10700f7d10700f8d10700f9d10700fad10700fbd10700fcd1070096d107006bd007006cd007006dd007006ed007006fd00700ced00700cfd00700d0d00700d1d00700d2d00700d3d0070033d1070034d1070035d1070036d1070037d1070038d1070070d0070071d0070072d0070073d0070074d0070075d00700d4d00700d5d00700d6d00700d7d00700d8d00700d9d00700dad0070039d107003ad107003bd107003cd107003dd107003ed10700
 --- !u!1 &1488899771
 GameObject:
   m_ObjectHideFlags: 0

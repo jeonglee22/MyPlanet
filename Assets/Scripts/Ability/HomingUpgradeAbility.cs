@@ -17,7 +17,8 @@ public class HomingUpgradeAbility : TowerAbility
         var towerAttack = gameObject.GetComponent<TowerAttack>();
         if (towerAttack != null)
         {
-            initAttackType = (int)towerAttack.CurrentProjectileData.AttackType;
+            initAttackType = (int)towerAttack.BaseProjectileData.AttackType;
+            Debug.Log("Before Ability" + initAttackType);
             towerAttack.NewProjectileAttackType = (int) ProjectileType.Homing;
         }
     }
@@ -30,6 +31,7 @@ public class HomingUpgradeAbility : TowerAbility
         if (towerAttack != null)
         {
             towerAttack.NewProjectileAttackType = initAttackType;
+            Debug.Log("Init Homing" + initAttackType);
         }
     }
 

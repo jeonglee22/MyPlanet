@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
-using Cysharp.Threading.Tasks.Triggers;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class TowerAttackTester : MonoBehaviour
@@ -32,11 +30,17 @@ public class TowerAttackTester : MonoBehaviour
     private ProjectileData projectileData;
 
     public float explosionRadius;
+    private float currentExplosionRadius;
     public int homing;
+    private int currentHoming;
     public int splitCount;
+    private int currentSplitCount;
     public float slowPercent;
+    private float currentSlowPercent;
     public int chainCount;
+    private int currentChainCount;
     public int pierceCount;
+    private int currentPierceCount;
 
     private List<IAbility> abilities;
 
@@ -78,6 +82,13 @@ public class TowerAttackTester : MonoBehaviour
         slowPercent = 0f;
         chainCount = 0;
         pierceCount = 0;
+
+        currentChainCount = 0;
+        currentExplosionRadius = 0f;
+        currentHoming = 0;
+        currentPierceCount = 0;
+        currentSplitCount = 0;
+        currentSlowPercent = 0f;
     }
 
     void FixedUpdate()
@@ -111,29 +122,64 @@ public class TowerAttackTester : MonoBehaviour
             switch (abilities[i])
             {
                 case HomingUpgradeAbility:
-                    if (homing == 1)
+                    if (currentHoming == homing)
+                        continue;
+
+                    currentHoming = homing;
+                    Debug.Log("Homing" + currentHoming);
+                    if (currentHoming == 1)
                         abilities[i].ApplyAbility(towerAttack.gameObject);
                     else
                         abilities[i].RemoveAbility(towerAttack.gameObject);
                     break;
                 case ExplosionAbility:
-                    var newExplosionAbility = new ExplosionAbility(explosionRadius);
+                    if (Mathf.Approximately(currentExplosionRadius, explosionRadius))
+                        continue;
+
+                    currentExplosionRadius = explosionRadius;
+                    
+                    Debug.Log("Explosion: " + currentExplosionRadius);
+                    var newExplosionAbility = new ExplosionAbility(currentExplosionRadius);
                     abilities[i] = newExplosionAbility;
                     break;
                 case SplitUpgradeAbility:
-                    var newSplitUpgradeAbility = new SplitUpgradeAbility(splitCount);
+                    if (currentSplitCount == splitCount)
+                        continue;
+
+                    currentSplitCount = splitCount;
+
+                    Debug.Log("Split:" + currentSplitCount);
+                    var newSplitUpgradeAbility = new SplitUpgradeAbility(currentSplitCount);
                     abilities[i] = newSplitUpgradeAbility;
                     break;
                 case ParalyzeAbility:
-                    var newParalyzeAbility = new ParalyzeAbility(slowPercent);
+                    if (Mathf.Approximately(currentSlowPercent, slowPercent))
+                        continue;
+
+                    currentSlowPercent = slowPercent;
+
+                    Debug.Log("SlowAbility:" + currentSlowPercent);
+                    var newParalyzeAbility = new ParalyzeAbility(currentSlowPercent);
                     abilities[i] = newParalyzeAbility;
                     break;
                 case ChainUpgradeAbility:
-                    var newChainUpgradeAbility = new ChainUpgradeAbility(chainCount);
+                    if (currentChainCount == chainCount)
+                        continue;
+
+                    currentChainCount = chainCount;
+
+                    Debug.Log("ChainAttack:" + currentChainCount);
+                    var newChainUpgradeAbility = new ChainUpgradeAbility(currentChainCount);
                     abilities[i] = newChainUpgradeAbility;
                     break;
                 case PierceUpgradeAbility:
-                    var newPierceUpgradeAbility = new PierceUpgradeAbility(pierceCount);
+                    if (currentPierceCount == pierceCount)
+                        continue;
+
+                    currentPierceCount = pierceCount;
+
+                    Debug.Log("Pierce" + currentPierceCount);
+                    var newPierceUpgradeAbility = new PierceUpgradeAbility(currentPierceCount);
                     abilities[i] = newPierceUpgradeAbility;
                     break;
             }

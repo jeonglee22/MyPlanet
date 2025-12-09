@@ -315,16 +315,16 @@ public class TowerAttack : MonoBehaviour
 
         int expectedProjectiles = targetCount * shotCount;
 
-        Debug.Log(
-            $"[ShootAtTarget] {gameObject.name} " +
-            $"targetCount={targetCount}, shotCount={shotCount}, " +
-            $"expectedProjectiles={expectedProjectiles}, " +
-            $"baseProjCount={baseProjectileCount}, " +
-            $"extraProjFromAbility={projectileCountFromAbility}, " +
-            $"extraProjFromAmp={projectileCountFromAmplifier}, " +
-            $"baseTargets={ (targetingSystem != null ? targetingSystem.BaseTargetCount : 0) }, " +
-            $"extraTargets={TotalTargetNumberBuffAdd}"
-        );
+        // Debug.Log(
+        //     $"[ShootAtTarget] {gameObject.name} " +
+        //     $"targetCount={targetCount}, shotCount={shotCount}, " +
+        //     $"expectedProjectiles={expectedProjectiles}, " +
+        //     $"baseProjCount={baseProjectileCount}, " +
+        //     $"extraProjFromAbility={projectileCountFromAbility}, " +
+        //     $"extraProjFromAmp={projectileCountFromAmplifier}, " +
+        //     $"baseTargets={ (targetingSystem != null ? targetingSystem.BaseTargetCount : 0) }, " +
+        //     $"extraTargets={TotalTargetNumberBuffAdd}"
+        // );
         //
 
         if (targets == null || targets.Count == 0)
@@ -356,10 +356,10 @@ public class TowerAttack : MonoBehaviour
                            vp.y >= 0f && vp.y <= 1f);
         if (!inViewport) return;
 
-        Debug.Log(
-    $"[FireToTarget] {gameObject.name} " +
-    $"target={target} shotCount={shotCount}"
-);
+//         Debug.Log(
+//     $"[FireToTarget] {gameObject.name} " +
+//     $"target={target} shotCount={shotCount}"
+// );
 
         Vector3 baseDirection = (target.position - firePoint.position).normalized;
         float centerIndex = (shotCount - 1) * 0.5f;
@@ -372,10 +372,10 @@ public class TowerAttack : MonoBehaviour
 
         for (int i = 0; i < shotCount; i++)
         {
-            Debug.Log(
-           $"[FireToTargetLoop] {gameObject.name} " +
-           $"target={target} projIndex={i + 1}/{shotCount}"
-       );
+    //         Debug.Log(
+    //        $"[FireToTargetLoop] {gameObject.name} " +
+    //        $"target={target} projIndex={i + 1}/{shotCount}"
+    //    );
 
             float offsetIndex = i - centerIndex;
             var projectile = ProjectilePoolManager.Instance.GetProjectile(baseData);
@@ -499,6 +499,8 @@ public class TowerAttack : MonoBehaviour
         {
             foreach (var ability in testAbilities)
             {
+                if (ability == null) continue;
+
                 ability.Setting(gameObject);
                 ability.ApplyAbility(projectile.gameObject);
                 projectile.abilityAction += ability.ApplyAbility;
