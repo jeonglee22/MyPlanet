@@ -36,7 +36,7 @@ public class TowerAttack : MonoBehaviour
     private bool abilitiesDirty = true;
     public List<int> Abilities
     {
-        get 
+        get
         {
             if (abilitiesDirty) RebuildMergedAbilities();
             return mergedAbilityIds;
@@ -46,9 +46,9 @@ public class TowerAttack : MonoBehaviour
     private ProjectilePoolManager projectilePoolManager;
 
     //------------ Amplifier Buff Field ---------------------
-    private float damageBuffMul=1f; //damage = baseDamage * damageBuffMul
+    private float damageBuffMul = 1f; //damage = baseDamage * damageBuffMul
     public float DamageBuffMul { get { return damageBuffMul; } set { damageBuffMul = value; } }
-    private float accelerationBuffAdd=0f;  // +=
+    private float accelerationBuffAdd = 0f;  // +=
 
     //fire rate --------------------------------------------------
     public float fireRateAbilityMul = 0f;
@@ -60,7 +60,7 @@ public class TowerAttack : MonoBehaviour
         get
         {
             if (towerData == null) return 0f;
-            float finalMul = 1f+fireRateAbilityMul + fireRateBuffMul;
+            float finalMul = 1f + fireRateAbilityMul + fireRateBuffMul;
             return towerData.fireRate * finalMul;
         }
     }
@@ -90,8 +90,19 @@ public class TowerAttack : MonoBehaviour
     private float fixedPenetrationBuffAdd = 0f;
     public float FixedPenetrationBuffAdd { get { return fixedPenetrationBuffAdd; } set { fixedPenetrationBuffAdd = value; } }
     private float fixedPenetrationFromAmplifier = 0f;
+    private readonly Dictionary<TowerAmplifier, float> fixedPenFromRandomAmpMap = new Dictionary<TowerAmplifier, float>();
+    public float FixedPenetrationFromRandomAmp 
+    {
+        get 
+        {
+            float sum = 0f;
+            foreach (var v in fixedPenFromRandomAmpMap.Values)
+                sum += v;
+            return sum;
+        }
+    }
     //TargetNum---------------------------
-    private int targetNumberFromAbility = 0;   
+    private int targetNumberFromAbility = 0;
     private int targetNumberFromAmplifier = 0;
     public int TargetNumberFromAmplifier => targetNumberFromAmplifier;
     public int TargetNumberBuffAdd
@@ -117,10 +128,10 @@ public class TowerAttack : MonoBehaviour
         {
             if (towerData == null) return 0f;
 
-            float baseAcc = towerData.Accuracy;  
+            float baseAcc = towerData.Accuracy;
             float final = baseAcc
-                          + accuracyFromAmplifier    
-                          + accuracyBuffAdd;          
+                          + accuracyFromAmplifier
+                          + accuracyBuffAdd;
             return Mathf.Clamp(final, 0f, 100f);
         }
     }
@@ -135,8 +146,8 @@ public class TowerAttack : MonoBehaviour
     private int baseProjectileCount = 1; //Only Var
     private int projectileCountFromAmplifier = 0;
     private int projectileCountFromAbility = 0;
-    public int ProjectileCountFromAbility 
-    { 
+    public int ProjectileCountFromAbility
+    {
         get => projectileCountFromAbility;
         set => projectileCountFromAbility = value;
     }
@@ -161,18 +172,18 @@ public class TowerAttack : MonoBehaviour
     private bool isHitScanActive = false;
     public bool IsHitScanActive => isHitScanActive;
 
-    public bool IsHaveHitScanAbility {get ; set;} = false;
+    public bool IsHaveHitScanAbility { get; set; } = false;
 
     public ProjectileData BaseProjectileData => currentProjectileData;
     public ProjectileData BuffedProjectileData => CurrentProjectileData;
-    public ProjectileData CurrentProjectileData 
-    { 
-        get 
+    public ProjectileData CurrentProjectileData
+    {
+        get
         {
             var buffed = GetBuffedProjectileData();
             if (buffed != null) return buffed;
             return towerData != null ? towerData.projectileType : null;
-        } 
+        }
     }
     private bool isStartLazer = false;
     public bool IsStartLazer { get { return isStartLazer; } set { isStartLazer = value; } }
@@ -244,17 +255,17 @@ public class TowerAttack : MonoBehaviour
 
         float hitScanInterval = shootInterval * 0.5f;
 
-        if(shootTimer >= hitScanInterval && !isHitScanActive && IsHaveHitScanAbility)
+        if (shootTimer >= hitScanInterval && !isHitScanActive && IsHaveHitScanAbility)
         {
             StartHitscan(hitScanInterval);
         }
 
-        if(towerData.towerIdInt == (int)AttackTowerId.Lazer && isStartLazer)
+        if (towerData.towerIdInt == (int)AttackTowerId.Lazer && isStartLazer)
         {
             return;
         }
 
-        if(shootTimer>=shootInterval)
+        if (shootTimer >= shootInterval)
         {
             ShootAtTarget();
             shootTimer = 0f;
@@ -269,7 +280,7 @@ public class TowerAttack : MonoBehaviour
         isHitScanActive = true;
 
         targetingSystem.SetAttacking(true);
-        
+
         foreach (var target in targetingSystem.CurrentTargets)
         {
             if (target == null || !target.isAlive) continue;
@@ -299,9 +310,9 @@ public class TowerAttack : MonoBehaviour
         var targets = targetingSystem.CurrentTargets;
 
         List<ITargetable> validTargets = new List<ITargetable>();
-        if(targets!=null)
+        if (targets != null)
         {
-            foreach(var t in targets)
+            foreach (var t in targets)
             {
                 if (t != null && t.isAlive) validTargets.Add(t);
             }
@@ -426,7 +437,7 @@ public class TowerAttack : MonoBehaviour
                 continue;
             }
 
-            if(towerData.towerIdInt == (int)AttackTowerId.ShootGun && innerIndex != null && innerIndex.Count == shotCount)
+            if (towerData.towerIdInt == (int)AttackTowerId.ShootGun && innerIndex != null && innerIndex.Count == shotCount)
             {
                 ApplyGroupOffset(ref direction, innerIndex[i], towerData.grouping);
             }
@@ -459,7 +470,7 @@ public class TowerAttack : MonoBehaviour
         if (grouping <= 0f) return null;
 
         List<bool> innerIndex = new List<bool>();
-        
+
         for (int i = 0; i < shotCount; i++)
         {
             innerIndex.Add(false);
@@ -553,11 +564,11 @@ public class TowerAttack : MonoBehaviour
             return;
         }
 
-        float offAngleMinus = UnityEngine.Random.Range(-1f,-0.5f) * 30f;
-        float offAnglePlus = UnityEngine.Random.Range(0.5f,1f) * 30f;
+        float offAngleMinus = UnityEngine.Random.Range(-1f, -0.5f) * 30f;
+        float offAnglePlus = UnityEngine.Random.Range(0.5f, 1f) * 30f;
         float[] angle = { offAngleMinus, offAnglePlus };
         float offAngle = angle[UnityEngine.Random.Range(0, 2)];
-        
+
         Quaternion rot = Quaternion.Euler(0f, 0f, offAngle);
         direction = rot * direction;
     }
@@ -567,7 +578,7 @@ public class TowerAttack : MonoBehaviour
     {
         mergedAbilityIds.Clear();
         mergedAbilityIds.AddRange(baseAbilityIds);
-        foreach(var kv in amplifierAbilityIds)
+        foreach (var kv in amplifierAbilityIds)
         {
             var list = kv.Value;
             if (list == null) continue;
@@ -577,7 +588,7 @@ public class TowerAttack : MonoBehaviour
     }
     public void AddBaseAbility(int abilityId)
     {
-        if(!baseAbilityIds.Contains(abilityId))
+        if (!baseAbilityIds.Contains(abilityId))
         {
             baseAbilityIds.Add(abilityId);
             abilitiesDirty = true;
@@ -587,7 +598,7 @@ public class TowerAttack : MonoBehaviour
     public void AddAmplifierAbility(TowerAmplifier source, int abilityId)
     {
         if (source == null) return;
-        if(!amplifierAbilityIds.TryGetValue(source,out var list))
+        if (!amplifierAbilityIds.TryGetValue(source, out var list))
         {
             list = new List<int>();
             amplifierAbilityIds[source] = list;
@@ -617,7 +628,7 @@ public class TowerAttack : MonoBehaviour
     public void ClearAmplifierAbilitiesFromSource(TowerAmplifier source)
     {
         if (source == null) return;
-        if(amplifierAbilityIds.Remove(source))
+        if (amplifierAbilityIds.Remove(source))
         {
             abilitiesDirty = true;
         }
@@ -630,7 +641,7 @@ public class TowerAttack : MonoBehaviour
     public void RemoveAbility(int ability)
     {
         int idx = baseAbilityIds.IndexOf(ability);
-        if(idx>=0)
+        if (idx >= 0)
         {
             baseAbilityIds.RemoveAt(idx);
             abilitiesDirty = true;
@@ -693,7 +704,7 @@ public class TowerAttack : MonoBehaviour
         accelerationBuffAdd = 0f;
         projectileCountFromAmplifier = 0;
 
-        ampHitRadiusMul = 1f; 
+        ampHitRadiusMul = 1f;
         percentPenetrationFromAmplifier = 0f;
         targetNumberFromAmplifier = 0;
         accuracyFromAmplifier = 0f;
@@ -712,7 +723,7 @@ public class TowerAttack : MonoBehaviour
             accelerationBuffAdd += amp.AccelerationBuff;
             projectileCountFromAmplifier += amp.ProjectileCountBuff;
 
-            ampHitRadiusMul *= (1f + amp.HitRadiusBuff/100f);
+            ampHitRadiusMul *= (1f + amp.HitRadiusBuff / 100f);
 
             percentPenetrationFromAmplifier =
                 CombinePercentPenetration01(percentPenetrationFromAmplifier, amp.PercentPenetrationBuff);
@@ -724,9 +735,6 @@ public class TowerAttack : MonoBehaviour
         damageBuffMul = Mathf.Max(0f, damageBuffMul);
 
         RecalculateHitRadiusBuffMul();
-
-        float abilityPart = fixedPenetrationBuffAdd - oldAmpFixed;
-        fixedPenetrationBuffAdd = abilityPart + fixedPenetrationFromAmplifier;
 
         if (targetingSystem != null)
         {
@@ -753,7 +761,10 @@ public class TowerAttack : MonoBehaviour
         //----------------
         //fixed-----------
         addBuffProjectileData.FixedPenetration =
-        currentProjectileData.FixedPenetration + fixedPenetrationBuffAdd;
+            currentProjectileData.FixedPenetration
+            + fixedPenetrationBuffAdd
+            + fixedPenetrationFromAmplifier
+            + FixedPenetrationFromRandomAmp;
         //------------------
         //rate penetration---------------------------
         float baseRate01 = Mathf.Clamp01(currentProjectileData.RatePenetration / 100f);
@@ -806,7 +817,7 @@ public class TowerAttack : MonoBehaviour
         var attackRow = DataTableManager.AttackTowerTable.GetById(towerData.towerIdInt);
         if (attackRow == null) return;
 
-        if (attackRow.TowerReinforceUpgrade_ID == null || attackRow.TowerReinforceUpgrade_ID.Length == 0) 
+        if (attackRow.TowerReinforceUpgrade_ID == null || attackRow.TowerReinforceUpgrade_ID.Length == 0)
             return;
 
         float addValue = 0f;
@@ -939,4 +950,36 @@ public class TowerAttack : MonoBehaviour
         fireRateAbilityMul = sum;
     }
     //-----------------------------------------
+    //fixed penetaration ---------------------------------
+    public void AddFixedPenFromRandomAmplifier(TowerAmplifier source, float value)
+    {
+        if (source == null) return;
+        if (Mathf.Approximately(value, 0f)) return;
+        if (fixedPenFromRandomAmpMap.TryGetValue(source, out float cur))
+            fixedPenFromRandomAmpMap[source] = cur + value;
+        else fixedPenFromRandomAmpMap[source] = value;
+    }
+    public void RemoveFixedPenFromRandomAmplifier(TowerAmplifier source, float value, int count)
+    {
+        if (source == null) return;
+        if (count <= 0) return;
+        if (Mathf.Approximately(value, 0f)) return;
+
+        float total = value * count;
+
+        if (fixedPenFromRandomAmpMap.TryGetValue(source, out float cur))
+        {
+            cur -= total;
+            if (cur <= 0f)
+                fixedPenFromRandomAmpMap.Remove(source);
+            else
+                fixedPenFromRandomAmpMap[source] = cur;
+        }
+    }
+    public void ClearFixedPenFromRandomAmplifier(TowerAmplifier source)
+    {
+        if (source == null) return;
+        fixedPenFromRandomAmpMap.Remove(source);
+    }
+    //----------------------------------------------------
 }

@@ -138,8 +138,8 @@ public class TowerAmplifier : MonoBehaviour
                     {
                         case 200004: 
                             {
-                                float add = raRow.SpecialEffectValue; 
-                                target.FixedPenetrationBuffAdd += add;
+                                float add = raRow.SpecialEffectValue;
+                                target.AddFixedPenFromRandomAmplifier(this, add);
                                 break;
                             }
                     }
@@ -176,10 +176,7 @@ public class TowerAmplifier : MonoBehaviour
                 for (int i = 0; i < count; i++)
                 {
                     if (ability != null)
-                    {
                         ability.RemoveAbility(target.gameObject);
-                    }
-
                     target.RemoveAmplifierAbility(this,abilityId,count);
                 }
                 var raRow = DataTableManager.RandomAbilityTable?.Get(abilityId);
@@ -190,7 +187,7 @@ public class TowerAmplifier : MonoBehaviour
                         case 200004: 
                             {
                                 float add = raRow.SpecialEffectValue;
-                                target.FixedPenetrationBuffAdd -= add * count;
+                                target.RemoveFixedPenFromRandomAmplifier(this, add, count);
                                 break;
                             }
                     }
@@ -227,7 +224,7 @@ public class TowerAmplifier : MonoBehaviour
                     {
                         ability.RemoveAbility(target.gameObject);
                     }
-                    target.RemoveAmplifierAbility(this,abilityId,count);
+                    target.RemoveAmplifierAbility(this,abilityId,1);
                 }
                 var raRow = DataTableManager.RandomAbilityTable?.Get(abilityId);
                 if (raRow != null)
@@ -237,7 +234,7 @@ public class TowerAmplifier : MonoBehaviour
                         case 200004:
                             {
                                 float add = raRow.SpecialEffectValue;
-                                target.FixedPenetrationBuffAdd -= add * count;
+                                target.RemoveFixedPenFromRandomAmplifier(this, add, count);
                                 break;
                             }
                     }
