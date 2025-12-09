@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,13 +14,24 @@ public class StoreUI : MonoBehaviour
     [SerializeField] private GameObject gachaButtonPrefab;
     [SerializeField] private GameObject itemButtonPrefab;
 
-    [SerializeField] private BuyPanelUI buyPanelUI;
+    [SerializeField] private GachaPanelUI gachaPanelUI;
+
+    [SerializeField] private TextMeshProUGUI goldText;
+    [SerializeField] private TextMeshProUGUI diaText;
 
     private void Start()
     {
         backBtn.onClick.AddListener(OnBackBtnClicked);
-        buyPanelUI.gameObject.SetActive(false);
+        gachaPanelUI.gameObject.SetActive(false);
         InitializeShop();
+
+        UpdateCurrencyUI();
+        gachaPanelUI.OnGachaCompleted += UpdateCurrencyUI;
+    }
+
+    private void OnDestroy()
+    {
+        gachaPanelUI.OnGachaCompleted -= UpdateCurrencyUI;
     }
 
     private void OnBackBtnClicked()
@@ -48,7 +60,13 @@ public class StoreUI : MonoBehaviour
 
     private void OnGachaButtonClick((int needCurrencyValue, int drawGroup, string gachaName) info)
     {
-        buyPanelUI.Initialize(info.needCurrencyValue, info.drawGroup, info.gachaName);
-        buyPanelUI.gameObject.SetActive(true);
+        gachaPanelUI.Initialize(info.needCurrencyValue, info.drawGroup, info.gachaName);
+        gachaPanelUI.gameObject.SetActive(true);
+    }
+
+    private void UpdateCurrencyUI()
+    {
+        goldText.text = UserData.Gold.ToString();
+        diaText.text = (UserData.FreeDia + UserData.ChargedDia).ToString();
     }
 }

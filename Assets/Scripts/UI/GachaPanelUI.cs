@@ -1,9 +1,10 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class BuyPanelUI : MonoBehaviour
+public class GachaPanelUI : MonoBehaviour
 {
     private int drawGroup;
     private string gachaName;
@@ -15,13 +16,26 @@ public class BuyPanelUI : MonoBehaviour
     [SerializeField] private Button buyOnceBtn;
     [SerializeField] private Button buyTenBtn;
 
-    [SerializeField] private GameObject buyConfirmUI;
+    [SerializeField] private GameObject gachaConfirmUI;
     [SerializeField] private TextMeshProUGUI confirmGachaText;
     [SerializeField] private GameObject noCurrencyText;
     [SerializeField] private Button confirmYesBtn;
     [SerializeField] private Button confirmNoBtn;
 
+    [SerializeField] private GameObject gachaOncePanelUI;
+    [SerializeField] private TextMeshProUGUI rewardNameText;
+    [SerializeField] private TextMeshProUGUI rewardOnceText;
+    [SerializeField] private Button exitRewardOnceBtn;
+
+    [SerializeField] private GameObject gachaTenPanelUI;
+    [SerializeField] private GameObject RewardTenPrefab;
+    [SerializeField] private Transform gachaTenContent;
+    [SerializeField] private Button exitRewardTenBtn;
+
     private Dictionary<RewardData, int> rewardResults = new Dictionary<RewardData, int>();
+    private List<GameObject> instantiatedRewardTenObjects = new List<GameObject>();
+
+    public event Action OnGachaCompleted;
 
     public void Initialize(int needCurrencyValue, int drawGroup, string gachaName)
     {
@@ -39,6 +53,8 @@ public class BuyPanelUI : MonoBehaviour
         buyTenBtn.onClick.AddListener(() => OnGachaClicked(10));
         confirmYesBtn.onClick.AddListener(OnConfirmYesBtnClicked);
         confirmNoBtn.onClick.AddListener(OnConfirmNoBtnClicked);
+        exitRewardOnceBtn.onClick.AddListener(OnGachaBackBtnClicked);
+        exitRewardTenBtn.onClick.AddListener(OnGachaBackBtnClicked);
     }
 
     private void ResetBtn()
@@ -48,22 +64,41 @@ public class BuyPanelUI : MonoBehaviour
         buyTenBtn.onClick.RemoveAllListeners();
         confirmYesBtn.onClick.RemoveAllListeners();
         confirmNoBtn.onClick.RemoveAllListeners();
+        exitRewardOnceBtn.onClick.RemoveAllListeners();
+        exitRewardTenBtn.onClick.RemoveAllListeners();
 
-        buyConfirmUI.SetActive(false);
+        gachaConfirmUI.SetActive(false);
+        gachaOncePanelUI.SetActive(false);
+        gachaTenPanelUI.SetActive(false);
+        noCurrencyText.SetActive(false);
+        gachaOncePanelUI.SetActive(false);
+        gachaTenPanelUI.SetActive(false);
+
+        foreach(var obj in instantiatedRewardTenObjects)
+        {
+            Destroy(obj);
+        }
+        instantiatedRewardTenObjects.Clear();
     }
 
     private void OnConfirm(string gachaName, int drawCount)
     {
         confirmGachaText.text = $"{gachaName}를 x{drawCount}회 돌리시겠습니까?";
         noCurrencyText.SetActive(false);
-        buyConfirmUI.SetActive(true);
+        gachaConfirmUI.SetActive(true);
     }
 
     private void OnBackBtnClicked()
     {
-        buyConfirmUI.SetActive(false);
+        gachaConfirmUI.SetActive(false);
         noCurrencyText.SetActive(false);
         gameObject.SetActive(false);
+    }
+
+    private void OnGachaBackBtnClicked()
+    {
+        gachaOncePanelUI.SetActive(false);
+        gachaTenPanelUI.SetActive(false);
     }
 
     private void OnGachaClicked(int drawCount)
@@ -79,10 +114,33 @@ public class BuyPanelUI : MonoBehaviour
         {
             OnGacha();
 
-            foreach(var reward in rewardResults)
+            if(drawCount == 1)
             {
-                Debug.Log($"획득 보상: {reward.Key.Target_Id} x{reward.Value}");
+                foreach(var reward in rewardResults)
+                {
+                    rewardNameText.text = reward.Key.RewardNameText;
+                    rewardOnceText.text = $"x{reward.Value}";
+                }
+
+                gachaOncePanelUI.SetActive(true);
             }
+            else if(drawCount > 1)
+            {
+                foreach(var reward in rewardResults)
+                {
+                    var rewardTenObj = Instantiate(RewardTenPrefab, gachaTenContent);
+                    var rewardTenText = rewardTenObj.GetComponentInChildren<TextMeshProUGUI>();
+                    rewardTenText.text = $"{reward.Key.RewardNameText} x{reward.Value}";
+
+                    instantiatedRewardTenObjects.Add(rewardTenObj);
+                }
+
+                gachaTenPanelUI.SetActive(true);
+            }
+
+            gachaConfirmUI.SetActive(false);
+
+            OnGachaCompleted?.Invoke();
         }
         else
         {
@@ -92,7 +150,7 @@ public class BuyPanelUI : MonoBehaviour
 
     private void OnConfirmNoBtnClicked()
     {
-        buyConfirmUI.SetActive(false);
+        gachaConfirmUI.SetActive(false);
         noCurrencyText.SetActive(false);
     }
 
@@ -156,22 +214,17 @@ public class BuyPanelUI : MonoBehaviour
         {
             var reward = DataTableManager.RewardTable.Get(draw.Reward_Id);
             
-            UserDataMapper.AddItem(reward.Target_Id, draw.RewardQty);
+            UserDataMapper.AddReward(reward.RewardType, reward.Target_Id, draw.RewardQty);
 
             if(rewardResults.ContainsKey(reward))
             {
-                if(reward.Stack == 1)
+                if(UserDataMapper.HasPlanet(reward.Target_Id))
                 {
-                    var addCount = Mathf.Min(rewardResults[reward] + draw.RewardQty, UserDataMapper.GetMaxCount(reward.Target_Id));
-                    UserDataMapper.AddItem(reward.Target_Id, draw.RewardQty);
-                    rewardResults[reward] = addCount;
+                    rewardResults[reward] += 20;
                 }
-                else if(reward.RewardType == (int)RewardType.Planet)
+                else
                 {
-                    var pieceId = PlanetPieceMapper.GetPieceId(reward.Target_Id);
-                    var addCount = Mathf.Min(rewardResults[reward] + 20, UserDataMapper.GetMaxCount(reward.Target_Id));
-                    UserDataMapper.AddItem(pieceId, 20);
-                    rewardResults[reward] = addCount;
+                    rewardResults[reward] += draw.RewardQty;
                 }
             }
             else
