@@ -435,7 +435,9 @@ public class TowerInfoUI : MonoBehaviour
         for(int i=0; i<abilities.Count; i++)
         {
             int abilityId = abilities[i];
-            if (!PrintedAbility.SpecialRandomAbilityIds.Contains(abilityId)) continue;
+
+            var raRow = DataTableManager.RandomAbilityTable?.Get(abilityId);
+            if (raRow == null) continue;
             if (!counts.TryGetValue(abilityId, out int current))
             {
                 counts[abilityId] = 1;
@@ -1098,6 +1100,4 @@ public class TowerInfoUI : MonoBehaviour
         }
         return result;
     }
-
-
 }
