@@ -9,7 +9,7 @@ public class DescendAndStopMovement : IMovement
     private bool isPatternLine = false;
     public bool IsPatternLine => isPatternLine;
 
-    private float offset = 0.5f;
+    private float offset = 0.7f;
     private float initialSpeedMultiplier = 2.5f;
 
     private int enemyType;
