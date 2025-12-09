@@ -73,7 +73,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         = new HashSet<TowerDataSO>();
     private HashSet<AmplifierTowerDataSO> usedAmplifierTowerTypesThisRoll
     = new HashSet<AmplifierTowerDataSO>();
-
+    private List<bool> usedRefreshButton;
     private const int MaxReinforceLevel = 4;
     //----------------------------------------
 
@@ -121,6 +121,15 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             refreshButton.interactable = true;
         }
         SettingUpgradeCards();
+
+        if (usedRefreshButton != null)
+            usedRefreshButton.Clear();
+        
+        usedRefreshButton = new List<bool>();
+        foreach (var btn in refreshButtons)
+        {
+            usedRefreshButton.Add(false);
+        }
     }
 
     private void SetTowerInstallText()
@@ -1200,6 +1209,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         if (refreshButtons == null) return;
         refreshButtons[index].interactable = false;
+        usedRefreshButton[index] = true;
     }
 
 
@@ -1401,9 +1411,12 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
     private void BlockUpgradeSlotTouch(bool v)
     {
-        foreach (var refreshButton in refreshButtons)
+        for (int i = 0; i < refreshButtons.Length; i++)
         {
-            refreshButton.interactable = !v;
+            if (usedRefreshButton[i])
+                continue;
+            
+            refreshButtons[i].interactable = !v;
         }
         for (int i = 0; i < upgradeUIs.Length; i++)
         {
@@ -1451,10 +1464,11 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 gameObject.SetActive(false);
             }
 
+            if (dragImage != null)
+                BlockUpgradeSlotTouch(false);
+
             Destroy(dragImage);
             dragImage = null;
-
-            BlockUpgradeSlotTouch(false);
 
             installControl.LeftRotateRect.gameObject.SetActive(false);
             installControl.RightRotateRect.gameObject.SetActive(false);
