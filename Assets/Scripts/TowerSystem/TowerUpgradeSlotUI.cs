@@ -1280,6 +1280,9 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         if (!hasTowerData || targetSlot < 0)
         {
             Debug.Log($"[TowerUpgradeSlotUI] Gold or disabled card clicked at {index}, ignore.");
+            if (towerInfoUI != null)
+                towerInfoUI.gameObject.SetActive(false);
+            gameObject.SetActive(false);
             return;
         }
 
