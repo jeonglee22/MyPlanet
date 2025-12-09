@@ -63,9 +63,14 @@ public class TowerInfoUI : MonoBehaviour
     [SerializeField] private GameObject abilityExplainContent;
     private RectTransform contentRect;
 
+    [Header("Special Random Ability Panel")]
+    [SerializeField] private RectTransform specialRandomRoot;
+    [SerializeField] private GameObject specialRandomBlockPrefab;
+
     private int infoIndex = -1;
     public int CurrentSlotIndex => infoIndex;
     private bool isSameTower;
+
 
     private void OnEnable()
     {
@@ -136,6 +141,7 @@ public class TowerInfoUI : MonoBehaviour
 
             FillAttackTowerInfo(index, attackTower);
             SetAbilityExplainForAttack(attackTower);
+            SetSpecialAbilityForAttackPanel(attackTower);
             return;
         }
 
@@ -426,6 +432,60 @@ public class TowerInfoUI : MonoBehaviour
             var ability = AbilityManager.GetAbility(abilityId);
             // var text = Instantiate(abilityExplainContent, contentRect);
             // SetText(text.GetComponent<TextMeshProUGUI>(), ability?.ToString() ?? "no ability");
+        }
+    }
+
+    private void SetSpecialAbilityForAttackPanel(TowerAttack attackTower)
+    {
+        if(specialRandomRoot !=null)
+        {
+            for (int i = specialRandomRoot.childCount - 1; i >= 0; i--)
+            {
+                Destroy(specialRandomRoot.GetChild(i).gameObject);
+            }
+        }
+        if (attackTower == null) return;
+        var abilities = attackTower.Abilities;
+        if (abilities == null || abilities.Count == 0) return;
+
+        var counts = new Dictionary<int, int>();
+        var ordredIds = new List<int>();
+        for(int i=0; i<abilities.Count; i++)
+        {
+            int abilityId = abilities[i];
+
+            var raRow = DataTableManager.RandomAbilityTable?.Get(abilityId);
+            if (raRow == null) continue;
+            if (!counts.TryGetValue(abilityId, out int current))
+            {
+                counts[abilityId] = 1;
+                ordredIds.Add(abilityId);
+            }
+            else counts[abilityId] = current + 1;
+        }
+        if (ordredIds.Count == 0) return;
+
+        for(int i=0; i<ordredIds.Count; i++)
+        {
+            int abilityId = ordredIds[i];
+            int count = counts[abilityId];
+
+            string displayName = null;
+            var raRow = DataTableManager.RandomAbilityTable?.Get(abilityId);
+            if(raRow!=null&&!string.IsNullOrEmpty(raRow.RandomAbilityName))
+            {
+                displayName = raRow.RandomAbilityName;
+            }
+            else
+            {
+                var ability = AbilityManager.GetAbility(abilityId);
+                if (ability != null) displayName = ability.ToString();
+            }
+
+            string text = (count <= 1) ? displayName : $"{displayName}x{count}";
+            var go = Instantiate(specialRandomBlockPrefab, specialRandomRoot);
+            var tmp = go.GetComponentInChildren<TextMeshProUGUI>();
+            if (tmp != null) tmp.text = text;
         }
     }
 
