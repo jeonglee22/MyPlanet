@@ -52,6 +52,8 @@ public class PlanetTowerUI : MonoBehaviour
             GamePauseManager.Instance.Pause();
             isOpen = true;
         }
+
+        battleButton.gameObject.SetActive(!towerUpgradeSlotUI.IsFirstInstall);
     }
 
     void OnDisable()
@@ -61,11 +63,11 @@ public class PlanetTowerUI : MonoBehaviour
 
     void Update()
     {
-        if (towerUpgradeSlotUI != null)
-        {
-            if(battleButton.gameObject.activeSelf == towerUpgradeSlotUI.IsFirstInstall)
-                battleButton.gameObject.SetActive(!towerUpgradeSlotUI.IsFirstInstall);
-        }
+        // if (towerUpgradeSlotUI != null)
+        // {
+        //     if(battleButton.gameObject.activeSelf == towerUpgradeSlotUI.IsFirstInstall)
+        //         battleButton.gameObject.SetActive(!towerUpgradeSlotUI.IsFirstInstall);
+        // }
 
         if(installControl == null)
             return;

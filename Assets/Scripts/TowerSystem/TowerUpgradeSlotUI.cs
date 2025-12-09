@@ -73,7 +73,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         = new HashSet<TowerDataSO>();
     private HashSet<AmplifierTowerDataSO> usedAmplifierTowerTypesThisRoll
     = new HashSet<AmplifierTowerDataSO>();
-
+    private List<bool> usedRefreshButton;
     private const int MaxReinforceLevel = 4;
     //----------------------------------------
 
@@ -121,6 +121,15 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             refreshButton.interactable = true;
         }
         SettingUpgradeCards();
+
+        if (usedRefreshButton != null)
+            usedRefreshButton.Clear();
+        
+        usedRefreshButton = new List<bool>();
+        foreach (var btn in refreshButtons)
+        {
+            usedRefreshButton.Add(false);
+        }
     }
 
     private void SetTowerInstallText()
@@ -1006,6 +1015,9 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         var sb = new StringBuilder();
 
+        rightList.Sort();
+        leftList.Sort();
+
         sb.AppendLine("증폭타워 기준");
 
         if (rightList.Count > 0)
@@ -1014,7 +1026,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             foreach (int v in rightList)
                 rightPos.Add($"{v}번째");
 
-            sb.AppendLine($"오른쪽 {string.Join(", ", rightPos)}");
+            sb.AppendLine($"왼쪽 {string.Join(", ", rightPos)}");
         }
 
         if (leftList.Count > 0)
@@ -1023,7 +1035,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             foreach (int v in leftList)
                 leftPos.Add($"{v}번째");
 
-            sb.AppendLine($"왼쪽 {string.Join(", ", leftPos)}");
+            sb.AppendLine($"오른쪽 {string.Join(", ", leftPos)}");
         }
         return sb.ToString();
     }
@@ -1138,7 +1150,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             }
 
             uiTexts[index].text =
-                $"Upgrade\n{number}\n{towerData.towerId}";
+                $"Upgrade\n{number}\n\n{towerData.towerId}";
         }
         else if (ampTower != null && ampTower.AmplifierTowerData != null)
         {
@@ -1154,7 +1166,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 : ampData.AmplifierType.ToString();
 
             uiTexts[index].text =
-                $"Upgrade\n{number}\n{ampName}";
+                $"Upgrade\n{number}\n\n{ampName}";
             
             if(isTutorial && Variables.Stage == 1)
             {
@@ -1200,6 +1212,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         if (refreshButtons == null) return;
         refreshButtons[index].interactable = false;
+        usedRefreshButton[index] = true;
     }
 
 
@@ -1270,6 +1283,9 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         if (!hasTowerData || targetSlot < 0)
         {
             Debug.Log($"[TowerUpgradeSlotUI] Gold or disabled card clicked at {index}, ignore.");
+            if (towerInfoUI != null)
+                towerInfoUI.gameObject.SetActive(false);
+            gameObject.SetActive(false);
             return;
         }
 
@@ -1392,8 +1408,28 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         towerImageIsDraging = true;
         dragImage.SetActive(true);
         dragImage.transform.position = touchPos;
+
+        BlockUpgradeSlotTouch(true);
+
         installControl.LeftRotateRect.gameObject.SetActive(true);
         installControl.RightRotateRect.gameObject.SetActive(true);
+    }
+
+    private void BlockUpgradeSlotTouch(bool v)
+    {
+        for (int i = 0; i < refreshButtons.Length; i++)
+        {
+            if (usedRefreshButton[i])
+                continue;
+            
+            refreshButtons[i].interactable = !v;
+        }
+        for (int i = 0; i < upgradeUIs.Length; i++)
+        {
+            var button = upgradeUIs[i].GetComponentInChildren<Button>();
+            if (button != null)
+                button.interactable = !v;
+        }
     }
 
     public void OnTouchStateCheck()
@@ -1433,6 +1469,9 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 installControl.IntallNewTower(index);
                 gameObject.SetActive(false);
             }
+
+            if (dragImage != null)
+                BlockUpgradeSlotTouch(false);
 
             Destroy(dragImage);
             dragImage = null;

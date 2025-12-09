@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -247,21 +248,25 @@ public class TowerInfoUI : MonoBehaviour
         bool hasBase = !Mathf.Approximately(baseValue, 0f);
         bool hasFinal = !Mathf.Approximately(finalValue, 0f);
 
-        if (!hasBase && !hasFinal)
-        {
-            tmp.text = $"0{suffix}";
-            return;
-        }
-
         if (Mathf.Approximately(baseValue, finalValue))
         {
             tmp.transform.parent.gameObject.SetActive(false);
             return;
         }
 
+        // if (!hasBase && !hasFinal)
+        // {
+        //     tmp.text = $"0{suffix}";
+        //     return;
+        // }
+
         float delta = finalValue - baseValue;
-        string sign = delta > 0f ? "+" : "";
-        tmp.text = $"{sign}{delta.ToString(format)}{suffix}";
+        // string sign = delta > 0f ? "+" : "";
+        if (delta > 0f)
+            tmp.color = new Color(0.75f, 1f, 0.35f, 1f);
+        else
+            tmp.color = Color.red;
+        tmp.text = $"{delta.ToString(format)}{suffix}";
     }
 
     private void SetAllText(string value)
@@ -382,11 +387,24 @@ public class TowerInfoUI : MonoBehaviour
         SetStatText(hitRateValueText, baseHitRate, finalHitRate, "0.00", "%");
         SetAdditionalStatText(hitRateValueAdditionalText, baseHitRate, finalHitRate, "0.00");
 
+        if (attackTowerData.towerIdInt == (int)AttackTowerId.ShootGun)
+        {
+            //Spread Accuracy
+            float baseSpread = attackTowerData.grouping;
+            SetStatText(spreadAccuracyValueText, baseSpread, baseSpread, "0.00", "%");
+            SetAdditionalStatText(spreadAccuracyValueAdditionalText, baseSpread, baseSpread, "0.00");
+        }
+        else
+        {
+            float baseSpread = attackTowerData.grouping;
+            SetText(spreadAccuracyValueText, "-");
+            SetAdditionalStatText(spreadAccuracyValueAdditionalText, baseSpread, baseSpread, "0.00");
+        }
         //Spread Accuracy
-        if (spreadAccuracyValueText != null)
-            spreadAccuracyValueText.text = attackTowerData.grouping.ToString("0.00") + "%";
-        if (spreadAccuracyValueAdditionalText != null)
-            spreadAccuracyValueAdditionalText.gameObject.SetActive(false);
+        // if (spreadAccuracyValueText != null)
+        //     spreadAccuracyValueText.text = attackTowerData.grouping.ToString("0.00") + "%";
+        // if (spreadAccuracyValueAdditionalText != null)
+        //     spreadAccuracyValueAdditionalText.gameObject.SetActive(false);
 
         //Range 
         SetText(rangeValueText, attackTowerData.rangeData != null
