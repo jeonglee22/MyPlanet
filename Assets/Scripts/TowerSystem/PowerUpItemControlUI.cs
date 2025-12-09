@@ -201,6 +201,15 @@ public class PowerUpItemControlUI : MonoBehaviour
         SetActiveItemUseButton(true);
     }
 
+    public void SetDeactiveQuasarUiGameObjects()
+    {
+        itemChoosePanel.SetActive(false);
+        towerCountUpgradeButton.gameObject.SetActive(false);
+        newAbilityUpgradeButton.gameObject.SetActive(false);
+        chooseTowerPanel.SetActive(false);
+        upgradeChooseUis.SetActive(false);
+    }
+
     private void OnItemUseClicked()
     {
         if (isUsedItem)
@@ -223,11 +232,7 @@ public class PowerUpItemControlUI : MonoBehaviour
         }
         else
         {
-            itemChoosePanel.SetActive(false);
-            towerCountUpgradeButton.gameObject.SetActive(false);
-            newAbilityUpgradeButton.gameObject.SetActive(false);
-            chooseTowerPanel.SetActive(false);
-            upgradeChooseUis.SetActive(false);
+            SetDeactiveQuasarUiGameObjects();
             SetTowerOpenInfoTouch();
         }
     }
