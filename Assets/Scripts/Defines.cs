@@ -42,7 +42,6 @@ public static class SceneName
     public static readonly string StageSelectScene = "StageSelectScene";
     public static readonly string AsyncRaidTestScene = "AsyncRaidTestScene";
     public static readonly string LobbyScene = "LobbyScene";
-    public static readonly string StoreScene = "StoreScene";
     public static readonly string BalanceTestScene = "BalanceTestScene";
 }
 

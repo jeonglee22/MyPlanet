@@ -4,6 +4,8 @@ using UnityEngine.UI;
 
 public class LobbyUI : MonoBehaviour
 {
+    [SerializeField] private GameObject gachaMainPanel;
+
     [SerializeField] private Button exitBtn;
     [SerializeField] private Button setBtn;
     [SerializeField] private Button planetBtn;
@@ -16,6 +18,8 @@ public class LobbyUI : MonoBehaviour
     {
         playBtn.onClick.AddListener(OnPlayBtnClicked);
         storeBtn.onClick.AddListener(OnStoreBtnClicked);
+        
+        gachaMainPanel.SetActive(false);
     }
 
     private void OnPlayBtnClicked()
@@ -25,6 +29,7 @@ public class LobbyUI : MonoBehaviour
 
     private void OnStoreBtnClicked()
     {
-        SceneControlManager.Instance.LoadScene(SceneName.StoreScene).Forget();
+        gachaMainPanel.SetActive(true);
+        gameObject.SetActive(false);
     }
 }

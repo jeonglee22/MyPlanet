@@ -6,6 +6,8 @@ using UnityEngine.UI;
 
 public class StoreUI : MonoBehaviour
 {
+    [SerializeField] private GameObject lobbyPanel;
+
     [SerializeField] private Button backBtn;
     
     [SerializeField] private Transform scrollViewContent;
@@ -36,7 +38,8 @@ public class StoreUI : MonoBehaviour
 
     private void OnBackBtnClicked()
     {
-        SceneControlManager.Instance.LoadScene(SceneName.LobbyScene).Forget();
+        lobbyPanel.SetActive(true);
+        gameObject.SetActive(false);
     }
 
     private void InitializeShop()
@@ -67,6 +70,6 @@ public class StoreUI : MonoBehaviour
     private void UpdateCurrencyUI()
     {
         goldText.text = UserData.Gold.ToString();
-        diaText.text = (UserData.FreeDia + UserData.ChargedDia).ToString();
+        diaText.text = $"무료 {UserData.FreeDia} / 유료 {UserData.ChargedDia}";
     }
 }
