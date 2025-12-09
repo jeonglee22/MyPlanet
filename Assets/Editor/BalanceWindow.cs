@@ -36,7 +36,6 @@ public class BalanceWindow : EditorWindow
     private SerializedProperty chainCount;
     private SerializedProperty pierceCount;
 
-    private SerializedObject so;
     private SerializedProperty hpScaleProp;
     private SerializedProperty attackScaleProp;
     private SerializedProperty defenseScaleProp;
@@ -72,8 +71,13 @@ public class BalanceWindow : EditorWindow
 
     private BalanceTester targetTester;
     private TowerAttackTester towerAttackTester;
+    private SerializedObject soTower;
     private EnemyStatTester enemyStatTester;
+    private SerializedObject soEnemy;
     private SerializedProperty enemyTypeId;
+    private SerializedProperty spawnPointProp;
+    private SerializedProperty enemyTypeProp;
+    private SerializedProperty paternIdProp;
 
     [MenuItem("MyTools/Balance Window")]
     public static void ShowWindow()
@@ -101,7 +105,8 @@ public class BalanceWindow : EditorWindow
         //     return;
         // }
 
-        so = null;
+        soEnemy = null;
+        soTower = null;
 
         // var tester = Selection.activeGameObject.GetComponent<BalanceTester>();
         // var towerTester = Selection.activeGameObject.GetComponent<TowerAttackTester>();
@@ -112,56 +117,59 @@ public class BalanceWindow : EditorWindow
         if (towerTester != null)
         {
             towerAttackTester = towerTester;
-            so = new SerializedObject(towerAttackTester);
+            soTower = new SerializedObject(towerAttackTester);
 
-            towerAttackIdProp = so.FindProperty("towerAttackId");
-            targetRangeProp = so.FindProperty("targetRange");
-            damageProp = so.FindProperty("damage");
-            attackSpeedProp = so.FindProperty("attackSpeed");
-            accuracyProp = so.FindProperty("accuracy");
-            groupingProp = so.FindProperty("grouping");
-            projectileNumProp = so.FindProperty("projectileNum");
-            targetNumProp = so.FindProperty("targetNum");
-            hitSizeProp = so.FindProperty("hitSize");
-            ratePenetrationProp = so.FindProperty("ratePenetration");
-            fixedPenetrationProp = so.FindProperty("fixedPenetration");
-            projectileSpeedProp = so.FindProperty("projectileSpeed");
-            durationProp = so.FindProperty("duration");
+            towerAttackIdProp = soTower.FindProperty("towerAttackId");
+            targetRangeProp = soTower.FindProperty("targetRange");
+            damageProp = soTower.FindProperty("damage");
+            attackSpeedProp = soTower.FindProperty("attackSpeed");
+            accuracyProp = soTower.FindProperty("accuracy");
+            groupingProp = soTower.FindProperty("grouping");
+            projectileNumProp = soTower.FindProperty("projectileNum");
+            targetNumProp = soTower.FindProperty("targetNum");
+            hitSizeProp = soTower.FindProperty("hitSize");
+            ratePenetrationProp = soTower.FindProperty("ratePenetration");
+            fixedPenetrationProp = soTower.FindProperty("fixedPenetration");
+            projectileSpeedProp = soTower.FindProperty("projectileSpeed");
+            durationProp = soTower.FindProperty("duration");
 
-            pierceCount = so.FindProperty("pierceCount");
-            chainCount = so.FindProperty("chainCount");
-            slowPercent = so.FindProperty("slowPercent");
-            splitCount = so.FindProperty("splitCount");
-            homing = so.FindProperty("homing");
-            explosionRadius = so.FindProperty("explosionRadius");
+            pierceCount = soTower.FindProperty("pierceCount");
+            chainCount = soTower.FindProperty("chainCount");
+            slowPercent = soTower.FindProperty("slowPercent");
+            splitCount = soTower.FindProperty("splitCount");
+            homing = soTower.FindProperty("homing");
+            explosionRadius = soTower.FindProperty("explosionRadius");
         }
         if (enemyTester != null)
         {
             enemyStatTester = enemyTester;
-            so = new SerializedObject(enemyStatTester);
+            soEnemy = new SerializedObject(enemyStatTester);
 
-            enemyTypeId = so.FindProperty("enemyTypeId");
+            enemyTypeId = soEnemy.FindProperty("enemyTypeId");
 
-            hpScaleProp = so.FindProperty("hpScale");
-            attackScaleProp = so.FindProperty("attackScale");
-            defenseScaleProp = so.FindProperty("defenseScale");
-            penetrationScaleProp = so.FindProperty("penetrationScale");
-            speedScaleProp = so.FindProperty("speedScale");
-            sizeScaleProp = so.FindProperty("sizeScale");
-            expScaleProp = so.FindProperty("expScale");
+            hpScaleProp = soEnemy.FindProperty("hpScale");
+            attackScaleProp = soEnemy.FindProperty("attackScale");
+            defenseScaleProp = soEnemy.FindProperty("defenseScale");
+            penetrationScaleProp = soEnemy.FindProperty("penetrationScale");
+            speedScaleProp = soEnemy.FindProperty("speedScale");
+            sizeScaleProp = soEnemy.FindProperty("sizeScale");
+            expScaleProp = soEnemy.FindProperty("expScale");
 
-            healthProp = so.FindProperty("health");
-            defenseProp = so.FindProperty("defense");
-            barriorProp = so.FindProperty("barrior");
-            speedProp = so.FindProperty("speed");
-            attackProp = so.FindProperty("attack");
-            ratePenetrationEnemyProp = so.FindProperty("ratePenetration");
-            fixedPenetrationEnemyProp = so.FindProperty("fixedPenetration");
-            expProp = so.FindProperty("exp");
-            enemyCountProp = so.FindProperty("enemyCount");
-            waveIdProp = so.FindProperty("waveId");
+            healthProp = soEnemy.FindProperty("health");
+            defenseProp = soEnemy.FindProperty("defense");
+            barriorProp = soEnemy.FindProperty("barrior");
+            speedProp = soEnemy.FindProperty("speed");
+            attackProp = soEnemy.FindProperty("attack");
+            ratePenetrationEnemyProp = soEnemy.FindProperty("ratePenetration");
+            fixedPenetrationEnemyProp = soEnemy.FindProperty("fixedPenetration");
+            expProp = soEnemy.FindProperty("exp");
+            enemyCountProp = soEnemy.FindProperty("enemyCount");
+            waveIdProp = soEnemy.FindProperty("waveId");
 
-            moveTypeIdProp = so.FindProperty("moveTypeId");
+            moveTypeIdProp = soEnemy.FindProperty("moveTypeId");
+            spawnPointProp = soEnemy.FindProperty("spawnPoint");
+            enemyTypeProp = soEnemy.FindProperty("enemyType");
+            paternIdProp = soEnemy.FindProperty("patternId");
         }
     }
 
@@ -211,10 +219,10 @@ public class BalanceWindow : EditorWindow
         //     return;
         // }
 
-        if (so == null)
+        if (soTower == null)
             return;
 
-        so.Update();
+        soTower.Update();
 
         // 2) 능력별 카드/행으로 파라미터 표시
         using (new EditorGUILayout.VerticalScope("box"))
@@ -227,7 +235,7 @@ public class BalanceWindow : EditorWindow
             DrawPierceAbility();
         }
 
-        so.ApplyModifiedProperties();
+        soTower.ApplyModifiedProperties();
     }
 
     private void DrawPierceAbility()
@@ -314,7 +322,7 @@ public class BalanceWindow : EditorWindow
 
     private void DrawTowerPage()
     {
-        if (so == null || towerAttackTester == null)
+        if (soTower == null || towerAttackTester == null)
         {
             EditorGUILayout.HelpBox(
                 "씬에서 TowerAttackTester가 붙어있는 오브젝트를 선택하면 조절할 수 있어요.",
@@ -330,7 +338,7 @@ public class BalanceWindow : EditorWindow
         EditorGUILayout.ObjectField("Tower", towerAttackTester, typeof(TowerAttackTester), true);
         EditorGUILayout.Space();
 
-        so.Update();
+        soTower.Update();
 
         int[] towerIds = { 0, 1, 2, 3, 4, 5 };
         string[] towerNames = { "케틀링", "권총", "레이저", "미사일", "샷건", "스나이퍼" };
@@ -379,12 +387,12 @@ public class BalanceWindow : EditorWindow
         EditorGUILayout.PropertyField(projectileSpeedProp);
         EditorGUILayout.PropertyField(durationProp);
 
-        so.ApplyModifiedProperties();
+        soTower.ApplyModifiedProperties();
     }
 
     private void DrawEnemyPage()
     {
-        if (so == null || enemyStatTester == null)
+        if (soEnemy == null || enemyStatTester == null)
         {
             EditorGUILayout.HelpBox(
                 "씬에서 오브젝트를 선택하면 창이 켜집니다.",
@@ -396,7 +404,7 @@ public class BalanceWindow : EditorWindow
         EditorGUILayout.ObjectField("Enemy", enemyStatTester, typeof(EnemyStatTester), true);
         EditorGUILayout.Space();
 
-        so.Update();
+        soEnemy.Update();
 
         int[] enemyIds = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22 };
         string[] enemyNames = { "wave용", "느린 운석", "보통 운석", "빠른 운석", "느린 유도 운석", "보통 유도 운석", "빠른 유도 운석",
@@ -443,7 +451,7 @@ public class BalanceWindow : EditorWindow
             waveIdProp.intValue = newWaveId;
         }
 
-        int[] moveTypeIds = { 0, 1, 2, 10, 11, 12 };
+        int[] moveTypeIds = { 0, 1, 2, 3, 4, 5 };
         string[] moveTypeNames = { "일반", "유도", "추적:끝까지 따라감", "고정형", "공전", "가로 이동" };
 
         EditorGUI.BeginChangeCheck();
@@ -459,6 +467,29 @@ public class BalanceWindow : EditorWindow
         {
             moveTypeIdProp.intValue = newMoveTypeId;
         }
+
+        int[] patternIds = { 0,1,2,3,4 };
+        string[] patternNames = { "다프니스", "타이탄", "토성", "운석 뭉치 돌진", "운석 뭉치 추적" };
+
+        EditorGUI.BeginChangeCheck();
+
+        int newPatternId = EditorGUILayout.IntPopup(
+            "Pattern ID",
+            paternIdProp.intValue,
+            patternNames,
+            patternIds
+        );
+
+        if (EditorGUI.EndChangeCheck())
+        {
+            paternIdProp.intValue = newPatternId;
+        }
+
+        EditorGUILayout.LabelField("스폰포인트", EditorStyles.boldLabel);
+        spawnPointProp.intValue = EditorGUILayout.IntSlider("스폰포인트 0 ~ 4", spawnPointProp.intValue, 0, 4);
+        
+        EditorGUILayout.LabelField("적타입", EditorStyles.boldLabel);
+        enemyTypeProp.intValue = EditorGUILayout.IntSlider("적타입 1 ~ 4", enemyTypeProp.intValue, 1, 4);
 
         // EditorGUILayout.PropertyField(enemyTypeId);
         EditorGUILayout.PropertyField(hpScaleProp);
@@ -479,16 +510,20 @@ public class BalanceWindow : EditorWindow
         EditorGUILayout.PropertyField(expProp);
         EditorGUILayout.PropertyField(enemyCountProp);
 
-        so.ApplyModifiedProperties();
+        soEnemy.ApplyModifiedProperties();
 
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("적 소환"))
         {
-            SpawnCustomEnemy();
+            enemyStatTester.EnemySpawn();
         }
         if (GUILayout.Button("웨이브 소환"))
         {
-            StartWave();
+            // StartWave();
+        }
+        if (GUILayout.Button("모든 적 제거"))
+        {
+            // ClearAllEnemies();
         }
         EditorGUILayout.EndHorizontal();
     }

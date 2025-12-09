@@ -151,6 +151,17 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
+    public void SpawnEnemiesWithScale(int enemyId, int quantity, Vector3 spawnPos, ScaleData scaleData, EnemyTableData enemyTableData)
+    {
+        PreparePool(enemyId);
+
+        for (int i = 0; i < quantity; i++)
+        {
+            var newSpawnPos = GetRandomPositionInCircle();
+            SpawnEnemyWithScale(enemyId, spawnPos + newSpawnPos, scaleData, enemyTableData);
+        }
+    }
+
     public Enemy SpawnEnemyWithScale(int enemyId, Vector3 spawnPosition, ScaleData scaleData)
     {
         PreparePool(enemyId);
@@ -159,6 +170,24 @@ public class EnemySpawner : MonoBehaviour
         if(currentTableData == null)
         {
             return null;
+        }
+
+        return CreateEnemy(enemyId, spawnPosition, Vector3.down, scaleData);
+    }
+
+    public Enemy SpawnEnemyWithScale(int enemyId, Vector3 spawnPosition, ScaleData scaleData, EnemyTableData enemyTableData)
+    {
+        PreparePool(enemyId);
+
+        currentTableData = DataTableManager.EnemyTable.Get(enemyId);
+        if(currentTableData == null)
+        {
+            return null;
+        }
+
+        if (Variables.IsTestMode)
+        {
+            currentTableData = enemyTableData;
         }
 
         return CreateEnemy(enemyId, spawnPosition, Vector3.down, scaleData);
