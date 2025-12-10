@@ -35,7 +35,7 @@ public class WaveManager : MonoBehaviour
 
     private CancellationTokenSource waveCts;
 
-    private float waveGroupDuration = 60f;
+    private float waveGroupDuration = 10f;
     private float waveGroupStartTime;
     private float pausedTime = 0f;
     private float pauseStartTime = 0f;

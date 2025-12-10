@@ -265,6 +265,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         maxHealth = data.Hp * scaleData.HpScale;
         Health = maxHealth;
 
+        Debug.Log($"Initializing Enemy ID: {enemyId}, Type: {enemyType}, HP: {maxHealth}");
+
         attack = data.Attack * scaleData.AttScale;
         defense = data.Defense * scaleData.DefScale;
         moveSpeed = data.MoveSpeed * scaleData.MoveSpeedScale;

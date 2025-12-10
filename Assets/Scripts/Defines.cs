@@ -215,6 +215,7 @@ public static class DataTableIds
     public static readonly string Currency = "CurrencyTable";
     public static readonly string Draw = "DrawTable";
     public static readonly string Reward = "RewardTable";
+    public static readonly string planet = "PlanetTable";
 }
 
 public static class Variables
@@ -267,6 +268,7 @@ public static class DatabaseRef
 {
     public static readonly string UserProfiles = "users";
     public static readonly string UserPlanets = "userplanets";
+    public static readonly string UserTowers = "usertowers";
 }
 
 public static class PrintedAbility

@@ -23,10 +23,15 @@ public class AsyncUserPlanet : LivingEntity
     private TowerDataSO towerDataSO;
     private float currentDamage;
 
+    private Vector3 reflectPosition;
+    public Vector3 ReflectPosition => reflectPosition;
+    private float moveSpeed = 2f;
+    private Vector3 direction;
+
     private void Awake()
     {
         // livingTime = Random.Range(5f, 10f);
-        livingTime = Random.Range(20f, 40f);
+        livingTime = Random.Range(10f, 15f);
         abilities = new List<int>();
     }
 
@@ -50,12 +55,17 @@ public class AsyncUserPlanet : LivingEntity
         }
     }
 
+    private void FixedUpdate()
+    {
+        transform.position += direction * moveSpeed * Time.fixedDeltaTime;
+    }
+
     private void OnDisable()
     {
         Debug.Log("Damage to Boss : " + attack);
     }
 
-    public void InitializePlanet(UserPlanetData data, float damage, AsyncPlanetData asyncData, TowerDataSO towerData)
+    public void InitializePlanet(UserPlanetData data, float damage, AsyncPlanetData asyncData, TowerDataSO towerData, Vector3 ReflectPosition)
     {
         if (data == null)
         {
@@ -90,6 +100,8 @@ public class AsyncUserPlanet : LivingEntity
             ability?.ApplyAbility(tower.gameObject);
 
         }
+
+        direction = (ReflectPosition - transform.position).normalized;
     }
 
     public override void OnDamage(float damage)

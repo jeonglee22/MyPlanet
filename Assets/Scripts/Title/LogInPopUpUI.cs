@@ -73,6 +73,14 @@ public class LogInPopUpUI : MonoBehaviour
             return;
         }
 
+        var initTowerData = await UserTowerManager.Instance.InitUserTowerDataAsync();
+        if (initTowerData == false)
+        {
+            SetErrorMessage("Failed to initialize tower data.");
+            InteractableButtons(true);
+            return;
+        }
+
         canvasManager.SwitchToTargetPopUp(MainTitleCanvasManager.PopupName.None);
         infoPopUpUI.SetNickNameText(AuthManager.Instance.UserNickName);
 

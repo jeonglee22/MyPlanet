@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Firebase.Database;
@@ -8,15 +9,15 @@ public class UserTowerManager : MonoBehaviour
     private static UserTowerManager instance;
     public static UserTowerManager Instance => instance;
 
-    private DatabaseReference userPlanetRef;
+    private DatabaseReference userTowerRef;
 
-    private UserTowerData currentPlanet;
-    public UserTowerData CurrentPlanet => currentPlanet;
+    private UserTowerData[] currentTowerDatas;
+    public UserTowerData[] CurrentTowerDatas => currentTowerDatas;
+
+    private const int towerTypeCount = 6;
 
     private bool isInitialized = false;
     public bool IsInitialized => isInitialized;
-
-    private int dummyDataCount = 10;
 
     private void Awake()
     {
@@ -31,195 +32,184 @@ public class UserTowerManager : MonoBehaviour
     {
         await UniTask.WaitUntil(() => AuthManager.Instance.IsInitialized);
 
-        userPlanetRef = FirebaseDatabase.DefaultInstance.GetReference(DatabaseRef.UserPlanets);
+        userTowerRef = FirebaseDatabase.DefaultInstance.GetReference(DatabaseRef.UserTowers);
 
-        SetDummyUserPlanetData().Forget();
-        Debug.Log("UserPlanetManager initialized.");
+        Debug.Log("UserTowerManager initialized.");
         
         isInitialized = true;
     }
 
-    public async UniTask<bool> LoadUserPlanetAsync()
+    public async UniTask<bool> LoadUserTowerDataAsync()
     {
-        if (!AuthManager.Instance.IsSignedIn)
+        if(!AuthManager.Instance.IsSignedIn)
             return false;
 
         var uid = AuthManager.Instance.UserId;
-
+        
         try
         {
-            var dataSnapshot = await userPlanetRef.Child(uid).GetValueAsync().AsUniTask();
-
-            if (!dataSnapshot.Exists)
+            var userRef = userTowerRef.Child(uid);
+            for (int i = 0; i < towerTypeCount; i++)
             {
-                Debug.LogError("User planet not exist.");
-                return false;
-            }
-
-            var json = dataSnapshot.GetRawJsonValue();
-            var towerData = UserTowerData.FromJson(json);
-            currentPlanet = towerData;
-
-            return true;
-        }
-        catch (System.Exception ex)
-        {
-            Debug.LogError($"Error : {ex.Message}");
-            return false;
-        }
-    }
-
-    public async UniTask<bool> InitUserPlanetAsync(string nickName)
-    {
-        if (!AuthManager.Instance.IsSignedIn)
-            return false;
-
-        var uid = AuthManager.Instance.UserId;
-
-        try
-        {
-            var planetData = new UserPlanetData(nickName);
-            var json = planetData.ToJson();
-
-            await userPlanetRef.Child(uid).SetRawJsonValueAsync(json).AsUniTask();
-
-            return true;
-        }
-        catch (System.Exception ex)
-        {
-            Debug.LogError($"Error : {ex.Message}");
-            return false;
-        }
-    }
-
-    public async UniTask<bool> UpdateUserPlanetAsync(UserPlanetData planetData)
-    {
-        if (!AuthManager.Instance.IsSignedIn)
-            return false;
-
-        var uid = AuthManager.Instance.UserId;
-
-        try
-        {
-            if (planetData == null)
-            {
-                Debug.LogError("Planet data is null.");
-                return false;
-            }
-
-            var updateData = new Dictionary<string, object>
-            {
-                { "nickName", planetData.nickName },
-                { "planetId", planetData.planetId },
-                { "planetUpgrade", planetData.planetUpgrade },
-                { "planetLevel", planetData.planetLevel },
-                { "planetCollectionStat", planetData.planetCollectionStat },
-                { "towerId", planetData.towerId }
-            };
-
-            await userPlanetRef.Child(uid).UpdateChildrenAsync(updateData).AsUniTask();
-
-            return true;
-        }
-        catch (System.Exception ex)
-        {
-            Debug.LogError($"Error : {ex.Message}");
-            return false;
-        }
-    }
-
-    public async UniTask<bool> GetRandomPlanetsAsync(int count)
-    {
-        if (!AuthManager.Instance.IsSignedIn)
-            return false;
-
-        try
-        {
-            var dataSnapshot = await userPlanetRef.GetValueAsync().AsUniTask();
-
-            var userCount = dataSnapshot.ChildrenCount;
-
-            count = Mathf.Min(count, (int)userCount);
-
-            var randIndices = new List<int>();
-            int elements = 0;
-            while (elements < count)
-            {
-                var randIndex = Random.Range(0, (int)userCount);
-                if (randIndices.Contains(randIndex))
-                    continue;
-                
-                int start = 0;
-                foreach (var child in dataSnapshot.Children)
+                string towerKey = i switch
                 {
-                    if (randIndex == start)
-                    {
-                        var json = child.GetRawJsonValue();
-                        var profile = UserPlanetData.FromJson(json);
-                        randIndices.Add(randIndex);
-                        elements++;
-                        break;
-                    }
-                    start++;
+                    0 => "GunTower",
+                    1 => "ShootGunTower",
+                    2 => "GatlingGunTower",
+                    3 => "LazerTower",
+                    4 => "SniperTower",
+                    5 => "MissileTower",
+                    _ => ""
+                };
+
+                var dataSnapshot = await userRef.Child(towerKey).GetValueAsync().AsUniTask();
+
+                if(!dataSnapshot.Exists)
+                {
+                    Debug.LogError($"User tower data for {towerKey} does not exist.");
+                    return false;
                 }
+
+                var json = dataSnapshot.GetRawJsonValue();
+                currentTowerDatas[i] = UserTowerData.FromJson(json);
             }
+
             return true;
         }
         catch (System.Exception ex)
         {
-            Debug.Log($"Error : {ex.Message}");
+            Debug.LogError($"Failed to load user tower data: {ex.Message}");
             return false;
         }
     }
 
-    public async UniTask<bool> GetRandomPlanetAsync()
+    public async UniTask<bool> LoadUserTowerDataAsync(string asyncUserId)
     {
+        if(!AuthManager.Instance.IsSignedIn)
+            return false;
+        
         try
         {
-            var result = await GetRandomPlanetsAsync(1);
-            return result;
+            var userRef = userTowerRef.Child(asyncUserId);
+            for (int i = 0; i < towerTypeCount; i++)
+            {
+                string towerKey = i switch
+                {
+                    0 => "GunTower",
+                    1 => "ShootGunTower",
+                    2 => "GatlingGunTower",
+                    3 => "LazerTower",
+                    4 => "SniperTower",
+                    5 => "MissileTower",
+                    _ => ""
+                };
+
+                var dataSnapshot = await userRef.Child(towerKey).GetValueAsync().AsUniTask();
+
+                if(!dataSnapshot.Exists)
+                {
+                    Debug.LogError($"User tower data for {towerKey} does not exist.");
+                    return false;
+                }
+
+                var json = dataSnapshot.GetRawJsonValue();
+                currentTowerDatas[i] = UserTowerData.FromJson(json);
+            }
+
+            return true;
         }
         catch (System.Exception ex)
         {
-            Debug.Log($"Error : {ex.Message}");
+            Debug.LogError($"Failed to load user tower data: {ex.Message}");
             return false;
         }
     }
 
-    public async UniTask<bool> SetDummyUserPlanetData()
+    public async UniTask<bool> InitUserTowerDataAsync()
     {
-        if (!AuthManager.Instance.IsSignedIn)
+        if(!AuthManager.Instance.IsSignedIn)
             return false;
+
+        var uid = AuthManager.Instance.UserId;
 
         try
         {
-            var dataSnapshot = await userPlanetRef.GetValueAsync().AsUniTask();
-
-            var userCount = dataSnapshot.ChildrenCount;
-            Debug.Log(userCount);
-
-            if (userCount >= dummyDataCount)
+            var towerDatas = new UserTowerData[towerTypeCount];
+            // var userRef = userTowerRef.Child(uid);
+            for (int i = 0; i < towerTypeCount; i++)
             {
-                Debug.Log("Already have enough dummy data.");
-                return true;
-            }
+                Debug.Log("Initializing tower data for tower index: " + i);
+                string towerKey = i switch
+                {
+                    0 => "GunTower",
+                    1 => "ShootGunTower",
+                    2 => "GatlingGunTower",
+                    3 => "LazerTower",
+                    4 => "SniperTower",
+                    5 => "MissileTower",
+                    _ => ""
+                };
 
-            var remainCount = dummyDataCount - (int)userCount;
-            for (int i = 0; i < remainCount; i++)
-            {
-                var nickName = $"DummyUser 100{i}";
-                var attackPower = Random.Range(100, 1000);
-                var data = new UserPlanetData(nickName, attackPower);
-                var json = data.ToJson();
+                var defaultTowerData = i switch
+                {
+                    0 => new UserTowerData(1000001),
+                    1 => new UserTowerData(1000002),
+                    2 => new UserTowerData(1001001),
+                    3 => new UserTowerData(1001002),
+                    4 => new UserTowerData(1002001),
+                    5 => new UserTowerData(1002002),
+                    _ => null
+                };
 
-                await userPlanetRef.Push().SetRawJsonValueAsync(json).AsUniTask();
+                var json = defaultTowerData.ToJson();
+
+                Debug.Log("Default tower data JSON for " + towerKey + ": " + json);
+                await userTowerRef.Child(uid).Child(towerKey).SetRawJsonValueAsync(json).AsUniTask();
+
+                Debug.Log(towerKey + " initialized.");
+                towerDatas[i] = defaultTowerData;
             }
+            currentTowerDatas = towerDatas;
+
+            return true;
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"Failed to initialize user tower data: {ex.Message}");
+            return false;
+        }
+    }
+
+    public async UniTask<bool> UpdateUserTowerDataAsync()
+    {
+        if(!AuthManager.Instance.IsSignedIn)
+            return false;
+
+        var uid = AuthManager.Instance.UserId;
+
+        try
+        {
+            var towerDatas = new Dictionary<string, object>();
             
+            // change to usertowerdata
+            //
+
+            towerDatas.Add("GunTower", new UserTowerData(1000001));
+            towerDatas.Add("ShootGunTower", new UserTowerData(1000002));
+            towerDatas.Add("GatlingGunTower", new UserTowerData(1001001));
+            towerDatas.Add("LazerTower", new UserTowerData(1001002));
+            towerDatas.Add("SniperTower", new UserTowerData(1002001));
+            towerDatas.Add("MissileTower", new UserTowerData(1002002));
+
+            //
+            //           
+            await userTowerRef.Child(uid).UpdateChildrenAsync(towerDatas).AsUniTask();
+
             return true;
         }
         catch (System.Exception ex)
         {
-            Debug.Log($"Error : {ex.Message}");
+            Debug.LogError($"Failed to save user tower data: {ex.Message}");
             return false;
         }
     }

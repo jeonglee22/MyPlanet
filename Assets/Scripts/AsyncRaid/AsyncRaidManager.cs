@@ -48,19 +48,23 @@ public class AsyncRaidManager : MonoBehaviour
 
     private async UniTask SpawnAsyncUserPlanet(float bossHp)
     {
-        userPlanetCount = Random.Range(1, 4);
-        // userPlanetCount = 3;
-        await UserPlanetManager.Instance.GetRandomPlanetsAsync(userPlanetCount);
+        await UserPlanetManager.Instance.GetRandomPlanetAsync();
 
         userPlanetData = UserPlanetManager.Instance.CurrentPlanet;
 
-        var asyncUserPlanetObj = Instantiate(asyncUserPlanetPrefab, GetSpawnPoint(), Quaternion.identity);
+        var spawnPos = GetSpawnPoint();
+        var asyncUserPlanetObj = Instantiate(asyncUserPlanetPrefab, spawnPos, Quaternion.identity);
         var userPlanet = asyncUserPlanetObj.GetComponent<AsyncUserPlanet>();
         var asyncPlanetData = DataTableManager.AsyncPlanetTable.GetRandomData();
         var towerData = towerDataSOs[asyncPlanetData.TowerType - 1];
-        userPlanet.InitializePlanet(userPlanetData ?? null, bossHp * totalBossDamagePercent / userPlanetCount, asyncPlanetData, towerData);
+        userPlanet.InitializePlanet(userPlanetData ?? null, bossHp * totalBossDamagePercent, asyncPlanetData, towerData, GetReflectPoint(spawnPos));
 
         isSettingAsyncUserPlanet = true;
+    }
+
+    private async UniTask SpawnAsyncUserPlanet()
+    {
+        
     }
 
     private Vector3 GetSpawnPoint()
@@ -68,16 +72,52 @@ public class AsyncRaidManager : MonoBehaviour
         var screenBounds = SpawnManager.Instance.ScreenBounds;
         var position = Vector3.zero;
 
-        position.y = Random.Range(Mathf.Lerp(screenBounds.yMin, screenBounds.yMax, 0.4f) , Mathf.Lerp(screenBounds.yMin, screenBounds.yMax, 0.7f));
-        if (Random.value < 0.5f)
+        var yCenter = Mathf.Lerp(screenBounds.yMin, screenBounds.yMax, 0.4f);
+
+        var leftAboveArea = new Rect(screenBounds.xMin - xOffset, yCenter, xOffset, yCenter - Mathf.Lerp(screenBounds.yMin, screenBounds.yMax, 0.2f));
+        var rightAboveArea = new Rect(screenBounds.xMax, yCenter, xOffset, yCenter - Mathf.Lerp(screenBounds.yMin, screenBounds.yMax, 0.2f));
+        var leftBelowArea = new Rect(screenBounds.xMin - xOffset, Mathf.Lerp(screenBounds.yMin, screenBounds.yMax, 0.2f), xOffset, yCenter - Mathf.Lerp(screenBounds.yMin, screenBounds.yMax, 0.2f));
+        var rightBelowArea = new Rect(screenBounds.xMax, Mathf.Lerp(screenBounds.yMin, screenBounds.yMax, 0.2f), xOffset, yCenter - Mathf.Lerp(screenBounds.yMin, screenBounds.yMax, 0.2f));
+
+        var randomArea = Random.value switch
         {
-            position.x = screenBounds.xMin - xOffset;
+            < 0.25f => leftAboveArea,
+            < 0.5f => rightAboveArea,
+            < 0.75f => leftBelowArea,
+            _ => rightBelowArea
+        };
+
+        position.x = Random.Range(randomArea.xMin, randomArea.xMax);
+        position.y = Random.Range(randomArea.yMin, randomArea.yMax);
+        position.z = 0f;
+
+        return position;
+    }
+
+    private Vector3 GetReflectPoint(Vector3 spawnPoint)
+    {
+        var xCenter = (SpawnManager.Instance.ScreenBounds.xMin + SpawnManager.Instance.ScreenBounds.xMax) / 2f;
+        var yCenter = (SpawnManager.Instance.ScreenBounds.yMin + SpawnManager.Instance.ScreenBounds.yMax) / 2f;
+
+        var reflectPoint = spawnPoint;
+        if(spawnPoint.x < xCenter)
+        {
+            reflectPoint.x += SpawnManager.Instance.ScreenBounds.width + xOffset * 2f;
         }
         else
         {
-            position.x = screenBounds.xMax + xOffset;
+            reflectPoint.x -= SpawnManager.Instance.ScreenBounds.width + xOffset * 2f;
         }
 
-        return position;
+        if(spawnPoint.y < yCenter)
+        {
+            reflectPoint.y += SpawnManager.Instance.ScreenBounds.height + xOffset * 2f;
+        }
+        else
+        {
+            reflectPoint.y -= SpawnManager.Instance.ScreenBounds.height + xOffset * 2f;
+        }
+
+        return reflectPoint;
     }
 }

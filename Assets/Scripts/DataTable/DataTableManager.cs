@@ -46,6 +46,7 @@ public static class DataTableManager
             LoadTableAsync<DrawTable>(DataTableIds.Draw),
             LoadTableAsync<RewardTable>(DataTableIds.Reward),
             LoadTableAsync<ItemTable>(DataTableIds.Item),
+            LoadTableAsync<PlanetTable>(DataTableIds.planet),
         };
 
         await UniTask.WhenAll(tasks);
@@ -206,6 +207,14 @@ public static class DataTableManager
         get
         {
             return Get<ItemTable>(DataTableIds.Item);
+        }
+    }
+
+    public static PlanetTable PlanetTable
+    {
+        get
+        {
+            return Get<PlanetTable>(DataTableIds.planet);
         }
     }
 
