@@ -25,6 +25,9 @@ public class UserData
     public static bool isBloodAbsorbPlanet = false;
     public static bool isExpPlanet = false;
     public static bool isHealthRegenerationPlanet = false;
+
+    public static int CollectionTowerCore = 12;
+    public static int CollectionRandomAbilityCore = 10;
 }
 
 public static class UserDataMapper
