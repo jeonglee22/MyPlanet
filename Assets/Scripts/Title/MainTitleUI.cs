@@ -1,3 +1,4 @@
+using System;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -32,6 +33,8 @@ public class MainTitleUI : MonoBehaviour
     {
         InteractableButtons(false);
 
+        // SetResolution();
+
         playText.SetActive(false);
 
         await CheckLogin();
@@ -63,6 +66,14 @@ public class MainTitleUI : MonoBehaviour
 
         // gameStartButton.interactable = false;
     }
+
+    // private void SetResolution()
+    // {
+    //     int setWidth = 2100 * 9 / 20;
+    //     int setHeight = 2100;
+
+    //     Screen.SetResolution(setWidth, setHeight, false);
+    // }
 
     private async UniTask CheckLogin()
     {

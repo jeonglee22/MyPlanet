@@ -9,6 +9,7 @@ public class PlanetTowerUI : MonoBehaviour
     [SerializeField] private Button goToTitleButton;
     [SerializeField] private TowerInfoUI towerInfoUI;
     [SerializeField] private TowerInstallControl installControl;
+    [SerializeField] private RectTransform planetCenter;
     private RectTransform dragAreaRect;
     private TowerUpgradeSlotUI towerUpgradeSlotUI;
 
@@ -81,10 +82,10 @@ public class PlanetTowerUI : MonoBehaviour
         if (installControl.CurrentDragGhost != null)
             return;
 
-        circleCenter = new Vector2(controlRadius,-20f);
         if (RectTransformUtility.RectangleContainsScreenPoint(dragAreaRect, TouchManager.Instance.StartTouchPos) &&
             RectTransformUtility.RectangleContainsScreenPoint(dragAreaRect, TouchManager.Instance.TouchPos) &&
-            Vector2.Distance(TouchManager.Instance.TouchPos, circleCenter) < controlRadius)
+            Vector2.Distance(TouchManager.Instance.TouchPos, planetCenter.position) < controlRadius &&
+            TouchManager.Instance.TouchPos.y > planetCenter.position.y + 20f)
             OnDragTowerSlots();
     }
 

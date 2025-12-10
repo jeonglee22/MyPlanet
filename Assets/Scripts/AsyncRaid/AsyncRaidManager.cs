@@ -10,9 +10,9 @@ public class AsyncRaidManager : MonoBehaviour
     [SerializeField] private int userCount;
     [SerializeField] private AsyncRaidUI asyncRaidUI;
 
-    private List<AsyncUserPlanet> asyncUserPlanets;
-    public List<AsyncUserPlanet> AsyncUserPlanets => asyncUserPlanets;
-    private List<UserPlanetData> userPlanetDatas;
+    private AsyncUserPlanet userPlanet;
+    public AsyncUserPlanet UserPlanet => userPlanet;
+    private UserPlanetData userPlanetData;
 
     private int userPlanetCount;
 
@@ -50,26 +50,15 @@ public class AsyncRaidManager : MonoBehaviour
     {
         userPlanetCount = Random.Range(1, 4);
         // userPlanetCount = 3;
-        if (userPlanetDatas != null)
-            userPlanetDatas.Clear();
-        if (asyncUserPlanets != null)
-            asyncUserPlanets.Clear();
-
         await UserPlanetManager.Instance.GetRandomPlanetsAsync(userPlanetCount);
 
-        userPlanetDatas = new List<UserPlanetData>(userPlanetCount);
-        userPlanetDatas = UserPlanetManager.Instance.UserPlanets;
-        asyncUserPlanets = new List<AsyncUserPlanet>();
+        userPlanetData = UserPlanetManager.Instance.CurrentPlanet;
 
-        for (int i = 0; i < userPlanetCount; i++)
-        {
-            var asyncUserPlanetObj = Instantiate(asyncUserPlanetPrefab, GetSpawnPoint(), Quaternion.identity);
-            var asyncUserPlanet = asyncUserPlanetObj.GetComponent<AsyncUserPlanet>();
-            var asyncPlanetData = DataTableManager.AsyncPlanetTable.GetRandomData();
-            var towerData = towerDataSOs[asyncPlanetData.TowerType - 1];
-            asyncUserPlanet.InitializePlanet(userPlanetDatas[i] ?? null, bossHp * totalBossDamagePercent / userPlanetCount, asyncPlanetData, towerData);
-            asyncUserPlanets.Add(asyncUserPlanet);
-        }
+        var asyncUserPlanetObj = Instantiate(asyncUserPlanetPrefab, GetSpawnPoint(), Quaternion.identity);
+        var userPlanet = asyncUserPlanetObj.GetComponent<AsyncUserPlanet>();
+        var asyncPlanetData = DataTableManager.AsyncPlanetTable.GetRandomData();
+        var towerData = towerDataSOs[asyncPlanetData.TowerType - 1];
+        userPlanet.InitializePlanet(userPlanetData ?? null, bossHp * totalBossDamagePercent / userPlanetCount, asyncPlanetData, towerData);
 
         isSettingAsyncUserPlanet = true;
     }
