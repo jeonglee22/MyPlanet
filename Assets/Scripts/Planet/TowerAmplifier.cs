@@ -131,19 +131,7 @@ public class TowerAmplifier : MonoBehaviour
                     ability.ApplyAbility(target.gameObject);
                     ability.Setting(target.gameObject);
                 }
-                var raRow = DataTableManager.RandomAbilityTable?.Get(abilityId);
-                if (raRow != null)
-                {
-                    switch (abilityId)
-                    {
-                        case 200004: 
-                            {
-                                float add = raRow.SpecialEffectValue; 
-                                target.FixedPenetrationBuffAdd += add;
-                                break;
-                            }
-                    }
-                }
+                
                 if (!appliedAbilityMap.TryGetValue(target, out var dict))
                 {
                     dict = new Dictionary<int, int>();
@@ -152,11 +140,16 @@ public class TowerAmplifier : MonoBehaviour
 
                 if (!dict.ContainsKey(abilityId))
                     dict[abilityId] = 0;
-
                 dict[abilityId]++;
+                if (abilityId == 200004)
+                {
+                    Debug.Log(
+                        $"[AmpRandom][APPLY] amp={name}, target={target.name}, abilityId={abilityId}, " +
+                        $"slotIndex={slotIndex}, count={dict[abilityId]}"
+                    );
+                }
             }
         }
-        OnBuffTargetsChanged?.Invoke();
     }
 
     public void RemoveBuff(TowerAttack target) //single target (destory target tower)
@@ -170,30 +163,19 @@ public class TowerAmplifier : MonoBehaviour
             {
                 int abilityId = kv.Key;
                 int count = kv.Value;
-
+                if (abilityId == 200004)
+                {
+                    Debug.Log(
+                        $"[AmpRandom][REMOVE] amp={name}, target={target.name}, abilityId={abilityId}, count={count}"
+                    );
+                }
                 var ability = AbilityManager.GetAbility(abilityId);
 
                 for (int i = 0; i < count; i++)
                 {
                     if (ability != null)
-                    {
                         ability.RemoveAbility(target.gameObject);
-                    }
-
-                    target.RemoveAmplifierAbility(this,abilityId,count);
-                }
-                var raRow = DataTableManager.RandomAbilityTable?.Get(abilityId);
-                if (raRow != null)
-                {
-                    switch (abilityId)
-                    {
-                        case 200004: 
-                            {
-                                float add = raRow.SpecialEffectValue;
-                                target.FixedPenetrationBuffAdd -= add * count;
-                                break;
-                            }
-                    }
+                    target.RemoveAmplifierAbility(this,abilityId,1);
                 }
             }
             appliedAbilityMap.Remove(target);
@@ -218,7 +200,12 @@ public class TowerAmplifier : MonoBehaviour
             {
                 int abilityId = kv.Key;
                 int count = kv.Value;
-
+                if (abilityId == 200004)
+                {
+                    Debug.Log(
+                        $"[AmpRandom][CLEAR_ALL] amp={name}, target={target.name}, abilityId={abilityId}, count={count}"
+                    );
+                }
                 var ability = AbilityManager.GetAbility(abilityId);
 
                 for (int i = 0; i < count; i++)
@@ -227,20 +214,7 @@ public class TowerAmplifier : MonoBehaviour
                     {
                         ability.RemoveAbility(target.gameObject);
                     }
-                    target.RemoveAmplifierAbility(this,abilityId,count);
-                }
-                var raRow = DataTableManager.RandomAbilityTable?.Get(abilityId);
-                if (raRow != null)
-                {
-                    switch (abilityId)
-                    {
-                        case 200004:
-                            {
-                                float add = raRow.SpecialEffectValue;
-                                target.FixedPenetrationBuffAdd -= add * count;
-                                break;
-                            }
-                    }
+                    target.RemoveAmplifierAbility(this,abilityId,1);
                 }
             }
         }
@@ -259,7 +233,6 @@ public class TowerAmplifier : MonoBehaviour
         ClearAllbuffs();
     }
 
-    //Planet.SetAmplifierTower -> AddAmpTower
     internal void AddAmpTower(
         AmplifierTowerDataSO ampData, 
         int index, 
@@ -271,9 +244,9 @@ public class TowerAmplifier : MonoBehaviour
     {
         if (ampData == null || planet == null) return;
 
+        ClearAllbuffs();
         selfIndex = index;
         this.planet = planet;
-
         SetData(ampData);
 
         abilities.Clear();
@@ -282,10 +255,8 @@ public class TowerAmplifier : MonoBehaviour
         int towerCount = planet.TowerCount;
         if (towerCount <= 0) return;
 
-        buffedTargets.Clear();
         buffedSlotIndex.Clear();
         randomAbilitySlotIndex.Clear();
-        appliedAbilityMap.Clear();
 
         //Candidate Buffed Tower: Attack Tower-------------------
         List<int> buffAbleTowers = new List<int>();
@@ -391,17 +362,20 @@ public class TowerAmplifier : MonoBehaviour
             var attackTower = planet.GetAttackTowerToAmpTower(slotIndex);
 
             if (attackTower == null) continue;
-
+            Debug.Log(
+        $"[AmpRandom][AddAmpTower-BUFF] amp={name}, target={attackTower.name}, slotIndex={slotIndex}"
+    );
             ApplyBuff(attackTower, slotIndex);   
         }
         //Random Ability
         foreach (int slotIndex in randomAbilitySlotIndex)
         {
-            if (buffedSlotIndex.Contains(slotIndex))
-                continue;
-
+            if (buffedSlotIndex.Contains(slotIndex)) continue;
             var attackTower = planet.GetAttackTowerToAmpTower(slotIndex);
             if (attackTower == null) continue;
+            Debug.Log(
+        $"[AmpRandom][AddAmpTower-RANDOM] amp={name}, target={attackTower.name}, slotIndex={slotIndex}"
+    );
             ApplyBuff(attackTower, slotIndex);   
         }
         //--------------------------------------------------------
@@ -415,7 +389,10 @@ public class TowerAmplifier : MonoBehaviour
         bool isAbilitySlot = randomAbilitySlotIndex.Contains(slotIndex);
 
         if (!isBuffSlot && !isAbilitySlot) return;
-
+        Debug.Log(
+       $"[AmpRandom][NewTower] amp={name}, target={newTower.name}, " +
+       $"slotIndex={slotIndex}, isBuffSlot={isBuffSlot}, isAbilitySlot={isAbilitySlot}"
+   );
         ApplyBuff(newTower, slotIndex);
     }
 

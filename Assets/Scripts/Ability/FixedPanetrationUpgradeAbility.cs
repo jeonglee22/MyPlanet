@@ -23,11 +23,9 @@ public class FixedPanetrationUpgradeAbility : PassiveAbility
     {
         base.RemoveAbility(gameObject);
 
-        // var projectile = gameObject.GetComponent<Projectile>();
-        // if (projectile != null)
-        // {
-        //     projectile.FixedPanetration -= upgradeAmount;
-        // }
+        var towerAttack = gameObject.GetComponent<TowerAttack>();
+        if (towerAttack != null)
+            towerAttack.FixedPenetrationBuffAdd -= upgradeAmount;
     }
 
     public override void Setting(GameObject gameObject)
