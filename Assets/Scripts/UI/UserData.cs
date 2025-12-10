@@ -4,20 +4,80 @@ using UnityEngine;
 
 public class UserData
 {
-    public static int Gold {get; set;} = 100000;
-    public static int FreeDia {get; set;} = 2000;
-    public static int ChargedDia {get; set;} = 3000;
+    public static int Gold
+    {
+        get => CurrencyManager.Instance?.CachedGold ?? 100000;
+        set => CurrencyManager.Instance?.SetGold(value);
+    }
+
+    public static int FreeDia
+    {
+        get => CurrencyManager.Instance?.CachedFreeDia ?? 2000;
+        set => CurrencyManager.Instance?.SetFreeDia(value);
+    }
+
+    public static int ChargedDia
+    {
+        get => CurrencyManager.Instance?.CachedChargedDia ?? 3000;
+        set => CurrencyManager.Instance?.SetChargedDia(value);
+    }
+    
+    public static int TowerEnhanceItem
+    {
+        get => ItemManager.Instance?.GetItem(710201) ?? 0;
+        set => ItemManager.Instance?.SetItem(710201, value);
+    }
+
+    public static int PlanetEnhanceItem
+    {
+        get => ItemManager.Instance?.GetItem(710202) ?? 0;
+        set => ItemManager.Instance?.SetItem(710202, value);
+    }
+
+    public static int HealthPlanetPiece
+    {
+        get => ItemManager.Instance?.GetItem(710301) ?? 0;
+        set => ItemManager.Instance?.SetItem(710301, value);
+    }
+
+    public static int DefensePlanetPiece
+    {
+        get => ItemManager.Instance?.GetItem(710302) ?? 0;
+        set => ItemManager.Instance?.SetItem(710302, value);
+    }
+
+    public static int ShieldPlanetPiece
+    {
+        get => ItemManager.Instance?.GetItem(710303) ?? 0;
+        set => ItemManager.Instance?.SetItem(710303, value);
+    }
+
+    public static int BloodAbsorbPlanetPiece
+    {
+        get => ItemManager.Instance?.GetItem(710304) ?? 0;
+        set => ItemManager.Instance?.SetItem(710304, value);
+    }
+
+    public static int ExpPlanetPiece
+    {
+        get => ItemManager.Instance?.GetItem(710305) ?? 0;
+        set => ItemManager.Instance?.SetItem(710305, value);
+    }
+
+    public static int HealthRegenerationPlanetPiece
+    {
+        get => ItemManager.Instance?.GetItem(710306) ?? 0;
+        set => ItemManager.Instance?.SetItem(710306, value);
+    }
+
+    public static int CommonPlanetPiece
+    {
+        get => ItemManager.Instance?.GetItem(710307) ?? 0;
+        set => ItemManager.Instance?.SetItem(710307, value);
+    }
+
     public static int TowerDictionaryRate {get; set;} = 0;
     public static int AbilityDictionaryRate {get; set;} = 0;
-    public static int TowerEnhanceItem {get; set;} = 0;
-    public static int PlanetEnhanceItem {get; set;} = 0;
-    public static int HealthPlanetPiece {get; set;} = 0;
-    public static int DefensePlanetPiece {get; set;} = 0;
-    public static int ShieldPlanetPiece {get; set;} = 0;
-    public static int BloodAbsorbPlanetPiece {get; set;} = 0;
-    public static int ExpPlanetPiece {get; set;} = 0;
-    public static int HealthRegenerationPlanetPiece {get; set;} = 0;
-    public static int CommonPlanetPiece {get; set;} = 0;
 
     public static bool isHealthPlanet = false;
     public static bool isDefensePlanet = false;
@@ -46,16 +106,14 @@ public static class UserDataMapper
         RegisterItem(710101, () => UserData.TowerDictionaryRate, (value) => UserData.TowerDictionaryRate = value);
         RegisterItem(710102, () => UserData.AbilityDictionaryRate, (value) => UserData.AbilityDictionaryRate = value);
 
-        RegisterItem(710201, () => UserData.TowerEnhanceItem, (value) => UserData.TowerEnhanceItem = value);
-        RegisterItem(710202, () => UserData.PlanetEnhanceItem, (value) => UserData.PlanetEnhanceItem = value);
-
-        RegisterItem(710301, () => UserData.HealthPlanetPiece, (value) => UserData.HealthPlanetPiece = value);
-        RegisterItem(710302, () => UserData.DefensePlanetPiece, (value) => UserData.DefensePlanetPiece = value);
-        RegisterItem(710303, () => UserData.ShieldPlanetPiece, (value) => UserData.ShieldPlanetPiece = value);
-        RegisterItem(710304, () => UserData.BloodAbsorbPlanetPiece, (value) => UserData.BloodAbsorbPlanetPiece = value);
-        RegisterItem(710305, () => UserData.ExpPlanetPiece, (value) => UserData.ExpPlanetPiece = value);
-        RegisterItem(710306, () => UserData.HealthRegenerationPlanetPiece, (value) => UserData.HealthRegenerationPlanetPiece = value);
-        RegisterItem(710307, () => UserData.CommonPlanetPiece, (value) => UserData.CommonPlanetPiece = value);
+        var itemList = DataTableManager.ItemTable.GetAllItemsExceptCollectionItem();
+        foreach(var item in itemList)
+        {
+            int itemId = item.Item_Id;
+            RegisterItem(itemId, 
+                () => ItemManager.Instance?.GetItem(itemId) ?? 0,
+                (value) => ItemManager.Instance?.SetItem(itemId, value));
+        }
 
         planetMapping = new Dictionary<int, (Func<bool>, Action<bool>, int)>
         {

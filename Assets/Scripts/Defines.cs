@@ -187,6 +187,11 @@ public enum PlanetPieceType
     CommonPlanetPiece,
 }
 
+public enum DataType
+{
+    
+}
+
 public static class DataTableIds
 {
     public static readonly string Item = "ItemTable";

@@ -58,4 +58,18 @@ public class ItemTable : DataTable
 
         return dictionary[key];
     }
+
+    public List<ItemData> GetAllItemsExceptCollectionItem()
+    {
+        List<ItemData> items = new List<ItemData>();
+        foreach (var item in dictionary.Values)
+        {
+            //1 : Collection Item
+            if (item.ItemType != 1)
+            {
+                items.Add(item);
+            }
+        }
+        return items;
+    }
 }
