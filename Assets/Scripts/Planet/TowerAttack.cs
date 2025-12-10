@@ -90,17 +90,6 @@ public class TowerAttack : MonoBehaviour
     private float fixedPenetrationBuffAdd = 0f;
     public float FixedPenetrationBuffAdd { get { return fixedPenetrationBuffAdd; } set { fixedPenetrationBuffAdd = value; } }
     private float fixedPenetrationFromAmplifier = 0f;
-    private readonly Dictionary<TowerAmplifier, float> fixedPenFromRandomAmpMap = new Dictionary<TowerAmplifier, float>();
-    public float FixedPenetrationFromRandomAmp 
-    {
-        get 
-        {
-            float sum = 0f;
-            foreach (var v in fixedPenFromRandomAmpMap.Values)
-                sum += v;
-            return sum;
-        }
-    }
     //TargetNum---------------------------
     private int targetNumberFromAbility = 0;
     private int targetNumberFromAmplifier = 0;
@@ -222,6 +211,10 @@ public class TowerAttack : MonoBehaviour
         targetNumberFromAbility = 0;
         targetNumberFromAmplifier = 0;
         lastAppliedAmplifierTargetExtra = 0;
+
+        //fixedPenetration
+        fixedPenetrationBuffAdd = 0f;
+        fixedPenetrationFromAmplifier = 0f;
 
         //Connect Data Table To baseProjectileData(=currentProjectileData) 
         originalProjectileData = DataTableManager.ProjectileTable.Get(towerData.projectileIdFromTable);
@@ -729,6 +722,12 @@ public class TowerAttack : MonoBehaviour
                 CombinePercentPenetration01(percentPenetrationFromAmplifier, amp.PercentPenetrationBuff);
 
             fixedPenetrationFromAmplifier += amp.FixedPenetrationBuff;
+
+            Debug.Log(
+                $"[AmpBase][FixedPen] tower={name}, amp={amp.name}, " +
+                $"amp.FixedPenetrationBuff={amp.FixedPenetrationBuff}, " +
+                $"sumAmpFixed={fixedPenetrationFromAmplifier}"
+            );
             targetNumberFromAmplifier += amp.TargetNumberBuff;
             accuracyFromAmplifier += amp.HitRateBuff;
         }
@@ -760,11 +759,16 @@ public class TowerAttack : MonoBehaviour
             currentProjectileData.CollisionSize * finalHitRadiusMul;
         //----------------
         //fixed-----------
+        float baseFixed = currentProjectileData.FixedPenetration;
+        float fromAbility = fixedPenetrationBuffAdd;
+        float fromAmpBase = fixedPenetrationFromAmplifier;
         addBuffProjectileData.FixedPenetration =
-            currentProjectileData.FixedPenetration
-            + fixedPenetrationBuffAdd
-            + fixedPenetrationFromAmplifier
-            + FixedPenetrationFromRandomAmp;
+       baseFixed + fromAbility + fromAmpBase;
+
+        Debug.Log(
+            $"[FixedPen][Calc] tower={name} base={baseFixed}, fromAbility={fromAbility}, " +
+            $"fromAmpBase={fromAmpBase}"
+        );
         //------------------
         //rate penetration---------------------------
         float baseRate01 = Mathf.Clamp01(currentProjectileData.RatePenetration / 100f);
@@ -948,38 +952,6 @@ public class TowerAttack : MonoBehaviour
             sum += r;
         }
         fireRateAbilityMul = sum;
-    }
-    //-----------------------------------------
-    //fixed penetaration ---------------------------------
-    public void AddFixedPenFromRandomAmplifier(TowerAmplifier source, float value)
-    {
-        if (source == null) return;
-        if (Mathf.Approximately(value, 0f)) return;
-        if (fixedPenFromRandomAmpMap.TryGetValue(source, out float cur))
-            fixedPenFromRandomAmpMap[source] = cur + value;
-        else fixedPenFromRandomAmpMap[source] = value;
-    }
-    public void RemoveFixedPenFromRandomAmplifier(TowerAmplifier source, float value, int count)
-    {
-        if (source == null) return;
-        if (count <= 0) return;
-        if (Mathf.Approximately(value, 0f)) return;
-
-        float total = value * count;
-
-        if (fixedPenFromRandomAmpMap.TryGetValue(source, out float cur))
-        {
-            cur -= total;
-            if (cur <= 0f)
-                fixedPenFromRandomAmpMap.Remove(source);
-            else
-                fixedPenFromRandomAmpMap[source] = cur;
-        }
-    }
-    public void ClearFixedPenFromRandomAmplifier(TowerAmplifier source)
-    {
-        if (source == null) return;
-        fixedPenFromRandomAmpMap.Remove(source);
     }
     //----------------------------------------------------
 }
