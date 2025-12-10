@@ -112,6 +112,10 @@ public class AttackTowerTable : DataTable
 
     public List<AttackTowerTableRow> GetAllDatas()
     {
+        List<AttackTowerTableRow> result = new List<AttackTowerTableRow>();
+        result = Rows;
+
+        result.Sort((a, b) => a.Order.CompareTo(b.Order));
         return Rows;
     }
 }
