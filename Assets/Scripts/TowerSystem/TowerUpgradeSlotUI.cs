@@ -307,6 +307,12 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             {
                 float r = UnityEngine.Random.Range(0f, 1f);
                 chooseNew = (r < newProb);
+                Debug.Log(
+                    $"[CardRoll] cardIndex={cardIndex}, r={r:F2}, " +
+                    $"newProb={newProb:F2}, chooseNew={chooseNew}, " +
+                    $"canNew={canNew}, canUpgrade={canUpgrade}"
+                );
+
             }
 
             if (mustGuaranteeAmplifierThisRoll &&
@@ -1691,41 +1697,69 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
     private void GetNewUpgradeProbabilities(out float newProb, out float upgradeProb)
     {
-        int towerCount = GetTotalTowerCount();
+        int upgradableCount = installControl.GetUpgradeableTowerCount();
+        bool isFieldFull = installControl.CurrentTowerCount >= installControl.MaxTowerCount;
+        int c = Mathf.Max(1, upgradableCount);
+       
+        if(!isFieldFull)
+        {
+            if (c == 1)
+            {
+                newProb = 0.9f;
+                upgradeProb = 0.1f;
+            }
+            else if (c == 2)
+            {
+                newProb = 0.8f;
+                upgradeProb = 0.2f;
+            }
+            else if (c == 3)
+            {
+                newProb = 0.7f;
+                upgradeProb = 0.3f;
+            }
+            else if (c == 4)
+            {
+                newProb = 0.5f;
+                upgradeProb = 0.5f;
+            }
+            else if (c == 5)
+            {
+                newProb = 0.3f;
+                upgradeProb = 0.7f;
+            }
+            else
+            {
+                newProb = 0.1f;
+                upgradeProb = 0.9f;
+            }
+        }
+        else
+        {
+            if (c == 1)
+            {
+                newProb = 0.3f;
+                upgradeProb = 0.7f;
+            }
+            else if (c == 2)
+            {
+                newProb = 0.2f;
+                upgradeProb = 0.8f;
+            }
+            else
+            {
+                newProb = 0.1f;
+                upgradeProb = 0.9f;
+            }
+        }
+        Debug.Log(
+    $"[UpgradeProb] upgradable={installControl.GetUpgradeableTowerCount()}, " +
+    $"fieldFull={installControl.CurrentTowerCount >= installControl.MaxTowerCount}, " +
+    $"newProb={newProb}, upgradeProb={upgradeProb}"
+);
 
-        if (towerCount <= 1)
-        {
-            newProb = 0.9f;
-            upgradeProb = 0.1f;
-        }
-        else if (towerCount == 2)
-        {
-            newProb = 0.8f;
-            upgradeProb = 0.2f;
-        }
-        else if (towerCount == 3)
-        {
-            newProb = 0.7f;
-            upgradeProb = 0.3f;
-        }
-        else if (towerCount == 4)
-        {
-            newProb = 0.5f;
-            upgradeProb = 0.5f;
-        }
-        else if (towerCount == 5)
-        {
-            newProb = 0.3f;
-            upgradeProb = 0.7f;
-        }
-        else 
-        {
-            newProb = 0.1f;
-            upgradeProb = 0.9f;
-        }
     }
-
-    private int GetTotalTowerCount()
+    private int GetTotalTowerCount() //used in tutorial, gold
     {
         return installControl.CurrentTowerCount;
     }
@@ -1767,8 +1801,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         {
             foreach (var d in extraExcludes)
             {
-                if (d != null)
-                    excludeSet.Add(d);
+                if (d != null) excludeSet.Add(d);
             }
         }
 
@@ -1779,13 +1812,8 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             if (!excludeSet.Contains(d))
                 candidates.Add(d);
         }
-
-        if (candidates.Count == 0)
-            return null;
-
+        if (candidates.Count == 0) return null;
         int idx = UnityEngine.Random.Range(0, candidates.Count);
-
-
         return candidates[idx];
     }
 
@@ -1835,8 +1863,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             SetUpNewAmplifierCard(i, slotNumber, isInitial);
         }
     }
-
-
     //----------------------------------------
 
     private bool HasAnyNewAttackTowerCandidate()

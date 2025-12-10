@@ -1251,4 +1251,15 @@ public class TowerInstallControl : MonoBehaviour
 
         if (dragGo == null || dragRect == null || uiCanvas == null) return;
     }
+    public int GetUpgradeableTowerCount() //reinforceable tower count
+    {
+        int upgradableCount = 0;
+        for(int i=0; i<towerCount; i++)
+        {
+            if (!IsUsedSlot(i)) continue;
+            if (IsSlotMaxLevel(i)) continue;
+            upgradableCount++;
+        }
+        return upgradableCount;
+    }
 }
