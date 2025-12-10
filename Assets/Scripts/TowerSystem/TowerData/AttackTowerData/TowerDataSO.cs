@@ -5,6 +5,7 @@ public enum FireType
     Projectile = 0,
 }
 
+[System.Serializable]
 [CreateAssetMenu(fileName = "TowerDataSO", menuName = "Scriptable Objects/TowerDataSO")]
 public class TowerDataSO : ScriptableObject
 {
