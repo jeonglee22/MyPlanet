@@ -14,7 +14,7 @@ public class GameResultUI : MonoBehaviour
         WaveManager.Instance.Cancel();
         // restartButton.onClick.AddListener(() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex));
         restartButton?.onClick.AddListener(() => SceneControlManager.Instance.LoadScene(SceneControlManager.Instance.CurrentSceneName).Forget());
-        returnToTitleButton?.onClick.AddListener(() => SceneControlManager.Instance.LoadScene(SceneName.LoginScene).Forget());
+        returnToTitleButton?.onClick.AddListener(() => SceneControlManager.Instance.LoadScene(SceneName.LobbyScene).Forget());
     }
 
     public void SetResultText(bool isWin)
