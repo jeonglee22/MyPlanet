@@ -428,13 +428,16 @@ public class BalanceWindow : EditorWindow
         }
 
 
-        int[] waveIds = new int[67];
-        string[] waveNames = new string[67];
+        int[] waveIds = new int[68];
+        string[] waveNames = new string[68];
 
-        for (int i = 0; i < 67; i++)
+        for (int i = 0; i < 68; i++)
         {
             waveIds[i] = i;
-            waveNames[i] = $"Wave {enemyStatTester.WaveIds[i]}";
+            if (i == 0)
+                waveNames[i] = "기본 웨이브";
+            else
+                waveNames[i] = $"Wave {enemyStatTester.WaveIds[i]}";
         }
 
         EditorGUI.BeginChangeCheck();
@@ -468,8 +471,8 @@ public class BalanceWindow : EditorWindow
             moveTypeIdProp.intValue = newMoveTypeId;
         }
 
-        int[] patternIds = { 0,1,2,3,4 };
-        string[] patternNames = { "다프니스", "타이탄", "토성", "운석 뭉치 돌진", "운석 뭉치 추적" };
+        int[] patternIds = { 0,1,2,3,4,5 };
+        string[] patternNames = { "없음", "다프니스", "타이탄", "토성", "운석 뭉치 돌진", "운석 뭉치 추적" };
 
         EditorGUI.BeginChangeCheck();
 
