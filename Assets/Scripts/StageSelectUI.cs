@@ -9,9 +9,11 @@ public class StageSelectUI : MonoBehaviour
     [SerializeField] private Button[] stageButtons;
     [SerializeField] private Button enemyTestSceneButton; 
     [SerializeField] private Button balanceTestSceneButton;
+    [SerializeField] private Button backBtn;
 
     private void Start()
     {
+        ResetBtn();
         InitializeStageButtons();
 
         enemyTestSceneButton.onClick.AddListener(() => SceneControlManager.Instance.LoadScene(SceneName.EnemyTestScene).Forget());
@@ -20,6 +22,19 @@ public class StageSelectUI : MonoBehaviour
             Variables.IsTestMode = true;
             SceneControlManager.Instance.LoadScene(SceneName.BalanceTestScene).Forget();
         });
+        backBtn.onClick.AddListener(OnBackBtnClicked);
+    }
+
+    private void OnDestroy()
+    {
+        ResetBtn();
+    }
+
+    private void ResetBtn()
+    {
+        enemyTestSceneButton.onClick.RemoveAllListeners();
+        balanceTestSceneButton.onClick.RemoveAllListeners();
+        backBtn.onClick.RemoveListener(OnBackBtnClicked);
     }
 
     private void InitializeStageButtons()
@@ -50,5 +65,10 @@ public class StageSelectUI : MonoBehaviour
     private async UniTaskVoid LoadStageScene()
     {
         await SceneControlManager.Instance.LoadScene(SceneName.BattleScene);
+    }
+
+    private void OnBackBtnClicked()
+    {
+        SceneControlManager.Instance.LoadScene(SceneName.LobbyScene).Forget();
     }
 }

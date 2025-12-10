@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -116,6 +117,8 @@ public class GachaPanelUI : MonoBehaviour
         {
             OnGacha();
 
+            ItemManager.Instance.SaveItemsAsync().Forget();
+
             if(drawCount == 1)
             {
                 foreach(var reward in rewardResults)
@@ -204,6 +207,8 @@ public class GachaPanelUI : MonoBehaviour
                 }
                 break;
         }
+
+        CurrencyManager.Instance.SaveCurrencyAsync().Forget();
 
         return isEnough;
     }
