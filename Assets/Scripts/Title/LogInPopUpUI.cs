@@ -64,7 +64,7 @@ public class LogInPopUpUI : MonoBehaviour
             return;
         }
 
-        var uploadNickName = await UserPlanetManager.Instance.SaveUserPlanetAsync(nickName, 0);
+        var uploadNickName = await UserPlanetManager.Instance.InitUserPlanetAsync(nickName);
 
         if (uploadNickName == false)
         {

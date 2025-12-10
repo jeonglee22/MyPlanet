@@ -81,7 +81,9 @@ public class TowerInstallControl : MonoBehaviour
     public int MaxReinforceLevel => maxReinforceLevel;
 
     [Header("Drag Settings")]
-    [SerializeField] private Canvas uiCanvas;          
+    [SerializeField] private Canvas uiCanvas;
+    [SerializeField] private RectTransform viewportRect;
+    private Vector2 beforeSize;
     [SerializeField] private GameObject dragImagePrefab; 
     [SerializeField] private TowerUpgradeSlotUI towerUpgradeSlotUI;
 
@@ -192,15 +194,30 @@ public class TowerInstallControl : MonoBehaviour
         }
     }
 
+    void LateUpdate()
+    {
+        SetPlanetSize();
+        SettingTowerTransform(currentAngle);
+    }
+
     private void SetPlanetSize()
     {
-        var size = uiCanvas.GetComponent<RectTransform>().sizeDelta;
-        Debug.Log("Canvas Size : " + size.ToString());
+        Vector2 size;
+        if (viewportRect != null)
+        {
+            size = viewportRect.rect.size;
+        }
+        else
+            size = uiCanvas.GetComponent<RectTransform>().sizeDelta;
 
+        if (size == beforeSize)
+            return;
+        
         var xSize = size.x;
         xSize += 20f;
         towerRadius = xSize * 0.5f;
         gameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(xSize, xSize);
+        beforeSize = size;
     }
 
     private void ResetTowerSlot(int slotCount)

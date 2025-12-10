@@ -5,23 +5,32 @@ using UnityEngine;
 public class UserPlanetData
 {
     public string nickName;
-    public int attackPower;
+
+    public int planetId;
+    public int planetUpgrade;
+    public int planetLevel;
+    public int planetCollectionStat;
+    public int towerId;
 
     public UserPlanetData()
     {
         nickName = string.Empty;
-        attackPower = 0;
+        planetId = 0;
+        planetUpgrade = 0;
+        planetLevel = 0;
+        planetCollectionStat = 0;
+        towerId = 0;
     }
 
-    public UserPlanetData(string nickName, int attackPower = 0)
+    public UserPlanetData(string nickName, int planetId = 0, int planetUpgrade = 0,
+        int planetLevel = 0, int planetCollectionStat = 0, int towerId = 0)
     {
         this.nickName = nickName;
-        this.attackPower = attackPower;
-    }
-
-    public int GetAttackPower()
-    {
-        return attackPower;
+        this.planetId = planetId;
+        this.planetUpgrade = planetUpgrade;
+        this.planetLevel = planetLevel;
+        this.planetCollectionStat = planetCollectionStat;
+        this.towerId = towerId;
     }
 
     public string ToJson()
