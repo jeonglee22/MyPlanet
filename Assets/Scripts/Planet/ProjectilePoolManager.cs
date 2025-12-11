@@ -16,7 +16,9 @@ public class ProjectilePoolManager : MonoBehaviour
     [SerializeField] private int defaultPoolCapacity = 20;
     [SerializeField] private int maxPoolSize = 100;
 
-    public GameObject ProjectilePrefab { get; private set; }
+    //public GameObject ProjectilePrefab { get; private set; }
+    private readonly Dictionary<ProjectileData, GameObject> prefabMap =
+        new Dictionary<ProjectileData, GameObject>();
 
     private void Awake()
     {
@@ -37,18 +39,27 @@ public class ProjectilePoolManager : MonoBehaviour
 
     private async UniTask LoadPatternPrefabAsync()
     {
-        if(ProjectilePrefab != null)
-        {
-            return;
-        }
+        //if (ProjectilePrefab != null) return;
+        //ProjectilePrefab = await Addressables.LoadAssetAsync<GameObject>(ObjectName.ProjectilePrefab).ToUniTask();
+    }
 
-        ProjectilePrefab = await Addressables.LoadAssetAsync<GameObject>(ObjectName.ProjectilePrefab).ToUniTask();
+    public void RegisterProjectilePrefab(ProjectileData data, GameObject prefab)
+    {
+        if (data == null || prefab == null) return;
+        prefabMap[data] = prefab;
+    }
+
+    private GameObject GetPrefabForData(ProjectileData data)
+    {
+        if (data != null && prefabMap.TryGetValue(data, out var prefab) && prefab != null)
+            return prefab;
+        return null;
     }
 
     public void CreatePool(ProjectileData data)
     {
-        GameObject prefab = ProjectilePrefab;
-        Projectile projectile = prefab.GetComponent<Projectile>();
+        GameObject ProjectilePrefab = GetPrefabForData(data);
+        Projectile projectile = ProjectilePrefab.GetComponent<Projectile>();
 
         objectPoolManager.CreatePool(
             data,
@@ -67,7 +78,6 @@ public class ProjectilePoolManager : MonoBehaviour
         }
 
         Projectile projectile = objectPoolManager.Get(data);
-
         return projectile;
     }
 }

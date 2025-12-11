@@ -221,6 +221,12 @@ public class TowerAttack : MonoBehaviour
         {
             currentProjectileData = originalProjectileData.Clone();
         }
+        //prefab visual mapping
+        if(projectilePoolManager!=null&&originalProjectileData!=null&&towerData.projectilePrefab!=null)
+        {
+            projectilePoolManager.RegisterProjectilePrefab(
+                originalProjectileData,towerData.projectilePrefab);
+        }
         //Set Projectile Count -> From Tower Data SO (NOT Data Table) -> check
         baseProjectileCount = Mathf.Max(1, towerData.projectileCount);
 

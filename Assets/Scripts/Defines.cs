@@ -22,7 +22,14 @@ public static class ObjectName
     public static readonly string PatternProjectile = "PatternProjectile";
     public static readonly string Enemy = "EnemySample";
     public static readonly string BossEnemy = "EnemyBossSample";
+
     public static readonly string ProjectilePrefab = "Projectile_Sample";
+    public static readonly string ProjectileGun = "Projectile_GunTower";
+    public static readonly string ProjectileMissile = "Projectile_MissileTower";
+    public static readonly string ProjectileGatling = "Projectile_GatlingTower";
+    public static readonly string ProjectileShoot = "Projectile_ShootTower";
+    public static readonly string ProjectileSniper = "Projectile_SniperTower";
+    
     public static readonly string Projectile = "Projectile";
     public static readonly string ChainEffect = "ChainEffect";
     public static readonly string MeteorChild = "MeteorChild";
