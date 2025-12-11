@@ -368,13 +368,12 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 int tryCountMax = upgradeSlots.Count * 2;
                 for (int t = 0; t < tryCountMax; t++)
                 {
-                    int listIdx = UnityEngine.Random.Range(0, upgradeSlots.Count);
-                    int slotNumber = upgradeSlots[listIdx];
+                    int slotNumber = (int)PickUpgradeSlotByWeight(upgradeSlots);
                     var data = installControl.GetTowerData(slotNumber);
 
                     if (data == null || !usedAttackTowerTypesThisRoll.Contains(data))
                     {
-                        pickedIndexInList = listIdx;
+                        pickedIndexInList = slotNumber;
                         pickedData = data;
                         break;
                     }
@@ -382,16 +381,15 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
                 if (pickedIndexInList == -1)
                 {
-                    pickedIndexInList = UnityEngine.Random.Range(0, upgradeSlots.Count);
+                    pickedIndexInList = upgradeSlots[UnityEngine.Random.Range(0, upgradeSlots.Count)];
                 }
 
-                int finalSlotNumber = upgradeSlots[pickedIndexInList];
                 upgradeSlots.RemoveAt(pickedIndexInList);
 
-                numlist.Add(finalSlotNumber);
-                SetUpgradeCardForUsedSlot(cardIndex, finalSlotNumber, isInitial: true);
+                numlist.Add(pickedIndexInList);
+                SetUpgradeCardForUsedSlot(cardIndex, pickedIndexInList, isInitial: true);
 
-                var pickedTowerData = installControl.GetTowerData(finalSlotNumber);
+                var pickedTowerData = installControl.GetTowerData(pickedIndexInList);
                 if (pickedTowerData != null)
                 {
                     usedAttackTowerTypesThisRoll.Add(pickedTowerData);
@@ -1123,7 +1121,8 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             return;
         }
 
-        int number = candidates[UnityEngine.Random.Range(0, candidates.Count)];
+        //int number = candidates[UnityEngine.Random.Range(0, candidates.Count)];
+        int number = (int)PickUpgradeSlotByWeight(candidates);
         numlist[index] = number;
 
         if (!installControl.IsUsedSlot(number))
@@ -1928,9 +1927,41 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             float weight = 0f;
 
             var attackTowerData = installControl.GetTowerData(slotIdx);
+            if(attackTowerData != null)
+            {
+                weight = CollectionManager.Instance.GetWeight(attackTowerData.towerIdInt);
+            }
+            else
+            {
+                var ampTower = installControl.GetAmplifierTower(slotIdx);
+                if(ampTower != null && ampTower.AmplifierTowerData != null)
+                {
+                    weight = CollectionManager.Instance.GetWeight(ampTower.AmplifierTowerData.BuffTowerId);
+                }
+            }
+
+            weights.Add(weight);
+            totalWeight += weight;
         }
 
-        return -1f;
+        if(totalWeight <= 0)
+        {
+            return upgradeSlots[UnityEngine.Random.Range(0, upgradeSlots.Count)];
+        }
+
+        float randValue = UnityEngine.Random.Range(0f, totalWeight);
+        float cumulative = 0f;
+
+        for (int i = 0; i < upgradeSlots.Count; i++)
+        {
+            cumulative += weights[i];
+            if (randValue <= cumulative)
+            {
+                return upgradeSlots[i];
+            }
+        }
+
+        return upgradeSlots[upgradeSlots.Count - 1];
     }
 
 }
