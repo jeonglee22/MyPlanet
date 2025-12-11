@@ -38,14 +38,34 @@ public class CurrencyManager : MonoBehaviour
 
         await UniTask.WaitUntil(() => AuthManager.Instance != null && AuthManager.Instance.IsInitialized);
 
-        currencyRef = FirebaseDatabase.DefaultInstance.RootReference.Child("userdata");
-
         if (AuthManager.Instance.IsSignedIn)
         {
-            await LoadCurrencyAsync();
+            InitializeReference();
+            var dataSnapshot = await currencyRef.GetValueAsync().AsUniTask();
+
+            if(dataSnapshot.Exists)
+            {
+                await LoadCurrencyAsync();
+            }
+            else
+            {
+                if(userCurrencyData == null)
+                {
+                    userCurrencyData = new UserCurrencyData();
+                }
+
+                isDirty = true;
+                await SaveCurrencyAsync();
+            }
         }
 
         isInitialized = true;
+    }
+
+    private void InitializeReference()
+    {
+        string userId = AuthManager.Instance.UserId;
+        currencyRef = FirebaseDatabase.DefaultInstance.RootReference.Child("userdata").Child(userId).Child("currency");
     }
 
     private void OnDestroy()
@@ -80,9 +100,9 @@ public class CurrencyManager : MonoBehaviour
             }
             else
             {
-                userCurrencyData = new UserCurrencyData();
                 Debug.Log("[Currency] 화페 데이터 없음, 새로 생성");
 
+                isDirty = true;
                 await SaveCurrencyAsync();
             }
 
@@ -92,11 +112,6 @@ public class CurrencyManager : MonoBehaviour
         catch (System.Exception ex)
         {
             Debug.LogError($"[Currency] 화페 로드 실패: {ex.Message}");
-
-            if(userCurrencyData == null)
-            {
-                userCurrencyData = new UserCurrencyData();
-            }
 
             return (false, ex.Message);
         }
@@ -122,7 +137,7 @@ public class CurrencyManager : MonoBehaviour
             Debug.Log("[Currency] 화페 저장 시도");
 
             string json = userCurrencyData.ToJson();
-            await currencyRef.Child(userId).Child("currency").SetRawJsonValueAsync(json).AsUniTask();
+            await currencyRef.SetRawJsonValueAsync(json).AsUniTask();
 
             isDirty = false;
             Debug.Log("[Currency] 화페 저장 성공");

@@ -187,9 +187,11 @@ public enum PlanetPieceType
     CommonPlanetPiece,
 }
 
-public enum DataType
+public enum Currency
 {
-    
+    Gold = 711101,
+    FreeDia = 711201,
+    ChargedDia = 711202,
 }
 
 public static class DataTableIds

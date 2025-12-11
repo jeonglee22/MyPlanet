@@ -40,10 +40,7 @@ public class ItemsData
 
         foreach (var kvp in itemDict)
         {
-            if(kvp.Value > 0)
-            {
-                itemsData.items.Add(new ItemEntry(kvp.Key, kvp.Value));
-            }
+            itemsData.items.Add(new ItemEntry(kvp.Key, kvp.Value));
         }
 
         return itemsData;

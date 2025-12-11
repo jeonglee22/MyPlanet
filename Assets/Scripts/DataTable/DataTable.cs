@@ -3,6 +3,8 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using CsvHelper;
+using CsvHelper.Configuration;
+using CsvHelper.TypeConversion;
 using Cysharp.Threading.Tasks;
 
 public abstract class DataTable
@@ -24,5 +26,18 @@ public abstract class DataTable
 
             return records.ToList();
         }
+    }
+}
+
+public class IntArrayConverter : DefaultTypeConverter
+{
+    public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
+    {
+        if (string.IsNullOrEmpty(text))
+            return new int[0];
+
+        return text.Split(',')
+                   .Select(x => int.Parse(x.Trim()))
+                   .ToArray();
     }
 }

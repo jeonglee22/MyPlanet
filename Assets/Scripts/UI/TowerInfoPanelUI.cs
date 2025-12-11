@@ -15,5 +15,34 @@ public class TowerInfoPanelUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI accuracyRateText;
     [SerializeField] private TextMeshProUGUI concentrationModulusText;
     [SerializeField] private TextMeshProUGUI projectileCountText;
+
+    private void Start()
+    {
+        exitBtn.onClick.AddListener(OnExitBtnClicked);
+    }
+
+    private void OnDestroy()
+    {
+        exitBtn.onClick.RemoveListener(OnExitBtnClicked);
+    }
+
+    public void Initialize(AttackTowerTableRow data)
+    {
+        var towerDescData = DataTableManager.TowerExplainTable.Get(data.TowerText_ID);
+
+        towerNameText.text = towerDescData.TowerName;
+        towerDescriptionText.text = towerDescData.TowerDescribe;
+
+        attackSpeedText.text = $"{data.AttackSpeed}";
+        attackRangeText.text = $"{data.AttackRange}";
+        accuracyRateText.text = $"{data.Accuracy}";
+        concentrationModulusText.text = $"{data.grouping}";
+        projectileCountText.text = $"{data.ProjectileNum}";
+    }
+
+    private void OnExitBtnClicked()
+    {
+        gameObject.SetActive(false);
+    }
     
 }

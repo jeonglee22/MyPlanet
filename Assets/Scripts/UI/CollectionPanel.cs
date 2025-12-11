@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,6 +23,10 @@ public class CollectionPanel : MonoBehaviour
     [SerializeField] private GameObject towerPanelContent;
     [SerializeField] private GameObject abilityPanelObj;
     [SerializeField] private GameObject abilityPanelContent;
+
+    [SerializeField] private GameObject towerInfoPanelObj;
+    [SerializeField] private GameObject buffTowerInfoPanelObj;
+    [SerializeField] private GameObject randomAbilityInfoPanelObj;
 
     private List<GameObject> instantiatedItems = new List<GameObject>();
 
@@ -92,15 +97,72 @@ public class CollectionPanel : MonoBehaviour
         var attackTowerDatas = DataTableManager.AttackTowerTable.GetAllDatas();
         int dataCount = attackTowerDatas.Count;
 
-        foreach(var data in attackTowerDatas)
+        for(int i = 0; i < attackTowerDatas.Count; i += 2)
         {
-            GameObject itemObj = Instantiate(collectionItemPrefab, towerPanelContent.transform);
-            CollectionItemPanelUI itemUI = itemObj.GetComponent<CollectionItemPanelUI>();
-            itemUI.Initialize(data, dataCount, isTowerPanel);
+            var row = Instantiate(collectionItemPrefab, towerPanelContent.transform);
+            CollectionItemPanelUI[] panels = row.GetComponentsInChildren<CollectionItemPanelUI>();
 
-            instantiatedItems.Add(itemObj);
-            itemUI.OnWeightChanged += UpdateCoreText;
+            if(panels.Length > 0)
+            {
+                panels[0].Initialize(attackTowerDatas[i], dataCount, isTowerPanel);
+                panels[0].gameObject.SetActive(true);
+
+                panels[0].OnInfoBtn += OnInfoBtnClicked;
+            }
+
+            if(panels.Length > 1)
+            {
+                if(i + 1 < attackTowerDatas.Count)
+                {
+                    panels[1].Initialize(attackTowerDatas[i + 1], dataCount, isTowerPanel);
+                    panels[1].gameObject.SetActive(true);
+
+                    panels[1].OnInfoBtn += OnInfoBtnClicked;
+                }
+                else
+                {
+                    panels[1].gameObject.SetActive(false);
+                }
+            }
+
+            instantiatedItems.Add(row);
         }
+
+        var buffTowerDatas = DataTableManager.BuffTowerTable.GetAllDatas();
+        var buffDataCount = buffTowerDatas.Count;
+
+        for (int i = 0; i < buffTowerDatas.Count; i += 2)
+        {
+            var row = Instantiate(collectionItemPrefab, towerPanelContent.transform);
+            CollectionItemPanelUI[] panels = row.GetComponentsInChildren<CollectionItemPanelUI>();
+
+            if (panels.Length > 0)
+            {
+                panels[0].Initialize(buffTowerDatas[i], buffDataCount, isTowerPanel);
+                panels[0].gameObject.SetActive(true);
+
+                panels[0].OnInfoBtn += OnInfoBtnClicked;
+            }
+
+            if (panels.Length > 1)
+            {
+                if (i + 1 < buffTowerDatas.Count)
+                {
+                    panels[1].Initialize(buffTowerDatas[i + 1], buffDataCount, isTowerPanel);
+                    panels[1].gameObject.SetActive(true);
+
+                    panels[1].OnInfoBtn += OnInfoBtnClicked;
+                }
+                else
+                {
+                    panels[1].gameObject.SetActive(false);
+                }
+            }
+
+            instantiatedItems.Add(row);
+        }
+
+
     }
 
     private void UpdateCoreText()
@@ -112,6 +174,25 @@ public class CollectionPanel : MonoBehaviour
         else if (isAbilityPanel)
         {
             coreText.text = UserData.CollectionRandomAbilityCore.ToString();
+        }
+    }
+
+    public void OnInfoBtnClicked(CollectionItemPanelUI panel)
+    {
+        if(panel.IsTower)
+        {
+            if(panel.IsAttackTower)
+            {
+                towerInfoPanelObj.SetActive(true);
+                var towerInfoPanel = towerInfoPanelObj.GetComponent<TowerInfoPanelUI>();
+                towerInfoPanel.Initialize(panel.AttackTowerData);
+            }
+            else if(panel.IsBuffTower)
+            {
+                buffTowerInfoPanelObj.SetActive(true);
+                var buffTowerInfoPanel = buffTowerInfoPanelObj.GetComponent<BuffTowerInfoPanelUI>();
+                buffTowerInfoPanel.Initialize(panel.BuffTowerData);
+            }
         }
     }
 

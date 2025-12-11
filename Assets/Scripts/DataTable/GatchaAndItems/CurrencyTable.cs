@@ -60,4 +60,9 @@ public class CurrencyTable : DataTable
 
         return dictionary[key];
     }
+
+    public List<CurrencyData> GetAll()
+    {
+        return new List<CurrencyData>(dictionary.Values);
+    }
 }
