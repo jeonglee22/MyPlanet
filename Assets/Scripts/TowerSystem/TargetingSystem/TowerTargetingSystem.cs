@@ -99,6 +99,7 @@ public class TowerTargetingSystem : MonoBehaviour
             var enemy = target as Enemy;
             if(enemy!=null)
             {
+                if (!enemy.IsTargetable) continue;
                 if (enemy.Data == null) continue;
                 if (enemy.Data.EnemyType == 4 && Variables.MiddleBossEnemy != null) continue;
             }
