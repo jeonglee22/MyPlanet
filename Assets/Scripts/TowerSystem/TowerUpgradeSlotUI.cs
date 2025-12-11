@@ -384,7 +384,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                     pickedIndexInList = upgradeSlots[UnityEngine.Random.Range(0, upgradeSlots.Count)];
                 }
 
-                upgradeSlots.RemoveAt(pickedIndexInList);
+                upgradeSlots.Remove(pickedIndexInList);
 
                 numlist.Add(pickedIndexInList);
                 SetUpgradeCardForUsedSlot(cardIndex, pickedIndexInList, isInitial: true);
