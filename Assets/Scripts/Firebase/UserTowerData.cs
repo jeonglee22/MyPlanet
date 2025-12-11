@@ -23,6 +23,9 @@ public class UserTowerData
 
     public List<int> abilities;
 
+    private ProjectileData buffedProjectileData;
+    public ProjectileData BuffedProjectileData => buffedProjectileData;
+
     public UserTowerData()
     {
         towerId = 0;
@@ -59,6 +62,8 @@ public class UserTowerData
         ProjectileSpeed = buffedProjectileData?.ProjectileSpeed ?? 0;
         ProjectileAddSpeed = buffedProjectileData?.ProjectileAddSpeed ?? 0;
         RemainTime = buffedProjectileData?.RemainTime ?? 0;
+
+        this.buffedProjectileData = buffedProjectileData;
 
         // this.buffedProjectileData = buffedProjectileData;
         this.abilities = abilities;

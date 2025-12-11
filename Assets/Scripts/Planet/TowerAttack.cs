@@ -169,11 +169,22 @@ public class TowerAttack : MonoBehaviour
     {
         get
         {
+            if (asyncUserProjectileData != null)
+            {
+                return asyncUserProjectileData;
+            }
+
             var buffed = GetBuffedProjectileData();
             if (buffed != null) return buffed;
             return towerData != null ? towerData.projectileType : null;
         }
+        set
+        {
+            asyncUserProjectileData = value;
+        }
     }
+    private ProjectileData asyncUserProjectileData;
+
     private bool isStartLazer = false;
     public bool IsStartLazer { get { return isStartLazer; } set { isStartLazer = value; } }
     private List<LazertowerAttack> lazers;

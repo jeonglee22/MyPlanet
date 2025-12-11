@@ -101,6 +101,9 @@ public class UserTowerManager : MonoBehaviour
         try
         {
             var userRef = userTowerRef.Child(asyncUserId);
+            if (asyncUserTowerDatas == null)
+                asyncUserTowerDatas = new UserTowerData[towerTypeCount];
+
             for (int i = 0; i < towerTypeCount; i++)
             {
                 string towerKey = i switch

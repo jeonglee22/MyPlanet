@@ -9,6 +9,7 @@ public class AsyncUserPlanet : LivingEntity
     [SerializeField] TargetRangeSO targetRangeSO;
     [SerializeField] TextMeshProUGUI nicknameText;
     [SerializeField] TowerAttack towerAttackObject;
+    [SerializeField] private List<TowerDataSO> towerDataSOs;
 
     private float livingTime;
     private float elapsedTime = 0f;
@@ -16,9 +17,6 @@ public class AsyncUserPlanet : LivingEntity
     private float dieDps;
     private float attackDps;
     private float attackTimer = 0f;
-
-    private TowerAttack tower;
-    private List<int> abilities;
 
     private UserPlanetData planetData;
     private string blurNickname;
@@ -36,7 +34,6 @@ public class AsyncUserPlanet : LivingEntity
     {
         // livingTime = Random.Range(5f, 10f);
         livingTime = Random.Range(10f, 15f);
-        abilities = new List<int>();
     }
 
     protected override void OnEnable()
@@ -129,21 +126,36 @@ public class AsyncUserPlanet : LivingEntity
         attackDps = attack / livingTime;
         dieDps = Health / livingTime;
 
-        foreach (var userTowerData in userTowerDatas)
+        var needApplyAbilities = new List<int>{ 200005, 200007, 200008, 200009, 200010, 200011, 200013};
+
+        for (int i =0 ; i < userTowerDatas.Length; i++)
         {
+            var userTowerData = userTowerDatas[i];
+            var towerDataSo = towerDataSOs.Find(x => x.towerIdInt == userTowerData.towerId);
+
+            var insertTowerDataSO = ScriptableObject.Instantiate(towerDataSo);
+            insertTowerDataSO.targetPriority = highestHpPrioritySO;
+            insertTowerDataSO.rangeData = targetRangeSO;
+
             if (userTowerData == null || userTowerData.towerLevelId == -1)
                 continue;
 
             var tower = Instantiate(towerAttackObject, transform);
+            tower.gameObject.SetActive(true);
             tower.IsOtherUserTower = true;
+            tower.SetTowerData(insertTowerDataSO);
+            tower.CurrentProjectileData = userTowerData.BuffedProjectileData;
 
             var targetingSystem = tower.GetComponent<TowerTargetingSystem>();
-            targetingSystem.SetTowerData(towerDataSO);
+            targetingSystem.SetTowerData(insertTowerDataSO);
 
             var abilities = userTowerData.abilities;
-            SetupAbilities();
+
             foreach (var abilityId in abilities)
             {
+                if (!needApplyAbilities.Contains(abilityId))
+                    continue;
+
                 var ability = AbilityManager.GetAbility(abilityId);
                 tower.AddAbility(abilityId);
                 ability?.ApplyAbility(tower.gameObject);
@@ -151,10 +163,10 @@ public class AsyncUserPlanet : LivingEntity
             }
         }       
         // asyncPlanetData = asyncData;
-        var towerId = asyncPlanetData.AttackTower_Id;
+        // var towerId = asyncPlanetData.AttackTower_Id;
         // towerDataSO = ScriptableObject.Instantiate(towerData);
         // towerDataSO.targetPriority = highestHpPrioritySO;
-        towerDataSO.rangeData = targetRangeSO;
+        // towerDataSO.rangeData = targetRangeSO;
 
         SetBlurNickname(planetData.nickName);
 
@@ -197,26 +209,5 @@ public class AsyncUserPlanet : LivingEntity
 
         Debug.Log(sb.ToString());
         blurNickname = sb.ToString();
-    }
-
-    private void SetupAbilities()
-    {
-        if (asyncPlanetData == null)
-            return;
-
-        if (abilities != null)
-            abilities.Clear();
-        abilities = new List<int>();
-
-        var id1 = DataTableManager.RandomAbilityTable.GetAbilityIdFromEffectId(asyncPlanetData.Effect_Id_1);
-        var id2 = DataTableManager.RandomAbilityTable.GetAbilityIdFromEffectId(asyncPlanetData.Effect_Id_2);
-        var id3 = DataTableManager.RandomAbilityTable.GetAbilityIdFromEffectId(asyncPlanetData.Effect_Id_3);
-
-        if (id1 != -1)
-            abilities.Add(id1);
-        if (id2 != -1)
-            abilities.Add(id2);
-        if (id3 != -1)
-            abilities.Add(id3);
     }
 }

@@ -33,9 +33,9 @@ public class UserAttackPowerManager : MonoBehaviour
 
     private async UniTaskVoid Start()
     {
-        await FireBaseInitializer.Instance.WaitInitialization();
+        await UniTask.WaitUntil(() => AuthManager.Instance.IsInitialized);
 
-        userAttackRef = FirebaseDatabase.DefaultInstance.RootReference.Child("attackPower");
+        userAttackRef = FirebaseDatabase.DefaultInstance.RootReference.Child(DatabaseRef.UserAttackPowers);
 
         Debug.Log("[Attack Power] End Init");
 
@@ -80,7 +80,7 @@ public class UserAttackPowerManager : MonoBehaviour
         
         try
         {
-            var attackPowerData = new UserAttackPowerData(attackPower, (long)ServerValue.Timestamp);
+            var attackPowerData = new UserAttackPowerData(attackPower, 0);
             var json = attackPowerData.ToJson();
 
             await userAttackRef.Child(uid).SetRawJsonValueAsync(json).AsUniTask();

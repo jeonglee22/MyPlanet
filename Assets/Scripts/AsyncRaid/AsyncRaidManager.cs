@@ -76,6 +76,7 @@ public class AsyncRaidManager : MonoBehaviour
         await UserTowerManager.Instance.LoadAsyncUserTowerDataAsync(similarUserId);
         await UserPlanetManager.Instance.LoadAsyncUserPlanetAsync(similarUserId);
 
+        Debug.Log(similarUserId + "Loadaed Async User Data");
         userPlanetData = UserPlanetManager.Instance.AsyncUserPlanet;
         var spawnPos = GetSpawnPoint();
         var asyncUserPlanetObj = Instantiate(asyncUserPlanetPrefab, spawnPos, Quaternion.identity);
