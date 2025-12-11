@@ -131,13 +131,38 @@ public class GachaPanelUI : MonoBehaviour
             }
             else if(drawCount > 1)
             {
-                foreach(var reward in rewardResults)
+                var instantiateCount = (rewardResults.Count - 1) / 2 + 1;
+
+                for (int i = 0; i < instantiateCount; i++)
                 {
                     var rewardTenObj = Instantiate(RewardTenPrefab, gachaTenContent);
-                    var rewardTenText = rewardTenObj.GetComponentInChildren<TextMeshProUGUI>();
-                    rewardTenText.text = $"{reward.Key.RewardNameText} x{reward.Value}";
-
+ 
                     instantiatedRewardTenObjects.Add(rewardTenObj);
+                }
+
+                int left = 0;
+                int index = 0;
+                foreach(var reward in rewardResults)
+                {
+                    var rewardTenObj = instantiatedRewardTenObjects[index];
+
+                    if (left == 0)
+                    {
+                        var verticalGachaPanelUI = rewardTenObj.GetComponentInChildren<VerticalCachaPanelUI>();
+                        verticalGachaPanelUI.SetLeftItem(reward.Key.RewardNameText, reward.Value);
+                    }
+                    else if (left == 1)
+                    {
+                        var verticalGachaPanelUI = rewardTenObj.GetComponentInChildren<VerticalCachaPanelUI>();
+                        verticalGachaPanelUI.SetRightItem(reward.Key.RewardNameText, reward.Value);
+                    }
+
+                    left++;
+                    if (left >= 2)
+                    {
+                        left = 0;
+                        index++;
+                    }
                 }
 
                 gachaTenPanelUI.SetActive(true);
