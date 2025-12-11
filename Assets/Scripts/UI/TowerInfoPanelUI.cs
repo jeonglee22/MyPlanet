@@ -30,7 +30,7 @@ public class TowerInfoPanelUI : MonoBehaviour
     {
         var towerDescData = DataTableManager.TowerExplainTable.Get(data.TowerText_ID);
 
-        towerNameText.text = data.AttackTowerName.Split("\\n")[0];
+        towerNameText.text = towerDescData.TowerName;
         towerDescriptionText.text = towerDescData.TowerDescribe;
 
         attackSpeedText.text = $"{data.AttackSpeed}";

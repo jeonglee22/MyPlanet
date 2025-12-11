@@ -30,7 +30,7 @@ public class BuffTowerInfoPanelUI : MonoBehaviour
     {
         var towerDescData = DataTableManager.TowerExplainTable.Get(data.TowerText_ID);
 
-        towerNameText.text = data.BuffTowerName;
+        towerNameText.text = towerDescData.TowerName;
         towerDescriptionText.text = towerDescData.TowerDescribe;
 
         slotText.text = $"{data.SlotNum}";

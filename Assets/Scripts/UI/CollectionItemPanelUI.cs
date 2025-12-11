@@ -38,7 +38,9 @@ public class CollectionItemPanelUI : MonoBehaviour
 
     public void Initialize(AttackTowerTableRow data, int dataCount, bool isTower)
     {
-        towerNameText.text = data.AttackTowerName.Split("\\n")[0];
+        var textData = DataTableManager.TowerExplainTable.Get(data.TowerText_ID);
+
+        towerNameText.text = textData.TowerName;
 
         float weight = data.TowerWeight;
         float calWeight = weight / dataCount * 100f;
@@ -57,7 +59,9 @@ public class CollectionItemPanelUI : MonoBehaviour
 
     public void Initialize(BuffTowerData data, int dataCount, bool isTower)
     {
-        towerNameText.text = data.BuffTowerName;
+        var textData = DataTableManager.TowerExplainTable.Get(data.TowerText_ID);
+
+        towerNameText.text = textData.TowerName;
 
         float weight = data.TowerWeight;
         float calWeight = weight / dataCount * 100f;

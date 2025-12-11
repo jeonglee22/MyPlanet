@@ -38,15 +38,25 @@ public class ItemManager : MonoBehaviour
 
         await UniTask.WaitUntil(() => AuthManager.Instance != null && AuthManager.Instance.IsInitialized);
 
-        itemsRef = FirebaseDatabase.DefaultInstance.RootReference.Child("userdata");
-
         InitializeValidItems();
 
         Debug.Log("[Items] ItemManager 초기화 완료");
 
         if(AuthManager.Instance.IsSignedIn)
         {
-            await LoadItemsAsync();
+            InitializeReference();
+            
+            var dataSnapshot = await itemsRef.GetValueAsync().AsUniTask();
+
+            if (dataSnapshot.Exists)
+            {
+                await LoadItemsAsync();
+            }
+            else
+            {
+                isDirty = true;
+                await SaveItemsAsync();
+            }
         }
 
         isInitialized = true;
@@ -78,6 +88,12 @@ public class ItemManager : MonoBehaviour
         Debug.Log("[Items] 유효한 아이템 초기화 완료");
     }
 
+    private void InitializeReference()
+    {
+        string userId = AuthManager.Instance.UserId;
+        itemsRef = FirebaseDatabase.DefaultInstance.RootReference.Child("userdata").Child(userId).Child("items");
+    }
+
     public async UniTask<(bool success, string error)> LoadItemsAsync()
     {
         if(!AuthManager.Instance.IsSignedIn)
@@ -91,7 +107,7 @@ public class ItemManager : MonoBehaviour
         {
             Debug.Log("[Items] 아이템 로드 시도");
 
-            var dataSnapshot = await itemsRef.Child(userId).Child("items").GetValueAsync().AsUniTask();
+            var dataSnapshot = await itemsRef.GetValueAsync().AsUniTask();
 
             if(dataSnapshot.Exists)
             {
@@ -154,7 +170,7 @@ public class ItemManager : MonoBehaviour
             ItemsData userItemsData = ItemsData.FromDictionary(userItems);
             string json = userItemsData.ToJson();
 
-            await itemsRef.Child(userId).Child("items").SetRawJsonValueAsync(json).AsUniTask();
+            await itemsRef.SetRawJsonValueAsync(json).AsUniTask();
 
             isDirty = false;
             Debug.Log("[Items] 아이템 저장 성공");
