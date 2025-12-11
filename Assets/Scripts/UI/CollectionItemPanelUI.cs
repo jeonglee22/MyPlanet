@@ -21,7 +21,7 @@ public class CollectionItemPanelUI : MonoBehaviour
     public bool IsAttackTower => isAttackTower;
     public bool IsBuffTower => isBuffTower;
 
-    private int upCount = 0;
+    private int weightId;
 
     public event Action OnWeightChanged;
     public event Action<CollectionItemPanelUI> OnInfoBtn;
@@ -42,19 +42,17 @@ public class CollectionItemPanelUI : MonoBehaviour
 
         towerNameText.text = textData.TowerName;
 
-        float weight = data.TowerWeight;
-        float calWeight = weight / dataCount * 100f;
-        rateText.text = $"확률: {calWeight:F2}%";
-        weightText.text = $"가중치: {weight}";
-
-        weightUpBtn.onClick.AddListener(OnWeightUpBtn);
-        weightDownBtn.onClick.AddListener(OnWeightDownBtn);
-        infoBtn.onClick.AddListener(OnInfoBtnClicked);
-
+        weightId = data.AttackTower_Id;
         this.isTower = isTower;
         isAttackTower = true;
 
         AttackTowerData = data;
+
+        UpdateWeightDisplay();
+
+        weightUpBtn.onClick.AddListener(OnWeightUpBtn);
+        weightDownBtn.onClick.AddListener(OnWeightDownBtn);
+        infoBtn.onClick.AddListener(OnInfoBtnClicked);
     }
 
     public void Initialize(BuffTowerData data, int dataCount, bool isTower)
@@ -63,72 +61,54 @@ public class CollectionItemPanelUI : MonoBehaviour
 
         towerNameText.text = textData.TowerName;
 
-        float weight = data.TowerWeight;
-        float calWeight = weight / dataCount * 100f;
-        rateText.text = $"확률: {calWeight:F2}%";
-        weightText.text = $"가중치: {weight}";
-
-        weightUpBtn.onClick.AddListener(OnWeightUpBtn);
-        weightDownBtn.onClick.AddListener(OnWeightDownBtn);
-        infoBtn.onClick.AddListener(OnInfoBtnClicked);
-
+        weightId = data.BuffTower_ID;
         this.isTower = isTower;
         isBuffTower = true;
 
         BuffTowerData = data;
+
+        UpdateWeightDisplay();
+
+        weightUpBtn.onClick.AddListener(OnWeightUpBtn);
+        weightDownBtn.onClick.AddListener(OnWeightDownBtn);
+        infoBtn.onClick.AddListener(OnInfoBtnClicked);
+    }
+
+    public void UpdateWeightDisplay()
+    {
+        float currentWeight = CollectionManager.Instance.GetWeight(weightId);
+
+        float totalWeight = 0f;
+
+        if(isAttackTower)
+        {
+            totalWeight = CollectionManager.Instance.GetTotalWeightAttackTowers();
+        }
+        else if(isBuffTower)
+        {
+            totalWeight = CollectionManager.Instance.GetTotalWeightBuffTowers();
+        }
+
+        float probability = totalWeight > 0 ? (currentWeight / totalWeight) * 100f : 0f;
+        
+        rateText.text = $"확률: {probability:F2}%";
+        weightText.text = $"가중치: {currentWeight}";
     }
 
     public void OnWeightUpBtn()
     {
-        if(!TryPay())
+        if(CollectionManager.Instance.TryIncreaseWeight(weightId, isTower))
         {
-            Debug.Log("Not Enough Core");
-            return;
+            OnWeightChanged?.Invoke();
         }
-        OnWeightChanged?.Invoke();
     }
 
     public void OnWeightDownBtn()
     {
-        CorePayUp();
-        OnWeightChanged?.Invoke();
-    }
-
-    private bool TryPay()
-    {
-        if (isTower && UserData.CollectionTowerCore > 0)
+        if(CollectionManager.Instance.TryDecreaseWeight(weightId, isTower))
         {
-            UserData.CollectionTowerCore -= 1;
-            upCount++;
-            return true;
+            OnWeightChanged?.Invoke();
         }
-        else if (!isTower && UserData.CollectionRandomAbilityCore > 0)
-        {
-            UserData.CollectionRandomAbilityCore -= 1;
-            upCount++;
-            return true;
-        }
-
-        return false;
-    }
-
-    private void CorePayUp()
-    {
-        if(upCount <= 0)
-        {
-            return;
-        }
-
-        if(isTower)
-        {
-            UserData.CollectionTowerCore += 1;
-        }
-        else
-        {
-            UserData.CollectionRandomAbilityCore += 1;
-        }
-
-        upCount--;
     }
 
     public void OnInfoBtnClicked()

@@ -27,7 +27,10 @@ public class CollectionManager : MonoBehaviour
 
     private const int DEFAULT_TOWER_CORE = 12;
     private const int DEFAULT_ABILITY_CORE = 10;
-    private const int MAX_WEIGHT = 100;
+    private const float MIN_TOWER_WEIGHT = 10;
+    private const float MAX_TOWER_WEIGHT = 20;
+    private const float MIN_ABILITY_WEIGHT = 10;
+    private const float MAX_ABILITY_WEIGHT = 35;
 
     private void Awake()
     {
@@ -97,6 +100,14 @@ public class CollectionManager : MonoBehaviour
         foreach (var tower in attackTowers)
         {
             int towerId = tower.AttackTower_Id;
+            validTowerIds.Add(towerId);
+            weights[towerId] = tower.TowerWeight;
+        }
+
+        var buffTowers = DataTableManager.BuffTowerTable.GetAllDatas();
+        foreach (var tower in buffTowers)
+        {
+            int towerId = tower.BuffTower_ID;
             validTowerIds.Add(towerId);
             weights[towerId] = tower.TowerWeight;
         }
@@ -214,13 +225,13 @@ public class CollectionManager : MonoBehaviour
 
     public void SetTowerCore(int amount)
     {
-        towerCore = amount;
+        towerCore = Mathf.Max(0, amount);
         MarkDirty();
     }
 
     public void SetAbilityCore(int amount)
     {
-        abilityCore = amount;
+        abilityCore = Mathf.Max(0, amount);
         MarkDirty();
     }
 
@@ -258,9 +269,9 @@ public class CollectionManager : MonoBehaviour
         MarkDirty();
     }
 
-    public int GetWeight(int id)
+    public float GetWeight(int id)
     {
-        return weights.TryGetValue(id, out float weight) ? (int)weight : 0;
+        return weights.TryGetValue(id, out float weight) ? weight : 10;
     }
 
     public void SetWeight(int id, float weight)
@@ -271,7 +282,11 @@ public class CollectionManager : MonoBehaviour
             return;
         }
 
-        weights[id] = Mathf.Clamp(weight, 0, MAX_WEIGHT);
+        bool isTower = validTowerIds.Contains(id);
+        float minWeight = isTower ? MIN_TOWER_WEIGHT : MIN_ABILITY_WEIGHT;
+        float maxWeight = isTower ? MAX_TOWER_WEIGHT : MAX_ABILITY_WEIGHT;
+
+        weights[id] = Mathf.Clamp(weight, minWeight, maxWeight);
         MarkDirty();
     }
 
@@ -292,8 +307,10 @@ public class CollectionManager : MonoBehaviour
             }
         }
 
-        int currentWeight = GetWeight(id);
-        if(currentWeight >= MAX_WEIGHT)
+        float currentWeight = GetWeight(id);
+        float maxWeight = isTower ? MAX_TOWER_WEIGHT : MAX_ABILITY_WEIGHT;
+
+        if(currentWeight >= maxWeight)
         {
             if(isTower)
             {
@@ -311,5 +328,66 @@ public class CollectionManager : MonoBehaviour
         return true;
     }
 
-    //public bool TryDecreaseWeight(int id, )
+    public bool TryDecreaseWeight(int id, bool isTower)
+    {
+        float currentWeight = GetWeight(id);
+        float minWeight = isTower ? MIN_TOWER_WEIGHT : MIN_ABILITY_WEIGHT;
+
+        if(currentWeight <= minWeight)
+        {
+            return false;
+        }
+
+        SetWeight(id, currentWeight - 1);
+
+        if (isTower)
+        {
+            AddTowerCore(1);
+        }
+        else
+        {
+            AddAbilityCore(1);
+        }
+
+        return true;
+    }
+
+    public float GetTotalWeight(bool isTower)
+    {
+        float total = 0;
+        var validIds = isTower ? validTowerIds : validAbilityIds;
+
+        foreach(var id in validIds)
+        {
+            total += GetWeight(id);
+        }
+
+        return total;
+    }
+
+    public float GetTotalWeightAttackTowers()
+    {
+        float total = 0;
+
+        var attackTowers = DataTableManager.AttackTowerTable.GetAllDatas();
+        foreach(var tower in attackTowers)
+        {
+            total += GetWeight(tower.AttackTower_Id);
+        }
+
+        return total;
+    }
+
+    public float GetTotalWeightBuffTowers()
+    {
+        float total = 0;
+
+        var buffTowers = DataTableManager.BuffTowerTable.GetAllDatas();
+        foreach(var tower in buffTowers)
+        {
+            total += GetWeight(tower.BuffTower_ID);
+        }
+
+        return total;
+    }
 }

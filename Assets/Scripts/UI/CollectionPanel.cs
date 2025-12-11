@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -29,6 +30,7 @@ public class CollectionPanel : MonoBehaviour
     [SerializeField] private GameObject randomAbilityInfoPanelObj;
 
     private List<GameObject> instantiatedItems = new List<GameObject>();
+    private List<CollectionItemPanelUI> allPanels = new List<CollectionItemPanelUI>();
 
     private bool isTowerPanel = true;
     private bool isAbilityPanel = false;
@@ -40,8 +42,9 @@ public class CollectionPanel : MonoBehaviour
         backBtn.onClick.AddListener(OnBackBtn);
         towerPanelBtn.onClick.AddListener(OnTowerPanelBtn);
         abilityPanelBtn.onClick.AddListener(OnAbilityPanelBtn);
+        saveBtn.onClick.AddListener(OnSaveBtnClicked);
 
-        Initialize();
+        Initialize().Forget();
         towerPanelObj.SetActive(true);
     }
 
@@ -55,6 +58,7 @@ public class CollectionPanel : MonoBehaviour
         backBtn.onClick.RemoveListener(OnBackBtn);
         towerPanelBtn.onClick.RemoveListener(OnTowerPanelBtn);
         abilityPanelBtn.onClick.RemoveListener(OnAbilityPanelBtn);
+        saveBtn.onClick.RemoveListener(OnSaveBtnClicked);
     }
 
 
@@ -68,21 +72,44 @@ public class CollectionPanel : MonoBehaviour
     {
         towerPanelObj.SetActive(true);
         //abilityPanelObj.SetActive(false);
+
+        isTowerPanel = true;
+        isAbilityPanel = false;
+
+        UpdateCoreText();
+        RefreshAllWeights();
     }
 
     public void OnAbilityPanelBtn()
     {
         towerPanelObj.SetActive(false);
         //abilityPanelObj.SetActive(true);
+
+        isTowerPanel = false;
+        isAbilityPanel = true;
+
+        UpdateCoreText();
+        RefreshAllWeights();
     }
 
-    public void Initialize()
+    public void OnSaveBtnClicked()
     {
+        CollectionManager.Instance.SaveCollectionAsync().Forget();
+    }
+
+    public async UniTaskVoid Initialize()
+    {
+        if(CollectionManager.Instance != null)
+        {
+            await UniTask.WaitUntil(() => CollectionManager.Instance.IsInitialized);
+        }
+
         foreach(var item in instantiatedItems)
         {
             Destroy(item);
         }
         instantiatedItems.Clear();
+        allPanels.Clear();
 
         InitializeTowerPanel();
 
@@ -108,6 +135,9 @@ public class CollectionPanel : MonoBehaviour
                 panels[0].gameObject.SetActive(true);
 
                 panels[0].OnInfoBtn += OnInfoBtnClicked;
+                panels[0].OnWeightChanged += OnWeightChanged;
+
+                allPanels.Add(panels[0]);
             }
 
             if(panels.Length > 1)
@@ -118,6 +148,9 @@ public class CollectionPanel : MonoBehaviour
                     panels[1].gameObject.SetActive(true);
 
                     panels[1].OnInfoBtn += OnInfoBtnClicked;
+                    panels[1].OnWeightChanged += OnWeightChanged;
+
+                    allPanels.Add(panels[1]);
                 }
                 else
                 {
@@ -142,6 +175,9 @@ public class CollectionPanel : MonoBehaviour
                 panels[0].gameObject.SetActive(true);
 
                 panels[0].OnInfoBtn += OnInfoBtnClicked;
+                panels[0].OnWeightChanged += OnWeightChanged;
+
+                allPanels.Add(panels[0]);
             }
 
             if (panels.Length > 1)
@@ -152,6 +188,9 @@ public class CollectionPanel : MonoBehaviour
                     panels[1].gameObject.SetActive(true);
 
                     panels[1].OnInfoBtn += OnInfoBtnClicked;
+                    panels[1].OnWeightChanged += OnWeightChanged;
+
+                    allPanels.Add(panels[1]);
                 }
                 else
                 {
@@ -161,19 +200,36 @@ public class CollectionPanel : MonoBehaviour
 
             instantiatedItems.Add(row);
         }
+    }
 
+    private void OnWeightChanged()
+    {
+        UpdateCoreText();
+        RefreshAllWeights();
+    }
 
+    private void RefreshAllWeights()
+    {
+        int totalDataCount = isTowerPanel ? DataTableManager.AttackTowerTable.GetAllDatas().Count + DataTableManager.BuffTowerTable.GetAllDatas().Count : 0;
+
+        foreach(var panel in allPanels)
+        {
+            if(panel.IsTower == isTowerPanel)
+            {
+                panel.UpdateWeightDisplay();
+            }
+        }
     }
 
     private void UpdateCoreText()
     {
         if (isTowerPanel)
         {
-            coreText.text = UserData.CollectionTowerCore.ToString();
+            coreText.text = CollectionManager.Instance.TowerCore.ToString();
         }
         else if (isAbilityPanel)
         {
-            coreText.text = UserData.CollectionRandomAbilityCore.ToString();
+            coreText.text = CollectionManager.Instance.AbilityCore.ToString();
         }
     }
 

@@ -1764,8 +1764,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         return installControl.CurrentTowerCount;
     }
 
-    private AmplifierTowerDataSO GetRandomAmplifierForCard(
-    ICollection<AmplifierTowerDataSO> extraExcludes = null)
+    private AmplifierTowerDataSO GetRandomAmplifierForCard(ICollection<AmplifierTowerDataSO> extraExcludes = null)
     {
         // debug
         if (debugForceAmplifier)
@@ -1813,8 +1812,38 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 candidates.Add(d);
         }
         if (candidates.Count == 0) return null;
-        int idx = UnityEngine.Random.Range(0, candidates.Count);
-        return candidates[idx];
+
+        //weight pick
+        if(CollectionManager.Instance == null || !CollectionManager.Instance.IsInitialized)
+        {
+            int colIdx = UnityEngine.Random.Range(0, candidates.Count);
+            return candidates[colIdx];
+        }
+
+        List<float> weights = new List<float>();
+        float totalWeight = 0f;
+
+        foreach(var ampData in candidates)
+        {
+            int towerId = ampData.BuffTowerId;
+            float weight = CollectionManager.Instance.GetWeight(towerId);
+            weights.Add(weight);
+            totalWeight += weight;
+        }
+
+        float randValue = UnityEngine.Random.Range(0f, totalWeight);
+        float cumulative = 0f;
+
+        for (int i = 0; i < candidates.Count; i++)
+        {
+            cumulative += weights[i];
+            if (randValue <= cumulative)
+            {
+                return candidates[i];
+            }
+        }
+
+        return candidates[candidates.Count - 1];
     }
 
     private bool IsAttackSlotUpgradable(int slotIndex)
@@ -1875,6 +1904,33 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     {
         var ampData = GetRandomAmplifierForCard(usedAmplifierTowerTypesThisRoll);
         return ampData != null;
+    }
+
+    //weight pick
+    private float PickUpgradeSlotByWeight(List<int> upgradeSlots)
+    {
+        if(upgradeSlots == null || upgradeSlots.Count == 0)
+        {
+            return -1f;
+        }
+
+        if(CollectionManager.Instance == null || !CollectionManager.Instance.IsInitialized)
+        {
+            int randIdx = UnityEngine.Random.Range(0, upgradeSlots.Count);
+            return upgradeSlots[randIdx];
+        }
+
+        List<float> weights = new List<float>();
+        float totalWeight = 0f;
+
+        foreach(int slotIdx in upgradeSlots)
+        {
+            float weight = 0f;
+
+            var attackTowerData = installControl.GetTowerData(slotIdx);
+        }
+
+        return -1f;
     }
 
 }
