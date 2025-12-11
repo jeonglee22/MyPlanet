@@ -86,8 +86,17 @@ public class UserData
     public static bool isExpPlanet = false;
     public static bool isHealthRegenerationPlanet = false;
 
-    public static int CollectionTowerCore = 12;
-    public static int CollectionRandomAbilityCore = 10;
+    public static int CollectionTowerCore
+    {
+        get => CollectionManager.Instance?.TowerCore ?? 12;
+        set => CollectionManager.Instance?.SetTowerCore(value);
+    }
+
+    public static int CollectionAbilityCore
+    {
+        get => CollectionManager.Instance?.AbilityCore ?? 10;
+        set => CollectionManager.Instance?.SetAbilityCore(value);
+    }
 }
 
 public static class UserDataMapper

@@ -341,8 +341,7 @@ public class TowerInstallControl : MonoBehaviour
         // idx = 4; // ShootGun
         return availableTowerDatas[idx];
     }
-    public TowerDataSO GetRandomAttackTowerDataForCard(
-    ICollection<TowerDataSO> extraExcludes = null)
+    public TowerDataSO GetRandomAttackTowerDataForCard(ICollection<TowerDataSO> extraExcludes = null)
     {
         if (availableTowerDatas == null || availableTowerDatas.Count == 0)
             return null;
@@ -382,8 +381,37 @@ public class TowerInstallControl : MonoBehaviour
         if (candidates.Count == 0)
             return null;
 
-        int idx = UnityEngine.Random.Range(0, candidates.Count);
-        return candidates[idx];
+        // Weight Pick
+        if(CollectionManager.Instance == null || !CollectionManager.Instance.IsInitialized)
+        {
+            int colIdx = UnityEngine.Random.Range(0, candidates.Count);
+            return candidates[colIdx];
+        }
+
+        List<float> weights = new List<float>();
+        float totalWeight = 0f;
+
+        foreach(var towerData in candidates)
+        {
+            int towerId = towerData.towerIdInt;
+            float weight = CollectionManager.Instance.GetWeight(towerId);
+            weights.Add(weight);
+            totalWeight += weight;
+        }
+
+        float rand = UnityEngine.Random.Range(0f, totalWeight);
+        float cumulativeWeight = 0f;
+
+        for(int i = 0; i < candidates.Count; i++)
+        {
+            cumulativeWeight += weights[i];
+            if(rand <= cumulativeWeight)
+            {
+                return candidates[i];
+            }
+        }
+
+        return candidates[candidates.Count - 1];
     }
 
     public void IntallNewTower(int index)

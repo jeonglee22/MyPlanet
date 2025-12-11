@@ -89,7 +89,7 @@ public class CurrencyManager : MonoBehaviour
         {
             Debug.Log("[Currency] 화페 로드 시도");
 
-            DataSnapshot dataSnapshot = await currencyRef.Child(userId).Child("currency").GetValueAsync().AsUniTask();
+            DataSnapshot dataSnapshot = await currencyRef.GetValueAsync().AsUniTask();
 
             if (dataSnapshot.Exists)
             {
