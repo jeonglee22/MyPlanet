@@ -29,9 +29,6 @@ public class TowerReinforceManager : MonoBehaviour
     private Dictionary<int, List<BuffTowerReinforceUpgradeRow>> buffGroups =
         new Dictionary<int, List<BuffTowerReinforceUpgradeRow>>();
 
-    private Dictionary<int, BuffTowerReinforceUpgradeRow> buffRowsById =
-        new Dictionary<int, BuffTowerReinforceUpgradeRow>();
-
     private bool initialized = false;
 
     private void Awake()
@@ -150,9 +147,13 @@ public class TowerReinforceManager : MonoBehaviour
 
         int clampedLevel = Mathf.Max(0, currentLevel);
 
+        var table = DataTableManager.BuffTowerReinforceUpgradeTable;
+        if (table == null) return result;
+
         foreach (var id in reinforceIds)
         {
-            if (!buffRowsById.TryGetValue(id, out var row)) continue;
+            var row = table.GetById(id);
+            if (row == null) continue;
             if (row.ReinforceUpgradeLevel > clampedLevel) continue;
 
             AccumulateEffect(result, row.SpecialEffect1_ID, row.SpecialEffect1AddValue);
