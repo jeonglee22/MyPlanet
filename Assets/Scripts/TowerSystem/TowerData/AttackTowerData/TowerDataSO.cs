@@ -22,4 +22,7 @@ public class TowerDataSO : ScriptableObject
     public int randomAbilityGroupId;      // RandomAbilityGroup_ID
 
     public BaseTargetPriority targetPriority;
+    
+    [Header("Visual(Except Laser)")]
+    public GameObject projectilePrefab;
 }
