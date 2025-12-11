@@ -66,4 +66,9 @@ public class RandomAbilityTable : DataTable
 
         return -1;
     }
+
+    public List<RandomAbilityData> GetAllAbilityIds()
+    {
+        return new List<RandomAbilityData>(dictionary.Values);
+    }
 }
