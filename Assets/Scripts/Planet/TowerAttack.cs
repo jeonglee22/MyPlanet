@@ -169,11 +169,22 @@ public class TowerAttack : MonoBehaviour
     {
         get
         {
+            if (asyncUserProjectileData != null)
+            {
+                return asyncUserProjectileData;
+            }
+
             var buffed = GetBuffedProjectileData();
             if (buffed != null) return buffed;
             return towerData != null ? towerData.projectileType : null;
         }
+        set
+        {
+            asyncUserProjectileData = value;
+        }
     }
+    private ProjectileData asyncUserProjectileData;
+
     private bool isStartLazer = false;
     public bool IsStartLazer { get { return isStartLazer; } set { isStartLazer = value; } }
     private List<LazertowerAttack> lazers;
@@ -325,16 +336,16 @@ public class TowerAttack : MonoBehaviour
 
         int expectedProjectiles = targetCount * shotCount;
 
-        Debug.Log(
-            $"[ShootAtTarget] {gameObject.name} " +
-            $"targetCount={targetCount}, shotCount={shotCount}, " +
-            $"expectedProjectiles={expectedProjectiles}, " +
-            $"baseProjCount={baseProjectileCount}, " +
-            $"extraProjFromAbility={projectileCountFromAbility}, " +
-            $"extraProjFromAmp={projectileCountFromAmplifier}, " +
-            $"baseTargets={ (targetingSystem != null ? targetingSystem.BaseTargetCount : 0) }, " +
-            $"extraTargets={TotalTargetNumberBuffAdd}"
-        );
+        // Debug.Log(
+        //     $"[ShootAtTarget] {gameObject.name} " +
+        //     $"targetCount={targetCount}, shotCount={shotCount}, " +
+        //     $"expectedProjectiles={expectedProjectiles}, " +
+        //     $"baseProjCount={baseProjectileCount}, " +
+        //     $"extraProjFromAbility={projectileCountFromAbility}, " +
+        //     $"extraProjFromAmp={projectileCountFromAmplifier}, " +
+        //     $"baseTargets={ (targetingSystem != null ? targetingSystem.BaseTargetCount : 0) }, " +
+        //     $"extraTargets={TotalTargetNumberBuffAdd}"
+        // );
         //
 
         if (targets == null || targets.Count == 0)
@@ -366,10 +377,10 @@ public class TowerAttack : MonoBehaviour
                            vp.y >= 0f && vp.y <= 1f);
         if (!inViewport) return;
 
-        Debug.Log(
-    $"[FireToTarget] {gameObject.name} " +
-    $"target={target} shotCount={shotCount}"
-);
+//         Debug.Log(
+//     $"[FireToTarget] {gameObject.name} " +
+//     $"target={target} shotCount={shotCount}"
+// );
 
         Vector3 baseDirection = (target.position - firePoint.position).normalized;
         float centerIndex = (shotCount - 1) * 0.5f;
@@ -382,10 +393,10 @@ public class TowerAttack : MonoBehaviour
 
         for (int i = 0; i < shotCount; i++)
         {
-            Debug.Log(
-           $"[FireToTargetLoop] {gameObject.name} " +
-           $"target={target} projIndex={i + 1}/{shotCount}"
-       );
+    //         Debug.Log(
+    //        $"[FireToTargetLoop] {gameObject.name} " +
+    //        $"target={target} projIndex={i + 1}/{shotCount}"
+    //    );
 
             float offsetIndex = i - centerIndex;
             var projectile = ProjectilePoolManager.Instance.GetProjectile(baseData);
@@ -729,11 +740,11 @@ public class TowerAttack : MonoBehaviour
 
             fixedPenetrationFromAmplifier += amp.FixedPenetrationBuff;
 
-            Debug.Log(
-                $"[AmpBase][FixedPen] tower={name}, amp={amp.name}, " +
-                $"amp.FixedPenetrationBuff={amp.FixedPenetrationBuff}, " +
-                $"sumAmpFixed={fixedPenetrationFromAmplifier}"
-            );
+            // Debug.Log(
+            //     $"[AmpBase][FixedPen] tower={name}, amp={amp.name}, " +
+            //     $"amp.FixedPenetrationBuff={amp.FixedPenetrationBuff}, " +
+            //     $"sumAmpFixed={fixedPenetrationFromAmplifier}"
+            // );
             targetNumberFromAmplifier += amp.TargetNumberBuff;
             accuracyFromAmplifier += amp.HitRateBuff;
         }

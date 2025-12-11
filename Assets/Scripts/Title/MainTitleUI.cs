@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -83,6 +84,8 @@ public class MainTitleUI : MonoBehaviour
 
         if (AuthManager.Instance.IsSignedIn)
         {
+            await CheckAllDataUpdated();
+
             SetExplainText($"Welcome back, {AuthManager.Instance.UserNickName}!");
             infoPopUpUI.SetNickNameText(AuthManager.Instance.UserNickName);
             playText.SetActive(true);
@@ -92,6 +95,19 @@ public class MainTitleUI : MonoBehaviour
             SetExplainText("Please log in to continue.");
             canvasManager.SwitchToTargetPopUp(MainTitleCanvasManager.PopupName.LogIn);
         }
+    }
+
+    private async UniTask CheckAllDataUpdated()
+    {
+        SetExplainText("Updating user data...");
+
+        await UserPlanetManager.Instance.LoadUserPlanetAsync();
+
+        await UserAttackPowerManager.Instance.LoadUserAttackPowerAsync();
+
+        // await CurrencyManager.Instance.LoadCurrencyAsync();
+
+        await UserTowerManager.Instance.LoadUserTowerDataAsync();
     }
 
     private void OnLogInOutButtonClicked()

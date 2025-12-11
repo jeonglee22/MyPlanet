@@ -15,7 +15,7 @@ public class AsyncRaidUI : MonoBehaviour
     [SerializeField] private Image disConnectionIcon;
     [SerializeField] private Image[] hpFillImages;
     [SerializeField] private Image backGroundImage;
-    [SerializeField] private Image[] infoPanels;
+    [SerializeField] private Image[] infoPanels;    
 
     private AsyncUserPlanet asyncUserPlanet;
     private Color initColor;
@@ -38,8 +38,7 @@ public class AsyncRaidUI : MonoBehaviour
 
         SetUserNickname(planet.BlurNickname);
 
-        SetTransparentUserPlanetInfo();
-
+        // SetTransparentUserPlanetInfo();
     }
 
     private void OnDisable()
@@ -55,6 +54,11 @@ public class AsyncRaidUI : MonoBehaviour
     void Start()
     {
         gameObject.SetActive(false);
+
+        infoPanels[2].gameObject.SetActive(false);
+        infoPanels[3].gameObject.SetActive(false);
+        infoPanels[4].gameObject.SetActive(false);
+        infoPanels[5].gameObject.SetActive(false);
     }
 
     public void OnClickResetRaid()

@@ -114,18 +114,6 @@ public class PlanetTowerUI : MonoBehaviour
         TowerRotateClock = deltaX > 0f;
         dragBeforePosX = touchPosX;
     }
-
-    private void OnLetfMoveClicked()
-    {
-        Angle -= 360f / TowerCount;
-        TowerRotateClock = true;
-    }
-
-    private void OnRightMoveClicked()
-    {
-        Angle += 360f / TowerCount;
-        TowerRotateClock = false;
-    }
     
     private void OnStartBattelClicked()
     {
@@ -137,6 +125,8 @@ public class PlanetTowerUI : MonoBehaviour
 
     private void OnGoToTitleClicked()
     {
+        UserTowerManager.Instance.UpdateUserTowerDataAsync(installControl).Forget();
+
         SceneControlManager.Instance.LoadScene(SceneName.StageSelectScene).Forget();
     }
 }
