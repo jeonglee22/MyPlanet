@@ -46,20 +46,28 @@ public class Projectile : MonoBehaviour , IDisposable
             baseScale = transform.localScale;
             baseScaleInitialized = true;
         }
+        if (trailRenderer == null)
+            trailRenderer = GetComponentInChildren<TrailRenderer>();
     }
     private void OnEnable()
     {
-        trailRenderer.Clear();
-        trailRenderer.enabled = true;
-        trailRenderer.emitting = true;
+        if(trailRenderer!=null)
+        {
+            trailRenderer.Clear();
+            trailRenderer.enabled = true;
+            trailRenderer.emitting = true;
+        }
     }
 
     private void OnDisable()
     {
         abilityAction = null;
-        trailRenderer.emitting = false;
-        trailRenderer.Clear();
-        trailRenderer.enabled = false;
+        if(trailRenderer!=null)
+        {
+            trailRenderer.emitting = false;
+            trailRenderer.Clear();
+            trailRenderer.enabled = false;
+        }
     }
 
     private void Update()
@@ -109,6 +117,11 @@ public class Projectile : MonoBehaviour , IDisposable
         Cancel();
         abilityRelease?.Invoke(gameObject);
         abilityRelease = null;
+        if(trailRenderer!=null)
+        {
+            trailRenderer.emitting = false;
+            trailRenderer.Clear();
+        }
         if (objectPoolManager != null)
             objectPoolManager.Return(poolKeyData, this);
         Debug.Log("[Projectile] ReturnProjectileToPool called");

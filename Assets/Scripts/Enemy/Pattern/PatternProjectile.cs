@@ -22,6 +22,12 @@ public class PatternProjectile : MonoBehaviour , IDisposable
     public event Action<PatternProjectile, float> OnHitByProjectileEvent;
     public event Action<PatternProjectile> OnPlayerHitEvent;
 
+    public void Awake()
+    {
+        if (trailRenderer == null)
+            trailRenderer = GetComponentInChildren<TrailRenderer>();
+    }
+
     public void Initialize(int id, float damage, float speed, float lifetime, Vector3 direction, PatternSpawner spawner)
     {
         patternId = id;
@@ -42,17 +48,23 @@ public class PatternProjectile : MonoBehaviour , IDisposable
     private void OnEnable()
     {
         isReturn = false;
-        trailRenderer.Clear();
-        trailRenderer.enabled = true;
-        trailRenderer.emitting = true;
+        
+        if(trailRenderer!=null)
+        {
+            trailRenderer.Clear();
+            trailRenderer.enabled = true;
+            trailRenderer.emitting = true;
+        }
     }
 
     private void OnDisable()
     {
-        trailRenderer.emitting = false;
-        trailRenderer.Clear();
-        trailRenderer.enabled = false;
-
+        if(trailRenderer!=null)
+        {
+            trailRenderer.emitting = false;
+            trailRenderer.Clear();
+            trailRenderer.enabled = false;
+        }
         transform.position = PatternSpawner.Instance.transform.position;
     }
 
@@ -119,7 +131,11 @@ public class PatternProjectile : MonoBehaviour , IDisposable
 
         OnHitByProjectileEvent = null;
         OnPlayerHitEvent = null;
-        trailRenderer.Clear();
+        if(trailRenderer!=null)
+        {
+            trailRenderer.emitting = false;
+            trailRenderer.Clear();
+        }
         spawner?.ReturnPatternToPool(this);
     }
 
