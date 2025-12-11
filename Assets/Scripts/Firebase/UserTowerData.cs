@@ -42,7 +42,7 @@ public class UserTowerData
         abilities = new List<int>();
     }
 
-    public UserTowerData(int towerId, int towerLevelId = 0,
+    public UserTowerData(int towerId, int towerLevelId = -1,
         int initTowerData = 0, ProjectileData buffedProjectileData = null, List<int> abilities = null)
     {
         this.towerId = towerId;

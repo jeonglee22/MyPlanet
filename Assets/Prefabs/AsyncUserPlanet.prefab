@@ -146,8 +146,6 @@ GameObject:
   m_Component:
   - component: {fileID: 6821086565186468494}
   - component: {fileID: 1211744809278053176}
-  - component: {fileID: 4301936343689776196}
-  - component: {fileID: 5959198370623591203}
   m_Layer: 0
   m_Name: AsyncUserPlanet
   m_TagString: Planet
@@ -170,6 +168,7 @@ Transform:
   m_Children:
   - {fileID: 6161494797307514878}
   - {fileID: 386767070751730252}
+  - {fileID: 8022244497367230862}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1211744809278053176
@@ -188,41 +187,7 @@ MonoBehaviour:
   highestHpPrioritySO: {fileID: 11400000, guid: b17fe2a3429fd6941b44d53448f5337d, type: 2}
   targetRangeSO: {fileID: 11400000, guid: a5bfb12a4bd0a724ab1fe7f16c8e9ef2, type: 2}
   nicknameText: {fileID: 4005865665938228301}
---- !u!114 &4301936343689776196
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3371870077070997737}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 94dfd41efe9975e4293472c37519279d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  firePoint: {fileID: 6821086565186468494}
-  projectileOffset: 0.05
-  fireRateAbilityMul: 0
-  fireRateBuffMul: 1
-  reinforceLevel: 0
-  reinforceAttackScale: 1
---- !u!114 &5959198370623591203
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3371870077070997737}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56c08a1fa7665d847bd83aebb5d6eb60, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  towerInstallControl: {fileID: 0}
-  towerFiringPoint: {fileID: 0}
-  rangeData: {fileID: 0}
-  targetStrategy: {fileID: 0}
-  scanInterval: 0.2
+  towerAttackObject: {fileID: 2993811178085594066}
 --- !u!1 &4393609976406849188
 GameObject:
   m_ObjectHideFlags: 0
@@ -309,6 +274,74 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &5355386932516207473
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8022244497367230862}
+  - component: {fileID: 2993811178085594066}
+  - component: {fileID: 7120695396030637163}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &8022244497367230862
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5355386932516207473}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6821086565186468494}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2993811178085594066
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5355386932516207473}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94dfd41efe9975e4293472c37519279d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  firePoint: {fileID: 8022244497367230862}
+  projectileOffset: 0.05
+  fireRateAbilityMul: 0
+  fireRateBuffMul: 0
+  reinforceLevel: 0
+  reinforceAttackScale: 1
+--- !u!114 &7120695396030637163
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5355386932516207473}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56c08a1fa7665d847bd83aebb5d6eb60, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  towerInstallControl: {fileID: 0}
+  towerFiringPoint: {fileID: 0}
+  rangeData: {fileID: 0}
+  targetStrategy: {fileID: 0}
+  scanInterval: 0.2
 --- !u!1 &6859999511510585198
 GameObject:
   m_ObjectHideFlags: 0

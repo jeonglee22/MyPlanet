@@ -103,6 +103,8 @@ public class MainTitleUI : MonoBehaviour
 
         await UserPlanetManager.Instance.LoadUserPlanetAsync();
 
+        await UserAttackPowerManager.Instance.LoadUserAttackPowerAsync();
+
         // await CurrencyManager.Instance.LoadCurrencyAsync();
 
         await UserTowerManager.Instance.LoadUserTowerDataAsync();

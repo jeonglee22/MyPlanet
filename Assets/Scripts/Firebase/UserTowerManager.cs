@@ -14,6 +14,9 @@ public class UserTowerManager : MonoBehaviour
     private UserTowerData[] currentTowerDatas;
     public UserTowerData[] CurrentTowerDatas => currentTowerDatas;
 
+    private UserTowerData[] asyncUserTowerDatas;
+    public UserTowerData[] AsyncUserTowerDatas => asyncUserTowerDatas;
+
     private const int towerTypeCount = 6;
 
     private bool isInitialized = false;
@@ -90,7 +93,7 @@ public class UserTowerManager : MonoBehaviour
         }
     }
 
-    public async UniTask<bool> LoadUserTowerDataAsync(string asyncUserId)
+    public async UniTask<bool> LoadAsyncUserTowerDataAsync(string asyncUserId)
     {
         if(!AuthManager.Instance.IsSignedIn)
             return false;
@@ -115,12 +118,23 @@ public class UserTowerManager : MonoBehaviour
 
                 if(!dataSnapshot.Exists)
                 {
-                    Debug.LogError($"User tower data for {towerKey} does not exist.");
-                    return false;
+                    var defaultTowerData = i switch
+                    {
+                        0 => new UserTowerData(1000001),
+                        1 => new UserTowerData(1000002),
+                        2 => new UserTowerData(1001001),
+                        3 => new UserTowerData(1001002),
+                        4 => new UserTowerData(1002001),
+                        5 => new UserTowerData(1002002),
+                        _ => null
+                    };
+
+                    asyncUserTowerDatas[i] = defaultTowerData;
+                    continue;
                 }
 
                 var json = dataSnapshot.GetRawJsonValue();
-                currentTowerDatas[i] = UserTowerData.FromJson(json);
+                asyncUserTowerDatas[i] = UserTowerData.FromJson(json);
             }
 
             return true;

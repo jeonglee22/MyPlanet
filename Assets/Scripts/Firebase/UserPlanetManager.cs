@@ -12,6 +12,8 @@ public class UserPlanetManager : MonoBehaviour
 
     private UserPlanetData currentPlanet;
     public UserPlanetData CurrentPlanet => currentPlanet;
+    private UserPlanetData asyncUserPlanet;
+    public UserPlanetData AsyncUserPlanet => asyncUserPlanet;
 
     private bool isInitialized = false;
     public bool IsInitialized => isInitialized;
@@ -52,13 +54,41 @@ public class UserPlanetManager : MonoBehaviour
 
             if (!dataSnapshot.Exists)
             {
-                Debug.LogError("User planet not exist.");
-                return false;
+                await InitUserPlanetAsync(AuthManager.Instance.UserNickName);
+                return true;
             }
 
             var json = dataSnapshot.GetRawJsonValue();
             var planetData = UserPlanetData.FromJson(json);
             currentPlanet = planetData;
+
+            return true;
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"Error : {ex.Message}");
+            return false;
+        }
+    }
+
+    public async UniTask<bool> LoadAsyncUserPlanetAsync(string asyncUserId)
+    {
+        if (!AuthManager.Instance.IsSignedIn)
+            return false;
+
+        try
+        {
+            var dataSnapshot = await userPlanetRef.Child(asyncUserId).GetValueAsync().AsUniTask();
+
+            if (!dataSnapshot.Exists)
+            {
+                Debug.LogError("User planet data does not exist.");
+                return false;
+            }
+
+            var json = dataSnapshot.GetRawJsonValue();
+            var planetData = UserPlanetData.FromJson(json);
+            asyncUserPlanet = planetData;
 
             return true;
         }

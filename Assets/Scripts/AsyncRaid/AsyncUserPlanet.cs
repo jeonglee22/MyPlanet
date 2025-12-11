@@ -8,6 +8,7 @@ public class AsyncUserPlanet : LivingEntity
     [SerializeField] HighestHpPrioritySO highestHpPrioritySO;
     [SerializeField] TargetRangeSO targetRangeSO;
     [SerializeField] TextMeshProUGUI nicknameText;
+    [SerializeField] TowerAttack towerAttackObject;
 
     private float livingTime;
     private float elapsedTime = 0f;
@@ -69,7 +70,52 @@ public class AsyncUserPlanet : LivingEntity
         Debug.Log("Damage to Boss : " + attack);
     }
 
-    public void InitializePlanet(UserPlanetData data, float damage, AsyncPlanetData asyncData, TowerDataSO towerData, Vector3 ReflectPosition)
+    // public void InitializePlanet(UserPlanetData data, float damage, AsyncPlanetData asyncData, TowerDataSO towerData, Vector3 ReflectPosition)
+    // {
+    //     if (data == null)
+    //     {
+    //         data = new UserPlanetData("Unknown", 0);
+    //     }
+
+    //     Debug.Log(livingTime);
+
+    //     planetData = data;
+    //     attack = damage;
+    //     attackDps = attack / livingTime;
+    //     dieDps = Health / livingTime;
+    //     tower = GetComponent<TowerAttack>();
+    //     tower.IsOtherUserTower = true;
+
+    //     SetBlurNickname(planetData.nickName);
+    //     asyncPlanetData = asyncData;
+    //     var towerId = asyncPlanetData.AttackTower_Id;
+    //     towerDataSO = ScriptableObject.Instantiate(towerData);
+    //     towerDataSO.targetPriority = highestHpPrioritySO;
+    //     towerDataSO.rangeData = targetRangeSO;
+
+    //     tower.SetTowerData(towerDataSO);
+    //     tower.DamageBuffMul = 0f;
+
+    //     var targetingSystem = tower.GetComponent<TowerTargetingSystem>();
+    //     targetingSystem.SetTowerData(towerDataSO);
+
+    //     SetupAbilities();
+    //     foreach (var abilityId in abilities)
+    //     {
+    //         var ability = AbilityManager.GetAbility(abilityId);
+    //         tower.AddAbility(abilityId);
+    //         ability?.ApplyAbility(tower.gameObject);
+
+    //     }
+
+    //     Debug.Log(ReflectPosition + " / " + transform.position);
+    //     direction = (ReflectPosition - transform.position).normalized;
+    //     moveSpeed = Vector3.Distance(ReflectPosition, transform.position) / livingTime;
+
+    //     nicknameText.text = blurNickname;
+    // }
+
+    public void InitializePlanet(UserPlanetData data, float damage, UserTowerData[] userTowerDatas, Vector3 ReflectPosition)
     {
         if (data == null)
         {
@@ -79,35 +125,39 @@ public class AsyncUserPlanet : LivingEntity
         Debug.Log(livingTime);
 
         planetData = data;
-        attack = damage;
+        // attack = damage;
         attackDps = attack / livingTime;
         dieDps = Health / livingTime;
-        tower = GetComponent<TowerAttack>();
-        tower.IsOtherUserTower = true;
 
-        SetBlurNickname(planetData.nickName);
-        asyncPlanetData = asyncData;
+        foreach (var userTowerData in userTowerDatas)
+        {
+            if (userTowerData == null || userTowerData.towerLevelId == -1)
+                continue;
+
+            var tower = Instantiate(towerAttackObject, transform);
+            tower.IsOtherUserTower = true;
+
+            var targetingSystem = tower.GetComponent<TowerTargetingSystem>();
+            targetingSystem.SetTowerData(towerDataSO);
+
+            var abilities = userTowerData.abilities;
+            SetupAbilities();
+            foreach (var abilityId in abilities)
+            {
+                var ability = AbilityManager.GetAbility(abilityId);
+                tower.AddAbility(abilityId);
+                ability?.ApplyAbility(tower.gameObject);
+                ability?.Setting(tower.gameObject);
+            }
+        }       
+        // asyncPlanetData = asyncData;
         var towerId = asyncPlanetData.AttackTower_Id;
-        towerDataSO = ScriptableObject.Instantiate(towerData);
-        towerDataSO.targetPriority = highestHpPrioritySO;
+        // towerDataSO = ScriptableObject.Instantiate(towerData);
+        // towerDataSO.targetPriority = highestHpPrioritySO;
         towerDataSO.rangeData = targetRangeSO;
 
-        tower.SetTowerData(towerDataSO);
-        tower.DamageBuffMul = 0f;
+        SetBlurNickname(planetData.nickName);
 
-        var targetingSystem = tower.GetComponent<TowerTargetingSystem>();
-        targetingSystem.SetTowerData(towerDataSO);
-
-        SetupAbilities();
-        foreach (var abilityId in abilities)
-        {
-            var ability = AbilityManager.GetAbility(abilityId);
-            tower.AddAbility(abilityId);
-            ability?.ApplyAbility(tower.gameObject);
-
-        }
-
-        Debug.Log(ReflectPosition + " / " + transform.position);
         direction = (ReflectPosition - transform.position).normalized;
         moveSpeed = Vector3.Distance(ReflectPosition, transform.position) / livingTime;
 

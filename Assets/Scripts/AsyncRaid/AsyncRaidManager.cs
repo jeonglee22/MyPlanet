@@ -41,7 +41,7 @@ public class AsyncRaidManager : MonoBehaviour
                 return;
 
             var bossHp = Variables.LastBossEnemy != null ? Variables.LastBossEnemy.maxHp : 1;
-            SpawnAsyncUserPlanet(bossHp).Forget();
+            SpawnAsyncUserPlanetAsync(bossHp).Forget();
             canStartSpawn = false;
         }
         else if (WaveManager.Instance.IsLastBoss && isSettingAsyncUserPlanet && !isActiveUI)
@@ -51,25 +51,40 @@ public class AsyncRaidManager : MonoBehaviour
         }
     }
 
-    private async UniTask SpawnAsyncUserPlanet(float bossHp)
+    // private async UniTask SpawnAsyncUserPlanet(float bossHp)
+    // {
+    //     await UserPlanetManager.Instance.GetRandomPlanetAsync();
+
+    //     userPlanetData = UserPlanetManager.Instance.CurrentPlanet;
+
+    //     var spawnPos = GetSpawnPoint();
+    //     var asyncUserPlanetObj = Instantiate(asyncUserPlanetPrefab, spawnPos, Quaternion.identity);
+    //     userPlanet = asyncUserPlanetObj.GetComponent<AsyncUserPlanet>();
+    //     var asyncPlanetData = DataTableManager.AsyncPlanetTable.GetRandomData();
+    //     var towerData = towerDataSOs[asyncPlanetData.TowerType - 1];
+    //     userPlanet.InitializePlanet(userPlanetData ?? null, bossHp * totalBossDamagePercent, asyncPlanetData, towerData, GetReflectPoint(spawnPos));
+
+    //     isSettingAsyncUserPlanet = true;
+    // }
+
+    private async UniTask SpawnAsyncUserPlanetAsync(float bossHp)
     {
-        await UserPlanetManager.Instance.GetRandomPlanetAsync();
+        await UserAttackPowerManager.Instance.FindSimilarAttackPowerUserAsync();
 
-        userPlanetData = UserPlanetManager.Instance.CurrentPlanet;
+        var similarUserId = UserAttackPowerManager.Instance.SimilarAttackPowerUserId;
 
+        await UserTowerManager.Instance.LoadAsyncUserTowerDataAsync(similarUserId);
+        await UserPlanetManager.Instance.LoadAsyncUserPlanetAsync(similarUserId);
+
+        userPlanetData = UserPlanetManager.Instance.AsyncUserPlanet;
         var spawnPos = GetSpawnPoint();
         var asyncUserPlanetObj = Instantiate(asyncUserPlanetPrefab, spawnPos, Quaternion.identity);
         userPlanet = asyncUserPlanetObj.GetComponent<AsyncUserPlanet>();
-        var asyncPlanetData = DataTableManager.AsyncPlanetTable.GetRandomData();
-        var towerData = towerDataSOs[asyncPlanetData.TowerType - 1];
-        userPlanet.InitializePlanet(userPlanetData ?? null, bossHp * totalBossDamagePercent, asyncPlanetData, towerData, GetReflectPoint(spawnPos));
+        var asyncUserTowerDatas = UserTowerManager.Instance.AsyncUserTowerDatas;
 
+        userPlanet.InitializePlanet(userPlanetData ?? null, bossHp, asyncUserTowerDatas, GetReflectPoint(spawnPos));
+    
         isSettingAsyncUserPlanet = true;
-    }
-
-    private async UniTask SpawnAsyncUserPlanet()
-    {
-        
     }
 
     private Vector3 GetSpawnPoint()
