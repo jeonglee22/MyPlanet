@@ -1,10 +1,13 @@
 using System.Collections.Generic;
 using System.Text;
+using TMPro;
 using UnityEngine;
 
 public class AsyncUserPlanet : LivingEntity
 {
     [SerializeField] HighestHpPrioritySO highestHpPrioritySO;
+    [SerializeField] TargetRangeSO targetRangeSO;
+    [SerializeField] TextMeshProUGUI nicknameText;
 
     private float livingTime;
     private float elapsedTime = 0f;
@@ -48,7 +51,8 @@ public class AsyncUserPlanet : LivingEntity
         attackTimer += Time.deltaTime;
         if (attackTimer >= 1f)
         {
-            Variables.LastBossEnemy?.OnDamage(attackDps);
+            // Variables.LastBossEnemy?.OnDamage(attackDps);
+
             currentDamage += attackDps;
             Debug.Log("AsyncUserPlanet Deal Damage : " + currentDamage);
             attackTimer = 0f;
@@ -72,6 +76,8 @@ public class AsyncUserPlanet : LivingEntity
             data = new UserPlanetData("Unknown", 0);
         }
 
+        Debug.Log(livingTime);
+
         planetData = data;
         attack = damage;
         attackDps = attack / livingTime;
@@ -84,9 +90,9 @@ public class AsyncUserPlanet : LivingEntity
         var towerId = asyncPlanetData.AttackTower_Id;
         towerDataSO = ScriptableObject.Instantiate(towerData);
         towerDataSO.targetPriority = highestHpPrioritySO;
+        towerDataSO.rangeData = targetRangeSO;
 
         tower.SetTowerData(towerDataSO);
-        // var projectileData = tower.BaseProjectileData;
         tower.DamageBuffMul = 0f;
 
         var targetingSystem = tower.GetComponent<TowerTargetingSystem>();
@@ -101,7 +107,11 @@ public class AsyncUserPlanet : LivingEntity
 
         }
 
+        Debug.Log(ReflectPosition + " / " + transform.position);
         direction = (ReflectPosition - transform.position).normalized;
+        moveSpeed = Vector3.Distance(ReflectPosition, transform.position) / livingTime;
+
+        nicknameText.text = blurNickname;
     }
 
     public override void OnDamage(float damage)

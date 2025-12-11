@@ -37,6 +37,10 @@ public class UserTowerManager : MonoBehaviour
         Debug.Log("UserTowerManager initialized.");
         
         isInitialized = true;
+
+        await LoadUserTowerDataAsync();
+
+        Debug.Log(currentTowerDatas);
     }
 
     public async UniTask<bool> LoadUserTowerDataAsync()
@@ -49,6 +53,9 @@ public class UserTowerManager : MonoBehaviour
         try
         {
             var userRef = userTowerRef.Child(uid);
+            if (currentTowerDatas == null)
+                currentTowerDatas = new UserTowerData[towerTypeCount];
+
             for (int i = 0; i < towerTypeCount; i++)
             {
                 string towerKey = i switch
@@ -180,7 +187,7 @@ public class UserTowerManager : MonoBehaviour
         }
     }
 
-    public async UniTask<bool> UpdateUserTowerDataAsync()
+    public async UniTask<bool> UpdateUserTowerDataAsync(UserTowerData[] updatedTowerDatas)
     {
         if(!AuthManager.Instance.IsSignedIn)
             return false;
@@ -194,16 +201,22 @@ public class UserTowerManager : MonoBehaviour
             // change to usertowerdata
             //
 
-            towerDatas.Add("GunTower", new UserTowerData(1000001));
-            towerDatas.Add("ShootGunTower", new UserTowerData(1000002));
-            towerDatas.Add("GatlingGunTower", new UserTowerData(1001001));
-            towerDatas.Add("LazerTower", new UserTowerData(1001002));
-            towerDatas.Add("SniperTower", new UserTowerData(1002001));
-            towerDatas.Add("MissileTower", new UserTowerData(1002002));
+            foreach (var towerData in updatedTowerDatas)
+            {
+                string towerKey = towerData.towerId switch
+                {
+                    1000001 => "GunTower",
+                    1000002 => "ShootGunTower",
+                    1001001 => "GatlingGunTower",
+                    1001002 => "LazerTower",
+                    1002001 => "SniperTower",
+                    1002002 => "MissileTower",
+                    _ => ""
+                };
 
-            //
-            //           
-            await userTowerRef.Child(uid).UpdateChildrenAsync(towerDatas).AsUniTask();
+                towerDatas.Add(towerKey, towerData);
+                await userTowerRef.Child(uid).Child(towerKey).SetRawJsonValueAsync(towerData.ToJson()).AsUniTask();
+            }
 
             return true;
         }
@@ -211,6 +224,71 @@ public class UserTowerManager : MonoBehaviour
         {
             Debug.LogError($"Failed to save user tower data: {ex.Message}");
             return false;
+        }
+    }
+
+    public async UniTask<bool> UpdateUserTowerDataAsync(TowerInstallControl installControl)
+    {
+        ResetCurrentUserTowerData();
+
+        for (int i = 0; i < installControl.TowerCount; i++)
+        {
+            var tower = installControl.GetAttackTower(i);
+            if (tower == null) 
+                continue;
+
+            var projectileData = tower.CurrentProjectileData;
+            var towerId = tower.AttackTowerData.towerIdInt;
+            var towerLevel = tower.ReinforceLevel;
+            var abilities = tower.Abilities;
+            var userTowerData = new UserTowerData(towerId, towerLevel, 0, projectileData, abilities);
+
+            var index = towerId switch
+            {
+                1000001 => 0,
+                1000002 => 1,
+                1001001 => 2,
+                1001002 => 3,
+                1002001 => 4,
+                1002002 => 5,
+                _ => -1
+            };
+
+            currentTowerDatas[index] = userTowerData;
+        }
+
+        try
+        {
+            var result = await UpdateUserTowerDataAsync(currentTowerDatas);
+
+            return result;
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error updating user tower data: {e.Message}");
+            return false;
+        }
+
+    }
+
+    private void ResetCurrentUserTowerData()
+    {
+        currentTowerDatas = new UserTowerData[towerTypeCount];
+
+        for (int i = 0; i < towerTypeCount; i++)
+        {
+            var towerData = i switch
+            {
+                0 => new UserTowerData(1000001),
+                1 => new UserTowerData(1000002),
+                2 => new UserTowerData(1001001),
+                3 => new UserTowerData(1001002),
+                4 => new UserTowerData(1002001),
+                5 => new UserTowerData(1002002),
+                _ => null
+            };
+
+            currentTowerDatas[i] = towerData;
         }
     }
 }

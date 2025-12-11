@@ -28,6 +28,7 @@ public class AsyncRaidManager : MonoBehaviour
 
     private float xOffset = 1.5f;
     private bool isActiveUI = false;
+    private float asyncUserSpawnTimer;
 
     void Update()
     {
@@ -35,6 +36,10 @@ public class AsyncRaidManager : MonoBehaviour
             && !CameraManager.Instance.IsZoomedOut)
         // if(WaveManager.Instance.IsLastBoss && !isSettingAsyncUserPlanet && canStartSpawn && IsStartRaid)
         {
+            asyncUserSpawnTimer += Time.deltaTime;
+            if(asyncUserSpawnTimer < 3f)
+                return;
+
             var bossHp = Variables.LastBossEnemy != null ? Variables.LastBossEnemy.maxHp : 1;
             SpawnAsyncUserPlanet(bossHp).Forget();
             canStartSpawn = false;
@@ -54,7 +59,7 @@ public class AsyncRaidManager : MonoBehaviour
 
         var spawnPos = GetSpawnPoint();
         var asyncUserPlanetObj = Instantiate(asyncUserPlanetPrefab, spawnPos, Quaternion.identity);
-        var userPlanet = asyncUserPlanetObj.GetComponent<AsyncUserPlanet>();
+        userPlanet = asyncUserPlanetObj.GetComponent<AsyncUserPlanet>();
         var asyncPlanetData = DataTableManager.AsyncPlanetTable.GetRandomData();
         var towerData = towerDataSOs[asyncPlanetData.TowerType - 1];
         userPlanet.InitializePlanet(userPlanetData ?? null, bossHp * totalBossDamagePercent, asyncPlanetData, towerData, GetReflectPoint(spawnPos));
@@ -74,10 +79,10 @@ public class AsyncRaidManager : MonoBehaviour
 
         var yCenter = Mathf.Lerp(screenBounds.yMin, screenBounds.yMax, 0.4f);
 
-        var leftAboveArea = new Rect(screenBounds.xMin - xOffset, yCenter, xOffset, yCenter - Mathf.Lerp(screenBounds.yMin, screenBounds.yMax, 0.2f));
-        var rightAboveArea = new Rect(screenBounds.xMax, yCenter, xOffset, yCenter - Mathf.Lerp(screenBounds.yMin, screenBounds.yMax, 0.2f));
-        var leftBelowArea = new Rect(screenBounds.xMin - xOffset, Mathf.Lerp(screenBounds.yMin, screenBounds.yMax, 0.2f), xOffset, yCenter - Mathf.Lerp(screenBounds.yMin, screenBounds.yMax, 0.2f));
-        var rightBelowArea = new Rect(screenBounds.xMax, Mathf.Lerp(screenBounds.yMin, screenBounds.yMax, 0.2f), xOffset, yCenter - Mathf.Lerp(screenBounds.yMin, screenBounds.yMax, 0.2f));
+        var leftAboveArea = new Rect(screenBounds.xMin - xOffset* 1.5f, yCenter, xOffset, yCenter - Mathf.Lerp(screenBounds.yMin, screenBounds.yMax, 0.2f));
+        var rightAboveArea = new Rect(screenBounds.xMax + xOffset, yCenter, xOffset, yCenter - Mathf.Lerp(screenBounds.yMin, screenBounds.yMax, 0.2f));
+        var leftBelowArea = new Rect(screenBounds.xMin - xOffset * 1.5f, Mathf.Lerp(screenBounds.yMin, screenBounds.yMax, 0.2f), xOffset, yCenter - Mathf.Lerp(screenBounds.yMin, screenBounds.yMax, 0.2f));
+        var rightBelowArea = new Rect(screenBounds.xMax + xOffset, Mathf.Lerp(screenBounds.yMin, screenBounds.yMax, 0.2f), xOffset, yCenter - Mathf.Lerp(screenBounds.yMin, screenBounds.yMax, 0.2f));
 
         var randomArea = Random.value switch
         {
@@ -86,6 +91,7 @@ public class AsyncRaidManager : MonoBehaviour
             < 0.75f => leftBelowArea,
             _ => rightBelowArea
         };
+        Debug.Log("Spawn Area : " + randomArea);
 
         position.x = Random.Range(randomArea.xMin, randomArea.xMax);
         position.y = Random.Range(randomArea.yMin, randomArea.yMax);
@@ -102,20 +108,20 @@ public class AsyncRaidManager : MonoBehaviour
         var reflectPoint = spawnPoint;
         if(spawnPoint.x < xCenter)
         {
-            reflectPoint.x += SpawnManager.Instance.ScreenBounds.width + xOffset * 2f;
+            reflectPoint.x += 2 * (xCenter - spawnPoint.x);
         }
         else
         {
-            reflectPoint.x -= SpawnManager.Instance.ScreenBounds.width + xOffset * 2f;
+            reflectPoint.x -= 2 * (spawnPoint.x - xCenter);
         }
 
         if(spawnPoint.y < yCenter)
         {
-            reflectPoint.y += SpawnManager.Instance.ScreenBounds.height + xOffset * 2f;
+            reflectPoint.y += 2 * (yCenter - spawnPoint.y);
         }
         else
         {
-            reflectPoint.y -= SpawnManager.Instance.ScreenBounds.height + xOffset * 2f;
+            reflectPoint.y -= 2 * (spawnPoint.y - yCenter);
         }
 
         return reflectPoint;

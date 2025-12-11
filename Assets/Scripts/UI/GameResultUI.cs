@@ -8,13 +8,14 @@ public class GameResultUI : MonoBehaviour
     [SerializeField] private Button restartButton;
     [SerializeField] private Button returnToTitleButton;
     [SerializeField] private TextMeshProUGUI resultText;
+    [SerializeField] private TowerInstallControl installControl;
 
     void Start()
     {
         WaveManager.Instance.Cancel();
         // restartButton.onClick.AddListener(() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex));
-        restartButton?.onClick.AddListener(() => SceneControlManager.Instance.LoadScene(SceneControlManager.Instance.CurrentSceneName).Forget());
-        returnToTitleButton?.onClick.AddListener(() => SceneControlManager.Instance.LoadScene(SceneName.LobbyScene).Forget());
+        restartButton?.onClick.AddListener(OnRestartCliecked);
+        returnToTitleButton?.onClick.AddListener(OnReturnToTitleClicked);
     }
 
     public void SetResultText(bool isWin)
@@ -29,5 +30,19 @@ public class GameResultUI : MonoBehaviour
         {
             resultText.text = "Stage Fail!!";
         }
+    }
+
+    public void OnRestartCliecked()
+    {
+        UserTowerManager.Instance.UpdateUserTowerDataAsync(installControl).Forget();
+
+        SceneControlManager.Instance.LoadScene(SceneControlManager.Instance.CurrentSceneName).Forget();
+    }
+
+    public void OnReturnToTitleClicked()
+    {
+        UserTowerManager.Instance.UpdateUserTowerDataAsync(installControl).Forget();
+
+        SceneControlManager.Instance.LoadScene(SceneName.LobbyScene).Forget();
     }
 }

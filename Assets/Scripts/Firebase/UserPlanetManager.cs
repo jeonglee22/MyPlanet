@@ -156,6 +156,7 @@ public class UserPlanetManager : MonoBehaviour
                     {
                         var json = child.GetRawJsonValue();
                         var profile = UserPlanetData.FromJson(json);
+                        currentPlanet = profile;
                         randIndices.Add(randIndex);
                         elements++;
                         break;
