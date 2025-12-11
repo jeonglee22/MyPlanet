@@ -772,25 +772,17 @@ public class TowerAttack : MonoBehaviour
         //------------------
         //rate penetration---------------------------
         float baseRate01 = Mathf.Clamp01(currentProjectileData.RatePenetration / 100f);
-
         float ability01 = Mathf.Clamp01(percentPenetrationFromAbility);
         float amp01 = Mathf.Clamp01(percentPenetrationFromAmplifier);
-
-        float oneMinus = (1f - baseRate01)
-                         * (1f - ability01)
-                         * (1f - amp01);
-
+        float oneMinus = (1f - baseRate01)* (1f - ability01)* (1f - amp01);
         float finalRate01 = 1f - oneMinus;
         addBuffProjectileData.RatePenetration =
             Mathf.Clamp(finalRate01 * 100f, 0f, 100f);
         //-------------------------------------------
-
         float rawAttack = currentProjectileData.Attack * damageBuffMul;
 
         addBuffProjectileData.Attack = Mathf.Max(0f, rawAttack);
-
         addBuffProjectileData.ProjectileAddSpeed = currentProjectileData.ProjectileAddSpeed + accelerationBuffAdd;
-
         addBuffProjectileData.AttackType = currentProjectileData.AttackType == newProjectileAttackType
             ? currentProjectileData.AttackType
             : newProjectileAttackType;
