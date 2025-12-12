@@ -5,16 +5,16 @@ using UnityEngine;
 
 public class UserAttackPowerManager : MonoBehaviour
 {
-    private static UserPlanetManager instance;
-    public static UserPlanetManager Instance => instance;
+    private static UserAttackPowerManager instance;
+    public static UserAttackPowerManager Instance => instance;
 
     private DatabaseReference userAttackRef;
 
     private UserAttackPowerData currentAttackPower;
     public UserAttackPowerData CurrentPlanetPower => currentAttackPower;
 
-    private int similarAttackPowerUserId;
-    public int SimilarAttackPowerUserId => similarAttackPowerUserId;
+    private string similarAttackPowerUserId;
+    public string SimilarAttackPowerUserId => similarAttackPowerUserId;
 
     private bool isNotSimilarUserFound = false;
     public bool IsNotSimilarUserFound => isNotSimilarUserFound;
@@ -22,13 +22,24 @@ public class UserAttackPowerManager : MonoBehaviour
     private bool isInitialized = false;
     public bool IsInitialized => isInitialized;
 
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
+        FirebaseDatabase.DefaultInstance.SetPersistenceEnabled(false);
+    }
+
     private async UniTaskVoid Start()
     {
-        await FireBaseInitializer.Instance.WaitInitialization();
+        await UniTask.WaitUntil(() => AuthManager.Instance.IsInitialized);
 
-        userAttackRef = FirebaseDatabase.DefaultInstance.RootReference.Child("attackPower");
+        userAttackRef = FirebaseDatabase.DefaultInstance.RootReference.Child(DatabaseRef.UserAttackPowers);
 
         Debug.Log("[Attack Power] End Init");
+
+        isInitialized = true;
     }
 
     public async UniTask<bool> LoadUserAttackPowerAsync()
@@ -44,8 +55,8 @@ public class UserAttackPowerManager : MonoBehaviour
 
             if(!dataSnapshot.Exists)
             {
-                Debug.LogError("User attack power does not exist.");
-                return false;
+                await SaveUserAttackPowerAsync(0);
+                return true;
             }
             
             var json = dataSnapshot.GetRawJsonValue();
@@ -69,7 +80,7 @@ public class UserAttackPowerManager : MonoBehaviour
         
         try
         {
-            var attackPowerData = new UserAttackPowerData(attackPower, (long)ServerValue.Timestamp);
+            var attackPowerData = new UserAttackPowerData(attackPower, 0);
             var json = attackPowerData.ToJson();
 
             await userAttackRef.Child(uid).SetRawJsonValueAsync(json).AsUniTask();
@@ -83,11 +94,42 @@ public class UserAttackPowerManager : MonoBehaviour
         }
     }
 
-    public async UniTask<bool> FindSimilarAttackPowerUserAsync(int attackPower)
+    public async UniTask<bool> FindSimilarAttackPowerUserAsync()
     {
         if (!AuthManager.Instance.IsSignedIn)
             return false;
 
+        try
+        {
+            var userTowerRef = FirebaseDatabase.DefaultInstance.RootReference.Child(DatabaseRef.UserTowers);
+            var dataSnapshot = await userTowerRef.GetValueAsync().AsUniTask();
+
+            var userCount = dataSnapshot.ChildrenCount;
+            int index = Random.Range(0, (int)userCount);
+
+            int start = 0;
+            foreach (var child in dataSnapshot.Children)
+            {
+                if (index == start)
+                {
+                    var json = child.GetRawJsonValue();
+                    var profile = UserPlanetData.FromJson(json);
+                    similarAttackPowerUserId = child.Key;
+                    break;
+                }
+                start++;
+            }
+
+            return true;
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"FindSimilarAttackPowerUserAsync failed: {e.Message}");
+            return false;
+        }
+
+
+        // ------------------------------------------------------------------------------ //
         try
         {
             var dataSnapshot = await userAttackRef.GetValueAsync().AsUniTask();
@@ -98,12 +140,12 @@ public class UserAttackPowerManager : MonoBehaviour
                 return false;
             }
 
-            similarAttackPowerUserId = -1;
+            similarAttackPowerUserId = string.Empty;
             int aboveDifference = 300;
             int belowDifference = -300;
 
             var currentPower = currentAttackPower.attackPower;
-            var similarList = new List<int>();
+            var similarList = new List<string>();
 
             while (true)
             {
@@ -119,7 +161,7 @@ public class UserAttackPowerManager : MonoBehaviour
                     if ((userPower > currentPower + aboveDifference) || (userPower < currentPower + belowDifference))
                         continue;
 
-                    similarList.Add(int.Parse(childSnapshot.Key));
+                    similarList.Add(childSnapshot.Key);
                 }
 
                 if (similarList.Count > 0)
