@@ -10,6 +10,9 @@ public class PlanetTowerUI : MonoBehaviour
     [SerializeField] private TowerInfoUI towerInfoUI;
     [SerializeField] private TowerInstallControl installControl;
     [SerializeField] private RectTransform planetCenter;
+    [SerializeField] private GameObject backConfirmPanel;
+    [SerializeField] private Button backYexBtn;
+    [SerializeField]  private Button backNoBtn;
     private RectTransform dragAreaRect;
     private TowerUpgradeSlotUI towerUpgradeSlotUI;
 
@@ -25,6 +28,8 @@ public class PlanetTowerUI : MonoBehaviour
     private float controlRadius;
 
     private bool isOpen = false;
+    private bool isBackBtnClicked = false;
+    public bool IsBackBtnClicked => isBackBtnClicked;
 
     void Awake()
     {
@@ -44,6 +49,10 @@ public class PlanetTowerUI : MonoBehaviour
             dragAreaRect = installControl.gameObject.GetComponent<RectTransform>();
 
         controlRadius = Screen.width * 0.5f;
+
+        backYexBtn.onClick.AddListener(OnBackYesClicked);
+        backNoBtn.onClick.AddListener(OnBackNoClicked);
+        backConfirmPanel.SetActive(false);
     }
 
     void OnEnable()
@@ -70,7 +79,7 @@ public class PlanetTowerUI : MonoBehaviour
         //         battleButton.gameObject.SetActive(!towerUpgradeSlotUI.IsFirstInstall);
         // }
 
-        if(installControl == null)
+        if(installControl == null || isBackBtnClicked)
             return;
 
         if(!TouchManager.Instance.IsTouching)
@@ -125,8 +134,26 @@ public class PlanetTowerUI : MonoBehaviour
 
     private void OnGoToTitleClicked()
     {
+        goToTitleButton.interactable = false;
+        battleButton.interactable = false;
+
+        backConfirmPanel.SetActive(true);
+        isBackBtnClicked = true;
+    }
+
+    private void OnBackYesClicked()
+    {
         UserTowerManager.Instance.UpdateUserTowerDataAsync(installControl).Forget();
 
-        SceneControlManager.Instance.LoadScene(SceneName.StageSelectScene).Forget();
+        SceneControlManager.Instance.LoadScene(SceneName.LobbyScene).Forget();
+    }
+
+    private void OnBackNoClicked()
+    {
+        backConfirmPanel.SetActive(false);
+        goToTitleButton.interactable = true;
+        battleButton.interactable = true;
+
+        isBackBtnClicked = false;
     }
 }
