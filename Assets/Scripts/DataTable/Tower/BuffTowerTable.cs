@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using CsvHelper.Configuration.Attributes;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -9,6 +10,7 @@ public class BuffTowerData
     public int SlotNum { get; set; }
     public int SpecialEffectCombination_ID { get; set; }
     public int RandomAbilityGroup_ID { get; set; }
+    [TypeConverter(typeof(IntArrayConverter))]
     public int[] BuffTowerReinforceUpgrade_ID { get; set; }
     public int TowerWeight { get; set; }
     public int Order { get; set; }
@@ -62,5 +64,16 @@ public class BuffTowerTable : DataTable
             return data.TowerText_ID;
         }
         return -1;
+    }
+
+    public List<BuffTowerData> GetAllDatas()
+    {
+        List<BuffTowerData> result = new List<BuffTowerData>();
+        foreach (var data in dictionary.Values)
+        {
+            result.Add(data);
+        }
+
+        return result;
     }
 }

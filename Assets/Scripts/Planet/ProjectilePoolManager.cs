@@ -16,7 +16,20 @@ public class ProjectilePoolManager : MonoBehaviour
     [SerializeField] private int defaultPoolCapacity = 20;
     [SerializeField] private int maxPoolSize = 100;
 
-    public GameObject ProjectilePrefab { get; private set; }
+    //public GameObject ProjectilePrefab { get; private set; }
+    private readonly Dictionary<ProjectileData, GameObject> prefabMap =
+        new Dictionary<ProjectileData, GameObject>();
+
+    private Dictionary<int, string> projectilePrefabName =
+        new Dictionary<int, string>()
+        {
+            { 1100001, ObjectName.ProjectileGun },
+            { 1100002, ObjectName.ProjectileGatling },
+            { 1100003, ObjectName.ProjectileSniper },
+            { 1100004, ObjectName.ProjectileShoot },
+            { 1101001, ObjectName.ProjectileMissile },
+            { 1102001, ObjectName.ProjectilePrefab },
+        };
 
     private void Awake()
     {
@@ -28,6 +41,8 @@ public class ProjectilePoolManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+
     }
 
     private async UniTaskVoid OnEnable() 
@@ -37,22 +52,35 @@ public class ProjectilePoolManager : MonoBehaviour
 
     private async UniTask LoadPatternPrefabAsync()
     {
-        if(ProjectilePrefab != null)
-        {
-            return;
-        }
+        //if (ProjectilePrefab != null) return;
+        //ProjectilePrefab = await Addressables.LoadAssetAsync<GameObject>(ObjectName.ProjectilePrefab).ToUniTask();
+    }
 
-        ProjectilePrefab = await Addressables.LoadAssetAsync<GameObject>(ObjectName.ProjectilePrefab).ToUniTask();
+    public void RegisterProjectilePrefab(ProjectileData data, GameObject prefab)
+    {
+        if (data == null || prefab == null) return;
+        prefabMap[data] = prefab;
+    }
+
+    private GameObject GetPrefabForData(ProjectileData data)
+    {
+        if (data != null && prefabMap.TryGetValue(data, out var prefab) && prefab != null)
+            return prefab;
+        return null;
     }
 
     public void CreatePool(ProjectileData data)
     {
-        GameObject prefab = ProjectilePrefab;
-        Projectile projectile = prefab.GetComponent<Projectile>();
+        var name = projectilePrefabName[data.Projectile_ID];
+
+        var projectilePrefab = LoadManager.GetLoadedGamePrefab(name);
+        projectilePrefab.SetActive(false);
+        // GameObject ProjectilePrefab = GetPrefabForData(data);
+        // Projectile projectile = projectilePrefab.GetComponent<Projectile>();
 
         objectPoolManager.CreatePool(
             data,
-            ProjectilePrefab,
+            projectilePrefab,
             defaultPoolCapacity,
             maxPoolSize,
             collectionCheck
@@ -67,7 +95,6 @@ public class ProjectilePoolManager : MonoBehaviour
         }
 
         Projectile projectile = objectPoolManager.Get(data);
-
         return projectile;
     }
 }

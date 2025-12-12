@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -23,7 +24,14 @@ public static class ObjectName
     public static readonly string PatternProjectile = "PatternProjectile";
     public static readonly string Enemy = "EnemySample";
     public static readonly string BossEnemy = "EnemyBossSample";
+
     public static readonly string ProjectilePrefab = "Projectile_Sample";
+    public static readonly string ProjectileGun = "Projectile_GunTower";
+    public static readonly string ProjectileMissile = "Projectile_MissileTower";
+    public static readonly string ProjectileGatling = "Projectile_GatlingTower";
+    public static readonly string ProjectileShoot = "Projectile_ShootTower";
+    public static readonly string ProjectileSniper = "Projectile_SniperTower";
+    
     public static readonly string Projectile = "Projectile";
     public static readonly string ChainEffect = "ChainEffect";
     public static readonly string MeteorChild = "MeteorChild";
@@ -43,7 +51,6 @@ public static class SceneName
     public static readonly string StageSelectScene = "StageSelectScene";
     public static readonly string AsyncRaidTestScene = "AsyncRaidTestScene";
     public static readonly string LobbyScene = "LobbyScene";
-    public static readonly string StoreScene = "StoreScene";
     public static readonly string BalanceTestScene = "BalanceTestScene";
 }
 
@@ -189,6 +196,13 @@ public enum PlanetPieceType
     CommonPlanetPiece,
 }
 
+public enum Currency
+{
+    Gold = 711101,
+    FreeDia = 711201,
+    ChargedDia = 711202,
+}
+
 public static class DataTableIds
 {
     public static readonly string Item = "ItemTable";
@@ -212,6 +226,7 @@ public static class DataTableIds
     public static readonly string Currency = "CurrencyTable";
     public static readonly string Draw = "DrawTable";
     public static readonly string Reward = "RewardTable";
+    public static readonly string planet = "PlanetTable";
 }
 
 public static class Variables
@@ -264,4 +279,19 @@ public static class DatabaseRef
 {
     public static readonly string UserProfiles = "users";
     public static readonly string UserPlanets = "userplanets";
+    public static readonly string UserTowers = "usertowers";
+    public static readonly string UserAttackPowers = "userattackpowers";
+}
+
+public static class PrintedAbility
+{
+    public static readonly HashSet<int> SpecialRandomAbilityIds = new HashSet<int>
+    {
+        200007, // 연쇄
+        200008, // 폭발
+        200009, // 관통
+        200010, // 분열
+        200013, // 히트스캔
+        200014  // 유도
+    };
 }

@@ -57,6 +57,9 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     private bool isInvincible = false;
     private bool hasReachedStartPosition = false;
 
+    private bool isTargetable = true;
+    public bool IsTargetable => isTargetable;
+
     private void Start()
     {
         SetIsTutorial(TutorialManager.Instance?.IsTutorialMode ?? false);
@@ -124,6 +127,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     {
         hasReachedStartPosition = true;
         isInvincible = false;
+        isTargetable=true;
 
         if(patternExecutor != null)
         {
@@ -265,6 +269,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         maxHealth = data.Hp * scaleData.HpScale;
         Health = maxHealth;
 
+        Debug.Log($"Initializing Enemy ID: {enemyId}, Type: {enemyType}, HP: {maxHealth}");
+
         attack = data.Attack * scaleData.AttScale;
         defense = data.Defense * scaleData.DefScale;
         moveSpeed = data.MoveSpeed * scaleData.MoveSpeedScale;
@@ -279,6 +285,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         exp = data.Exp * scaleData.ExpScale;
 
         enemyType = data.EnemyType;
+        isTargetable = true;
 
         BossAppearance(enemyData.EnemyType);
 
@@ -310,6 +317,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         transform.localScale *= scaleData.PrefabScale;
 
         exp = data.Exp * scaleData.ExpScale;
+        
+        isTargetable = true;
 
         AddMovementComponent(moveType, -1);
 
@@ -370,6 +379,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
         isInvincible = true;
         hasReachedStartPosition = false;
+        isTargetable = false;
 
         switch (enemyType)
         {

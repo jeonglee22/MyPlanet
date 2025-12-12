@@ -1,10 +1,15 @@
 using System.Collections.Generic;
 using System.Text;
+using TMPro;
 using UnityEngine;
 
 public class AsyncUserPlanet : LivingEntity
 {
     [SerializeField] HighestHpPrioritySO highestHpPrioritySO;
+    [SerializeField] TargetRangeSO targetRangeSO;
+    [SerializeField] TextMeshProUGUI nicknameText;
+    [SerializeField] TowerAttack towerAttackObject;
+    [SerializeField] private List<TowerDataSO> towerDataSOs;
 
     private float livingTime;
     private float elapsedTime = 0f;
@@ -13,9 +18,6 @@ public class AsyncUserPlanet : LivingEntity
     private float attackDps;
     private float attackTimer = 0f;
 
-    private TowerAttack tower;
-    private List<int> abilities;
-
     private UserPlanetData planetData;
     private string blurNickname;
     public string BlurNickname => blurNickname;
@@ -23,11 +25,15 @@ public class AsyncUserPlanet : LivingEntity
     private TowerDataSO towerDataSO;
     private float currentDamage;
 
+    private Vector3 reflectPosition;
+    public Vector3 ReflectPosition => reflectPosition;
+    private float moveSpeed = 2f;
+    private Vector3 direction;
+
     private void Awake()
     {
         // livingTime = Random.Range(5f, 10f);
-        livingTime = Random.Range(20f, 40f);
-        abilities = new List<int>();
+        livingTime = Random.Range(10f, 15f);
     }
 
     protected override void OnEnable()
@@ -43,11 +49,17 @@ public class AsyncUserPlanet : LivingEntity
         attackTimer += Time.deltaTime;
         if (attackTimer >= 1f)
         {
-            Variables.LastBossEnemy?.OnDamage(attackDps);
+            // Variables.LastBossEnemy?.OnDamage(attackDps);
+
             currentDamage += attackDps;
             Debug.Log("AsyncUserPlanet Deal Damage : " + currentDamage);
             attackTimer = 0f;
         }
+    }
+
+    private void FixedUpdate()
+    {
+        transform.position += direction * moveSpeed * Time.fixedDeltaTime;
     }
 
     private void OnDisable()
@@ -55,41 +67,113 @@ public class AsyncUserPlanet : LivingEntity
         Debug.Log("Damage to Boss : " + attack);
     }
 
-    public void InitializePlanet(UserPlanetData data, float damage, AsyncPlanetData asyncData, TowerDataSO towerData)
+    // public void InitializePlanet(UserPlanetData data, float damage, AsyncPlanetData asyncData, TowerDataSO towerData, Vector3 ReflectPosition)
+    // {
+    //     if (data == null)
+    //     {
+    //         data = new UserPlanetData("Unknown", 0);
+    //     }
+
+    //     Debug.Log(livingTime);
+
+    //     planetData = data;
+    //     attack = damage;
+    //     attackDps = attack / livingTime;
+    //     dieDps = Health / livingTime;
+    //     tower = GetComponent<TowerAttack>();
+    //     tower.IsOtherUserTower = true;
+
+    //     SetBlurNickname(planetData.nickName);
+    //     asyncPlanetData = asyncData;
+    //     var towerId = asyncPlanetData.AttackTower_Id;
+    //     towerDataSO = ScriptableObject.Instantiate(towerData);
+    //     towerDataSO.targetPriority = highestHpPrioritySO;
+    //     towerDataSO.rangeData = targetRangeSO;
+
+    //     tower.SetTowerData(towerDataSO);
+    //     tower.DamageBuffMul = 0f;
+
+    //     var targetingSystem = tower.GetComponent<TowerTargetingSystem>();
+    //     targetingSystem.SetTowerData(towerDataSO);
+
+    //     SetupAbilities();
+    //     foreach (var abilityId in abilities)
+    //     {
+    //         var ability = AbilityManager.GetAbility(abilityId);
+    //         tower.AddAbility(abilityId);
+    //         ability?.ApplyAbility(tower.gameObject);
+
+    //     }
+
+    //     Debug.Log(ReflectPosition + " / " + transform.position);
+    //     direction = (ReflectPosition - transform.position).normalized;
+    //     moveSpeed = Vector3.Distance(ReflectPosition, transform.position) / livingTime;
+
+    //     nicknameText.text = blurNickname;
+    // }
+
+    public void InitializePlanet(UserPlanetData data, float damage, UserTowerData[] userTowerDatas, Vector3 ReflectPosition)
     {
         if (data == null)
         {
             data = new UserPlanetData("Unknown", 0);
         }
 
+        Debug.Log(livingTime);
+
         planetData = data;
-        attack = damage;
+        // attack = damage;
         attackDps = attack / livingTime;
         dieDps = Health / livingTime;
-        tower = GetComponent<TowerAttack>();
-        tower.IsOtherUserTower = true;
+
+        var needApplyAbilities = new List<int>{ 200005, 200007, 200008, 200009, 200010, 200011, 200013};
+
+        for (int i =0 ; i < userTowerDatas.Length; i++)
+        {
+            var userTowerData = userTowerDatas[i];
+            var towerDataSo = towerDataSOs.Find(x => x.towerIdInt == userTowerData.towerId);
+
+            var insertTowerDataSO = ScriptableObject.Instantiate(towerDataSo);
+            insertTowerDataSO.targetPriority = highestHpPrioritySO;
+            insertTowerDataSO.rangeData = targetRangeSO;
+
+            if (userTowerData == null || userTowerData.towerLevelId == -1)
+                continue;
+
+            var tower = Instantiate(towerAttackObject, transform);
+            tower.gameObject.SetActive(true);
+            tower.IsOtherUserTower = true;
+            tower.SetTowerData(insertTowerDataSO);
+            tower.CurrentProjectileData = userTowerData.BuffedProjectileData;
+
+            var targetingSystem = tower.GetComponent<TowerTargetingSystem>();
+            targetingSystem.SetTowerData(insertTowerDataSO);
+
+            var abilities = userTowerData.abilities;
+
+            foreach (var abilityId in abilities)
+            {
+                if (!needApplyAbilities.Contains(abilityId))
+                    continue;
+
+                var ability = AbilityManager.GetAbility(abilityId);
+                tower.AddAbility(abilityId);
+                ability?.ApplyAbility(tower.gameObject);
+                ability?.Setting(tower.gameObject);
+            }
+        }       
+        // asyncPlanetData = asyncData;
+        // var towerId = asyncPlanetData.AttackTower_Id;
+        // towerDataSO = ScriptableObject.Instantiate(towerData);
+        // towerDataSO.targetPriority = highestHpPrioritySO;
+        // towerDataSO.rangeData = targetRangeSO;
 
         SetBlurNickname(planetData.nickName);
-        asyncPlanetData = asyncData;
-        var towerId = asyncPlanetData.AttackTower_Id;
-        towerDataSO = ScriptableObject.Instantiate(towerData);
-        towerDataSO.targetPriority = highestHpPrioritySO;
 
-        tower.SetTowerData(towerDataSO);
-        // var projectileData = tower.BaseProjectileData;
-        tower.DamageBuffMul = 0f;
+        direction = (ReflectPosition - transform.position).normalized;
+        moveSpeed = Vector3.Distance(ReflectPosition, transform.position) / livingTime;
 
-        var targetingSystem = tower.GetComponent<TowerTargetingSystem>();
-        targetingSystem.SetTowerData(towerDataSO);
-
-        SetupAbilities();
-        foreach (var abilityId in abilities)
-        {
-            var ability = AbilityManager.GetAbility(abilityId);
-            tower.AddAbility(abilityId);
-            ability?.ApplyAbility(tower.gameObject);
-
-        }
+        nicknameText.text = blurNickname;
     }
 
     public override void OnDamage(float damage)
@@ -125,26 +209,5 @@ public class AsyncUserPlanet : LivingEntity
 
         Debug.Log(sb.ToString());
         blurNickname = sb.ToString();
-    }
-
-    private void SetupAbilities()
-    {
-        if (asyncPlanetData == null)
-            return;
-
-        if (abilities != null)
-            abilities.Clear();
-        abilities = new List<int>();
-
-        var id1 = DataTableManager.RandomAbilityTable.GetAbilityIdFromEffectId(asyncPlanetData.Effect_Id_1);
-        var id2 = DataTableManager.RandomAbilityTable.GetAbilityIdFromEffectId(asyncPlanetData.Effect_Id_2);
-        var id3 = DataTableManager.RandomAbilityTable.GetAbilityIdFromEffectId(asyncPlanetData.Effect_Id_3);
-
-        if (id1 != -1)
-            abilities.Add(id1);
-        if (id2 != -1)
-            abilities.Add(id2);
-        if (id3 != -1)
-            abilities.Add(id3);
     }
 }

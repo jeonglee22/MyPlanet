@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using CsvHelper.Configuration.Attributes;
 using Cysharp.Threading.Tasks;
 using Firebase.Database;
 using UnityEngine;
@@ -11,11 +10,10 @@ public class UserPlanetManager : MonoBehaviour
 
     private DatabaseReference userPlanetRef;
 
-    private List<UserPlanetData> userPlanets = new List<UserPlanetData>();
-    public List<UserPlanetData> UserPlanets => userPlanets;
-
     private UserPlanetData currentPlanet;
     public UserPlanetData CurrentPlanet => currentPlanet;
+    private UserPlanetData asyncUserPlanet;
+    public UserPlanetData AsyncUserPlanet => asyncUserPlanet;
 
     private bool isInitialized = false;
     public bool IsInitialized => isInitialized;
@@ -56,8 +54,8 @@ public class UserPlanetManager : MonoBehaviour
 
             if (!dataSnapshot.Exists)
             {
-                Debug.LogError("User planet not exist.");
-                return false;
+                await InitUserPlanetAsync(AuthManager.Instance.UserNickName);
+                return true;
             }
 
             var json = dataSnapshot.GetRawJsonValue();
@@ -73,7 +71,35 @@ public class UserPlanetManager : MonoBehaviour
         }
     }
 
-    public async UniTask<bool> SaveUserPlanetAsync(string nickName, int attackPower)
+    public async UniTask<bool> LoadAsyncUserPlanetAsync(string asyncUserId)
+    {
+        if (!AuthManager.Instance.IsSignedIn)
+            return false;
+
+        try
+        {
+            var dataSnapshot = await userPlanetRef.Child(asyncUserId).GetValueAsync().AsUniTask();
+
+            if (!dataSnapshot.Exists)
+            {
+                Debug.LogError("User planet data does not exist.");
+                return false;
+            }
+
+            var json = dataSnapshot.GetRawJsonValue();
+            var planetData = UserPlanetData.FromJson(json);
+            asyncUserPlanet = planetData;
+
+            return true;
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"Error : {ex.Message}");
+            return false;
+        }
+    }
+
+    public async UniTask<bool> InitUserPlanetAsync(string nickName)
     {
         if (!AuthManager.Instance.IsSignedIn)
             return false;
@@ -82,10 +108,46 @@ public class UserPlanetManager : MonoBehaviour
 
         try
         {
-            var planetData = new UserPlanetData(nickName, attackPower);
+            var planetData = new UserPlanetData(nickName);
             var json = planetData.ToJson();
 
             await userPlanetRef.Child(uid).SetRawJsonValueAsync(json).AsUniTask();
+
+            return true;
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"Error : {ex.Message}");
+            return false;
+        }
+    }
+
+    public async UniTask<bool> UpdateUserPlanetAsync(UserPlanetData planetData)
+    {
+        if (!AuthManager.Instance.IsSignedIn)
+            return false;
+
+        var uid = AuthManager.Instance.UserId;
+
+        try
+        {
+            if (planetData == null)
+            {
+                Debug.LogError("Planet data is null.");
+                return false;
+            }
+
+            var updateData = new Dictionary<string, object>
+            {
+                { "nickName", planetData.nickName },
+                { "planetId", planetData.planetId },
+                { "planetUpgrade", planetData.planetUpgrade },
+                { "planetLevel", planetData.planetLevel },
+                { "planetCollectionStat", planetData.planetCollectionStat },
+                { "towerId", planetData.towerId }
+            };
+
+            await userPlanetRef.Child(uid).UpdateChildrenAsync(updateData).AsUniTask();
 
             return true;
         }
@@ -109,7 +171,6 @@ public class UserPlanetManager : MonoBehaviour
 
             count = Mathf.Min(count, (int)userCount);
 
-            userPlanets.Clear();
             var randIndices = new List<int>();
             int elements = 0;
             while (elements < count)
@@ -125,7 +186,7 @@ public class UserPlanetManager : MonoBehaviour
                     {
                         var json = child.GetRawJsonValue();
                         var profile = UserPlanetData.FromJson(json);
-                        userPlanets.Add(profile);
+                        currentPlanet = profile;
                         randIndices.Add(randIndex);
                         elements++;
                         break;

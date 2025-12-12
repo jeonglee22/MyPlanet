@@ -17,6 +17,7 @@ public class AttackTowerTableRow
     public float ProjectileNum { get; set; }
     public int Projectile_ID { get; set; }
     public int RandomAbilityGroup_ID { get; set; }
+    public float TowerWeight { get; set; }
     public int Order { get; set; }
     public int TowerText_ID { get; set; }
 
@@ -107,5 +108,14 @@ public class AttackTowerTable : DataTable
             return row.TowerText_ID;
         }
         return -1;
+    }
+
+    public List<AttackTowerTableRow> GetAllDatas()
+    {
+        List<AttackTowerTableRow> result = new List<AttackTowerTableRow>();
+        result = Rows;
+
+        result.Sort((a, b) => a.Order.CompareTo(b.Order));
+        return Rows;
     }
 }

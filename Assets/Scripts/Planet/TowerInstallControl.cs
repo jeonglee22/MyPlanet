@@ -81,7 +81,9 @@ public class TowerInstallControl : MonoBehaviour
     public int MaxReinforceLevel => maxReinforceLevel;
 
     [Header("Drag Settings")]
-    [SerializeField] private Canvas uiCanvas;          
+    [SerializeField] private Canvas uiCanvas;
+    [SerializeField] private RectTransform viewportRect;
+    private Vector2 beforeSize;
     [SerializeField] private GameObject dragImagePrefab; 
     [SerializeField] private TowerUpgradeSlotUI towerUpgradeSlotUI;
 
@@ -192,15 +194,30 @@ public class TowerInstallControl : MonoBehaviour
         }
     }
 
+    void LateUpdate()
+    {
+        SetPlanetSize();
+        SettingTowerTransform(currentAngle);
+    }
+
     private void SetPlanetSize()
     {
-        var size = uiCanvas.GetComponent<RectTransform>().sizeDelta;
-        Debug.Log("Canvas Size : " + size.ToString());
+        Vector2 size;
+        if (viewportRect != null)
+        {
+            size = viewportRect.rect.size;
+        }
+        else
+            size = uiCanvas.GetComponent<RectTransform>().sizeDelta;
 
+        if (size == beforeSize)
+            return;
+        
         var xSize = size.x;
         xSize += 20f;
         towerRadius = xSize * 0.5f;
         gameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(xSize, xSize);
+        beforeSize = size;
     }
 
     private void ResetTowerSlot(int slotCount)
@@ -324,8 +341,7 @@ public class TowerInstallControl : MonoBehaviour
         // idx = 4; // ShootGun
         return availableTowerDatas[idx];
     }
-    public TowerDataSO GetRandomAttackTowerDataForCard(
-    ICollection<TowerDataSO> extraExcludes = null)
+    public TowerDataSO GetRandomAttackTowerDataForCard(ICollection<TowerDataSO> extraExcludes = null)
     {
         if (availableTowerDatas == null || availableTowerDatas.Count == 0)
             return null;
@@ -365,8 +381,37 @@ public class TowerInstallControl : MonoBehaviour
         if (candidates.Count == 0)
             return null;
 
-        int idx = UnityEngine.Random.Range(0, candidates.Count);
-        return candidates[idx];
+        // Weight Pick
+        if(CollectionManager.Instance == null || !CollectionManager.Instance.IsInitialized)
+        {
+            int colIdx = UnityEngine.Random.Range(0, candidates.Count);
+            return candidates[colIdx];
+        }
+
+        List<float> weights = new List<float>();
+        float totalWeight = 0f;
+
+        foreach(var towerData in candidates)
+        {
+            int towerId = towerData.towerIdInt;
+            float weight = CollectionManager.Instance.GetWeight(towerId);
+            weights.Add(weight);
+            totalWeight += weight;
+        }
+
+        float rand = UnityEngine.Random.Range(0f, totalWeight);
+        float cumulativeWeight = 0f;
+
+        for(int i = 0; i < candidates.Count; i++)
+        {
+            cumulativeWeight += weights[i];
+            if(rand <= cumulativeWeight)
+            {
+                return candidates[i];
+            }
+        }
+
+        return candidates[candidates.Count - 1];
     }
 
     public void IntallNewTower(int index)
@@ -1250,5 +1295,16 @@ public class TowerInstallControl : MonoBehaviour
         var dragRect = currentDragGhostRect;
 
         if (dragGo == null || dragRect == null || uiCanvas == null) return;
+    }
+    public int GetUpgradeableTowerCount() //reinforceable tower count
+    {
+        int upgradableCount = 0;
+        for(int i=0; i<towerCount; i++)
+        {
+            if (!IsUsedSlot(i)) continue;
+            if (IsSlotMaxLevel(i)) continue;
+            upgradableCount++;
+        }
+        return upgradableCount;
     }
 }

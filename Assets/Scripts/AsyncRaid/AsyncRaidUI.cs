@@ -10,65 +10,55 @@ public class AsyncRaidUI : MonoBehaviour
     
     [SerializeField] private GameObject userStatPanel;
 
-    [SerializeField] private TextMeshProUGUI[] nicknameTexts;
-    [SerializeField] private Image[] connectionIcons;
-    [SerializeField] private Image[] disConnectionIcons;
-    [SerializeField] private Image[] hpFillImages1;
-    [SerializeField] private Image[] hpFillImages2;
-    [SerializeField] private Image[] hpFillImages3;
-    [SerializeField] private Image[] backGroundImages;
-    [SerializeField] private Image[] infoPanels;
+    [SerializeField] private TextMeshProUGUI nicknameText;
+    [SerializeField] private Image connectionIcon;
+    [SerializeField] private Image disConnectionIcon;
+    [SerializeField] private Image[] hpFillImages;
+    [SerializeField] private Image backGroundImage;
+    [SerializeField] private Image[] infoPanels;    
 
-    private List<AsyncUserPlanet> asyncUserPlanets;
+    private AsyncUserPlanet asyncUserPlanet;
     private Color initColor;
     private Color initTransparentColor;
 
     private void OnEnable()
     {
-        asyncUserPlanets = asyncRaidManager.AsyncUserPlanets;
+        asyncUserPlanet = asyncRaidManager.UserPlanet;
 
-        Debug.Log("AsyncRaidUI OnEnable :" + asyncUserPlanets?.Count);
+        Debug.Log("AsyncRaidUI OnEnable :" + asyncUserPlanet);
 
-        if (asyncUserPlanets == null)
+        if (asyncUserPlanet == null)
             return;
 
-        for (int i = 0; i < asyncUserPlanets.Count; i++)
-        {
-            var planet = asyncUserPlanets[i];
-            var index = i;
+        var planet = asyncUserPlanet;
 
-            planet.HpDecreseEvent += (health) => ControllImageCount(health, index);
-            planet.OnDeathEvent += () => ChangeToDeathState(index);
-            planet.OnDeathEvent += () => planet.gameObject.SetActive(false);
+        planet.HpDecreseEvent += (health) => ControllImageCount(health);
+        planet.OnDeathEvent += () => ChangeToDeathState();
+        planet.OnDeathEvent += () => planet.gameObject.SetActive(false);
 
-            SetUserNickname(i, planet.BlurNickname);
-        }
+        SetUserNickname(planet.BlurNickname);
 
-        for (int i = asyncUserPlanets.Count; i < 3; i++)
-        {
-            SetTransparentUserPlanetInfo(i);
-        }
+        // SetTransparentUserPlanetInfo();
     }
 
     private void OnDisable()
     {
-        if (asyncUserPlanets == null)
+        if (asyncUserPlanet == null)
             return;
 
-        for (int i = 0; i < asyncUserPlanets.Count; i++)
-        {
-            var planet = asyncUserPlanets[i];
-            var index = i;
-
-            planet.HpDecreseEvent -= (health) => ControllImageCount(health, index);
-            planet.OnDeathEvent -= () => ChangeToDeathState(index);
-            planet.OnDeathEvent -= () => planet.gameObject.SetActive(false);
-        }
+        asyncUserPlanet.HpDecreseEvent -= (health) => ControllImageCount(health);
+        asyncUserPlanet.OnDeathEvent -= () => ChangeToDeathState();
+        asyncUserPlanet.OnDeathEvent -= () => asyncUserPlanet.gameObject.SetActive(false);
     }
 
     void Start()
     {
         gameObject.SetActive(false);
+
+        infoPanels[2].gameObject.SetActive(false);
+        infoPanels[3].gameObject.SetActive(false);
+        infoPanels[4].gameObject.SetActive(false);
+        infoPanels[5].gameObject.SetActive(false);
     }
 
     public void OnClickResetRaid()
@@ -79,14 +69,11 @@ public class AsyncRaidUI : MonoBehaviour
 
         gameObject.SetActive(false);
 
-        if (asyncUserPlanets == null)
+        if (asyncUserPlanet == null)
             return;
 
-        foreach (var planet in asyncUserPlanets)
-        {
-            Destroy(planet.gameObject);
-            ResetImages();
-        }
+        Destroy(asyncUserPlanet.gameObject);
+        ResetImages();
     }
 
     public void OnClickStartRaid()
@@ -94,98 +81,72 @@ public class AsyncRaidUI : MonoBehaviour
         asyncRaidManager.IsStartRaid = true;
     }
 
-    public void SetTransparentUserPlanetInfo(int index)
+    public void SetTransparentUserPlanetInfo()
     {
-        connectionIcons[index].gameObject.SetActive(false);
-        disConnectionIcons[index].gameObject.SetActive(false);
-        initColor = backGroundImages[index].color;
-        initTransparentColor = infoPanels[index*2].color;
-        backGroundImages[index].color = new Color(0f,0f,0f,0f);
-        infoPanels[index*2].color = new Color(0f,0f,0f,0f);
-        infoPanels[index*2+1].color = new Color(0f,0f,0f,0f);
-        nicknameTexts[index].color = new Color(0f,0f,0f,0f);
+        connectionIcon.gameObject.SetActive(false);
+        disConnectionIcon.gameObject.SetActive(false);
+        initColor = backGroundImage.color;
+        initTransparentColor = infoPanels[0].color;
+        backGroundImage.color = new Color(0f,0f,0f,0f);
+        infoPanels[0].color = new Color(0f,0f,0f,0f);
+        infoPanels[1].color = new Color(0f,0f,0f,0f);
+        nicknameText.color = new Color(0f,0f,0f,0f);
         
-        var images = index switch
-        {
-            0 => hpFillImages1,
-            1 => hpFillImages2,
-            2 => hpFillImages3,
-            _ => null
-        };
 
-        foreach (var img in images)
+        foreach (var img in hpFillImages)
         {
             img.fillAmount = 0f;
         }
     }
 
-    public void ControllImageCount(float hp, int index)
+    public void ControllImageCount(float hp)
     {
-        var images = index switch
-        {
-            0 => hpFillImages1,
-            1 => hpFillImages2,
-            2 => hpFillImages3,
-            _ => null
-        };
-
-        var hpRatio = hp / 100f * images.Length - Mathf.FloorToInt(hp / 100f * images.Length);
-        var i = Mathf.FloorToInt(hp / 100f * images.Length);
+        var hpRatio = hp / 100f * hpFillImages.Length - Mathf.FloorToInt(hp / 100f * hpFillImages.Length);
+        var i = Mathf.FloorToInt(hp / 100f * hpFillImages.Length);
 
         if (i < 0)
         {
             i = 0;
             hpRatio = 0;
-            images[0].fillAmount = 0f;
+            hpFillImages[0].fillAmount = 0f;
             return;
         }
-        if (i < images.Length-1)
+        if (i < hpFillImages.Length-1)
         {
-            images[i+1].fillAmount = 0f;
+            hpFillImages[i+1].fillAmount = 0f;
         }
         // images[i].fillAmount = hpRatio;
     }
 
-    public void SetUserNickname(int index, string nickname)
+    public void SetUserNickname(string nickname)
     {
-        nicknameTexts[index].text = nickname;
+        nicknameText.text = nickname;
     }
 
-    private void ChangeToDeathState(int index)
+    private void ChangeToDeathState()
     {
-        connectionIcons[index].gameObject.SetActive(false);
-        disConnectionIcons[index].gameObject.SetActive(true);
-        initColor = backGroundImages[index].color;
-        initTransparentColor = infoPanels[index*2].color;
-        backGroundImages[index].color = new Color(0.5f, 0.5f, 0.5f, initColor.a);
-        infoPanels[index*2].color = new Color(0.5f, 0.5f, 0.5f, initTransparentColor.a);
-        infoPanels[index*2+1].color = new Color(0.5f, 0.5f, 0.5f, initColor.a);
+        connectionIcon.gameObject.SetActive(false);
+        disConnectionIcon.gameObject.SetActive(true);
+        initColor = backGroundImage.color;
+        initTransparentColor = infoPanels[0].color;
+        backGroundImage.color = new Color(0.5f, 0.5f, 0.5f, initColor.a);
+        infoPanels[0].color = new Color(0.5f, 0.5f, 0.5f, initTransparentColor.a);
+        infoPanels[1].color = new Color(0.5f, 0.5f, 0.5f, initColor.a);
         // disConnectionIcons[index].color = new Color(0.5f, 0.5f, 0.5f, initColor.a);
     }
 
     private void ResetImages()
     {
-        foreach (var img in hpFillImages1)
-        {
-            img.fillAmount = 1f;
-        }
-        foreach (var img in hpFillImages2)
-        {
-            img.fillAmount = 1f;
-        }
-        foreach (var img in hpFillImages3)
+        foreach (var img in hpFillImages)
         {
             img.fillAmount = 1f;
         }
 
-        for (int i = 0; i < connectionIcons.Length; i++)
-        {
-            connectionIcons[i].gameObject.SetActive(true);
-            disConnectionIcons[i].gameObject.SetActive(false);
-            backGroundImages[i].color = initColor;
-            infoPanels[i*2].color = initTransparentColor;
-            infoPanels[i*2 + 1].color = initColor;
-            nicknameTexts[i].color = Color.white;
-        }
+        connectionIcon.gameObject.SetActive(true);
+        disConnectionIcon.gameObject.SetActive(false);
+        backGroundImage.color = initColor;
+        infoPanels[0].color = initTransparentColor;
+        infoPanels[1].color = initColor;
+        nicknameText.color = Color.white;
     }
 }

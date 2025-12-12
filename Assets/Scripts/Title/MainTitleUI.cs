@@ -1,3 +1,5 @@
+using System;
+using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -32,6 +34,8 @@ public class MainTitleUI : MonoBehaviour
     {
         InteractableButtons(false);
 
+        // SetResolution();
+
         playText.SetActive(false);
 
         await CheckLogin();
@@ -64,6 +68,14 @@ public class MainTitleUI : MonoBehaviour
         // gameStartButton.interactable = false;
     }
 
+    // private void SetResolution()
+    // {
+    //     int setWidth = 2100 * 9 / 20;
+    //     int setHeight = 2100;
+
+    //     Screen.SetResolution(setWidth, setHeight, false);
+    // }
+
     private async UniTask CheckLogin()
     {
         SetExplainText("Checking login status...");
@@ -72,6 +84,8 @@ public class MainTitleUI : MonoBehaviour
 
         if (AuthManager.Instance.IsSignedIn)
         {
+            await CheckAllDataUpdated();
+
             SetExplainText($"Welcome back, {AuthManager.Instance.UserNickName}!");
             infoPopUpUI.SetNickNameText(AuthManager.Instance.UserNickName);
             playText.SetActive(true);
@@ -81,6 +95,19 @@ public class MainTitleUI : MonoBehaviour
             SetExplainText("Please log in to continue.");
             canvasManager.SwitchToTargetPopUp(MainTitleCanvasManager.PopupName.LogIn);
         }
+    }
+
+    private async UniTask CheckAllDataUpdated()
+    {
+        SetExplainText("Updating user data...");
+
+        await UserPlanetManager.Instance.LoadUserPlanetAsync();
+
+        await UserAttackPowerManager.Instance.LoadUserAttackPowerAsync();
+
+        // await CurrencyManager.Instance.LoadCurrencyAsync();
+
+        await UserTowerManager.Instance.LoadUserTowerDataAsync();
     }
 
     private void OnLogInOutButtonClicked()

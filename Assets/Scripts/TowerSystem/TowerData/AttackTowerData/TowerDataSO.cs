@@ -5,6 +5,7 @@ public enum FireType
     Projectile = 0,
 }
 
+[System.Serializable]
 [CreateAssetMenu(fileName = "TowerDataSO", menuName = "Scriptable Objects/TowerDataSO")]
 public class TowerDataSO : ScriptableObject
 {
@@ -21,4 +22,7 @@ public class TowerDataSO : ScriptableObject
     public int randomAbilityGroupId;      // RandomAbilityGroup_ID
 
     public BaseTargetPriority targetPriority;
+    
+    [Header("Visual(Except Laser)")]
+    public GameObject projectilePrefab;
 }

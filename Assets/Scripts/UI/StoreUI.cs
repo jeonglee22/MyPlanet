@@ -1,10 +1,13 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class StoreUI : MonoBehaviour
 {
+    [SerializeField] private GameObject lobbyPanel;
+
     [SerializeField] private Button backBtn;
     
     [SerializeField] private Transform scrollViewContent;
@@ -13,18 +16,43 @@ public class StoreUI : MonoBehaviour
     [SerializeField] private GameObject gachaButtonPrefab;
     [SerializeField] private GameObject itemButtonPrefab;
 
-    [SerializeField] private BuyPanelUI buyPanelUI;
+    [SerializeField] private GachaPanelUI gachaPanelUI;
+
+    [SerializeField] private TextMeshProUGUI goldText;
+    [SerializeField] private TextMeshProUGUI diaText;
+
+    [SerializeField] private Button inventoryBtn;
+    [SerializeField] private GameObject inventory;
+    [SerializeField] private Transform scrollContent;
+    [SerializeField] private GameObject inventoryItemPrefab;
+    private List<GameObject> instantiatedInventoryItems = new List<GameObject>();
 
     private void Start()
     {
         backBtn.onClick.AddListener(OnBackBtnClicked);
-        buyPanelUI.gameObject.SetActive(false);
+        gachaPanelUI.gameObject.SetActive(false);
         InitializeShop();
+
+        UpdateCurrencyUI();
+        gachaPanelUI.OnGachaCompleted += UpdateCurrencyUI;
+
+        inventory.SetActive(false);
+        inventoryBtn.onClick.AddListener(OnInventoryBtnClicked);
+
+        InitializeInventory();
+    }
+
+    private void OnDestroy()
+    {
+        gachaPanelUI.OnGachaCompleted -= UpdateCurrencyUI;
+        backBtn.onClick.RemoveListener(OnBackBtnClicked);
+        inventoryBtn.onClick.RemoveListener(OnInventoryBtnClicked);
     }
 
     private void OnBackBtnClicked()
     {
-        SceneControlManager.Instance.LoadScene(SceneName.LobbyScene).Forget();
+        lobbyPanel.SetActive(true);
+        gameObject.SetActive(false);
     }
 
     private void InitializeShop()
@@ -48,7 +76,42 @@ public class StoreUI : MonoBehaviour
 
     private void OnGachaButtonClick((int needCurrencyValue, int drawGroup, string gachaName) info)
     {
-        buyPanelUI.Initialize(info.needCurrencyValue, info.drawGroup, info.gachaName);
-        buyPanelUI.gameObject.SetActive(true);
+        gachaPanelUI.Initialize(info.needCurrencyValue, info.drawGroup, info.gachaName);
+        gachaPanelUI.gameObject.SetActive(true);
+    }
+
+    private void UpdateCurrencyUI()
+    {
+        goldText.text = UserData.Gold.ToString();
+        diaText.text = $"무료 {UserData.FreeDia} / 유료 {UserData.ChargedDia}";
+    }
+
+    private void InitializeInventory()
+    {
+        var items = DataTableManager.ItemTable.GetAllItemsExceptCollectionItem();
+        foreach(var item in items)
+        {
+            var itemObj = Instantiate(inventoryItemPrefab, scrollContent);
+            var itemText = itemObj.GetComponentInChildren<TextMeshProUGUI>();
+            var itemCount = ItemManager.Instance.GetItem(item.Item_Id);
+            itemText.text = $"{item.ItemNameText} : {itemCount}";
+            instantiatedInventoryItems.Add(itemObj);
+        }
+    }
+
+    public void OnInventoryBtnClicked()
+    {
+        var items = DataTableManager.ItemTable.GetAllItemsExceptCollectionItem();
+        var index = 0;
+        foreach(var item in items)
+        {
+            var itemObj = instantiatedInventoryItems[index];
+            var itemText = itemObj.GetComponentInChildren<TextMeshProUGUI>();
+            var itemCount = ItemManager.Instance.GetItem(item.Item_Id);
+            itemText.text = $"{item.ItemNameText} : {itemCount}";
+            index++;
+        }
+
+        inventory.SetActive(!inventory.activeSelf);
     }
 }

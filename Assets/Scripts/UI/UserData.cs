@@ -4,25 +4,105 @@ using UnityEngine;
 
 public class UserData
 {
-    public static int Gold {get; set;} = 100000;
-    public static int FreeDia {get; set;} = 2000;
-    public static int ChargedDia {get; set;} = 3000;
+    public static int Gold
+    {
+        get => CurrencyManager.Instance?.CachedGold ?? 100000;
+        set => CurrencyManager.Instance?.SetGold(value);
+    }
+
+    public static int FreeDia
+    {
+        get => CurrencyManager.Instance?.CachedFreeDia ?? 2000;
+        set => CurrencyManager.Instance?.SetFreeDia(value);
+    }
+
+    public static int ChargedDia
+    {
+        get => CurrencyManager.Instance?.CachedChargedDia ?? 3000;
+        set => CurrencyManager.Instance?.SetChargedDia(value);
+    }
+    
+    public static int TowerEnhanceItem
+    {
+        get => ItemManager.Instance?.GetItem(710201) ?? 0;
+        set => ItemManager.Instance?.SetItem(710201, value);
+    }
+
+    public static int PlanetEnhanceItem
+    {
+        get => ItemManager.Instance?.GetItem(710202) ?? 0;
+        set => ItemManager.Instance?.SetItem(710202, value);
+    }
+
+    public static int HealthPlanetPiece
+    {
+        get => ItemManager.Instance?.GetItem(710301) ?? 0;
+        set => ItemManager.Instance?.SetItem(710301, value);
+    }
+
+    public static int DefensePlanetPiece
+    {
+        get => ItemManager.Instance?.GetItem(710302) ?? 0;
+        set => ItemManager.Instance?.SetItem(710302, value);
+    }
+
+    public static int ShieldPlanetPiece
+    {
+        get => ItemManager.Instance?.GetItem(710303) ?? 0;
+        set => ItemManager.Instance?.SetItem(710303, value);
+    }
+
+    public static int BloodAbsorbPlanetPiece
+    {
+        get => ItemManager.Instance?.GetItem(710304) ?? 0;
+        set => ItemManager.Instance?.SetItem(710304, value);
+    }
+
+    public static int ExpPlanetPiece
+    {
+        get => ItemManager.Instance?.GetItem(710305) ?? 0;
+        set => ItemManager.Instance?.SetItem(710305, value);
+    }
+
+    public static int HealthRegenerationPlanetPiece
+    {
+        get => ItemManager.Instance?.GetItem(710306) ?? 0;
+        set => ItemManager.Instance?.SetItem(710306, value);
+    }
+
+    public static int CommonPlanetPiece
+    {
+        get => ItemManager.Instance?.GetItem(710307) ?? 0;
+        set => ItemManager.Instance?.SetItem(710307, value);
+    }
+
     public static int TowerDictionaryRate {get; set;} = 0;
     public static int AbilityDictionaryRate {get; set;} = 0;
-    public static int TowerEnhanceItem {get; set;} = 0;
-    public static int PlanetEnhanceItem {get; set;} = 0;
-    public static int HealthPlanetPiece {get; set;} = 0;
-    public static int DefensePlanetPiece {get; set;} = 0;
-    public static int ShieldPlanetPiece {get; set;} = 0;
-    public static int BloodAbsorbPlanetPiece {get; set;} = 0;
-    public static int ExpPlanetPiece {get; set;} = 0;
-    public static int HealthRegenerationPlanetPiece {get; set;} = 0;
-    public static int CommonPlanetPiece {get; set;} = 0;
+
+    public static bool isHealthPlanet = false;
+    public static bool isDefensePlanet = false;
+    public static bool isShieldPlanet = false;
+    public static bool isBloodAbsorbPlanet = false;
+    public static bool isExpPlanet = false;
+    public static bool isHealthRegenerationPlanet = false;
+
+    public static int CollectionTowerCore
+    {
+        get => CollectionManager.Instance?.TowerCore ?? 12;
+        set => CollectionManager.Instance?.SetTowerCore(value);
+    }
+
+    public static int CollectionAbilityCore
+    {
+        get => CollectionManager.Instance?.AbilityCore ?? 10;
+        set => CollectionManager.Instance?.SetAbilityCore(value);
+    }
 }
 
 public static class UserDataMapper
 {
     private static Dictionary<int, (Func<int> getter, Action<int> setter, int maxStack)> itemMapping;
+    private static Dictionary<int, (Func<bool> getter, Action<bool> setter, int pieceId)> planetMapping;
 
     static UserDataMapper()
     {
@@ -35,16 +115,24 @@ public static class UserDataMapper
         RegisterItem(710101, () => UserData.TowerDictionaryRate, (value) => UserData.TowerDictionaryRate = value);
         RegisterItem(710102, () => UserData.AbilityDictionaryRate, (value) => UserData.AbilityDictionaryRate = value);
 
-        RegisterItem(710201, () => UserData.TowerEnhanceItem, (value) => UserData.TowerEnhanceItem = value);
-        RegisterItem(710202, () => UserData.PlanetEnhanceItem, (value) => UserData.PlanetEnhanceItem = value);
+        var itemList = DataTableManager.ItemTable.GetAllItemsExceptCollectionItem();
+        foreach(var item in itemList)
+        {
+            int itemId = item.Item_Id;
+            RegisterItem(itemId, 
+                () => ItemManager.Instance?.GetItem(itemId) ?? 0,
+                (value) => ItemManager.Instance?.SetItem(itemId, value));
+        }
 
-        RegisterItem(710301, () => UserData.HealthPlanetPiece, (value) => UserData.HealthPlanetPiece = value);
-        RegisterItem(710302, () => UserData.DefensePlanetPiece, (value) => UserData.DefensePlanetPiece = value);
-        RegisterItem(710303, () => UserData.ShieldPlanetPiece, (value) => UserData.ShieldPlanetPiece = value);
-        RegisterItem(710304, () => UserData.BloodAbsorbPlanetPiece, (value) => UserData.BloodAbsorbPlanetPiece = value);
-        RegisterItem(710305, () => UserData.ExpPlanetPiece, (value) => UserData.ExpPlanetPiece = value);
-        RegisterItem(710306, () => UserData.HealthRegenerationPlanetPiece, (value) => UserData.HealthRegenerationPlanetPiece = value);
-        RegisterItem(710307, () => UserData.CommonPlanetPiece, (value) => UserData.CommonPlanetPiece = value);
+        planetMapping = new Dictionary<int, (Func<bool>, Action<bool>, int)>
+        {
+            { 300002, (() => UserData.isHealthPlanet, (value) => UserData.isHealthPlanet = value, 710301) },
+            { 300003, (() => UserData.isDefensePlanet, (value) => UserData.isDefensePlanet = value, 710302) },
+            { 300004, (() => UserData.isShieldPlanet, (value) => UserData.isShieldPlanet = value, 710303) },
+            { 300005, (() => UserData.isBloodAbsorbPlanet, (value) => UserData.isBloodAbsorbPlanet = value, 710304) },
+            { 300006, (() => UserData.isExpPlanet, (value) => UserData.isExpPlanet = value, 710305) },
+            { 300007, (() => UserData.isHealthRegenerationPlanet, (value) => UserData.isHealthRegenerationPlanet = value, 710306) },
+        };
     }
 
     private static void RegisterItem(int itemId, Func<int> getter, Action<int> setter)
@@ -56,7 +144,10 @@ public static class UserDataMapper
     private static void RegisterCurrency(int currencyId, Func<int> getter, Action<int> setter)
     {
         var currencyData = DataTableManager.CurrencyTable.Get(currencyId);
-        itemMapping[currencyId] = (getter, setter, currencyData.MaxStack);
+        itemMapping[currencyId] = (
+            getter, 
+            (value) => setter(value) , 
+            currencyData.MaxStack);
     }
 
     public static int GetItemCount(int itemId)
@@ -83,22 +174,41 @@ public static class UserDataMapper
     {
         return itemMapping.TryGetValue(itemId, out var mapping) ? mapping.maxStack : 0;
     }
-}
 
-public static class PlanetPieceMapper
-{
-    private static Dictionary<int, int> planetPiece = new Dictionary<int, int>
+    public static bool HasPlanet(int planetId)
     {
-        { 300002, 710301 },
-        { 300003, 710302 },
-        { 300004, 710303 },
-        { 300005, 710304 },
-        { 300006, 710305 },
-        { 300007, 710306 },
-    };
+        if(planetMapping.TryGetValue(planetId, out var mapping))
+        {
+            return mapping.getter();
+        }
 
-    public static int GetPieceId(int planetId)
+        return false;
+    }
+
+    public static void AddPlanet(int planetId)
     {
-        return planetPiece.TryGetValue(planetId, out var fragmentId) ? fragmentId : -1;
+        if(planetMapping.TryGetValue(planetId, out var mapping))
+        {
+            if (mapping.getter())
+            {
+                AddItem(mapping.pieceId, 20);
+            }
+            else
+            {
+                mapping.setter(true);
+            }
+        }
+    }
+
+    public static void AddReward(int rewardType, int targetId, int amount)
+    {
+        if(rewardType == (int)RewardType.Planet)
+        {
+            AddPlanet(targetId);
+        }
+        else
+        {
+            AddItem(targetId, amount);
+        }
     }
 }

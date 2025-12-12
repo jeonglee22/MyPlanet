@@ -3,6 +3,7 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
+[System.Serializable]
 public class ProjectileData
 {
     public int Projectile_ID { get; set; }
