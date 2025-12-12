@@ -243,10 +243,7 @@ public static class Variables
                 quasar = 0;
             }
             
-            if(quasar > 0)
-            {
-                OnQuasarChanged?.Invoke();
-            }
+            OnQuasarChanged?.Invoke();
         }
     }
     public static event Action OnQuasarChanged;
@@ -256,7 +253,7 @@ public static class Variables
 
     public static void Reset()
     {
-        Quasar = 0;
+        Quasar = 1;
         LastBossEnemy = null;
         MiddleBossEnemy = null;
     }
