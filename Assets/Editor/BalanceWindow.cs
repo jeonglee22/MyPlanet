@@ -1,4 +1,5 @@
 using System;
+using Cysharp.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
@@ -526,7 +527,19 @@ public class BalanceWindow : EditorWindow
         }
         if (GUILayout.Button("모든 적 제거"))
         {
-            // ClearAllEnemies();
+            enemyStatTester.ClearAllEnemies();
+        }
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("데이터 임시 저장"))
+        {
+            enemyStatTester.SetEnemyData();
+        }
+        if (GUILayout.Button("데이터 테이블에 저장"))
+        {
+            enemyStatTester.SetEnemyData();
+            DataTableManager.EnemyTable.SaveOverridesAsync().Forget();
         }
         EditorGUILayout.EndHorizontal();
     }
@@ -548,9 +561,6 @@ public class BalanceWindow : EditorWindow
     private void DrawTopButtons()
     {
         GUILayout.BeginHorizontal(EditorStyles.toolbar);
-
-        if (GUILayout.Toggle(currentPage == Page.Base, "개요", EditorStyles.toolbarButton))
-            currentPage = Page.Base;
 
         if (GUILayout.Toggle(currentPage == Page.Enemy, "적 설정", EditorStyles.toolbarButton))
             currentPage = Page.Enemy;

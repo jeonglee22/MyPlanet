@@ -151,14 +151,14 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
-    public void SpawnEnemiesWithScale(int enemyId, int quantity, Vector3 spawnPos, ScaleData scaleData, EnemyTableData enemyTableData)
+    public void SpawnEnemiesWithScale(int enemyId, int quantity, ScaleData scaleData, EnemyTableData enemyTableData)
     {
         PreparePool(enemyId);
 
         for (int i = 0; i < quantity; i++)
         {
             var newSpawnPos = GetRandomPositionInCircle();
-            SpawnEnemyWithScale(enemyId, spawnPos + newSpawnPos, scaleData, enemyTableData);
+            SpawnEnemyWithScale(enemyId, newSpawnPos, scaleData, enemyTableData);
         }
     }
 

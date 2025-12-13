@@ -38,7 +38,11 @@ public class EnemyStatTester : MonoBehaviour
     [SerializeField] private int[] moveTypeIds;
     [SerializeField] private int[] waveIds;
     [SerializeField] private int[] patternIds;
+    [SerializeField] private EnemySpawnTest enemySpawnTest;
+    private int currentEnemyTypeId = -1;
     private EnemyTableData enemyData;
+    private EnemyTableData choosedEnemyData;
+    [SerializeField] private DpsCalculator dpsCalculator;
 
     public int[] WaveIds => waveIds;
 
@@ -55,7 +59,7 @@ public class EnemyStatTester : MonoBehaviour
 
     void FixedUpdate()
     {
-        TestBalance();
+        SetEnemyStat();
         enemyData = MakeEnemyStatData();
     }
 
@@ -78,8 +82,9 @@ public class EnemyStatTester : MonoBehaviour
                 return;
 
             var spawner = SpawnManager.Instance.Spawners[spawnPoint];
+
             // spawn Single Enemy
-            spawner.SpawnEnemiesWithScale(enemyIds[enemyTypeId], enemyCount, spawner.transform.position, new ScaleData()
+            spawner.SpawnEnemiesWithScale(enemyIds[enemyTypeId], enemyCount, new ScaleData()
             {
                 HpScale = hpScale,
                 AttScale = attackScale,
@@ -121,8 +126,55 @@ public class EnemyStatTester : MonoBehaviour
         return enemyData;
     }
 
-    protected virtual void TestBalance()
+    protected virtual void SetEnemyStat()
     {
-        
+        if (currentEnemyTypeId == enemyTypeId || enemyTypeId == -1)
+            return;
+
+        var enemyData = DataTableManager.EnemyTable.Get(enemyIds[enemyTypeId]);
+        if (enemyData == null)
+            return;
+
+        health = enemyData.Hp;
+        attack = enemyData.Attack;
+        defense = enemyData.Defense;
+        barrior = enemyData.Shield;
+        speed = enemyData.MoveSpeed;
+        ratePenetration = enemyData.UniqueRatePenetration;
+        fixedPenetration = enemyData.FixedPenetration;
+        exp = (int)enemyData.Exp;
+        enemyType = enemyData.EnemyType;
+        currentEnemyTypeId = enemyTypeId;
+
+        patternId = Array.IndexOf(patternIds, enemyData.PatternList);
+        moveTypeId = Array.IndexOf(moveTypeIds, enemyData.MoveType);
+
+        choosedEnemyData = enemyData;
+    }
+
+    public void ClearAllEnemies()
+    {
+        enemySpawnTest.ClearAllEnemies();
+        dpsCalculator.ResetDps();
+    }
+
+    public void SetEnemyData()
+    {
+        if (enemyData == null)
+            return;
+
+        choosedEnemyData.Hp = health;
+        choosedEnemyData.Attack = attack;
+        choosedEnemyData.Defense = defense;
+        choosedEnemyData.MoveSpeed = speed;
+        choosedEnemyData.UniqueRatePenetration = ratePenetration;
+        choosedEnemyData.FixedPenetration = fixedPenetration;
+        choosedEnemyData.Exp = exp;
+        choosedEnemyData.PatternList = patternIds[patternId];
+        choosedEnemyData.MoveType = moveTypeIds[moveTypeId];
+        choosedEnemyData.Shield = barrior;
+        choosedEnemyData.EnemyType = enemyType;
+
+        DataTableManager.EnemyTable.Set(enemyIds[enemyTypeId], choosedEnemyData);
     }
 }

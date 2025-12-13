@@ -25,7 +25,7 @@ public class EnemySpawnTest : MonoBehaviour
 
     void OnEnable()
     {
-        enemyDropdown.onValueChanged.AddListener((i) => SetEnemyId(i));
+        enemyDropdown?.onValueChanged.AddListener((i) => SetEnemyId(i));
         enemyId = 400102;
 
         var bossObject = GameObject.FindGameObjectWithTag("Boss");

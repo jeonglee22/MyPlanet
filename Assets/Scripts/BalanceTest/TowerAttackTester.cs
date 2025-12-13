@@ -206,7 +206,7 @@ public class TowerAttackTester : MonoBehaviour
         projectileData.RemainTime = duration;
     }
 
-    protected virtual void TestBalance()
+    public virtual void TestBalance()
     {
         var planet = transform.parent.GetComponentInChildren<Planet>();
         if (planet == null)
@@ -238,5 +238,13 @@ public class TowerAttackTester : MonoBehaviour
         duration = projectileData.RemainTime;
 
         currentTowerAttackId = towerAttackId;
+    }
+
+    public void SetTowerData()
+    {
+        if (towerAttack == null || projectileData == null)
+            return;
+
+        
     }
 }

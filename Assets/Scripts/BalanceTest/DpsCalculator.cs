@@ -19,11 +19,11 @@ public class DpsCalculator : MonoBehaviour
         dpsTimer += Time.fixedDeltaTime;
         if (dpsTimer >= 1f)
         {
-            dpsText.text = $"DPS: {damage / dpsTimer:F2}";
+            dpsText.text = $"{damage / dpsTimer:F2}";
             if (damage / dpsTimer > maxDps)
             {
                 maxDps = damage / dpsTimer;
-                maxDpsText.text = $"Max DPS\n {maxDps:F2}";
+                maxDpsText.text = $"{maxDps:F2}";
             }
             dpsTimer = 0f;
             damage = 0f;
@@ -31,7 +31,7 @@ public class DpsCalculator : MonoBehaviour
         averageDpsTimer += Time.fixedDeltaTime;
         if (averageDpsTimer >= 10f)
         {
-            averageDpsText.text = $"Average DPS (10s)\n {averageDamage / averageDpsTimer:F2}";
+            averageDpsText.text = $"{averageDamage / averageDpsTimer:F2}";
             averageDpsTimer = 0f;
 
             averageDamage = 0f;
@@ -48,11 +48,11 @@ public class DpsCalculator : MonoBehaviour
     {
         damage = 0f;
         dpsTimer = 0f;
-        dpsText.text = $"DPS: 0";
+        dpsText.text = $"0";
         maxDps = 0f;
-        maxDpsText.text = $"Max DPS: \n0";
+        maxDpsText.text = $"0";
         averageDamage = 0f;
-        averageDpsText.text = $"Average DPS (10s):\n 0";
+        averageDpsText.text = $"0";
         averageDpsTimer = 0f;
     }
 }

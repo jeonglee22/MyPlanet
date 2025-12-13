@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -70,5 +71,29 @@ public class EnemyTable : DataTable
     public List<int> GetEnemyIds()
     {
         return new List<int>(dictionary.Keys);
+    }
+
+    public async UniTask SaveOverridesAsync()
+    {
+        var changedRows = new List<EnemyTableData>();
+        foreach (var kvp in dictionary)
+        {
+            var enemyData = kvp.Value;
+
+            changedRows.Add(enemyData);
+        }
+
+        var csvText = CsvSaveUtil.ToCsv(changedRows);
+        var path = Path.Combine("Assets/DataTables/", "EnemyTable.csv");
+        await CsvSaveUtil.SaveTextAsync(path, csvText);
+        Debug.Log($"Saved override: {path}");
+    }
+
+    public void Set(int key, EnemyTableData data)
+    {
+        if (dictionary.ContainsKey(key))
+        {
+            dictionary[key] = data;
+        }
     }
 }

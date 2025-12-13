@@ -1,3 +1,4 @@
+using System;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,6 +15,7 @@ public class LobbyUI : MonoBehaviour
     [SerializeField] private Button collectionBtn;
     [SerializeField] private Button storeBtn;
     [SerializeField] private Button playBtn;
+    [SerializeField] private Button balanceTestBtn;
 
     private void Start()
     {
@@ -22,9 +24,16 @@ public class LobbyUI : MonoBehaviour
         playBtn.onClick.AddListener(OnPlayBtnClicked);
         storeBtn.onClick.AddListener(OnStoreBtnClicked);
         collectionBtn.onClick.AddListener(OnCollectionBtnClicked);
+        balanceTestBtn.onClick.AddListener(OnBalanceTestClicked);
         
         gachaMainPanel.SetActive(false);
         collectionPanel.SetActive(false);
+    }
+
+    private void OnBalanceTestClicked()
+    {
+        Variables.IsTestMode = true;
+        SceneControlManager.Instance.LoadScene(SceneName.BalanceTestScene).Forget();
     }
 
     private void OnDestroy()
