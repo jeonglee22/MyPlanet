@@ -175,7 +175,7 @@ public class WaveManager : MonoBehaviour
         await StartNextWave(cts);
     }
 
-    private async UniTask ExecuteWave(WaveData waveData, CancellationToken cts)
+    public async UniTask ExecuteWave(WaveData waveData, CancellationToken cts)
     {
         Debug.Log($"Starting Wave ID: {waveData.Wave_Id}");
         var combData = DataTableManager.CombineTable.Get(waveData.Comb_Id);
@@ -224,6 +224,11 @@ public class WaveManager : MonoBehaviour
             {
                 
             }
+        }
+
+        if (Variables.IsTestMode)
+        {
+            return;
         }
 
         await OnWaveCleared(cts);

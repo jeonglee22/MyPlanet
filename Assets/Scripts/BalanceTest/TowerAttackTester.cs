@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using Unity.Android.Gradle.Manifest;
 using UnityEngine;
 
 public class TowerAttackTester : MonoBehaviour
@@ -24,7 +25,7 @@ public class TowerAttackTester : MonoBehaviour
     public float duration = 10f;
 
     private int currentTowerAttackId = -1;
-
+    private TowerDataSO choosedTowerData;
     [SerializeField] private TowerDataSO[] towerDataSOs;
     [SerializeField] private TargetRangeSO[] targetRangeSOs;
     private ProjectileData projectileData;
@@ -197,8 +198,8 @@ public class TowerAttackTester : MonoBehaviour
         towerAttack.AttackTowerData.fireRate = attackSpeed;
         towerAttack.AttackTowerData.Accuracy = accuracy;
         towerAttack.AttackTowerData.grouping = grouping;
-        towerAttack.ProjectileCountFromAbility = (int)projectileNum;
-        towerAttack.TargetingSystem.SetExtraTargetCount(targetNum - 1);
+        towerAttack.BaseProjectileCount = (int)projectileNum;
+        towerAttack.TargetingSystem.SetExtraTargetCount(targetNum - 1 < 0 ? 0 : targetNum - 1);
         projectileData.CollisionSize = hitSize;
         projectileData.RatePenetration = ratePenetration;
         projectileData.FixedPenetration = fixedPenetration;
@@ -229,8 +230,8 @@ public class TowerAttackTester : MonoBehaviour
         attackSpeed = towerAttack.AttackTowerData.fireRate;
         accuracy = towerAttack.AttackTowerData.Accuracy;
         grouping = towerAttack.AttackTowerData.grouping;
-        projectileNum = towerAttack.ProjectileCountFromAbility;
-        targetNum = towerAttack.TargetingSystem.MaxTargetCount;
+        projectileNum = towerAttack.BaseProjectileCount;
+        targetNum = towerAttack.TargetingSystem.BaseTargetCount;
         hitSize = projectileData.CollisionSize;
         ratePenetration = projectileData.RatePenetration;
         fixedPenetration = projectileData.FixedPenetration;
@@ -238,13 +239,22 @@ public class TowerAttackTester : MonoBehaviour
         duration = projectileData.RemainTime;
 
         currentTowerAttackId = towerAttackId;
+
+        choosedTowerData = towerDataSOs[towerAttackId];
     }
 
-    public void SetTowerData()
+    public void SetProjectileData()
     {
         if (towerAttack == null || projectileData == null)
             return;
 
-        
+        projectileData.Attack = damage;
+        projectileData.CollisionSize = hitSize;
+        projectileData.RatePenetration = ratePenetration;
+        projectileData.FixedPenetration = fixedPenetration;
+        projectileData.ProjectileSpeed = projectileSpeed;
+        projectileData.RemainTime = duration;
+
+        DataTableManager.ProjectileTable.Set(projectileData.Projectile_ID, projectileData);
     }
 }

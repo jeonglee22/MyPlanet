@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.NetworkInformation;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -44,7 +45,12 @@ public class EnemyStatTester : MonoBehaviour
     private EnemyTableData choosedEnemyData;
     [SerializeField] private DpsCalculator dpsCalculator;
 
+    private WaveData currentWaveData;
+
     public int[] WaveIds => waveIds;
+    public int[] EnemyIds => enemyIds;
+    public int[] MoveTypeIds => moveTypeIds;
+    public int[] PatternIds => patternIds;
 
     private async UniTaskVoid Start()
     {
@@ -60,41 +66,51 @@ public class EnemyStatTester : MonoBehaviour
     void FixedUpdate()
     {
         SetEnemyStat();
+        SetWaveStat();
         enemyData = MakeEnemyStatData();
+    }
+
+    private void SetWaveStat()
+    {
+        if (waveId == -1 || waveId >= waveIds.Length)
+            return;
+        
+        var waveData = DataTableManager.WaveTable.Get(waveIds[waveId]);
+        if (waveData == null)
+            return;
+
+        currentWaveData = waveData;
+
+        hpScale = waveData.HpScale;
+        attackScale = waveData.AttScale;
+        defenseScale = waveData.DefScale;
+        speedScale = waveData.MoveSpeedScale;
+        penetrationScale = waveData.PenetScale;
+        sizeScale = waveData.PrefabScale;
+        expScale = waveData.ExpScale;
     }
 
     public void EnemySpawn()
     {
-        if (enemyTypeId == -1)
+        if (spawnPoint < 0 || spawnPoint >= SpawnManager.Instance.Spawners.Count)
+            return;
+
+        if (moveTypeId < 0 || moveTypeId >= moveTypeIds.Length)
+            return;
+
+        var spawner = SpawnManager.Instance.Spawners[spawnPoint];
+
+        // spawn Single Enemy
+        spawner.SpawnEnemiesWithScale(enemyIds[enemyTypeId], enemyCount, new ScaleData()
         {
-            // spawn Wave Part
-            if (waveId != -1)
-            {
-                
-            }
-        }
-        else
-        {
-            if (spawnPoint < 0 || spawnPoint >= SpawnManager.Instance.Spawners.Count)
-                return;
-
-            if (moveTypeId < 0 || moveTypeId >= moveTypeIds.Length)
-                return;
-
-            var spawner = SpawnManager.Instance.Spawners[spawnPoint];
-
-            // spawn Single Enemy
-            spawner.SpawnEnemiesWithScale(enemyIds[enemyTypeId], enemyCount, new ScaleData()
-            {
-                HpScale = hpScale,
-                AttScale = attackScale,
-                DefScale = defenseScale,
-                MoveSpeedScale = speedScale,
-                PenetScale = penetrationScale,
-                PrefabScale = sizeScale,
-                ExpScale = expScale
-            }, enemyData);
-        }
+            HpScale = hpScale,
+            AttScale = attackScale,
+            DefScale = defenseScale,
+            MoveSpeedScale = speedScale,
+            PenetScale = penetrationScale,
+            PrefabScale = sizeScale,
+            ExpScale = expScale
+        }, enemyData);
     }
 
     private EnemyTableData MakeEnemyStatData()
@@ -176,5 +192,23 @@ public class EnemyStatTester : MonoBehaviour
         choosedEnemyData.EnemyType = enemyType;
 
         DataTableManager.EnemyTable.Set(enemyIds[enemyTypeId], choosedEnemyData);
+    }
+
+    public void StartWave()
+    {
+        if (waveId < 0 || waveId >= waveIds.Length)
+            return;
+
+        currentWaveData.AttScale = attackScale;
+        currentWaveData.HpScale = hpScale;
+        currentWaveData.DefScale = defenseScale;
+        currentWaveData.PenetScale = penetrationScale;
+        currentWaveData.MoveSpeedScale = speedScale;
+        currentWaveData.PrefabScale = sizeScale;
+        currentWaveData.ExpScale = expScale;
+
+        var cancellationToken = new CancellationToken();
+
+        WaveManager.Instance.ExecuteWave(currentWaveData, cancellationToken).Forget();
     }
 }

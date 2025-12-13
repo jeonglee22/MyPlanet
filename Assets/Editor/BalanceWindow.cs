@@ -184,9 +184,6 @@ public class BalanceWindow : EditorWindow
 
         switch (currentPage)
         {
-            case Page.Base:
-                DrawBasePage();
-                break;
             case Page.Enemy:
                 DrawEnemyPage();
                 break;
@@ -389,6 +386,20 @@ public class BalanceWindow : EditorWindow
         EditorGUILayout.PropertyField(durationProp);
 
         soTower.ApplyModifiedProperties();
+
+        EditorGUILayout.Space();
+
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("데이터 임시 저장"))
+        {
+            towerAttackTester.SetProjectileData();
+        }
+        if (GUILayout.Button("데이터 테이블에 저장"))
+        {
+            towerAttackTester.SetProjectileData();
+            DataTableManager.ProjectileTable.SaveOverridesAsync().Forget();
+        }
+        EditorGUILayout.EndHorizontal();
     }
 
     private void DrawEnemyPage()
@@ -429,8 +440,8 @@ public class BalanceWindow : EditorWindow
         }
 
 
-        int[] waveIds = new int[68];
-        string[] waveNames = new string[68];
+        int[] waveIds = new int[enemyStatTester.WaveIds.Length];
+        string[] waveNames = new string[enemyStatTester.WaveIds.Length];
 
         for (int i = 0; i < 68; i++)
         {
@@ -516,6 +527,8 @@ public class BalanceWindow : EditorWindow
 
         soEnemy.ApplyModifiedProperties();
 
+        EditorGUILayout.Space();
+
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("적 소환"))
         {
@@ -523,13 +536,15 @@ public class BalanceWindow : EditorWindow
         }
         if (GUILayout.Button("웨이브 소환"))
         {
-            // StartWave();
+            enemyStatTester.StartWave();
         }
         if (GUILayout.Button("모든 적 제거"))
         {
             enemyStatTester.ClearAllEnemies();
         }
         EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.Space();
 
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("데이터 임시 저장"))
@@ -542,20 +557,6 @@ public class BalanceWindow : EditorWindow
             DataTableManager.EnemyTable.SaveOverridesAsync().Forget();
         }
         EditorGUILayout.EndHorizontal();
-    }
-
-    private void StartWave()
-    {
-        throw new NotImplementedException();
-    }
-
-    private void SpawnCustomEnemy()
-    {
-        throw new NotImplementedException();
-    }
-
-    private void DrawBasePage()
-    {
     }
 
     private void DrawTopButtons()

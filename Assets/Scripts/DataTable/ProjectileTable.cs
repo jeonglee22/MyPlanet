@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -72,5 +73,29 @@ public class ProjectileTable : DataTable
         }
 
         return dictionary[key];
+    }
+
+    public async UniTask SaveOverridesAsync()
+    {
+        var changedRows = new List<ProjectileData>();
+        foreach (var kvp in dictionary)
+        {
+            var projectileData = kvp.Value;
+
+            changedRows.Add(projectileData);
+        }
+
+        var csvText = CsvSaveUtil.ToCsv(changedRows);
+        var path = Path.Combine("Assets/DataTables/", "ProjectileTable.csv");
+        await CsvSaveUtil.SaveTextAsync(path, csvText);
+        Debug.Log($"Saved override: {path}");
+    }
+
+    public void Set(int key, ProjectileData data)
+    {
+        if (dictionary.ContainsKey(key))
+        {
+            dictionary[key] = data;
+        }
     }
 }

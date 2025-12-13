@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using CsvHelper.Configuration.Attributes;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -117,5 +118,29 @@ public class AttackTowerTable : DataTable
 
         result.Sort((a, b) => a.Order.CompareTo(b.Order));
         return Rows;
+    }
+
+    public async UniTask SaveOverridesAsync()
+    {
+        var changedRows = new List<AttackTowerTableRow>();
+        foreach (var kvp in rowById)
+        {
+            var attackTower = kvp.Value;
+
+            changedRows.Add(attackTower);
+        }
+
+        var csvText = CsvSaveUtil.ToCsv(changedRows);
+        var path = Path.Combine("Assets/DataTables/", "attackTowerTable.csv");
+        await CsvSaveUtil.SaveTextAsync(path, csvText);
+        Debug.Log($"Saved override: {path}");
+    }
+
+    public void Set(int key, AttackTowerTableRow data)
+    {
+        if (rowById.ContainsKey(key))
+        {
+            rowById[key] = data;
+        }
     }
 }
