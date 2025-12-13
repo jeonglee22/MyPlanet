@@ -28,6 +28,7 @@ public class CollectionItemPanelUI : MonoBehaviour
 
     public AttackTowerTableRow AttackTowerData { get; private set; }
     public BuffTowerData BuffTowerData { get; private set; }
+    public RandomAbilityData AbilityData { get; private set; }
 
     private void OnDestroy()
     {
@@ -66,6 +67,24 @@ public class CollectionItemPanelUI : MonoBehaviour
         isBuffTower = true;
 
         BuffTowerData = data;
+
+        UpdateWeightDisplay();
+
+        weightUpBtn.onClick.AddListener(OnWeightUpBtn);
+        weightDownBtn.onClick.AddListener(OnWeightDownBtn);
+        infoBtn.onClick.AddListener(OnInfoBtnClicked);
+    }
+
+    public void Initialize(RandomAbilityData data, int dataCount, bool isTower)
+    {
+        var textData = DataTableManager.RandomAbilityTextTable.Get(data.RandomAbilityText_ID);
+
+        towerNameText.text = textData.RandomAbilityName;
+
+        weightId = data.RandomAbility_ID;
+        this.isTower = isTower;
+
+        AbilityData = data;
 
         UpdateWeightDisplay();
 

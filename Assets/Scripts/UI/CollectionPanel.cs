@@ -46,6 +46,7 @@ public class CollectionPanel : MonoBehaviour
 
         Initialize().Forget();
         towerPanelObj.SetActive(true);
+        abilityPanelObj.SetActive(false);
     }
 
     private void OnDestroy()
@@ -71,7 +72,7 @@ public class CollectionPanel : MonoBehaviour
     public void OnTowerPanelBtn()
     {
         towerPanelObj.SetActive(true);
-        //abilityPanelObj.SetActive(false);
+        abilityPanelObj.SetActive(false);
 
         isTowerPanel = true;
         isAbilityPanel = false;
@@ -83,7 +84,7 @@ public class CollectionPanel : MonoBehaviour
     public void OnAbilityPanelBtn()
     {
         towerPanelObj.SetActive(false);
-        //abilityPanelObj.SetActive(true);
+        abilityPanelObj.SetActive(true);
 
         isTowerPanel = false;
         isAbilityPanel = true;
@@ -112,6 +113,7 @@ public class CollectionPanel : MonoBehaviour
         allPanels.Clear();
 
         InitializeTowerPanel();
+        InitializeAbilityPanel();
 
         isTowerPanel = true;
         isAbilityPanel = false;
@@ -202,6 +204,49 @@ public class CollectionPanel : MonoBehaviour
         }
     }
 
+    private void InitializeAbilityPanel()
+    {
+        var randomAbilityDatas = DataTableManager.RandomAbilityTable.GetAllAbilityDatas();
+        int dataCount = randomAbilityDatas.Count;
+
+        for(int i = 0; i < randomAbilityDatas.Count; i += 2)
+        {
+            var row = Instantiate(collectionItemPrefab, abilityPanelContent.transform);
+            CollectionItemPanelUI[] panels = row.GetComponentsInChildren<CollectionItemPanelUI>();
+
+            if(panels.Length > 0)
+            {
+                panels[0].Initialize(randomAbilityDatas[i], dataCount, false);
+                panels[0].gameObject.SetActive(true);
+
+                panels[0].OnInfoBtn += OnInfoBtnClicked;
+                panels[0].OnWeightChanged += OnWeightChanged;
+
+                allPanels.Add(panels[0]);
+            }
+
+            if(panels.Length > 1)
+            {
+                if(i + 1 < randomAbilityDatas.Count)
+                {
+                    panels[1].Initialize(randomAbilityDatas[i + 1], dataCount, false);
+                    panels[1].gameObject.SetActive(true);
+
+                    panels[1].OnInfoBtn += OnInfoBtnClicked;
+                    panels[1].OnWeightChanged += OnWeightChanged;
+
+                    allPanels.Add(panels[1]);
+                }
+                else
+                {
+                    panels[1].gameObject.SetActive(false);
+                }
+            }
+
+            instantiatedItems.Add(row);
+        }
+    }
+
     private void OnWeightChanged()
     {
         UpdateCoreText();
@@ -249,6 +294,12 @@ public class CollectionPanel : MonoBehaviour
                 var buffTowerInfoPanel = buffTowerInfoPanelObj.GetComponent<BuffTowerInfoPanelUI>();
                 buffTowerInfoPanel.Initialize(panel.BuffTowerData);
             }
+        }
+        else
+        {
+            randomAbilityInfoPanelObj.SetActive(true);
+            var abilityInfoPanel = randomAbilityInfoPanelObj.GetComponent<RandomAbilityInfoUI>();
+            abilityInfoPanel.Initialize(panel.AbilityData);
         }
     }
 

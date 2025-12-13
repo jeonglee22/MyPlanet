@@ -112,7 +112,7 @@ public class CollectionManager : MonoBehaviour
             weights[towerId] = tower.TowerWeight;
         }
 
-        var abilities = DataTableManager.RandomAbilityTable.GetAllAbilityIds();
+        var abilities = DataTableManager.RandomAbilityTable.GetAllAbilityDatas();
         foreach (var ability in abilities)
         {
             int abilityId = ability.RandomAbility_ID;

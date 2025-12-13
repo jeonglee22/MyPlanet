@@ -225,6 +225,7 @@ public static class DataTableIds
     public static readonly string Draw = "DrawTable";
     public static readonly string Reward = "RewardTable";
     public static readonly string planet = "PlanetTable";
+    public static readonly string RandomAbilityText = "RandomAbilityTextTable";
 }
 
 public static class Variables
