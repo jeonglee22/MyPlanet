@@ -50,7 +50,7 @@ public class MainTitleUI : MonoBehaviour
         // cameraTestButton?.onClick.AddListener(() => OnCameraTestButtonClicked().Forget());
         // asyncRaidTestButton?.onClick.AddListener(() => OnAsyncRaidTestButtonclicked().Forget());
 
-        exitButton?.onClick.AddListener(() => exitPanel.SetActive(true));
+        exitButton?.onClick.AddListener(OpenExitPanel);
         exitCanelButton?.onClick.AddListener(() => exitPanel.SetActive(false));
 
 #if UNITY_EDITOR
@@ -66,6 +66,13 @@ public class MainTitleUI : MonoBehaviour
         finishLoading = true;
 
         // gameStartButton.interactable = false;
+    }
+
+    private void OpenExitPanel()
+    {
+        exitPanel.SetActive(true);
+        infoPanel.SetActive(false);
+        SignInPanel.SetActive(false);
     }
 
     // private void SetResolution()
@@ -112,6 +119,7 @@ public class MainTitleUI : MonoBehaviour
 
     private void OnLogInOutButtonClicked()
     {
+        exitPanel.SetActive(false);
         if(AuthManager.Instance.IsSignedIn)
         {
             canvasManager.SwitchToTargetPopUp(MainTitleCanvasManager.PopupName.Info);

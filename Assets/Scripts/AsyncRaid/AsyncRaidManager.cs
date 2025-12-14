@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -30,12 +31,45 @@ public class AsyncRaidManager : MonoBehaviour
     private bool isActiveUI = false;
     private float asyncUserSpawnTimer;
 
+    private CancellationTokenSource cts;
+
+    private async UniTaskVoid Start()
+    {
+        if (cts != null)
+            CancelCTS();
+        cts = new CancellationTokenSource();
+
+        await UserAttackPowerManager.Instance.FindSimilarAttackPowerUserAsync(cts.Token);
+
+        Debug.Log("Similar User Found : " + UserAttackPowerManager.Instance.SimilarAttackPowerUserId);
+    }
+
+    private void OnDisable()
+    {
+        CancelCTS();
+        UserAttackPowerManager.Instance.SimilarAttackPowerUserId = string.Empty;
+    }
+
+    private void CancelCTS()
+    {
+        cts?.Cancel();
+        cts?.Dispose();
+        cts = null;
+    }
+
     void Update()
     {
         if(WaveManager.Instance.IsLastBoss && !isSettingAsyncUserPlanet && canStartSpawn
             && !CameraManager.Instance.IsZoomedOut)
         // if(WaveManager.Instance.IsLastBoss && !isSettingAsyncUserPlanet && canStartSpawn && IsStartRaid)
         {
+            var lastBossEnemy = Variables.LastBossEnemy;
+            if (lastBossEnemy == null || lastBossEnemy.IsDead)
+                return;
+
+            if (lastBossEnemy.IsInvincible)
+                return;
+
             asyncUserSpawnTimer += Time.deltaTime;
             if(asyncUserSpawnTimer < 3f)
                 return;
@@ -69,7 +103,7 @@ public class AsyncRaidManager : MonoBehaviour
 
     private async UniTask SpawnAsyncUserPlanetAsync(float bossHp)
     {
-        await UserAttackPowerManager.Instance.FindSimilarAttackPowerUserAsync();
+        await UniTask.WaitUntil(() => UserAttackPowerManager.Instance.SimilarAttackPowerUserId != string.Empty);
 
         var similarUserId = UserAttackPowerManager.Instance.SimilarAttackPowerUserId;
 

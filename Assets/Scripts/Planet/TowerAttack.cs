@@ -204,6 +204,11 @@ public class TowerAttack : MonoBehaviour
         lazers = new List<LazertowerAttack>();
     }
 
+    private void OnDisable()
+    {
+        DeleteExistLazers();
+    }
+
     public void SetTowerData(TowerDataSO data)
     {
         towerData = data;
@@ -277,6 +282,8 @@ public class TowerAttack : MonoBehaviour
 
         if (shootTimer >= shootInterval)
         {
+            DeleteExistLazers();
+
             ShootAtTarget();
             shootTimer = 0f;
             hitScanTimer = 0f;
@@ -285,8 +292,22 @@ public class TowerAttack : MonoBehaviour
         }
     }
 
+    private void DeleteExistLazers()
+    {
+        foreach (var lazer in lazers)
+        {
+            if (lazer == null) continue;
+
+            lazer?.gameObject.SetActive(false);
+        }
+        lazers.Clear();
+    }
+
     private void StartHitscan(float hitScanInterval)
     {
+        if (towerData.towerIdInt == (int)AttackTowerId.Lazer)
+            return;
+
         isHitScanActive = true;
 
         targetingSystem.SetAttacking(true);
@@ -456,7 +477,7 @@ public class TowerAttack : MonoBehaviour
             {
                 projectile.transform.position = target.position;
                 projectile.transform.rotation = Quaternion.LookRotation(direction);
-                Debug.Log(direction);
+                // Debug.Log(direction);
 
                 SettingProjectile(projectile, buffedData, baseData, direction, attackType, target);
                 continue;
@@ -782,10 +803,10 @@ public class TowerAttack : MonoBehaviour
         addBuffProjectileData.FixedPenetration =
        baseFixed + fromAbility + fromAmpBase;
 
-        Debug.Log(
-            $"[FixedPen][Calc] tower={name} base={baseFixed}, fromAbility={fromAbility}, " +
-            $"fromAmpBase={fromAmpBase}"
-        );
+        // Debug.Log(
+        //     $"[FixedPen][Calc] tower={name} base={baseFixed}, fromAbility={fromAbility}, " +
+        //     $"fromAmpBase={fromAmpBase}"
+        // );
         //------------------
         //rate penetration---------------------------
         float baseRate01 = Mathf.Clamp01(currentProjectileData.RatePenetration / 100f);
