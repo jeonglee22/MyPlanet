@@ -119,6 +119,7 @@ public enum MoveType
     DescendAndStopMovement = 10,
     Revolution = 11,
     Side,
+    TwoPhaseHomingMovement,
 }
 
 public enum PatternIds
