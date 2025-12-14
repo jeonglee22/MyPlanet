@@ -305,6 +305,9 @@ public class TowerAttack : MonoBehaviour
 
     private void StartHitscan(float hitScanInterval)
     {
+        if (towerData.towerIdInt == (int)AttackTowerId.Lazer)
+            return;
+
         isHitScanActive = true;
 
         targetingSystem.SetAttacking(true);
@@ -474,7 +477,7 @@ public class TowerAttack : MonoBehaviour
             {
                 projectile.transform.position = target.position;
                 projectile.transform.rotation = Quaternion.LookRotation(direction);
-                Debug.Log(direction);
+                // Debug.Log(direction);
 
                 SettingProjectile(projectile, buffedData, baseData, direction, attackType, target);
                 continue;

@@ -15,7 +15,8 @@ public class UserAttackPowerManager : MonoBehaviour
     public UserAttackPowerData CurrentPlanetPower => currentAttackPower;
 
     private string similarAttackPowerUserId = string.Empty;
-    public string SimilarAttackPowerUserId => similarAttackPowerUserId;
+    public string SimilarAttackPowerUserId
+    { get { return similarAttackPowerUserId;} set { similarAttackPowerUserId = value; } }
 
     private bool isNotSimilarUserFound = false;
     public bool IsNotSimilarUserFound => isNotSimilarUserFound;
