@@ -782,10 +782,10 @@ public class TowerAttack : MonoBehaviour
         addBuffProjectileData.FixedPenetration =
        baseFixed + fromAbility + fromAmpBase;
 
-        Debug.Log(
-            $"[FixedPen][Calc] tower={name} base={baseFixed}, fromAbility={fromAbility}, " +
-            $"fromAmpBase={fromAmpBase}"
-        );
+        // Debug.Log(
+        //     $"[FixedPen][Calc] tower={name} base={baseFixed}, fromAbility={fromAbility}, " +
+        //     $"fromAmpBase={fromAmpBase}"
+        // );
         //------------------
         //rate penetration---------------------------
         float baseRate01 = Mathf.Clamp01(currentProjectileData.RatePenetration / 100f);

@@ -55,6 +55,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     private bool isTutorial = false;
 
     private bool isInvincible = false;
+    public bool IsInvincible => isInvincible;
     private bool hasReachedStartPosition = false;
 
     private bool isTargetable = true;

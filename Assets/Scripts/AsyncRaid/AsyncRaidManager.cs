@@ -36,6 +36,13 @@ public class AsyncRaidManager : MonoBehaviour
             && !CameraManager.Instance.IsZoomedOut)
         // if(WaveManager.Instance.IsLastBoss && !isSettingAsyncUserPlanet && canStartSpawn && IsStartRaid)
         {
+            var lastBossEnemy = Variables.LastBossEnemy;
+            if (lastBossEnemy == null || lastBossEnemy.IsDead)
+                return;
+
+            if (lastBossEnemy.IsInvincible)
+                return;
+
             asyncUserSpawnTimer += Time.deltaTime;
             if(asyncUserSpawnTimer < 3f)
                 return;
