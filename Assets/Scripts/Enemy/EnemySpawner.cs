@@ -60,7 +60,7 @@ public class EnemySpawner : MonoBehaviour
         return enemy;
     }
 
-    private Enemy CreateChildEnemy(int enemyId, Vector3 position, ScaleData scaleData, int moveType)
+    private Enemy CreateChildEnemy(int enemyId, Vector3 position, ScaleData scaleData, int moveType, Enemy parent)
     {
         Enemy enemy = objectPoolManager.Get(enemyId);
         if (enemy == null)
@@ -73,7 +73,7 @@ public class EnemySpawner : MonoBehaviour
         enemy.transform.position = position;
         enemy.Spawner = this;
 
-        enemy.InitializeAsChild(currentTableData, enemyId, objectPoolManager, scaleData, moveType);
+        enemy.InitializeAsChild(currentTableData, enemyId, objectPoolManager, scaleData, moveType, parent);
         return enemy;
     }
 
@@ -164,9 +164,9 @@ public class EnemySpawner : MonoBehaviour
         return CreateEnemy(enemyId, spawnPosition, Vector3.down, scaleData);
     }
 
-    public Enemy SpawnEnemyAsChild(int enemyId, Vector3 spawnPosition, ScaleData scaleData, int moveType, bool ShouldDropItems = true)
+    public Enemy SpawnEnemyAsChild(int enemyId, Vector3 spawnPosition, ScaleData scaleData, int moveType, bool ShouldDropItems = true, Enemy parent = null)
     {
-        var enemy = CreateChildEnemy(enemyId, spawnPosition, scaleData, moveType);
+        var enemy = CreateChildEnemy(enemyId, spawnPosition, scaleData, moveType, parent);
         if(enemy != null)
         {
             enemy.ShouldDropItems = ShouldDropItems;

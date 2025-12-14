@@ -60,6 +60,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     private bool isTargetable = true;
     public bool IsTargetable => isTargetable;
 
+    public Enemy ParentEnemy { get; set; }
+
     private void Start()
     {
         SetIsTutorial(TutorialManager.Instance?.IsTutorialMode ?? false);
@@ -100,6 +102,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         movement = null;
 
         OnCollisionDamageCalculate = null;
+
+        ParentEnemy = null;
 
         StopLifeTime();
     }
@@ -296,7 +300,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         StartLifeTime();
     }
 
-    public void InitializeAsChild(EnemyTableData enemyData, int enemyId, ObjectPoolManager<int, Enemy> poolManager, ScaleData scaleData, int moveType)
+    public void InitializeAsChild(EnemyTableData enemyData, int enemyId, ObjectPoolManager<int, Enemy> poolManager, ScaleData scaleData, int moveType, Enemy parent)
     {
         this.enemyId = enemyId;
         objectPoolManager = poolManager;
@@ -319,6 +323,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         exp = data.Exp * scaleData.ExpScale;
         
         isTargetable = true;
+
+        ParentEnemy = parent;
 
         AddMovementComponent(moveType, -1);
 

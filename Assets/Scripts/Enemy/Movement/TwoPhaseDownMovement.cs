@@ -114,7 +114,9 @@ public class TwoPhaseDownMovement : IMovement
 
     private void SetHorizontalDirection(Transform ownerTransform)
     {
-        if(ownerTransform.position.x > owner.Spawner.transform.position.x)
+        var parent = owner.ParentEnemy != null ? owner.ParentEnemy.transform : owner.Spawner.transform;
+
+        if(ownerTransform.position.x > parent.position.x)
         {
             currentMoveDirection = new Vector3(1, -1, 0).normalized;
         }
