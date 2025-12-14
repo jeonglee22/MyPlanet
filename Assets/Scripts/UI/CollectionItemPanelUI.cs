@@ -107,6 +107,10 @@ public class CollectionItemPanelUI : MonoBehaviour
         {
             totalWeight = CollectionManager.Instance.GetTotalWeightBuffTowers();
         }
+        else
+        {
+            totalWeight = CollectionManager.Instance.GetTotalWeight(false);
+        }
 
         float probability = totalWeight > 0 ? (currentWeight / totalWeight) * 100f : 0f;
         
