@@ -314,11 +314,11 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             {
                 float r = UnityEngine.Random.Range(0f, 1f);
                 chooseNew = (r < newProb);
-                Debug.Log(
-                    $"[CardRoll] cardIndex={cardIndex}, r={r:F2}, " +
-                    $"newProb={newProb:F2}, chooseNew={chooseNew}, " +
-                    $"canNew={canNew}, canUpgrade={canUpgrade}"
-                );
+                // Debug.Log(
+                //     $"[CardRoll] cardIndex={cardIndex}, r={r:F2}, " +
+                //     $"newProb={newProb:F2}, chooseNew={chooseNew}, " +
+                //     $"canNew={canNew}, canUpgrade={canUpgrade}"
+                // );
 
             }
 
@@ -1758,11 +1758,11 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 upgradeProb = 0.9f;
             }
         }
-        Debug.Log(
-    $"[UpgradeProb] upgradable={installControl.GetUpgradeableTowerCount()}, " +
-    $"fieldFull={installControl.CurrentTowerCount >= installControl.MaxTowerCount}, " +
-    $"newProb={newProb}, upgradeProb={upgradeProb}"
-);
+//         Debug.Log(
+//     $"[UpgradeProb] upgradable={installControl.GetUpgradeableTowerCount()}, " +
+//     $"fieldFull={installControl.CurrentTowerCount >= installControl.MaxTowerCount}, " +
+//     $"newProb={newProb}, upgradeProb={upgradeProb}"
+// );
 
     }
     private int GetTotalTowerCount() //used in tutorial, gold

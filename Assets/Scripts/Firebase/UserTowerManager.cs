@@ -308,4 +308,45 @@ public class UserTowerManager : MonoBehaviour
             currentTowerDatas[i] = towerData;
         }
     }
+
+    public async UniTask<bool> ExistTowerDataAsync(string userid)
+    {
+        if(!AuthManager.Instance.IsSignedIn)
+            return false;
+        
+        try
+        {
+            var userRef = userTowerRef.Child(userid);
+            for (int towerId = 0; towerId < towerTypeCount; towerId++)
+            {
+                string towerKey = towerId switch
+                {
+                    0 => "GunTower",
+                    1 => "ShootGunTower",
+                    2 => "GatlingGunTower",
+                    3 => "LazerTower",
+                    4 => "SniperTower",
+                    5 => "MissileTower",
+                    _ => ""
+                };
+
+                var dataSnapshot = await userRef.Child(towerKey).GetValueAsync().AsUniTask();
+                if(!dataSnapshot.Exists)
+                    continue;
+                
+                var json = dataSnapshot.GetRawJsonValue();
+                var towerData = UserTowerData.FromJson(json);
+                
+                if (towerData.towerLevelId != -1)
+                    return true;
+            }
+
+            return false;
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"Failed to check existence of user tower data: {ex.Message}");
+            return false;
+        }
+    }
 }

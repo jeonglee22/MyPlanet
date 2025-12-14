@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using Firebase.Database;
 using UnityEngine;
@@ -13,8 +14,9 @@ public class UserAttackPowerManager : MonoBehaviour
     private UserAttackPowerData currentAttackPower;
     public UserAttackPowerData CurrentPlanetPower => currentAttackPower;
 
-    private string similarAttackPowerUserId;
-    public string SimilarAttackPowerUserId => similarAttackPowerUserId;
+    private string similarAttackPowerUserId = string.Empty;
+    public string SimilarAttackPowerUserId
+    { get { return similarAttackPowerUserId;} set { similarAttackPowerUserId = value; } }
 
     private bool isNotSimilarUserFound = false;
     public bool IsNotSimilarUserFound => isNotSimilarUserFound;
@@ -94,7 +96,7 @@ public class UserAttackPowerManager : MonoBehaviour
         }
     }
 
-    public async UniTask<bool> FindSimilarAttackPowerUserAsync()
+    public async UniTask<bool> FindSimilarAttackPowerUserAsync(CancellationToken token)
     {
         if (!AuthManager.Instance.IsSignedIn)
             return false;
@@ -105,20 +107,28 @@ public class UserAttackPowerManager : MonoBehaviour
             var dataSnapshot = await userTowerRef.GetValueAsync().AsUniTask();
 
             var userCount = dataSnapshot.ChildrenCount;
-            int index = Random.Range(0, (int)userCount);
 
-            int start = 0;
+            var existDataList = new List<string>();
             foreach (var child in dataSnapshot.Children)
             {
-                if (index == start)
+                var key = child.Key;
+
+                if (token.IsCancellationRequested)
                 {
-                    var json = child.GetRawJsonValue();
-                    var profile = UserPlanetData.FromJson(json);
-                    similarAttackPowerUserId = child.Key;
-                    break;
+                    Debug.Log("FindSimilarAttackPowerUserAsync cancelled.");
+                    return false;
                 }
-                start++;
+
+                var result = await UserTowerManager.Instance.ExistTowerDataAsync(key);
+                if (result)
+                {
+                    existDataList.Add(key);
+                }
             }
+            // Debug.Log(existDataList.Count + " / " + userCount);
+
+            int index = Random.Range(0, existDataList.Count);
+            similarAttackPowerUserId = existDataList[index];
 
             return true;
         }
