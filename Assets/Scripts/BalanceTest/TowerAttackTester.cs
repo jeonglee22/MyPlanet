@@ -52,12 +52,6 @@ public class TowerAttackTester : MonoBehaviour
         await UniTask.WaitUntil(() => AbilityManager.IsInitialized);
 
         abilities = new List<IAbility>();
-        abilities.Add(new HomingUpgradeAbility(0f));
-        abilities.Add(new ExplosionAbility(0f));
-        abilities.Add(new SplitUpgradeAbility(0f));
-        abilities.Add(new ParalyzeAbility(0f));
-        abilities.Add(new ChainUpgradeAbility(0f));
-        abilities.Add(new PierceUpgradeAbility(0f));
     }
 
     private void Initialize()
@@ -107,86 +101,131 @@ public class TowerAttackTester : MonoBehaviour
         if (towerAttack.Abilities == null)
             return;
 
-        if (towerAttack.Abilities.Count == 0)
+        abilities.Clear();
+
+        if (explosionRadius > 0f)
         {
-            towerAttack.AddAbility((int)AbilityId.Homing);
-            towerAttack.AddAbility((int)AbilityId.Explosion);
-            towerAttack.AddAbility((int)AbilityId.Split);
-            towerAttack.AddAbility((int)AbilityId.Slow);
-            towerAttack.AddAbility((int)AbilityId.Chain);
-            towerAttack.AddAbility((int)AbilityId.Pierce);
-            towerAttack.TestAbilities = abilities;
+            var explosionAbility = new ExplosionAbility(explosionRadius);
+            abilities.Add(explosionAbility);
         }
 
-        for (int i = 0; i < abilities.Count; i++)
+        if (homing > 0)
         {
-            switch (abilities[i])
-            {
-                case HomingUpgradeAbility:
-                    if (currentHoming == homing)
-                        continue;
-
-                    currentHoming = homing;
-                    Debug.Log("Homing" + currentHoming);
-                    if (currentHoming == 1)
-                        abilities[i].ApplyAbility(towerAttack.gameObject);
-                    else
-                        abilities[i].RemoveAbility(towerAttack.gameObject);
-                    break;
-                case ExplosionAbility:
-                    if (Mathf.Approximately(currentExplosionRadius, explosionRadius))
-                        continue;
-
-                    currentExplosionRadius = explosionRadius;
-                    
-                    Debug.Log("Explosion: " + currentExplosionRadius);
-                    var newExplosionAbility = new ExplosionAbility(currentExplosionRadius);
-                    abilities[i] = newExplosionAbility;
-                    break;
-                case SplitUpgradeAbility:
-                    if (currentSplitCount == splitCount)
-                        continue;
-
-                    currentSplitCount = splitCount;
-
-                    Debug.Log("Split:" + currentSplitCount);
-                    var newSplitUpgradeAbility = new SplitUpgradeAbility(currentSplitCount);
-                    abilities[i] = newSplitUpgradeAbility;
-                    break;
-                case ParalyzeAbility:
-                    if (Mathf.Approximately(currentSlowPercent, slowPercent))
-                        continue;
-
-                    currentSlowPercent = slowPercent;
-
-                    Debug.Log("SlowAbility:" + currentSlowPercent);
-                    var newParalyzeAbility = new ParalyzeAbility(currentSlowPercent);
-                    abilities[i] = newParalyzeAbility;
-                    break;
-                case ChainUpgradeAbility:
-                    if (currentChainCount == chainCount)
-                        continue;
-
-                    currentChainCount = chainCount;
-
-                    Debug.Log("ChainAttack:" + currentChainCount);
-                    var newChainUpgradeAbility = new ChainUpgradeAbility(currentChainCount);
-                    abilities[i] = newChainUpgradeAbility;
-                    break;
-                case PierceUpgradeAbility:
-                    if (currentPierceCount == pierceCount)
-                        continue;
-
-                    currentPierceCount = pierceCount;
-
-                    Debug.Log("Pierce" + currentPierceCount);
-                    var newPierceUpgradeAbility = new PierceUpgradeAbility(currentPierceCount);
-                    abilities[i] = newPierceUpgradeAbility;
-                    break;
-            }
+            var homingAbility = new HomingUpgradeAbility(homing);
+            abilities.Add(homingAbility);
+            homingAbility.ApplyAbility(towerAttack.gameObject);
+        }
+        else
+        {
+            var homingAbility = new HomingUpgradeAbility(0);
+            homingAbility.RemoveAbility(towerAttack.gameObject);
         }
 
+        if (splitCount > 0)
+        {
+            var splitAbility = new SplitUpgradeAbility(splitCount);
+            abilities.Add(splitAbility);
+            splitAbility.Setting(towerAttack.gameObject);
+        }
+
+        if (slowPercent > 0f)
+        {
+            var paralyzeAbility = new ParalyzeAbility(slowPercent);
+            abilities.Add(paralyzeAbility);
+        }
+
+        if (chainCount > 0)
+        {
+            var chainAbility = new ChainUpgradeAbility(chainCount);
+            abilities.Add(chainAbility);
+        }
+        
+        if (pierceCount > 0)
+        {
+            var pierceAbility = new PierceUpgradeAbility(pierceCount);
+            abilities.Add(pierceAbility);
+        }
+        
         towerAttack.TestAbilities = abilities;
+
+        // if (towerAttack.Abilities.Count == 0)
+        // {
+        //     towerAttack.AddAbility((int)AbilityId.Homing);
+        //     towerAttack.AddAbility((int)AbilityId.Explosion);
+        //     towerAttack.AddAbility((int)AbilityId.Split);
+        //     towerAttack.AddAbility((int)AbilityId.Slow);
+        //     towerAttack.AddAbility((int)AbilityId.Chain);
+        //     towerAttack.AddAbility((int)AbilityId.Pierce);
+        //     towerAttack.TestAbilities = abilities;
+        // }
+
+        // for (int i = 0; i < abilities.Count; i++)
+        // {
+        //     switch (abilities[i])
+        //     {
+        //         case HomingUpgradeAbility:
+        //             if (currentHoming == homing)
+        //                 continue;
+
+        //             currentHoming = homing;
+        //             Debug.Log("Homing" + currentHoming);
+        //             if (currentHoming == 1)
+        //                 abilities[i].ApplyAbility(towerAttack.gameObject);
+        //             else
+        //                 abilities[i].RemoveAbility(towerAttack.gameObject);
+        //             break;
+        //         case ExplosionAbility:
+        //             if (Mathf.Approximately(currentExplosionRadius, explosionRadius))
+        //                 continue;
+
+        //             currentExplosionRadius = explosionRadius;
+                    
+        //             Debug.Log("Explosion: " + currentExplosionRadius);
+        //             var newExplosionAbility = new ExplosionAbility(currentExplosionRadius);
+        //             abilities[i] = newExplosionAbility;
+        //             break;
+        //         case SplitUpgradeAbility:
+        //             if (currentSplitCount == splitCount)
+        //                 continue;
+
+        //             currentSplitCount = splitCount;
+
+        //             Debug.Log("Split:" + currentSplitCount);
+        //             var newSplitUpgradeAbility = new SplitUpgradeAbility(currentSplitCount);
+        //             abilities[i] = newSplitUpgradeAbility;
+        //             break;
+        //         case ParalyzeAbility:
+        //             if (Mathf.Approximately(currentSlowPercent, slowPercent))
+        //                 continue;
+
+        //             currentSlowPercent = slowPercent;
+
+        //             Debug.Log("SlowAbility:" + currentSlowPercent);
+        //             var newParalyzeAbility = new ParalyzeAbility(currentSlowPercent);
+        //             abilities[i] = newParalyzeAbility;
+        //             break;
+        //         case ChainUpgradeAbility:
+        //             if (currentChainCount == chainCount)
+        //                 continue;
+
+        //             currentChainCount = chainCount;
+
+        //             Debug.Log("ChainAttack:" + currentChainCount);
+        //             var newChainUpgradeAbility = new ChainUpgradeAbility(currentChainCount);
+        //             abilities[i] = newChainUpgradeAbility;
+        //             break;
+        //         case PierceUpgradeAbility:
+        //             if (currentPierceCount == pierceCount)
+        //                 continue;
+
+        //             currentPierceCount = pierceCount;
+
+        //             Debug.Log("Pierce" + currentPierceCount);
+        //             var newPierceUpgradeAbility = new PierceUpgradeAbility(currentPierceCount);
+        //             abilities[i] = newPierceUpgradeAbility;
+        //             break;
+        //     }
+        // }
     }
 
     private void UpdateProjectileData()

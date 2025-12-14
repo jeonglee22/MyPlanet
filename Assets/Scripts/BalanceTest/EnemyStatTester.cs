@@ -48,6 +48,7 @@ public class EnemyStatTester : MonoBehaviour
 
     private WaveData currentWaveData;
     private int currentWaveTypeId;
+    private CancellationTokenSource cts;
 
     public int[] WaveIds => waveIds;
     public int[] EnemyIds => enemyIds;
@@ -175,6 +176,12 @@ public class EnemyStatTester : MonoBehaviour
     {
         enemySpawnTest.ClearAllEnemies();
         dpsCalculator.ResetDps();
+        WaveManager.Instance.ResetWave();
+        cts?.Cancel();
+        cts?.Dispose();
+        cts = null;
+
+        CameraManager.Instance.ZoomIn();
     }
 
     public void SetEnemyData()
@@ -210,9 +217,14 @@ public class EnemyStatTester : MonoBehaviour
         currentWaveData.PrefabScale = sizeScale;
         currentWaveData.ExpScale = expScale;
 
-        var cancellationToken = new CancellationToken();
+        if (cts != null)
+        {
+            cts.Cancel();
+            cts.Dispose();
+        }
+        cts = new CancellationTokenSource();
 
-        WaveManager.Instance.ExecuteWave(currentWaveData, cancellationToken).Forget();
+        WaveManager.Instance.ExecuteWave(currentWaveData, cts.Token).Forget();
     }
 
     public void SaveWaveData()

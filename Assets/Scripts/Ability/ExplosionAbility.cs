@@ -14,6 +14,9 @@ public class ExplosionAbility : EffectAbility
     {
         base.ApplyAbility(gameObject);
 
+        if (upgradeAmount <= float.Epsilon)
+            return;
+
         var projectile = gameObject.GetComponent<Projectile>();
         if(projectile != null)
         {

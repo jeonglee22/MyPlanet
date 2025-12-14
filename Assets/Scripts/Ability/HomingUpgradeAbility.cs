@@ -18,7 +18,7 @@ public class HomingUpgradeAbility : TowerAbility
         if (towerAttack != null)
         {
             initAttackType = (int)towerAttack.BaseProjectileData.AttackType;
-            Debug.Log("Before Ability" + initAttackType);
+            // Debug.Log("Before Ability" + initAttackType);
             towerAttack.NewProjectileAttackType = (int) ProjectileType.Homing;
         }
     }
@@ -31,7 +31,7 @@ public class HomingUpgradeAbility : TowerAbility
         if (towerAttack != null)
         {
             towerAttack.NewProjectileAttackType = initAttackType;
-            Debug.Log("Init Homing" + initAttackType);
+            // Debug.Log("Init Homing" + initAttackType);
         }
     }
 

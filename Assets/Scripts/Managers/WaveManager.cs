@@ -228,6 +228,7 @@ public class WaveManager : MonoBehaviour
 
         if (Variables.IsTestMode)
         {
+            ResetWave();
             return;
         }
 

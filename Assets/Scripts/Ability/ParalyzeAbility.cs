@@ -7,7 +7,7 @@ public class ParalyzeAbility : EffectAbility
     private float initSpeed;
     public float slowPercentage = 40f;
 
-    private List<Enemy> affectedEnemies = new List<Enemy>();
+    private static List<Enemy> affectedEnemies = new List<Enemy>();
 
     public ParalyzeAbility(float amount)
     {

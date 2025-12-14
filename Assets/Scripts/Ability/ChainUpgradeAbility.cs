@@ -22,6 +22,9 @@ public class ChainUpgradeAbility : EffectAbility
     {
         base.ApplyAbility(gameObject);
 
+        if (upgradeAmount <= 0)
+            return;
+
         var projectile = gameObject.GetComponent<Projectile>();
         if (projectile != null)
         {
