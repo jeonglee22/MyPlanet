@@ -15,7 +15,7 @@ public class SimpleShotPattern : ShootingPattern
     protected override void Shoot(CancellationToken token = default)
     {
         Vector3 spawnPosition = owner.transform.position;
-        Vector3 shootDirection = Vector3.down;
+        Vector3 shootDirection = (target.position - owner.transform.position).normalized;
 
         spawner.SpawnPattern(spawnPosition, shootDirection, owner.atk, shootSpeed, owner.LifeTime);
     }
