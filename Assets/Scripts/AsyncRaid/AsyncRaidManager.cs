@@ -47,6 +47,7 @@ public class AsyncRaidManager : MonoBehaviour
     private void OnDisable()
     {
         CancelCTS();
+        UserAttackPowerManager.Instance.SimilarAttackPowerUserId = string.Empty;
     }
 
     private void CancelCTS()
