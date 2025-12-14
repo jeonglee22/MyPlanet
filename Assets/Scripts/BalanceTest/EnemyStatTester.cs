@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.NetworkInformation;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class EnemyStatTester : MonoBehaviour
@@ -46,6 +47,7 @@ public class EnemyStatTester : MonoBehaviour
     [SerializeField] private DpsCalculator dpsCalculator;
 
     private WaveData currentWaveData;
+    private int currentWaveTypeId;
 
     public int[] WaveIds => waveIds;
     public int[] EnemyIds => enemyIds;
@@ -72,7 +74,7 @@ public class EnemyStatTester : MonoBehaviour
 
     private void SetWaveStat()
     {
-        if (waveId == -1 || waveId >= waveIds.Length)
+        if (currentWaveTypeId == waveId || waveId == -1 || waveId >= waveIds.Length)
             return;
         
         var waveData = DataTableManager.WaveTable.Get(waveIds[waveId]);
@@ -80,6 +82,7 @@ public class EnemyStatTester : MonoBehaviour
             return;
 
         currentWaveData = waveData;
+        currentWaveTypeId = waveId;
 
         hpScale = waveData.HpScale;
         attackScale = waveData.AttScale;
@@ -210,5 +213,21 @@ public class EnemyStatTester : MonoBehaviour
         var cancellationToken = new CancellationToken();
 
         WaveManager.Instance.ExecuteWave(currentWaveData, cancellationToken).Forget();
+    }
+
+    public void SaveWaveData()
+    {
+        if (waveId < 0 || waveId >= waveIds.Length)
+            return;
+
+        currentWaveData.AttScale = attackScale;
+        currentWaveData.HpScale = hpScale;
+        currentWaveData.DefScale = defenseScale;
+        currentWaveData.PenetScale = penetrationScale;
+        currentWaveData.MoveSpeedScale = speedScale;
+        currentWaveData.PrefabScale = sizeScale;
+        currentWaveData.ExpScale = expScale;
+
+        DataTableManager.WaveTable.Set(waveIds[waveId], currentWaveData);
     }
 }

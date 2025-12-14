@@ -556,6 +556,11 @@ public class BalanceWindow : EditorWindow
             enemyStatTester.SetEnemyData();
             DataTableManager.EnemyTable.SaveOverridesAsync().Forget();
         }
+        if (GUILayout.Button("웨이브 데이터 테이블에 저장"))
+        {
+            enemyStatTester.SaveWaveData();
+            DataTableManager.WaveTable.SaveOverridesAsync().Forget();
+        }
         EditorGUILayout.EndHorizontal();
     }
 

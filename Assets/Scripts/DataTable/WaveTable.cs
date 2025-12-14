@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -86,5 +87,29 @@ public class WaveTable : DataTable
             stageIndices.Add(item.StageIndex);
         }
         return stageIndices.Count;
+    }
+
+    public async UniTask SaveOverridesAsync()
+    {
+        var changedRows = new List<WaveData>();
+        foreach (var kvp in dictionary)
+        {
+            var waveData = kvp.Value;
+
+            changedRows.Add(waveData);
+        }
+
+        var csvText = CsvSaveUtil.ToCsv(changedRows);
+        var path = Path.Combine("Assets/DataTables/", "WaveTable.csv");
+        await CsvSaveUtil.SaveTextAsync(path, csvText);
+        Debug.Log($"Saved override: {path}");
+    }
+
+    public void Set(int key, WaveData data)
+    {
+        if (dictionary.ContainsKey(key))
+        {
+            dictionary[key] = data;
+        }
     }
 }
