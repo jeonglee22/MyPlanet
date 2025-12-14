@@ -9,10 +9,10 @@ public class HomingMovement : IMovement
 
     private int enemyType;
 
-    public void Initialize(int enemyType)
+    public void Initialize(Enemy owner)
     {
         isDirectionSet = false;
-        this.enemyType = enemyType;
+        enemyType = owner.EnemyType;
 
         if(enemyType <= 1)
         {

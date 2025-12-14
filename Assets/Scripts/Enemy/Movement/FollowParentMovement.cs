@@ -11,7 +11,7 @@ public class FollowParentMovement : IMovement
 
     private int enemyType;
 
-    public void Initialize(int enemyType)
+    public void Initialize(Enemy owner)
     {
         if(!isInitialized)
         {
@@ -19,7 +19,7 @@ public class FollowParentMovement : IMovement
             localOffset = Vector3.zero;
         }
 
-        this.enemyType = enemyType;
+        enemyType = owner.EnemyType;
     }
 
     public Vector3 GetFinalDirection(Vector3 baseDirection, Transform ownerTransform, Transform target)

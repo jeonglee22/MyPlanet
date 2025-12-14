@@ -8,10 +8,10 @@ public class ChaseMovement : IMovement
 
     private int enemyType;
 
-    public void Initialize(int enemyType)
+    public void Initialize(Enemy owner)
     {
         isPatternLine = false;
-        this.enemyType = enemyType;
+        enemyType = owner.EnemyType;
     }
 
     public Vector3 GetFinalDirection(Vector3 baseDirection, Transform ownerTransform, Transform target)

@@ -55,7 +55,7 @@ public class SideMovement : IMovement
         return direction;
     }
 
-    public void Initialize(int enemyType)
+    public void Initialize(Enemy owner)
     {
         screenBounds = SpawnManager.Instance.ScreenBounds;
         
@@ -69,7 +69,7 @@ public class SideMovement : IMovement
         isInitialized = false;
         hasReachedFistTarget = false;
 
-        this.enemyType = enemyType;
+        enemyType = owner.EnemyType;
     }
 
     public bool IsCompleted() => hasReachedFistTarget;

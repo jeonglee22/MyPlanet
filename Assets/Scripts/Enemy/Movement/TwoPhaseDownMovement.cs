@@ -1,12 +1,12 @@
 using UnityEngine;
 
-public class TwoPhaseHomingMovement : IMovement
+public class TwoPhaseDownMovement : IMovement
 {
     private enum MovementPhase
     {
         Horizontal,
         Wait,
-        Homing,
+        Down,
     }
 
     private Enemy owner;
@@ -82,7 +82,7 @@ public class TwoPhaseHomingMovement : IMovement
             waitTime += Time.deltaTime;
             if(waitTime >= waitDuration)
             {
-                currentPhase = MovementPhase.Homing;
+                currentPhase = MovementPhase.Down;
                 isDirectionCalculated = false;
             }
 
@@ -91,7 +91,7 @@ public class TwoPhaseHomingMovement : IMovement
 
         if(!isDirectionCalculated && target != null)
         {
-            currentMoveDirection = (target.position - ownerTransform.position).normalized;
+            currentMoveDirection = Vector3.down;
             ownerTransform.LookAt(ownerTransform.position + currentMoveDirection);
             isDirectionCalculated = true;
         }
@@ -116,11 +116,11 @@ public class TwoPhaseHomingMovement : IMovement
     {
         if(ownerTransform.position.x > owner.Spawner.transform.position.x)
         {
-            currentMoveDirection = new Vector3(1, 1, 0).normalized;
+            currentMoveDirection = new Vector3(1, -1, 0).normalized;
         }
         else
         {
-            currentMoveDirection = new Vector3(-1, 1, 0).normalized;
+            currentMoveDirection = new Vector3(-1, -1, 0).normalized;
         }
 
         ownerTransform.LookAt(ownerTransform.position + currentMoveDirection);

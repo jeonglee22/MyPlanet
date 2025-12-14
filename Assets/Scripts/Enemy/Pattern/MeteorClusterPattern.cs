@@ -239,7 +239,7 @@ public class MeteorClusterPattern : SpecialPattern
             if(oldLeaderMovement is ChaseMovement chaseMovement)
             {
                 ChaseMovement newMovement = new ChaseMovement();
-                newMovement.Initialize(owner.EnemyType);
+                newMovement.Initialize(owner);
                 newMovement.OnPatternLine();
 
                 newLeader.Movement.CurrentMovement = newMovement;

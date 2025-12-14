@@ -120,6 +120,7 @@ public enum MoveType
     Revolution = 11,
     Side,
     TwoPhaseHomingMovement,
+    TwoPhaseDownMovement,
 }
 
 public enum PatternIds
