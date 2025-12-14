@@ -204,6 +204,11 @@ public class TowerAttack : MonoBehaviour
         lazers = new List<LazertowerAttack>();
     }
 
+    private void OnDisable()
+    {
+        DeleteExistLazers();
+    }
+
     public void SetTowerData(TowerDataSO data)
     {
         towerData = data;
@@ -277,12 +282,25 @@ public class TowerAttack : MonoBehaviour
 
         if (shootTimer >= shootInterval)
         {
+            DeleteExistLazers();
+
             ShootAtTarget();
             shootTimer = 0f;
             hitScanTimer = 0f;
             isHitScanActive = false;
             targetingSystem.SetAttacking(false);
         }
+    }
+
+    private void DeleteExistLazers()
+    {
+        foreach (var lazer in lazers)
+        {
+            if (lazer == null) continue;
+
+            lazer?.gameObject.SetActive(false);
+        }
+        lazers.Clear();
     }
 
     private void StartHitscan(float hitScanInterval)

@@ -51,7 +51,7 @@ public class InfoPopUpUI : MonoBehaviour
 
         AuthManager.Instance.SignOut();
 
-        canvasManager.SwitchToTargetPopUp(MainTitleCanvasManager.PopupName.None);
+        canvasManager.SwitchToTargetPopUp(MainTitleCanvasManager.PopupName.LogIn);
 
         mainTitleUI.SetExplainText("Please log in to continue.");
         mainTitleUI.SetActivePlayText(false);

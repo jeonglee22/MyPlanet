@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -29,6 +30,31 @@ public class AsyncRaidManager : MonoBehaviour
     private float xOffset = 1.5f;
     private bool isActiveUI = false;
     private float asyncUserSpawnTimer;
+
+    private CancellationTokenSource cts;
+
+    private async UniTaskVoid Start()
+    {
+        if (cts != null)
+            CancelCTS();
+        cts = new CancellationTokenSource();
+
+        await UserAttackPowerManager.Instance.FindSimilarAttackPowerUserAsync(cts.Token);
+
+        Debug.Log("Similar User Found : " + UserAttackPowerManager.Instance.SimilarAttackPowerUserId);
+    }
+
+    private void OnDisable()
+    {
+        CancelCTS();
+    }
+
+    private void CancelCTS()
+    {
+        cts?.Cancel();
+        cts?.Dispose();
+        cts = null;
+    }
 
     void Update()
     {
@@ -76,7 +102,7 @@ public class AsyncRaidManager : MonoBehaviour
 
     private async UniTask SpawnAsyncUserPlanetAsync(float bossHp)
     {
-        await UserAttackPowerManager.Instance.FindSimilarAttackPowerUserAsync();
+        await UniTask.WaitUntil(() => UserAttackPowerManager.Instance.SimilarAttackPowerUserId != string.Empty);
 
         var similarUserId = UserAttackPowerManager.Instance.SimilarAttackPowerUserId;
 
