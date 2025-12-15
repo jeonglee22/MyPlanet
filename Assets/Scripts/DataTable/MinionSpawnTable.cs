@@ -8,6 +8,7 @@ public class MinionSpawnData
     public int MinionSpawn_Id { get; set; }
     public int Enemy_Id { get; set; }
     public int EnemyQuantity_1 { get; set; }
+    public int Skill_Id { get; set; }
 
     public override string ToString()
     {
