@@ -260,6 +260,7 @@ public static class Variables
         Quasar = 1;
         LastBossEnemy = null;
         MiddleBossEnemy = null;
+        planetId = 300001;
     }
 
     public static bool IsTestMode {get; set;} = false;

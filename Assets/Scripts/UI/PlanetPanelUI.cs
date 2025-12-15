@@ -81,7 +81,9 @@ public class PlanetPanelUI : MonoBehaviour
             planetLevel: 1,
             planetCollectionStat: 0
         );
+        
         await UserPlanetManager.Instance.UpdateUserPlanetAsync(userPlanetData);
+        await UserAttackPowerManager.Instance.UpdatePlanetPower(userPlanetData);
     }
 
     public void OnSaveNoBtnClicked()
@@ -92,5 +94,17 @@ public class PlanetPanelUI : MonoBehaviour
     public void SetPlanetName(string planetName)
     {
         planetNameText.text = planetName;
+    }
+
+    private float CalculatePlanetPower(int planetId, int planetLevel, int planetUpgrade)
+    {
+        var planetData = DataTableManager.PlanetTable.Get(planetId);
+        // var planetUpgradeData = DataTableManager.PlanetUpgradeTable.Get(planetUpgrade);
+        // var planetLevelData = DataTableManager.PlanetLevelTable.Get(planetLevel);
+
+        var baseAttack = planetData.PlanetHp * (100 + planetData.PlanetArmor) * 0.01f;
+        var totalAttackPower = baseAttack + planetData.PlanetShield + planetData.RecoveryHp * 420f + planetData.Drain * 100f;
+
+        return totalAttackPower;
     }
 }
