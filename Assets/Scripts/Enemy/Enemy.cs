@@ -273,6 +273,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         ScaleData = scaleData;
         maxHealth = data.Hp * scaleData.HpScale;
         Health = maxHealth;
+        shield = data.Shield;
 
         Debug.Log($"Initializing Enemy ID: {enemyId}, Type: {enemyType}, HP: {maxHealth}");
 
@@ -309,6 +310,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         data = enemyData;
         maxHealth = enemyData.Hp * scaleData.HpScale;
         Health = maxHealth;
+        shield = data.Shield;
 
         attack = enemyData.Attack * scaleData.AttScale;
         defense = enemyData.Defense * scaleData.DefScale;

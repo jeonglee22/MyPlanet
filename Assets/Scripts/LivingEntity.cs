@@ -9,6 +9,9 @@ public class LivingEntity : MonoBehaviour, IDamagable
     public float Health { get; set; }
     public bool IsDead { get; protected set; }
 
+    protected float shield;
+    public float Shield { get => shield; set => shield = value; }
+
     public event Action OnDeathEvent;
     public event Action<float> HpDecreseEvent;
 
@@ -23,7 +26,27 @@ public class LivingEntity : MonoBehaviour, IDamagable
         if (IsDead)
             return;
 
-        Health -= damage;
+        float remainingDamage = damage;
+
+        if(shield > 0)
+        {
+            if(remainingDamage <= shield)
+            {
+                shield -= remainingDamage;
+                remainingDamage = 0;
+            }
+            else
+            {
+                remainingDamage -= shield;
+                shield = 0;
+            }
+        }
+
+        if(remainingDamage > 0)
+        {
+            Health -= remainingDamage;
+        }
+        
         HpDecreseEvent?.Invoke(Health);
 
         if (Health <= 0)
