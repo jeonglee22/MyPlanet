@@ -63,6 +63,11 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
     public Enemy ParentEnemy { get; set; }
 
+    public List<Enemy> ChildEnemy { get; set; } = new List<Enemy>();
+    public bool IsReflectShieldActive { get; set; } = false;
+
+    public GameObject ReflectShieldObject { get; set; }
+
     private void Start()
     {
         SetIsTutorial(TutorialManager.Instance?.IsTutorialMode ?? false);
@@ -105,6 +110,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         OnCollisionDamageCalculate = null;
 
         ParentEnemy = null;
+
+        ChildEnemy.Clear();
 
         StopLifeTime();
     }
@@ -218,6 +225,11 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
             OnPatternLineTrigger();
         }
 
+        if(other.CompareTag(TagName.Planet))
+        {
+            Debug.Log("Planet");
+        }
+
         if(other.CompareTag(TagName.CenterStone) || data.EnemyType == 4 || data.EnemyType == 3)
         {
             return;
@@ -273,7 +285,6 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         ScaleData = scaleData;
         maxHealth = data.Hp * scaleData.HpScale;
         Health = maxHealth;
-        shield = data.Shield;
 
         Debug.Log($"Initializing Enemy ID: {enemyId}, Type: {enemyType}, HP: {maxHealth}");
 
@@ -293,6 +304,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         enemyType = data.EnemyType;
         isTargetable = true;
 
+        ReflectShieldObject = GetComponentInChildren<ReflectShield>(true)?.gameObject;
+
         BossAppearance(enemyData.EnemyType);
 
         AddMovementComponent(data.MoveType, spawnPointIndex);
@@ -310,7 +323,6 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         data = enemyData;
         maxHealth = enemyData.Hp * scaleData.HpScale;
         Health = maxHealth;
-        shield = data.Shield;
 
         attack = enemyData.Attack * scaleData.AttScale;
         defense = enemyData.Defense * scaleData.DefScale;
@@ -328,6 +340,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         isTargetable = true;
 
         ParentEnemy = parent;
+
+        ReflectShieldObject = GetComponentInChildren<ReflectShield>(true)?.gameObject;
 
         AddMovementComponent(moveType, -1);
 

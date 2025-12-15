@@ -166,6 +166,8 @@ public class EnemySpawner : MonoBehaviour
 
     public Enemy SpawnEnemyAsChild(int enemyId, Vector3 spawnPosition, ScaleData scaleData, int moveType, bool ShouldDropItems = true, Enemy parent = null)
     {
+        PreparePool(enemyId);
+
         var enemy = CreateChildEnemy(enemyId, spawnPosition, scaleData, moveType, parent);
         if(enemy != null)
         {

@@ -108,6 +108,7 @@ public enum ExecutionTrigger
     OnInterval,
     Immediate,
     OnHealthPercentage,
+    ChildrenAlive,
 }
 
 public enum MoveType
@@ -138,7 +139,14 @@ public enum PatternIds
     SaturnMeteorRingSummon,
     TitanRevolution,
     HomingMeteorCluster,
-    ChaseMeteorCluster
+    ChaseMeteorCluster,
+    NereidDiaSummon,
+    NereidReflectShield,
+    NeptuneChaseDiaSummon,
+    NeptuneBigDiaSummon,
+    NeptuneFrontDiaSummon,
+    EliteDiaReflectShield,
+    EliteBigDiaReflectShield,
 }
 
 public enum TutorialPoint
