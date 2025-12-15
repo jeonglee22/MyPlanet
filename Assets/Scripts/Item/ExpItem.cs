@@ -33,7 +33,7 @@ public class ExpItem : DropItem
         if (isDestroy && centerStone != null)
         {
             Destroy(gameObject);
-            planet.CurrentExp += exp;
+            planet.AddExp(exp);
         }
     }
     
