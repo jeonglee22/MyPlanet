@@ -101,45 +101,43 @@ public class UserAttackPowerManager : MonoBehaviour
         if (!AuthManager.Instance.IsSignedIn)
             return false;
 
-        try
-        {
-            var userTowerRef = FirebaseDatabase.DefaultInstance.RootReference.Child(DatabaseRef.UserTowers);
-            var dataSnapshot = await userTowerRef.GetValueAsync().AsUniTask();
+        // try
+        // {
+        //     var userTowerRef = FirebaseDatabase.DefaultInstance.RootReference.Child(DatabaseRef.UserTowers);
+        //     var dataSnapshot = await userTowerRef.GetValueAsync().AsUniTask();
 
-            var userCount = dataSnapshot.ChildrenCount;
+        //     var userCount = dataSnapshot.ChildrenCount;
 
-            var existDataList = new List<string>();
-            foreach (var child in dataSnapshot.Children)
-            {
-                var key = child.Key;
+        //     var existDataList = new List<string>();
+        //     foreach (var child in dataSnapshot.Children)
+        //     {
+        //         var key = child.Key;
 
-                if (token.IsCancellationRequested)
-                {
-                    Debug.Log("FindSimilarAttackPowerUserAsync cancelled.");
-                    return false;
-                }
+        //         if (token.IsCancellationRequested)
+        //         {
+        //             Debug.Log("FindSimilarAttackPowerUserAsync cancelled.");
+        //             return false;
+        //         }
 
-                var result = await UserTowerManager.Instance.ExistTowerDataAsync(key);
-                if (result)
-                {
-                    existDataList.Add(key);
-                }
-            }
-            // Debug.Log(existDataList.Count + " / " + userCount);
+        //         var result = await UserTowerManager.Instance.ExistTowerDataAsync(key);
+        //         if (result)
+        //         {
+        //             existDataList.Add(key);
+        //         }
+        //     }
+        //     // Debug.Log(existDataList.Count + " / " + userCount);
 
-            int index = Random.Range(0, existDataList.Count);
-            similarAttackPowerUserId = existDataList[index];
+        //     int index = Random.Range(0, existDataList.Count);
+        //     similarAttackPowerUserId = existDataList[index];
 
-            return true;
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"FindSimilarAttackPowerUserAsync failed: {e.Message}");
-            return false;
-        }
+        //     return true;
+        // }
+        // catch (System.Exception e)
+        // {
+        //     Debug.LogError($"FindSimilarAttackPowerUserAsync failed: {e.Message}");
+        //     return false;
+        // }
 
-
-        // ------------------------------------------------------------------------------ //
         try
         {
             var dataSnapshot = await userAttackRef.GetValueAsync().AsUniTask();

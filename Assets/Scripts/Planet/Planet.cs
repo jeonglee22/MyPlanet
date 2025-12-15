@@ -57,6 +57,9 @@ public class Planet : LivingEntity
     private float recoveryInterval = 0.1f;
     private float recoveryTimer = 0f;
 
+    private float attackPower;
+    public float AttackPower => attackPower;
+
     public override float Health
     {
         get => base.Health;
@@ -135,7 +138,7 @@ public class Planet : LivingEntity
         expScale = planetData.ExpScale == 0f ? 1f : planetData.ExpScale;
         recoveryHp = planetData.RecoveryHp;
 
-
+        CalculatePlanetAttackPower();
     }
 
     protected override void OnEnable()
@@ -156,6 +159,14 @@ public class Planet : LivingEntity
             Health += recoveryHp * Time.deltaTime;
             recoveryTimer = 0f;
         }
+    }
+
+    public void CalculatePlanetAttackPower()
+    {
+        var baseAttack = maxHealth * (100 + defense) * 0.01f;
+        var totalAttackPower = baseAttack + initShield + recoveryHp * 420f + drain * 100f;
+
+        attackPower = totalAttackPower;
     }
 
     public void AddExp(float exp)
