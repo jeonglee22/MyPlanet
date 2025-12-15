@@ -8,15 +8,18 @@ public class PatternData
 {
     public int Pattern_Id { get; set; }
     public string PatternName { get; set; }
-    public int PatternList { get; set; }
-    public int PatternTrigger { get; set; }
+    public int PatternGroup { get; set; }
     public int PatternType { get; set; }
+    public int PatternTrigger { get; set; }
     public int PatternValue { get; set; }
     public float PatternDamageRate { get; set; }
+    public int PatternList { get; set; }
     public float Weight { get; set; }
     public float Cooltime { get; set; }
     public float PatternDelay { get; set; }
     public float RepeatDelay { get; set; }
+    public int MinionSpawn_Id { get; set; }
+    public int Skill_Id { get; set; }
 
     public override string ToString()
     {
@@ -62,13 +65,13 @@ public class PatternTable : DataTable
         return dictionary[key];
     }
 
-    public List<PatternData> GetPatternList(int patternListId)
+    public List<PatternData> GetPatternList(int patternGroup)
     {
         List<PatternData> patterns = new List<PatternData>();
 
         foreach (var pattern in dictionary.Values)
         {
-            if (pattern.PatternList == patternListId)
+            if (pattern.PatternGroup == patternGroup)
             {
                 patterns.Add(pattern);
             }

@@ -434,11 +434,11 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
         patternExecutor.Initialize(this);
 
-        if(enemyData.PatternList == 0)
+        if(enemyData.PatternGroup == 0)
         {
             return;
         }
-        List<PatternData> patterns = DataTableManager.PatternTable.GetPatternList(enemyData.PatternList);
+        List<PatternData> patterns = DataTableManager.PatternTable.GetPatternList(enemyData.PatternGroup);
 
         foreach(var patternItem in patterns)
         {

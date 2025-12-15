@@ -33,7 +33,7 @@ public abstract class SummonPattern : IPattern
         patternData = owner.CurrentPatternData;
         if(patternData != null)
         {
-            summonData = DataTableManager.MinionSpawnTable.Get(patternData.Pattern_Id);
+            summonData = DataTableManager.MinionSpawnTable.Get(patternData.MinionSpawn_Id);
             if(summonData != null)
             {
                 summonEnemyData = DataTableManager.EnemyTable.Get(summonData.Enemy_Id);
