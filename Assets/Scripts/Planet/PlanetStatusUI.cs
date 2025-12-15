@@ -89,13 +89,13 @@ public class PlanetStatusUI : MonoBehaviour
 
     private void BarriorValueChange(float barrior)
     {
-        if (planet.PlanetData.PlanetShield <= 0f)
+        if (planet.InitShield <= 0f)
         {
             barriorSlider.value = 0f;
             return;
         }
 
-        barriorSlider.value = barrior / planet.PlanetData.PlanetShield;
+        barriorSlider.value = barrior / planet.InitShield;
     }
 
     public void AddExp(float exp = 10f)

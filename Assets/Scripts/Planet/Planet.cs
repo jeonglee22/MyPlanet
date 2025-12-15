@@ -30,6 +30,8 @@ public class Planet : LivingEntity
     private float defense;
     public float Defense => defense;
     private float shield;
+    private float initShield;
+    public float InitShield => initShield;
     public float Shield 
     { 
         get => shield; 
@@ -128,6 +130,7 @@ public class Planet : LivingEntity
         this.planetData = planetData;
         defense = planetData.PlanetArmor;
         shield = planetData.PlanetShield;
+        initShield = planetData.PlanetShield;
         drain = planetData.Drain;
         expScale = planetData.ExpScale == 0f ? 1f : planetData.ExpScale;
         recoveryHp = planetData.RecoveryHp;
