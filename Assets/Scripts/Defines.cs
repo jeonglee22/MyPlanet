@@ -241,6 +241,7 @@ public static class DataTableIds
 public static class Variables
 {
     public static int Stage {get; set;} = 3;
+    public static int planetId {get; set;} = 300001;
 
     private static int quasar = 1;
     public static int Quasar

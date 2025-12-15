@@ -63,6 +63,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
     public Enemy ParentEnemy { get; set; }
 
+    private Planet planet;
+    
     public List<Enemy> ChildEnemy { get; set; } = new List<Enemy>();
     public bool IsReflectShieldActive { get; set; } = false;
 
@@ -71,6 +73,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     private void Start()
     {
         SetIsTutorial(TutorialManager.Instance?.IsTutorialMode ?? false);
+
+        planet = GameObject.FindWithTag(TagName.Planet).GetComponent<Planet>();
     }
 
     protected override void OnEnable()
@@ -161,6 +165,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
         DpsCalculator.AddDamage(damage);
 
+        planet.Health += damage * planet.PlanetData.Drain;
+
         base.OnDamage(damage);
     }
 
@@ -239,7 +245,24 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         if (damagable != null)
         {
             float damage = OnCollisionDamageCalculate?.Invoke() ?? attack;
-            damagable.OnDamage(damage);
+            var planet = damagable as Planet;
+            if (planet != null)
+            {
+                if (planet.Shield > 0)
+                {
+                    if (planet.Shield >= damage)
+                    {
+                        planet.Shield -= damage;
+                        damage = 0;
+                    }
+                    else
+                    {
+                        damage -= planet.Shield;
+                        planet.Shield = 0;
+                    }
+                }
+                damagable.OnDamage(CalculateTotalDamage(planet.Defense, damage));
+            }
 
             if(IsDead)
             {
@@ -253,6 +276,25 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
             ReturnToPool();
             return;
         }
+    }
+
+    public float CalculateTotalDamage(float planetDef, float damage)
+    {
+        if (damage < 0f)
+        {
+            damage = 0f;
+        }
+
+        var RatePanetration = Mathf.Clamp(ratePenetration, 0f, 100f);
+        // Debug.Log(damage);
+        var totalPlanetDef = planetDef * (1 - RatePanetration / 100f) - fixedPenetration;
+        if(totalPlanetDef < 0)
+        {
+            totalPlanetDef = 0;
+        }
+        var totalDamage = damage * 100f / (100f + totalPlanetDef);
+        
+        return totalDamage;
     }
 
     private void ReturnToPool()

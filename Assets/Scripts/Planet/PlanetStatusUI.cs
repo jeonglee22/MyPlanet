@@ -9,6 +9,7 @@ public class PlanetStatusUI : MonoBehaviour
 
     [SerializeField] private Slider hpSlider;
     [SerializeField] private Slider expSlider;
+    [SerializeField] private Slider barriorSlider;
     [SerializeField] private GameObject towerSettingUi;
     [SerializeField] private TextMeshProUGUI levelText;
     [SerializeField] private TowerInstallControl towerInstallControl;
@@ -19,7 +20,9 @@ public class PlanetStatusUI : MonoBehaviour
     void Start()
     {
         planet.HpDecreseEvent += HpValueChanged;
+        planet.OnHealthChanged += HpValueChanged;
         planet.expUpEvent += ExpValueChange;
+        planet.OnBarriorChanged += BarriorValueChange;
         planet.levelUpEvent += OpenTowerUpgradeUI;
         planet.levelUpEvent += ChangeLevelText;
 
@@ -40,6 +43,8 @@ public class PlanetStatusUI : MonoBehaviour
     {
         planet.expUpEvent -= ExpValueChange;
         planet.HpDecreseEvent -= HpValueChanged;
+        planet.OnHealthChanged -= HpValueChanged;
+        planet.OnBarriorChanged -= BarriorValueChange;
         planet.levelUpEvent -= OpenTowerUpgradeUI;
         planet.levelUpEvent -= ChangeLevelText;
     }
@@ -48,6 +53,10 @@ public class PlanetStatusUI : MonoBehaviour
     {
         HpValueChanged(planet.Health);
         ExpValueChange(planet.CurrentExp);
+        if (planet.InitShield <= 0f)
+            barriorSlider.value = 0f;
+        else
+            barriorSlider.value = 1f;
         ChangeLevelText();
     }
 
@@ -81,9 +90,20 @@ public class PlanetStatusUI : MonoBehaviour
         expSlider.value = exp / planet.MaxExp;
     }
 
+    private void BarriorValueChange(float barrior)
+    {
+        if (planet.InitShield <= 0f)
+        {
+            barriorSlider.value = 0f;
+            return;
+        }
+
+        barriorSlider.value = barrior / planet.InitShield;
+    }
+
     public void AddExp(float exp = 10f)
     {
-        planet.CurrentExp += exp;
+        planet.AddExp(exp);
     }
 
     private void SetIsTutorial(bool isTutorialMode)
