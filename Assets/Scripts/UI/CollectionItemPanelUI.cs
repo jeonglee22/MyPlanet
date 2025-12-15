@@ -114,7 +114,7 @@ public class CollectionItemPanelUI : MonoBehaviour
 
         float probability = totalWeight > 0 ? (currentWeight / totalWeight) * 100f : 0f;
         
-        rateText.text = $"확률: {probability:F2}%";
+        rateText.text = $"확률: {probability:F1}%";
         weightText.text = $"가중치: {currentWeight}";
     }
 

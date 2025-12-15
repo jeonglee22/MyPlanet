@@ -42,6 +42,7 @@ public class CollectionPanel : MonoBehaviour
     private bool isAbilityPanel = false;
 
     private bool isFromBackButton = false;
+    private event Action OnPendingPanelSwitch;
 
     private void Start()
     {
@@ -66,6 +67,11 @@ public class CollectionPanel : MonoBehaviour
         ResetBtn();
     }
 
+    private void OnDisable()
+    {
+        InfoPanelClosed();
+    }
+
     private void ResetBtn()
     {
         backBtn.onClick.RemoveListener(OnBackBtn);
@@ -81,6 +87,7 @@ public class CollectionPanel : MonoBehaviour
         if(CollectionManager.Instance.HasUnsavedChanges())
         {
             isFromBackButton = true;
+            OnPendingPanelSwitch = null;
 
             towerPanelBtn.interactable = false;
             abilityPanelBtn.interactable = false;
@@ -101,7 +108,17 @@ public class CollectionPanel : MonoBehaviour
     {
         if (CollectionManager.Instance.HasUnsavedChanges())
         {
-            DiscardChangeAndSwitchPanel(() => SwitchToTowerPanel()).Forget();
+            isFromBackButton = false;
+            OnPendingPanelSwitch = SwitchToTowerPanel;
+
+            towerPanelBtn.interactable = false;
+            abilityPanelBtn.interactable = false;
+            planetPanelBtn.interactable = false;
+
+            saveBtn.interactable = false;
+            backBtn.interactable = false;
+
+            saveConfirmPanel.SetActive(true);
         }
         else
         {
@@ -113,7 +130,17 @@ public class CollectionPanel : MonoBehaviour
     {
         if(CollectionManager.Instance.HasUnsavedChanges())
         {
-            DiscardChangeAndSwitchPanel(() => SwitchToAbilityPanel()).Forget();
+            isFromBackButton = false;
+            OnPendingPanelSwitch = SwitchToAbilityPanel;
+
+            towerPanelBtn.interactable = false;
+            abilityPanelBtn.interactable = false;
+            planetPanelBtn.interactable = false;
+
+            saveBtn.interactable = false;
+            backBtn.interactable = false;
+
+            saveConfirmPanel.SetActive(true);
         }
         else
         {
@@ -131,6 +158,8 @@ public class CollectionPanel : MonoBehaviour
 
         UpdateCoreText();
         RefreshAllWeights();
+
+        InfoPanelClosed();
     }
 
     private void SwitchToAbilityPanel()
@@ -143,24 +172,21 @@ public class CollectionPanel : MonoBehaviour
 
         UpdateCoreText();
         RefreshAllWeights();
-    }
 
-    private async UniTaskVoid DiscardChangeAndSwitchPanel(Action switchPanelAction)
-    {
-        await CollectionManager.Instance.DiscardChangesAsync();
-
-        UpdateCoreText();
-        RefreshAllWeights();
-
-        switchPanelAction?.Invoke();
+        InfoPanelClosed();
     }
 
     public void OnSaveBtnClicked()
     {
+        InfoPanelClosed();
+
         if(!CollectionManager.Instance.HasUnsavedChanges())
         {
             return;
         }
+
+        isFromBackButton = false;
+        OnPendingPanelSwitch = null;
 
         towerPanelBtn.interactable = false;
         abilityPanelBtn.interactable = false;
@@ -193,6 +219,13 @@ public class CollectionPanel : MonoBehaviour
             lobbyPanel.SetActive(true);
             gameObject.SetActive(false);
         }
+
+        else if(OnPendingPanelSwitch != null)
+        {
+            var action = OnPendingPanelSwitch;
+            OnPendingPanelSwitch = null;
+            action?.Invoke();
+        }
     }
 
     private void OnConfirmNoBtnClicked()
@@ -216,6 +249,13 @@ public class CollectionPanel : MonoBehaviour
 
             lobbyPanel.SetActive(true);
             gameObject.SetActive(false);
+        }
+
+        else if(OnPendingPanelSwitch != null)
+        {
+            var action = OnPendingPanelSwitch;
+            OnPendingPanelSwitch = null;
+            action?.Invoke();
         }
     }
 
@@ -420,6 +460,13 @@ public class CollectionPanel : MonoBehaviour
             var abilityInfoPanel = randomAbilityInfoPanelObj.GetComponent<RandomAbilityInfoUI>();
             abilityInfoPanel.Initialize(panel.AbilityData);
         }
+    }
+
+    private void InfoPanelClosed()
+    {
+        towerInfoPanelObj.SetActive(false);
+        buffTowerInfoPanelObj.SetActive(false);
+        randomAbilityInfoPanelObj.SetActive(false);
     }
 
 }
