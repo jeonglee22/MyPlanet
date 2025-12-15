@@ -35,6 +35,8 @@ public class ReflectShieldPattern : SpecialPattern
 
             reflectShield.Initialize(owner);
         }
+
+        isExecuteOneTime = false;
     }
 
     public override void Execute()

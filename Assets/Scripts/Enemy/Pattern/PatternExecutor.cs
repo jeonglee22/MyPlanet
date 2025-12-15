@@ -116,6 +116,11 @@ public class PatternExecutor : MonoBehaviour
             return;
         }
 
+        foreach(var pattern in patterns)
+        {
+            pattern.PatternUpdate();
+        }
+
         foreach (var pattern in patterns)
         {
             if(pattern.Trigger == ExecutionTrigger.Immediate)
