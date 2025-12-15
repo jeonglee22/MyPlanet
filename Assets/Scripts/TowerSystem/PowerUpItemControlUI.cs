@@ -16,6 +16,7 @@ public class PowerUpItemControlUI : MonoBehaviour
     [SerializeField] private Button towerCountUpgradeButton;
     [SerializeField] private Button newAbilityUpgradeButton;
     [SerializeField] private Button itemUseButton;
+    [SerializeField] private TextMeshProUGUI quasarText;
 
     [SerializeField] private GameObject chooseTowerPanel;
     [SerializeField] private GameObject upgradeChooseUis;
@@ -57,6 +58,9 @@ public class PowerUpItemControlUI : MonoBehaviour
         }
 
         SetIsTutorial(TutorialManager.Instance.IsTutorialMode);
+
+        OnQuaserChanged();
+        Variables.OnQuasarChanged += OnQuaserChanged;
     }
 
     private async UniTaskVoid OnEnable()
@@ -68,6 +72,11 @@ public class PowerUpItemControlUI : MonoBehaviour
         chooseTowerPanel.SetActive(false);
 
         Variables.OnQuasarChanged += CheckQuasarForReactivation;
+    }
+
+    private void OnDestroy()
+    {
+        Variables.OnQuasarChanged -= OnQuaserChanged;
     }
 
     private void OnNewAbilityCardClicked(int index)
@@ -287,5 +296,10 @@ public class PowerUpItemControlUI : MonoBehaviour
     private void SetIsTutorial(bool isTutorial)
     {
         this.isTutorial = isTutorial;
+    }
+
+    private void OnQuaserChanged()
+    {
+        quasarText.text = $"퀘이사 X{Variables.Quasar}";
     }
 }

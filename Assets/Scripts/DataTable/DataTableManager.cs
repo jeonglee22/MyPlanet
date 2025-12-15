@@ -47,6 +47,7 @@ public static class DataTableManager
             LoadTableAsync<RewardTable>(DataTableIds.Reward),
             LoadTableAsync<ItemTable>(DataTableIds.Item),
             LoadTableAsync<PlanetTable>(DataTableIds.planet),
+            LoadTableAsync<RandomAbilityTextTable>(DataTableIds.RandomAbilityText),
         };
 
         await UniTask.WhenAll(tasks);
@@ -215,6 +216,14 @@ public static class DataTableManager
         get
         {
             return Get<PlanetTable>(DataTableIds.planet);
+        }
+    }
+
+    public static RandomAbilityTextTable RandomAbilityTextTable
+    {
+        get
+        {
+            return Get<RandomAbilityTextTable>(DataTableIds.RandomAbilityText);
         }
     }
 

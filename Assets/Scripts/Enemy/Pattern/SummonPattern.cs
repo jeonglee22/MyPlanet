@@ -1,5 +1,6 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Unity.Mathematics;
 using UnityEngine;
 
 public abstract class SummonPattern : IPattern
@@ -97,7 +98,7 @@ public abstract class SummonPattern : IPattern
 
     protected EnemySpawner GetRandomSpawner()
     {
-        int index = Random.Range(1, SpawnManager.Instance.Spawners.Count - 1);
+        int index = UnityEngine.Random.Range(1, SpawnManager.Instance.Spawners.Count - 1);
         return SpawnManager.Instance.Spawners[index];
     }
 }

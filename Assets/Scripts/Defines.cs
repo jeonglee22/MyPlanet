@@ -119,6 +119,8 @@ public enum MoveType
     DescendAndStopMovement = 10,
     Revolution = 11,
     Side,
+    TwoPhaseHomingMovement,
+    TwoPhaseDownMovement,
 }
 
 public enum PatternIds
@@ -225,6 +227,7 @@ public static class DataTableIds
     public static readonly string Draw = "DrawTable";
     public static readonly string Reward = "RewardTable";
     public static readonly string planet = "PlanetTable";
+    public static readonly string RandomAbilityText = "RandomAbilityTextTable";
 }
 
 public static class Variables
@@ -243,10 +246,7 @@ public static class Variables
                 quasar = 0;
             }
             
-            if(quasar > 0)
-            {
-                OnQuasarChanged?.Invoke();
-            }
+            OnQuasarChanged?.Invoke();
         }
     }
     public static event Action OnQuasarChanged;
@@ -256,7 +256,7 @@ public static class Variables
 
     public static void Reset()
     {
-        Quasar = 0;
+        Quasar = 1;
         LastBossEnemy = null;
         MiddleBossEnemy = null;
     }

@@ -124,7 +124,7 @@ public class BattleUI : MonoBehaviour
                 toggleIndex = Variables.MiddleBossEnemy != null ? 2 : 1;
                 break;
             case 3:
-                toggleIndex = Variables.MiddleBossEnemy != null || Variables.LastBossEnemy != null || Variables.Stage == 2 ? 3 : 2;
+                toggleIndex = Variables.Stage == 2 && Variables.LastBossEnemy != null ? 4 : 3;
                 break;
             case 4:
                 toggleIndex = 4;

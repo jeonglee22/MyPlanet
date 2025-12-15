@@ -79,7 +79,7 @@ public class EnemyMovement : MonoBehaviour
         isDirectionSet = false;
 
         currentMovement = movement;
-        currentMovement?.Initialize(enemyType);
+        currentMovement?.Initialize(owner);
     }
 
     private void SetTargetDirection()

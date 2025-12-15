@@ -75,6 +75,8 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     = new HashSet<AmplifierTowerDataSO>();
     private List<bool> usedRefreshButton;
     private const int MaxReinforceLevel = 4;
+
+    [SerializeField] private PlanetTowerUI planetTowerUI;
     //----------------------------------------
 
     private void Start()
@@ -165,6 +167,11 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
     private void Update()
     {
+        if (planetTowerUI.IsBackBtnClicked)
+        {
+            return;
+        }
+
         if (towerInfoUI != null && towerInfoUI.gameObject.activeSelf) return;
 
         OnTouchStateCheck();
