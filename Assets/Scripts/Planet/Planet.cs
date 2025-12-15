@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using NUnit.Framework.Constraints;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class Planet : LivingEntity
@@ -26,6 +24,50 @@ public class Planet : LivingEntity
     public event Action levelUpEvent;
     public event Action<float> expUpEvent;
 
+    private PlanetData planetData;
+    public PlanetData PlanetData => planetData;
+
+    private float defense;
+    public float Defense => defense;
+    private float shield;
+    public float Shield 
+    { 
+        get => shield; 
+        set
+        {
+            if (value == 0)
+            {
+                shield = 0f;
+                OnBarriorChanged?.Invoke(shield);
+                return;
+            }
+
+            shield = value;
+            if (shield < 0f)
+                shield = 0f;
+            OnBarriorChanged?.Invoke(shield);
+        }
+    }
+    private float drain;
+    private float expScale;
+    private float recoveryHp;
+
+    private float recoveryInterval = 0.1f;
+    private float recoveryTimer = 0f;
+
+    public override float Health
+    {
+        get => base.Health;
+        set
+        {
+            base.Health = value;
+            
+            if (base.Health > MaxHealth)
+                base.Health = MaxHealth;
+            OnHealthChanged?.Invoke(base.Health);
+        }
+    }
+
     public float CurrentExp
     {
         get => exp;
@@ -46,6 +88,9 @@ public class Planet : LivingEntity
     }
 
     public float MaxExp { get; private set; }
+    public event Action<float> OnBarriorChanged;
+
+    public event Action<float> OnHealthChanged;
 
     [SerializeField] private Color baseColor = Color.white;
     [SerializeField] private Color hitColor = Color.gray;
@@ -68,9 +113,27 @@ public class Planet : LivingEntity
     // private async UniTaskVoid Start()
     // {
     //     await UniTask.WaitUntil(() => DataTableManager.IsInitialized);
-        
+
     //     MaxExp = DataTableManager.PlanetLevelUpTable.Get(level).Exp;
     // }
+
+    private void Start()
+    {
+        var planetData = DataTableManager.PlanetTable.Get(Variables.planetId);
+        if (planetData == null)
+            return;
+
+        maxHealth = planetData.PlanetHp;
+        Health = maxHealth;
+        this.planetData = planetData;
+        defense = planetData.PlanetArmor;
+        shield = planetData.PlanetShield;
+        drain = planetData.Drain;
+        expScale = planetData.ExpScale == 0f ? 1f : planetData.ExpScale;
+        recoveryHp = planetData.RecoveryHp;
+
+
+    }
 
     protected override void OnEnable()
     {
@@ -81,22 +144,21 @@ public class Planet : LivingEntity
 
     private void Update()
     {
-#if UNITY_EDITOR
+        // recoveryTimer += Time.deltaTime;
+        // if (recoveryTimer < recoveryInterval)
+        //     return;
 
-        // if (Input.touchCount != 0)
-        // {
-        //     foreach (var attack in planetAttacks)
-        //         attack.Shoot(ProjectileType.Normal, transform.forward, true);
-        // }
-
-       /* if (shootTime > shootInterval)
+        if (recoveryHp > 0f && !IsDead)
         {
-            foreach (var attack in planetAttacks)
-                attack.Shoot(attack.gameObject.transform.forward, true);
-            shootTime = 0f;
+            Health += recoveryHp * Time.deltaTime;
+            recoveryTimer = 0f;
         }
-        shootTime += Time.deltaTime;*/
-#endif
+    }
+
+    public void AddExp(float exp)
+    {
+        float finalExp = exp * expScale;
+        CurrentExp += finalExp;
     }
 
     private async UniTaskVoid levelUps(int count)

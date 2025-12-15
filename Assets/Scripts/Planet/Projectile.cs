@@ -13,6 +13,8 @@ public class Projectile : MonoBehaviour , IDisposable
     public Vector3 direction;
     public bool isHit;
 
+    private Planet planet;
+
     private Transform currentTarget; //Type: Homing
 
     //Projectile Data
@@ -162,7 +164,9 @@ public class Projectile : MonoBehaviour , IDisposable
         ProjectileData poolKey, //Pool Key(Base Data)
         Vector3 direction, 
         bool isHit, 
-        ObjectPoolManager<ProjectileData, Projectile> poolManager)
+        ObjectPoolManager<ProjectileData, Projectile> poolManager,
+        Planet planet = null
+        )
     {
         this.projectileData = projectileData;
         this.poolKeyData = poolKey;
@@ -188,6 +192,10 @@ public class Projectile : MonoBehaviour , IDisposable
         Cancel();
         currentLifeTime = 0f;
         isFinish = false;
+        if (planet != null)
+        {
+            this.planet = planet;
+        }
     }
 
     void OnTriggerEnter(Collider other)
@@ -205,7 +213,8 @@ public class Projectile : MonoBehaviour , IDisposable
         if (damagable != null && enemy != null && isHit)
         {
             abilityAction?.Invoke(other.gameObject);
-            damagable.OnDamage(CalculateTotalDamage(enemy.Data.Defense));
+            var damage = CalculateTotalDamage(enemy.Data.Defense);
+            damagable.OnDamage(damage);
         }
 
         currentPierceCount--;
@@ -221,10 +230,8 @@ public class Projectile : MonoBehaviour , IDisposable
     {
         if (damage < 0f)
         {
-            Debug.LogWarning($"[Projectile] 음수 damage 감지: {damage}, 0으로 클램프");
             damage = 0f;
         }
-
 
         var RatePanetration = Mathf.Clamp(this.RatePanetration, 0f, 100f);
         // Debug.Log(damage);

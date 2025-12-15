@@ -76,8 +76,8 @@ public class UserTowerManager : MonoBehaviour
 
                 if(!dataSnapshot.Exists)
                 {
-                    Debug.LogError($"User tower data for {towerKey} does not exist.");
-                    return false;
+                    var newDataResult = await InitUserTowerDataAsync();
+                    return newDataResult;
                 }
 
                 var json = dataSnapshot.GetRawJsonValue();

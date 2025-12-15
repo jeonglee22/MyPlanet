@@ -190,6 +190,8 @@ public class TowerAttack : MonoBehaviour
     private List<LazertowerAttack> lazers;
     public List<LazertowerAttack> Lazers => lazers;
 
+    private Planet planet;
+
     //-------------------------------------------------------
     private void Awake()
     {
@@ -202,6 +204,11 @@ public class TowerAttack : MonoBehaviour
             .GetComponent<ProjectilePoolManager>();
 
         lazers = new List<LazertowerAttack>();
+    }
+
+    private void Start()
+    {
+        planet = GameObject.FindWithTag(TagName.Planet).GetComponent<Planet>();
     }
 
     private void OnDisable()
@@ -529,7 +536,8 @@ public class TowerAttack : MonoBehaviour
                     baseData,
                     direction,
                     true,
-                    projectilePoolManager.ProjectilePool
+                    projectilePoolManager.ProjectilePool,
+                    planet
         );
 
         if (attackType == (int)ProjectileType.Homing)

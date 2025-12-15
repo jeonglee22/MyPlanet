@@ -42,6 +42,8 @@ public class LazertowerAttack : MonoBehaviour
     public float InitColliderWidth { get; private set; }
     public float InitLineRendererWidth { get; private set; }
 
+    private Planet planet;
+
     void Awake()
     {
         lineRenderer = GetComponentInChildren<LineRenderer>();
@@ -58,6 +60,7 @@ public class LazertowerAttack : MonoBehaviour
     void Start()
     {
         durationTimer = 0f;
+        planet = GameObject.FindWithTag(TagName.Planet).GetComponent<Planet>();
     }
 
     // Update is called once per frame
@@ -105,7 +108,8 @@ public class LazertowerAttack : MonoBehaviour
             {
                 abilityAction?.Invoke(enemy.gameObject);
 
-                enemy.OnDamage(CalculateTotalDamage(enemy.Data.Defense));
+                var damage = CalculateTotalDamage(enemy.Data.Defense);
+                enemy.OnDamage(damage);
 
                 if (enemy.IsDead)
                 {

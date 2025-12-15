@@ -75,7 +75,7 @@ public class Explosion : MonoBehaviour
         {
             totalEnemyDef = 0;
         }
-        var totalDamage = damage * 100f / (100f + totalEnemyDef);
+        var totalDamage = damage * 0.7f * 100f / (100f + totalEnemyDef);
         
         return totalDamage;
     }
