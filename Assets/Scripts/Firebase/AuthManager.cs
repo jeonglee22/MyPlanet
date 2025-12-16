@@ -138,6 +138,12 @@ public class AuthManager : MonoBehaviour
         {
             auth.SignOut();
             currentUser = null;
+            nickName = string.Empty;
+            Variables.Reset();
+            UserAttackPowerManager.Instance.PlanetPower = 0f;
+            UserAttackPowerManager.Instance.TowerPower = 0f;
+            UserAttackPowerManager.Instance.SimilarAttackPowerUserId = string.Empty;
+
         }
     }
 }

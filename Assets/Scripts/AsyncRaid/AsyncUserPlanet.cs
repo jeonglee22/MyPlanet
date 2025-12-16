@@ -116,7 +116,7 @@ public class AsyncUserPlanet : LivingEntity
     {
         if (data == null)
         {
-            data = new UserPlanetData("Unknown", 0);
+            data = new UserPlanetData("Unknown");
         }
 
         Debug.Log(livingTime);

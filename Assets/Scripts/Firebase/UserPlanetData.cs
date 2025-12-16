@@ -23,9 +23,11 @@ public class UserPlanetData
     }
 
     public UserPlanetData(string nickName, int planetId = 0, int planetUpgrade = 0,
-        int planetLevel = 0, int planetCollectionStat = 0, int towerId = 0)
+        int planetLevel = 1, int planetCollectionStat = 0, int towerId = 0)
     {
         this.nickName = nickName;
+        if (planetId == 0)
+            planetId = Variables.planetId;
         this.planetId = planetId;
         this.planetUpgrade = planetUpgrade;
         this.planetLevel = planetLevel;
