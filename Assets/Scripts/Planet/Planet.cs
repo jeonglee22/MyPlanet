@@ -131,17 +131,12 @@ public class Planet : LivingEntity
         if(newTowerAttack!=null)
         {
             newTowerAttack.SetTowerData(towerData);
-            if (abilityId == -1)
-            {
-                // newTowerAttack.SetRandomAbility();
-            }
-            else
+            if(abilityId>0)
             {
                 newTowerAttack.AddAbility(abilityId);
-                var ability = AbilityManager.GetAbility(abilityId);
-                ability.ApplyAbility(newTowerAttack.gameObject);
             }
-            if(!planetAttacks.Contains(newTowerAttack))
+
+            if (!planetAttacks.Contains(newTowerAttack))
                 planetAttacks.Add(newTowerAttack);
         }
 
@@ -183,13 +178,6 @@ public class Planet : LivingEntity
             if (abilityId > 0)
             {
                 attack.AddAbility(abilityId);
-
-                var ability = AbilityManager.GetAbility(abilityId);
-                if (ability != null)
-                {
-                    ability.ApplyAbility(attack.gameObject);
-                    ability.Setting(attack.gameObject);
-                }
             }
             return;
         }
@@ -199,10 +187,10 @@ public class Planet : LivingEntity
         if (amp != null)
         {
             amp.SetReinforceLevel(amp.ReinforceLevel + 1);
-
             if (abilityId > 0)
             {
                 amp.AddAbility(abilityId);
+                amp.NotifyTargetsAbilityChanged();
             }
         }
     }
@@ -336,7 +324,6 @@ public class Planet : LivingEntity
 
         int slotCount = towers.Count;
 
-        // 0) 먼저 모든 공격 타워에서 "증폭 버프"만 싹 지운다
         if (planetAttacks != null)
         {
             foreach (var atk in planetAttacks)
@@ -346,7 +333,6 @@ public class Planet : LivingEntity
             }
         }
 
-        // 1) 모든 증폭타워의 내부 기록만 초기화
         for (int i = 0; i < amplifiersSlots.Length; i++)
         {
             var amp = amplifiersSlots[i];
@@ -354,7 +340,6 @@ public class Planet : LivingEntity
             amp.ResetLocalBuffStateOnly();
         }
 
-        // 2) 각 증폭타워가 기억하고 있는 슬롯 인덱스를 기준으로 다시 적용
         for (int i = 0; i < amplifiersSlots.Length; i++)
         {
             var amp = amplifiersSlots[i];
@@ -411,7 +396,6 @@ public class Planet : LivingEntity
         var go = towers[index];
         if (go == null) return;
 
-        // 공격 타워라면 planetAttacks에서 제거
         var attack = go.GetComponent<TowerAttack>();
         if (attack != null)
         {
@@ -421,18 +405,15 @@ public class Planet : LivingEntity
             }
         }
 
-        // 증폭 타워라면 증폭 슬롯에서 제거
         var amp = go.GetComponent<TowerAmplifier>();
         if (amp != null && amplifiersSlots != null && index >= 0 && index < amplifiersSlots.Length)
         {
             amplifiersSlots[index] = null;
         }
 
-        // 실제 오브젝트 제거
         Destroy(go);
         towers[index] = null;
 
-        // 남아 있는 증폭 버프들 다시 셋업
         ReapplyAllAmplifierBuffs();
     }
     //--------------------------------------------------

@@ -48,6 +48,7 @@ public static class DataTableManager
             LoadTableAsync<ItemTable>(DataTableIds.Item),
             LoadTableAsync<PlanetTable>(DataTableIds.planet),
             LoadTableAsync<RandomAbilityTextTable>(DataTableIds.RandomAbilityText),
+            LoadTableAsync<RandomAbilityReinforceUpgradeTable>(DataTableIds.RandomAbilityReinforceUpgrade),
         };
 
         await UniTask.WhenAll(tasks);
@@ -224,6 +225,14 @@ public static class DataTableManager
         get
         {
             return Get<RandomAbilityTextTable>(DataTableIds.RandomAbilityText);
+        }
+    }
+
+    public static RandomAbilityReinforceUpgradeTable RandomAbilityReinforceUpgradeTable 
+    {
+        get 
+        {
+            return Get<RandomAbilityReinforceUpgradeTable>(DataTableIds.RandomAbilityReinforceUpgrade);
         }
     }
 

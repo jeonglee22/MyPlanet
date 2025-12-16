@@ -42,6 +42,17 @@ public class TowerAttack : MonoBehaviour
             return mergedAbilityIds;
         }
     }
+
+    //random ability
+    //get from card
+    private readonly List<int> ownedAbilityIds = new List<int>();
+    private readonly Dictionary<int, IAbility> ownedAppliedInstances = new Dictionary<int, IAbility>();
+    private readonly Dictionary<int, IAbility> appliedSelfAbilities = new Dictionary<int, IAbility>();
+    //manage random ability
+    private readonly Dictionary<TowerAmplifier,Dictionary<int, List<IAbility>>> ampAppliedInstances
+        =new Dictionary<TowerAmplifier,Dictionary<int, List<IAbility>>>();
+
+    [SerializeField] private bool debugReinforcedAbility = false;
     //------------------------------------------------
     private ProjectilePoolManager projectilePoolManager;
 
@@ -668,6 +679,7 @@ public class TowerAttack : MonoBehaviour
     public void AddAbility(int ability)
     {
         AddBaseAbility(ability);
+        ReapplyAllSelfAbilitiesByReinforce();
     }
     public void RemoveAbility(int ability)
     {
@@ -685,6 +697,131 @@ public class TowerAttack : MonoBehaviour
         AddBaseAbility(ability);
         AbilityManager.GetAbility(ability)?.ApplyAbility(gameObject);
         AbilityManager.GetAbility(ability)?.Setting(gameObject);
+    }
+
+    //from card
+    public void AddOwnedAbility(int abilityId)
+    {
+        if (abilityId <= 0) return;
+        ownedAbilityIds.Add(abilityId);
+        ApplyOwnedAbilityInstance(abilityId);
+    }
+    public void RemoveOwnedAbility(int abilityId)
+    {
+        if (abilityId <= 0) return;
+
+        int idx = ownedAbilityIds.IndexOf(abilityId);
+        if (idx >= 0) ownedAbilityIds.RemoveAt(idx);
+        if(ownedAppliedInstances.TryGetValue(abilityId,out var inst)&&inst!=null)
+        {
+            inst.RemoveAbility(gameObject);
+            ownedAppliedInstances.Remove(abilityId);
+            if(debugReinforcedAbility)
+                Debug.Log($"[OwnedAbility][REMOVE] tower={name}, abilityId={abilityId}, amount={inst.UpgradeAmount}");
+        }
+    }
+    private void ApplyOwnedAbilityInstance(int abilityId)
+    {
+        if(ownedAppliedInstances.TryGetValue(abilityId,out var oldInst)&&oldInst!=null)
+        {
+            oldInst.RemoveAbility(gameObject);
+            ownedAppliedInstances.Remove(abilityId);
+        }
+        var inst = ReinforceAbilityFactory.Create(abilityId, ReinforceLevel);
+        if (inst == null) return;
+        inst.ApplyAbility(gameObject);
+        inst.Setting(gameObject);
+        ownedAppliedInstances[abilityId] = inst;
+
+        if (debugReinforcedAbility)
+            Debug.Log($"[OwnedAbility][APPLY] tower={name}, abilityId={abilityId}, reinforce={ReinforceLevel}, amount={inst.UpgradeAmount}");
+    }
+    public void RebuildOwnedAbilityCache()
+    {
+        var unique = new HashSet<int>(ownedAbilityIds);
+        foreach(var abilityId in unique)
+        {
+            ApplyOwnedAbilityInstance(abilityId);
+        }
+    }
+
+    public void ApplyAmplifierAbilityReinforce(TowerAmplifier source, int abilityId, int sourceReinforceLevel)
+    {
+        if (source == null) return;
+        if (abilityId <= 0) return;
+        var inst = ReinforceAbilityFactory.Create(abilityId, sourceReinforceLevel);
+        if (inst == null) return;
+        inst.ApplyAbility(gameObject);
+        inst.Setting(gameObject);
+        if(!ampAppliedInstances.TryGetValue(source,out var byAbility))
+        {
+            byAbility = new Dictionary<int, List<IAbility>>();
+            ampAppliedInstances[source] = byAbility;
+        }
+        if(!byAbility.TryGetValue(abilityId,out var list))
+        {
+            list = new List<IAbility>();
+            byAbility[abilityId] = list;
+        }
+        list.Add(inst);
+        if (debugReinforcedAbility)
+            Debug.Log($"[AmpAbility][APPLY] tower={name}, amp={source.name}, abilityId={abilityId}, ampReinforce={sourceReinforceLevel}, amount={inst.UpgradeAmount}");
+    }
+    public void RemoveAmplifierAbilityReinforced(TowerAmplifier source, int abilityId, int count)
+    {
+        if (source == null) return;
+        if (abilityId <= 0) return;
+        if (count <= 0) return;
+
+        if (!ampAppliedInstances.TryGetValue(source, out var byAbility)) return;
+        if (!byAbility.TryGetValue(abilityId, out var list)) return;
+        if (list == null || list.Count == 0) return;
+
+        int removeCount = Mathf.Min(count, list.Count);
+
+        // LIFO로 제거 (Apply 순서 역순)
+        for (int i = 0; i < removeCount; i++)
+        {
+            int last = list.Count - 1;
+            var inst = list[last];
+            list.RemoveAt(last);
+
+            if (inst != null)
+                inst.RemoveAbility(gameObject);
+
+            if (debugReinforcedAbility && inst != null)
+                Debug.Log($"[AmpAbility][REMOVE] tower={name}, amp={source.name}, abilityId={abilityId}, amount={inst.UpgradeAmount}");
+        }
+
+        if (list.Count == 0)
+            byAbility.Remove(abilityId);
+
+        if (byAbility.Count == 0)
+            ampAppliedInstances.Remove(source);
+    }
+    public void ClearAllAmplifierAbilitiesFrom(TowerAmplifier source)
+    {
+        if (source == null) return;
+
+        if (!ampAppliedInstances.TryGetValue(source, out var byAbility)) return;
+
+        foreach (var kv in byAbility)
+        {
+            var list = kv.Value;
+            if (list == null) continue;
+
+            for (int i = list.Count - 1; i >= 0; i--)
+            {
+                var inst = list[i];
+                if (inst != null)
+                    inst.RemoveAbility(gameObject);
+            }
+        }
+
+        ampAppliedInstances.Remove(source);
+
+        if (debugReinforcedAbility)
+            Debug.Log($"[AmpAbility][CLEAR_SOURCE] tower={name}, amp={source.name}");
     }
 
     //--------------------------------------------------------
@@ -836,6 +973,7 @@ public class TowerAttack : MonoBehaviour
 
         if (reinforceLevel == newLevel) return;
         reinforceLevel = newLevel;
+        ReapplyAllSelfAbilitiesByReinforce();
         RecalculateReinforcedBase();
     }
 
@@ -982,6 +1120,37 @@ public class TowerAttack : MonoBehaviour
             sum += r;
         }
         fireRateAbilityMul = sum;
+    }
+    //----------------------------------------------------
+    //Reinforce ------------------------------------------
+    private IAbility CreateSelfAbilityInstanceWithReinforce(int abilityId)
+    {
+        var ability = AbilityManager.GetAbility(abilityId);
+        if (ability == null) return null;
+        float finalPrimary = TowerReinforceManager.Instance
+            .GetFinalPrimaryValueForAbility(abilityId, ReinforceLevel);
+        float delta = finalPrimary - ability.UpgradeAmount;
+        if (!Mathf.Approximately(delta, 0f))
+            ability.StackAbility(delta);
+        return ability;
+    }
+    private void ReapplyAllSelfAbilitiesByReinforce()
+    {
+        foreach(var kv in appliedSelfAbilities)
+        {
+            var ab = kv.Value;
+            if (ab != null) ab.RemoveAbility(gameObject);
+        }
+        appliedSelfAbilities.Clear();
+        if (Abilities == null) return;
+        foreach(var abilityId in Abilities)
+        {
+            var ab = CreateSelfAbilityInstanceWithReinforce(abilityId);
+            if (ab == null) continue;
+            ab.ApplyAbility(gameObject);
+            ab.Setting(gameObject);
+            appliedSelfAbilities[abilityId] = ab;
+        }
     }
     //----------------------------------------------------
 }
