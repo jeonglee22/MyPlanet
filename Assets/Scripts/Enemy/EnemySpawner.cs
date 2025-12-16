@@ -238,8 +238,8 @@ public class EnemySpawner : MonoBehaviour
 
         for(int i = 0; i < quantity; i++)
         {
-            var pos = spawnPos == default ? GetRandomPositionInCircle() : GetRandomPositionInCircleWithPos(spawnPos);
-            var enemy = SpawnEnemyAsChild(enemyId, pos, scaleData, moveType, ShouldDropItems, parent);
+            var pos = spawnPos == default ? GetRandomPositionInCircle() : spawnPos;
+            var enemy = SpawnEnemyWithScale(enemyId, pos, scaleData);
             if(enemy != null)
             {
                 enemy.ShouldDropItems = ShouldDropItems;
