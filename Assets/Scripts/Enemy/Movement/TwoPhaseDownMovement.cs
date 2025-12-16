@@ -46,6 +46,8 @@ public class TwoPhaseDownMovement : IMovement
         {
             isPatternLine = false;
         }
+
+        waitTime = 0f;
     }
 
     public Vector3 GetFinalDirection(Vector3 baseDirection, Transform ownerTransform, Transform target)
