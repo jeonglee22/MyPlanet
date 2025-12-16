@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -39,16 +37,48 @@ public class LobbyTowerUpgrade : MonoBehaviour
 
         var upgradeLevel = currentUpgradeData.upgradeLevels[towerIndex];
 
+        if (upgradeLevel >= 4)
+        {
+            Debug.Log("최대 레벨 도달");
+            return;
+        }
+
+        if (upgradeLevel == 3)
+        {
+            var abilityUnlockUpgradeDataId = DataTableManager.TowerUpgradeAbilityUnlockTable.GetDataId(towerId);
+            var abilityUnlockData = DataTableManager.TowerUpgradeAbilityUnlockTable.Get(abilityUnlockUpgradeDataId);
+            if (abilityUnlockData == null)
+                return;
+
+            UserData.Gold -= upgradeGold;
+            UserData.TowerEnhanceItem -= upgradeStarDust;
+            
+            currentUpgradeData.upgradeLevels[towerIndex] = upgradeLevel + 1;
+
+            // Unlock new ability logic can be added here
+
+            await UserTowerUpgradeManager.Instance.SaveUserTowerUpgradeAsync(currentUpgradeData);
+            
+            await UpdateUIs(currentUpgradeData);
+
+            return;
+        }
+
         UserData.Gold -= upgradeGold;
         UserData.TowerEnhanceItem -= upgradeStarDust;
         currentUpgradeData.upgradeLevels[towerIndex] = upgradeLevel + 1;
         await UserTowerUpgradeManager.Instance.SaveUserTowerUpgradeAsync(currentUpgradeData);
 
+        await UpdateUIs(currentUpgradeData);
+    }
+
+    private async UniTask UpdateUIs(UserTowerUpgradeData currentUpgradeData)
+    {
         Initialize(towerId);
 
-        var upgradeCount = towerUpgradeUI.UpdateTowerUpgradeInfo(currentUpgradeData);
-        int totalUpgradePercent = Mathf.FloorToInt((float)upgradeCount / towerUpgradeUI.TotalUpgrade * 100);
-        towerUpgradeUI.SetUpgradePercentText(totalUpgradePercent);
+        var upgradeCountFull = towerUpgradeUI.UpdateTowerUpgradeInfo(currentUpgradeData);
+        int totalUpgradePercentFull = Mathf.FloorToInt((float)upgradeCountFull / towerUpgradeUI.TotalUpgrade * 100);
+        towerUpgradeUI.SetUpgradePercentText(totalUpgradePercentFull);
 
         await ItemManager.Instance.SaveItemsAsync();
         await CurrencyManager.Instance.SaveCurrencyAsync();
@@ -120,7 +150,16 @@ public class LobbyTowerUpgrade : MonoBehaviour
 
         if (upgradeLevel == 3)
         {
-            
+            var abilityUnlockUpgradeDataId = DataTableManager.TowerUpgradeAbilityUnlockTable.GetDataId(towerId);
+            var abilityUnlockData = DataTableManager.TowerUpgradeAbilityUnlockTable.Get(abilityUnlockUpgradeDataId);
+            if (abilityUnlockData == null)
+                return;
+
+            upgradeGold = abilityUnlockData.GoldCost;
+            upgradeStarDust = abilityUnlockData.MaterialCost;
+            SetGoldRequiredText(upgradeGold);
+            SetStarDustText(UserData.TowerEnhanceItem, upgradeStarDust);
+            return;
         }
 
         var upgradeDataId = DataTableManager.TowerUpgradeTable.GetIdByTowerIdAndUpgradeCount(towerId, upgradeLevel + 1);

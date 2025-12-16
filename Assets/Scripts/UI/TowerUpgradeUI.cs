@@ -81,8 +81,8 @@ public class TowerUpgradeUI : MonoBehaviour
             else
             {
                 towerLevelTexts[i].text = $"Lv. {attackTowerLevel}";
-                CheckUpgradeAvailability(attackTowerLevel, i);
             }
+            CheckUpgradeAvailability(attackTowerLevel, i);
             upgradedCount += attackTowerLevel;
         }
 
@@ -128,6 +128,26 @@ public class TowerUpgradeUI : MonoBehaviour
             _ => throw new ArgumentOutOfRangeException(nameof(index), "Invalid tower button index")
         };
 
+        if (towerLevel >= 4)
+        {
+            upgradeEnabledObjects[index].SetActive(false);
+            return;
+        }
+
+        if (towerLevel == 3)
+        {
+            var abilityUnlockUpgradeDataId = DataTableManager.TowerUpgradeAbilityUnlockTable.GetDataId((int)attackTowerTableRowId);
+            var abilityUnlockData = DataTableManager.TowerUpgradeAbilityUnlockTable.Get(abilityUnlockUpgradeDataId);
+            if (abilityUnlockData == null)
+            {
+                upgradeEnabledObjects[index].SetActive(false);
+                return;
+            }
+            
+            upgradeEnabledObjects[index].SetActive(CanUpgrade(abilityUnlockData.GoldCost, abilityUnlockData.MaterialCost));
+            return;
+        }
+
         var towerUpgradeId = DataTableManager.TowerUpgradeTable.GetIdByTowerIdAndUpgradeCount((int)attackTowerTableRowId, towerLevel + 1);
         
         if (towerUpgradeId == -1)
@@ -141,15 +161,17 @@ public class TowerUpgradeUI : MonoBehaviour
             return;
         }
 
-        var upgradeGoldCost = towerUpgradeData.GoldCost;
-        var upgradeMaterialCost = towerUpgradeData.MaterialCost;
+        upgradeEnabledObjects[index].SetActive(CanUpgrade(towerUpgradeData.GoldCost, towerUpgradeData.MaterialCost));
+        // var 
+    }
 
+    private bool CanUpgrade(int goldCost, int materialCost)
+    {
         var currentGold = UserData.Gold;
         var currentStarDust = UserData.TowerEnhanceItem;
-        bool canUpgrade = currentGold >= upgradeGoldCost && currentStarDust >= upgradeMaterialCost;
+        bool canUpgrade = currentGold >= goldCost && currentStarDust >= materialCost;
 
-        upgradeEnabledObjects[index].SetActive(canUpgrade);
-        // var 
+        return canUpgrade;
     }
 
     public void SetUpgradePercentText(int percent)
