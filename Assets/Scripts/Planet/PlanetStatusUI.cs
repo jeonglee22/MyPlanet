@@ -53,10 +53,13 @@ public class PlanetStatusUI : MonoBehaviour
     {
         HpValueChanged(planet.Health);
         ExpValueChange(planet.CurrentExp);
-        if (planet.InitShield <= 0f)
-            barriorSlider.value = 0f;
-        else
-            barriorSlider.value = 1f;
+        if (barriorSlider != null)
+        {    
+            if (planet.InitShield <= 0f)
+                barriorSlider.value = 0f;
+            else
+                barriorSlider.value = 1f;
+        }
         ChangeLevelText();
     }
 

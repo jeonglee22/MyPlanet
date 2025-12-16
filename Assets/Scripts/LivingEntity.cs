@@ -24,6 +24,7 @@ public class LivingEntity : MonoBehaviour, IDamagable
             return;
 
         Health -= damage;
+        
         HpDecreseEvent?.Invoke(Health);
 
         if (Health <= 0)

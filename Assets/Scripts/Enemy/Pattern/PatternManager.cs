@@ -32,6 +32,13 @@ public class PatternManager : MonoBehaviour
         patternDict.Add((int)PatternIds.SaturnLazer, () => new RootLazerPattern());
         patternDict.Add((int)PatternIds.SaturnMeteorClusterSummon, () => new MeteorClusterSummonPattern());
         patternDict.Add((int)PatternIds.SaturnEleteMeteorClusterSummon, () => new MeteorClusterSummonPattern());
+        patternDict.Add((int)PatternIds.NereidDiaSummon, () => new LateralFrontSummonPattern());
+        patternDict.Add((int)PatternIds.NereidReflectShield, () => new ReflectShieldPattern());
+        patternDict.Add((int)PatternIds.NeptuneChaseDiaSummon, () => new LateralHommingSummonPattern());
+        patternDict.Add((int)PatternIds.NeptuneBigDiaSummon, () => new LateralDownSummonPattern());
+        patternDict.Add((int)PatternIds.EliteDiaReflectShield, () => new ReflectShieldPattern());
+        patternDict.Add((int)PatternIds.EliteBigDiaReflectShield, () => new ReflectShieldPattern());
+
     }
 
     public IPattern GetPattern(int patternId)

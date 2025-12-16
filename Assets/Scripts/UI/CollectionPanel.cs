@@ -42,6 +42,7 @@ public class CollectionPanel : MonoBehaviour
     private bool isAbilityPanel = false;
 
     private bool isFromBackButton = false;
+    private event Action OnPendingPanelSwitch;
 
     private void Start()
     {
@@ -66,6 +67,11 @@ public class CollectionPanel : MonoBehaviour
         ResetBtn();
     }
 
+    private void OnDisable()
+    {
+        InfoPanelClosed();
+    }
+
     private void ResetBtn()
     {
         backBtn.onClick.RemoveListener(OnBackBtn);
@@ -81,6 +87,7 @@ public class CollectionPanel : MonoBehaviour
         if(CollectionManager.Instance.HasUnsavedChanges())
         {
             isFromBackButton = true;
+            OnPendingPanelSwitch = null;
 
             towerPanelBtn.interactable = false;
             abilityPanelBtn.interactable = false;
@@ -101,7 +108,17 @@ public class CollectionPanel : MonoBehaviour
     {
         if (CollectionManager.Instance.HasUnsavedChanges())
         {
-            DiscardChangeAndSwitchPanel(() => SwitchToTowerPanel()).Forget();
+            isFromBackButton = false;
+            OnPendingPanelSwitch = SwitchToTowerPanel;
+
+            towerPanelBtn.interactable = false;
+            abilityPanelBtn.interactable = false;
+            planetPanelBtn.interactable = false;
+
+            saveBtn.interactable = false;
+            backBtn.interactable = false;
+
+            saveConfirmPanel.SetActive(true);
         }
         else
         {
@@ -113,7 +130,17 @@ public class CollectionPanel : MonoBehaviour
     {
         if(CollectionManager.Instance.HasUnsavedChanges())
         {
-            DiscardChangeAndSwitchPanel(() => SwitchToAbilityPanel()).Forget();
+            isFromBackButton = false;
+            OnPendingPanelSwitch = SwitchToAbilityPanel;
+
+            towerPanelBtn.interactable = false;
+            abilityPanelBtn.interactable = false;
+            planetPanelBtn.interactable = false;
+
+            saveBtn.interactable = false;
+            backBtn.interactable = false;
+
+            saveConfirmPanel.SetActive(true);
         }
         else
         {
@@ -131,6 +158,9 @@ public class CollectionPanel : MonoBehaviour
 
         UpdateCoreText();
         RefreshAllWeights();
+        SortPanelsWeight();
+
+        InfoPanelClosed();
     }
 
     private void SwitchToAbilityPanel()
@@ -143,24 +173,22 @@ public class CollectionPanel : MonoBehaviour
 
         UpdateCoreText();
         RefreshAllWeights();
-    }
+        SortPanelsWeight();
 
-    private async UniTaskVoid DiscardChangeAndSwitchPanel(Action switchPanelAction)
-    {
-        await CollectionManager.Instance.DiscardChangesAsync();
-
-        UpdateCoreText();
-        RefreshAllWeights();
-
-        switchPanelAction?.Invoke();
+        InfoPanelClosed();
     }
 
     public void OnSaveBtnClicked()
     {
+        InfoPanelClosed();
+
         if(!CollectionManager.Instance.HasUnsavedChanges())
         {
             return;
         }
+
+        isFromBackButton = false;
+        OnPendingPanelSwitch = null;
 
         towerPanelBtn.interactable = false;
         abilityPanelBtn.interactable = false;
@@ -186,12 +214,21 @@ public class CollectionPanel : MonoBehaviour
 
         UpdateCoreText();
 
+        SortPanelsWeight();
+
         if(isFromBackButton)
         {
             isFromBackButton = false;
 
             lobbyPanel.SetActive(true);
             gameObject.SetActive(false);
+        }
+
+        else if(OnPendingPanelSwitch != null)
+        {
+            var action = OnPendingPanelSwitch;
+            OnPendingPanelSwitch = null;
+            action?.Invoke();
         }
     }
 
@@ -217,6 +254,13 @@ public class CollectionPanel : MonoBehaviour
             lobbyPanel.SetActive(true);
             gameObject.SetActive(false);
         }
+
+        else if(OnPendingPanelSwitch != null)
+        {
+            var action = OnPendingPanelSwitch;
+            OnPendingPanelSwitch = null;
+            action?.Invoke();
+        }
     }
 
     public async UniTaskVoid Initialize()
@@ -240,6 +284,8 @@ public class CollectionPanel : MonoBehaviour
         isAbilityPanel = false;
 
         UpdateCoreText();
+
+        SortPanelsWeight();
     }
 
     private void InitializeTowerPanel()
@@ -419,6 +465,127 @@ public class CollectionPanel : MonoBehaviour
             randomAbilityInfoPanelObj.SetActive(true);
             var abilityInfoPanel = randomAbilityInfoPanelObj.GetComponent<RandomAbilityInfoUI>();
             abilityInfoPanel.Initialize(panel.AbilityData);
+        }
+    }
+
+    private void InfoPanelClosed()
+    {
+        towerInfoPanelObj.SetActive(false);
+        buffTowerInfoPanelObj.SetActive(false);
+        randomAbilityInfoPanelObj.SetActive(false);
+    }
+
+    private void SortPanelsWeight()
+    {
+        if (isTowerPanel)
+        {
+            SortTowerPanels();
+        }
+        else if (isAbilityPanel)
+        {
+            SortAbilityPanels();
+        }
+    }
+
+    private void SortTowerPanels()
+    {
+        var towerPanels = new List<CollectionItemPanelUI>();
+
+        foreach(var panel in allPanels)
+        {
+            if(panel.IsTower)
+            {
+                towerPanels.Add(panel);
+            }
+        }
+
+        towerPanels.Sort((a, b) =>
+        {
+            int aId = a.IsAttackTower ? a.AttackTowerData.AttackTower_Id : a.BuffTowerData.BuffTower_ID;
+            int bId = b.IsAttackTower ? b.AttackTowerData.AttackTower_Id : b.BuffTowerData.BuffTower_ID;
+
+            float aWeight = CollectionManager.Instance.GetWeight(aId);
+            float bWeight = CollectionManager.Instance.GetWeight(bId);
+
+            return bWeight.CompareTo(aWeight);
+        });
+
+        var rows = new List<Transform>();
+        foreach(var item in instantiatedItems)
+        {
+            if(item.transform.parent == towerPanelContent.transform)
+            {
+                rows.Add(item.transform);
+            }
+        }
+
+        for(int i = 0; i < towerPanels.Count; i++)
+        {
+            int rowIndex = i / 2;
+            int colIndex = i % 2;
+
+            if(rowIndex < rows.Count)
+            {
+                var emptyGameObject = towerPanels[i].transform.parent;
+                emptyGameObject.SetParent(rows[rowIndex]);
+                emptyGameObject.SetSiblingIndex(colIndex);
+            }
+        }
+
+        for(int i = 0; i < rows.Count; i++)
+        {
+            rows[i].SetSiblingIndex(i);
+        }
+    }
+
+    private void SortAbilityPanels()
+    {
+        var abilityPanels = new List<CollectionItemPanelUI>();
+
+        foreach(var panel in allPanels)
+        {
+            if(!panel.IsTower)
+            {
+                abilityPanels.Add(panel);
+            }
+        }
+
+        abilityPanels.Sort((a, b) =>
+        {
+            int aId = a.AbilityData.RandomAbility_ID;
+            int bId = b.AbilityData.RandomAbility_ID;
+
+            float aWeight = CollectionManager.Instance.GetWeight(aId);
+            float bWeight = CollectionManager.Instance.GetWeight(bId);
+
+            return bWeight.CompareTo(aWeight);
+        });
+
+        var rows = new List<Transform>();
+        foreach(var item in instantiatedItems)
+        {
+            if(item.transform.parent == abilityPanelContent.transform)
+            {
+                rows.Add(item.transform);
+            }
+        }
+
+        for(int i = 0; i < abilityPanels.Count; i++)
+        {
+            int rowIndex = i / 2;
+            int colIndex = i % 2;
+
+            if(rowIndex < rows.Count)
+            {
+                var emptyGameObject = abilityPanels[i].transform.parent;
+                emptyGameObject.SetParent(rows[rowIndex]);
+                emptyGameObject.SetSiblingIndex(colIndex);
+            }
+        }
+
+        for(int i = 0; i < rows.Count; i++)
+        {
+            rows[i].SetSiblingIndex(i);
         }
     }
 
