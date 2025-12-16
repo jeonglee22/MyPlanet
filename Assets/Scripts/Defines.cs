@@ -17,6 +17,7 @@ public static class TagName
     public static readonly string BattleUI = "BattleUI";
     public static readonly string ChangedVisual = "ChangedVisual";
     public static readonly string ChangeVisual = "ChangeVisual";
+    public static readonly string PatternProjectile = "PatternProjectile";
 }
 
 public static class ObjectName
@@ -111,6 +112,7 @@ public enum ExecutionTrigger
     Immediate,
     OnHealthPercentage,
     ChildrenAlive,
+    OnHit,
 }
 
 public enum MoveType
@@ -124,7 +126,6 @@ public enum MoveType
     Side,
     TwoPhaseHomingMovement,
     TwoPhaseDownMovement,
-    HitChangeSpeedChaseMovement,
 }
 
 public enum PatternIds
@@ -150,6 +151,16 @@ public enum PatternIds
     NeptuneFrontDiaSummon,
     EliteDiaReflectShield,
     EliteBigDiaReflectShield,
+    FireChildHitChangeSpeedChase = 4100024,
+    FireEyeShootFire,
+    BigFireEyeSummonFireChild,
+    BigFireEyeSummonFireEye,
+    BigFireEyeShootBigFire,
+    BigFireEyeFirePillar,
+    SunSummonFireChild,
+    SunSummonFireEye,
+    SunSummonBigFireEye,
+    SunShootFire,
 }
 
 public enum TutorialPoint

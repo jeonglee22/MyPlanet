@@ -16,6 +16,7 @@ public abstract class ShootingPattern : IPattern
     public virtual bool RequireAsync { get; protected set;} = false;
 
     protected PatternData patternData;
+    protected SkillData skillData;
 
     protected float lastExecuteTime;
     protected bool isExecuteOneTime;
@@ -32,6 +33,7 @@ public abstract class ShootingPattern : IPattern
         executor = enemy.GetComponent<PatternExecutor>();
 
         patternData = enemy.CurrentPatternData;
+        skillData = DataTableManager.SkillTable.Get(patternData.Skill_Id);
 
         lastExecuteTime = Time.time;
         isExecuteOneTime = false;

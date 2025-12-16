@@ -39,6 +39,8 @@ public class PatternManager : MonoBehaviour
         patternDict.Add((int)PatternIds.NeptuneFrontDiaSummon, () => new LateralDownSummonPattern());
         patternDict.Add((int)PatternIds.EliteDiaReflectShield, () => new ReflectShieldPattern());
         patternDict.Add((int)PatternIds.EliteBigDiaReflectShield, () => new ReflectShieldPattern());
+        patternDict.Add((int)PatternIds.FireChildHitChangeSpeedChase, () => new HitSpeedBoostPattern());
+        patternDict.Add((int)PatternIds.FireEyeShootFire, () => new SimpleShotPattern());
 
     }
 

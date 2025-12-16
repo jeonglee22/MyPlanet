@@ -56,6 +56,8 @@ public abstract class SpecialPattern : IPattern
                 }
 
                 return false;
+            case ExecutionTrigger.OnHit:
+                return owner.HasHit && !isExecuteOneTime;
         }
 
         return false;

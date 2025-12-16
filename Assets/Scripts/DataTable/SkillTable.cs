@@ -20,6 +20,7 @@ public class SkillData
     public float RepeatTerm { get; set; }
     public int RepeatCount { get; set; }
     public int Stackable { get; set; }
+    public string VisualAsset { get; set; }
 
     public override string ToString()
     {

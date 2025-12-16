@@ -29,7 +29,6 @@ public class MovementManager : MonoBehaviour
         movementDict.Add((int)MoveType.Side, () => new SideMovement());
         movementDict.Add((int)MoveType.TwoPhaseHomingMovement, () => new TwoPhaseHomingMovement());
         movementDict.Add((int)MoveType.TwoPhaseDownMovement, () => new TwoPhaseDownMovement());
-        movementDict.Add((int)MoveType.HitChangeSpeedChaseMovement, () => new HitChangeSpeedChaseMovement());
     }
 
     public IMovement GetMovement(int moveType)
