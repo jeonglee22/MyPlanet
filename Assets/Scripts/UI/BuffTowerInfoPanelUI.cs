@@ -50,7 +50,7 @@ public class BuffTowerInfoPanelUI : MonoBehaviour
         {
             var specialEffectData = DataTableManager.SpecialEffectTable.Get(specialEffect.SpecialEffect1_ID);
             upDownString = specialEffect.SpecialEffect1Value > 0 ? "증가" : "감소";
-            abilityOneTMP.text = $"{specialEffectData.SpecialEffectName} {upDownString}";
+            abilityOneTMP.text = $"{specialEffectData.SpecialEffectName} {specialEffect.SpecialEffect1Value} {upDownString}";
         }
         else
         {
@@ -61,7 +61,7 @@ public class BuffTowerInfoPanelUI : MonoBehaviour
         {
             var specialEffectData = DataTableManager.SpecialEffectTable.Get(specialEffect.SpecialEffect2_ID);
             upDownString = specialEffect.SpecialEffect2Value > 0 ? "증가" : "감소";
-            abilityTwoTMP.text = $"{specialEffectData.SpecialEffectName} {upDownString}";
+            abilityTwoTMP.text = $"{specialEffectData.SpecialEffectName} {specialEffect.SpecialEffect2Value} {upDownString}";
         }
         else
         {
@@ -72,7 +72,7 @@ public class BuffTowerInfoPanelUI : MonoBehaviour
         {
             var specialEffectData = DataTableManager.SpecialEffectTable.Get(specialEffect.SpecialEffect3_ID);
             upDownString = specialEffect.SpecialEffect3Value > 0 ? "증가" : "감소";
-            abilityThreeTMP.text = $"{specialEffectData.SpecialEffectName} {upDownString}";
+            abilityThreeTMP.text = $"{specialEffectData.SpecialEffectName} {specialEffect.SpecialEffect3Value} {upDownString}";
         }
         else
         {

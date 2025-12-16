@@ -1,6 +1,9 @@
 using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class CollectionItemPanelUI : MonoBehaviour
@@ -30,11 +33,30 @@ public class CollectionItemPanelUI : MonoBehaviour
     public BuffTowerData BuffTowerData { get; private set; }
     public RandomAbilityData AbilityData { get; private set; }
 
+    private CancellationTokenSource holdCts;
+    [SerializeField] private float repeatInterval = 0.1f;
+    [SerializeField] private float holdDelay = 0.5f;
+
+    private void Awake()
+    {
+        AddEventTrigger(weightUpBtn.gameObject, true);
+        AddEventTrigger(weightDownBtn.gameObject, false);
+    }
+
     private void OnDestroy()
     {
-        weightUpBtn.onClick.RemoveListener(OnWeightUpBtn);
-        weightDownBtn.onClick.RemoveListener(OnWeightDownBtn);
+        holdCts?.Cancel();
+        holdCts?.Dispose();
+        holdCts = null;
+
         infoBtn.onClick.RemoveListener(OnInfoBtnClicked);
+    }
+
+    private void OnDisable()
+    {
+        holdCts?.Cancel();
+        holdCts?.Dispose();
+        holdCts = null;
     }
 
     public void Initialize(AttackTowerTableRow data, int dataCount, bool isTower)
@@ -51,8 +73,6 @@ public class CollectionItemPanelUI : MonoBehaviour
 
         UpdateWeightDisplay();
 
-        weightUpBtn.onClick.AddListener(OnWeightUpBtn);
-        weightDownBtn.onClick.AddListener(OnWeightDownBtn);
         infoBtn.onClick.AddListener(OnInfoBtnClicked);
     }
 
@@ -70,8 +90,6 @@ public class CollectionItemPanelUI : MonoBehaviour
 
         UpdateWeightDisplay();
 
-        weightUpBtn.onClick.AddListener(OnWeightUpBtn);
-        weightDownBtn.onClick.AddListener(OnWeightDownBtn);
         infoBtn.onClick.AddListener(OnInfoBtnClicked);
     }
 
@@ -88,8 +106,6 @@ public class CollectionItemPanelUI : MonoBehaviour
 
         UpdateWeightDisplay();
 
-        weightUpBtn.onClick.AddListener(OnWeightUpBtn);
-        weightDownBtn.onClick.AddListener(OnWeightDownBtn);
         infoBtn.onClick.AddListener(OnInfoBtnClicked);
     }
 
@@ -137,5 +153,80 @@ public class CollectionItemPanelUI : MonoBehaviour
     public void OnInfoBtnClicked()
     {
         OnInfoBtn?.Invoke(this);
+    }
+
+    private void AddEventTrigger(GameObject target, bool isUpButton)
+    {
+        EventTrigger trigger = target.GetComponent<EventTrigger>();
+        if (trigger == null)
+        {
+            trigger = target.AddComponent<EventTrigger>();
+        }
+
+        EventTrigger.Entry pointerDown = new EventTrigger.Entry();
+        pointerDown.eventID = EventTriggerType.PointerDown;
+        pointerDown.callback.AddListener((data) => { OnPointerDownButton(isUpButton); });
+        trigger.triggers.Add(pointerDown);
+
+        EventTrigger.Entry pointerUp = new EventTrigger.Entry();
+        pointerUp.eventID = EventTriggerType.PointerUp;
+        pointerUp.callback.AddListener((data) => { OnPointerUpButton(); });
+        trigger.triggers.Add(pointerUp);
+
+        EventTrigger.Entry pointerExit = new EventTrigger.Entry();
+        pointerExit.eventID = EventTriggerType.PointerExit;
+        pointerExit.callback.AddListener((data) => { OnPointerUpButton(); });
+        trigger.triggers.Add(pointerExit);
+    }
+
+    private void OnPointerDownButton(bool isUpButton)
+    {
+        holdCts?.Cancel();
+        holdCts?.Dispose();
+        holdCts = new CancellationTokenSource();
+
+        if (isUpButton)
+        {
+            OnWeightUpBtn();
+            HoldButtonAsync(true, holdCts.Token).Forget();
+        }
+        else
+        {
+            OnWeightDownBtn();
+            HoldButtonAsync(false, holdCts.Token).Forget();
+        }
+    }
+
+    private void OnPointerUpButton()
+    {
+        holdCts?.Cancel();
+        holdCts?.Dispose();
+        holdCts = null;
+    }
+
+    private async UniTaskVoid HoldButtonAsync(bool isUpButton, CancellationToken token)
+    {
+        try
+        {
+            await UniTask.Delay(500, cancellationToken: token);
+
+            while (true)
+            {
+                if (isUpButton)
+                {
+                    OnWeightUpBtn();
+                }
+                else
+                {
+                    OnWeightDownBtn();
+                }
+
+                await UniTask.Delay(TimeSpan.FromSeconds(repeatInterval), cancellationToken: token);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            
+        }
     }
 }
