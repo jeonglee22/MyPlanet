@@ -10,6 +10,8 @@ public class UserTowerUpgradeManager : MonoBehaviour
     private DatabaseReference userTowerUpgradeRef;
 
     private UserTowerUpgradeData userTowerUpgradeData;
+    public UserTowerUpgradeData CurrentTowerUpgradeData => userTowerUpgradeData;
+
     private bool isInitialized = false;
 
     public bool IsInitialized => isInitialized;
@@ -102,7 +104,7 @@ public class UserTowerUpgradeManager : MonoBehaviour
         }
     }
 
-    public async UniTask<bool> SaveUserTowerUpgradeAsync()
+    public async UniTask<bool> SaveUserTowerUpgradeAsync(UserTowerUpgradeData userTowerUpgradeData)
     {
         if(!AuthManager.Instance.IsSignedIn)
         {
@@ -115,6 +117,8 @@ public class UserTowerUpgradeManager : MonoBehaviour
         {
             var json = userTowerUpgradeData.ToJson();
             await userTowerUpgradeRef.Child(uid).SetRawJsonValueAsync(json).AsUniTask();
+
+            this.userTowerUpgradeData = userTowerUpgradeData;
 
             return true;
         }

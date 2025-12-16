@@ -1,5 +1,6 @@
 using System;
 using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks.Triggers;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -20,6 +21,8 @@ public class TowerUpgradeUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI diamondText;
     [SerializeField] private TextMeshProUGUI goldText;
     [SerializeField] private TextMeshProUGUI towerNameText;
+    private int totalUpgrade;
+    public int TotalUpgrade => totalUpgrade;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -30,6 +33,60 @@ public class TowerUpgradeUI : MonoBehaviour
             int index = i;
             towerButtons[i].onClick.AddListener(() => OnTowerButtonClicked(index));
         }
+    }
+
+    private void OnEnable()
+    {
+        var currentUpgradeData = UserTowerUpgradeManager.Instance.CurrentTowerUpgradeData;
+
+        totalUpgrade = currentUpgradeData.towerIds.Count * 4;
+        var upgradedCount = UpdateTowerUpgradeInfo(currentUpgradeData);
+
+        // Update total upgrade percent
+        int totalUpgradePercent = Mathf.FloorToInt((float)upgradedCount / totalUpgrade * 100);
+        SetUpgradePercentText(totalUpgradePercent);
+
+        // Update currency texts
+        diamondText.text = (UserData.ChargedDia + UserData.FreeDia).ToString();
+        goldText.text = UserData.Gold.ToString();
+    }
+
+    public int UpdateTowerUpgradeInfo(UserTowerUpgradeData currentUpgradeData)
+    {
+        var upgradedCount = 0;
+        // Update tower levels
+        for (int i = 0; i < towerLevelTexts.Length; i++)
+        {
+            var attackTowerTableRowId = i switch
+            {
+                0 => AttackTowerId.basicGun,
+                1 => AttackTowerId.Gattling,
+                2 => AttackTowerId.Missile,
+                3 => AttackTowerId.ShootGun,
+                4 => AttackTowerId.Sniper,
+                5 => AttackTowerId.Lazer,
+                _ => throw new ArgumentOutOfRangeException(nameof(i), "Invalid tower button index")
+            };
+
+            var towerIndex = currentUpgradeData.towerIds.IndexOf((int)attackTowerTableRowId);
+            if (towerIndex == -1)
+                continue;
+            
+            var attackTowerLevel = currentUpgradeData.upgradeLevels[towerIndex];
+
+            if (attackTowerLevel >= 4)
+            {
+                towerLevelTexts[i].text = "Max Lv.";
+            }
+            else
+            {
+                towerLevelTexts[i].text = $"Lv. {attackTowerLevel}";
+                CheckUpgradeAvailability(attackTowerLevel, i);
+            }
+            upgradedCount += attackTowerLevel;
+        }
+
+        return upgradedCount;
     }
 
     private void OnTowerButtonClicked(int index)
@@ -48,12 +105,8 @@ public class TowerUpgradeUI : MonoBehaviour
         towerInfoPanel.SetActive(true);
         towerInfoPanel.GetComponent<TowerInfoPanelUI>().Initialize(
             DataTableManager.AttackTowerTable.GetById((int)attackTowerTableRowId));
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        towerInfoPanel.GetComponent<LobbyTowerUpgrade>().Initialize((int)attackTowerTableRowId);
     }
 
     public void OnBackBtnClicked()
@@ -62,7 +115,7 @@ public class TowerUpgradeUI : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public async UniTaskVoid CheckUpgradeAvailability(int towerLevel, int index)
+    public void CheckUpgradeAvailability(int towerLevel, int index)
     {
         var attackTowerTableRowId = index switch
         {
@@ -97,5 +150,10 @@ public class TowerUpgradeUI : MonoBehaviour
 
         upgradeEnabledObjects[index].SetActive(canUpgrade);
         // var 
+    }
+
+    public void SetUpgradePercentText(int percent)
+    {
+        totalUpgradePercentText.text = $"Total Upgrade: {percent}%";
     }
 }
