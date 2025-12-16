@@ -168,6 +168,14 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         planet.Health += damage * planet.PlanetData.Drain;
 
         base.OnDamage(damage);
+
+        if(movement?.CurrentMovement is HitChangeSpeedChaseMovement hitRedirectionMovement)
+        {
+            if(planet != null)
+            {
+                hitRedirectionMovement.OnHitedInMovement();
+            }
+        }
     }
 
     public override void Die()

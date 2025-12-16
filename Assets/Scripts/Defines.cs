@@ -122,6 +122,7 @@ public enum MoveType
     Side,
     TwoPhaseHomingMovement,
     TwoPhaseDownMovement,
+    HitChangeSpeedChaseMovement,
 }
 
 public enum PatternIds
