@@ -115,13 +115,13 @@ public class MainTitleUI : MonoBehaviour
 
         await UserPlanetManager.Instance.LoadUserPlanetAsync();
 
+        await UserTowerUpgradeManager.Instance.LoadUserTowerUpgradeAsync();
+
         await UserAttackPowerManager.Instance.LoadUserAttackPowerAsync();
 
         // await CurrencyManager.Instance.LoadCurrencyAsync();
 
-        await UserTowerManager.Instance.LoadUserTowerDataAsync();
-
-        await UserTowerUpgradeManager.Instance.LoadUserTowerUpgradeAsync();
+        await UserTowerManager.Instance.LoadUserTowerDataAsync();     
     }
 
     private void OnLogInOutButtonClicked()

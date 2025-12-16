@@ -93,6 +93,7 @@ public class LogInPopUpUI : MonoBehaviour
         }
 
         await UserAttackPowerManager.Instance.UpdatePlanetPower(UserPlanetManager.Instance.CurrentPlanet);
+        await UserAttackPowerManager.Instance.UpdateTowerPower();
 
         canvasManager.SwitchToTargetPopUp(MainTitleCanvasManager.PopupName.None);
         infoPopUpUI.SetNickNameText(AuthManager.Instance.UserNickName);

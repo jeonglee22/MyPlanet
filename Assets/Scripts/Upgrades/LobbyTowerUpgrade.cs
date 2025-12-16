@@ -58,7 +58,7 @@ public class LobbyTowerUpgrade : MonoBehaviour
             // Unlock new ability logic can be added here
 
             await UserTowerUpgradeManager.Instance.SaveUserTowerUpgradeAsync(currentUpgradeData);
-            
+
             await UpdateUIs(currentUpgradeData);
 
             return;
@@ -84,6 +84,8 @@ public class LobbyTowerUpgrade : MonoBehaviour
         await CurrencyManager.Instance.SaveCurrencyAsync();
 
         confirmPanel.SetActive(false);
+
+        await UserAttackPowerManager.Instance.UpdateTowerPower();
     }
 
     private void OnClickUpgradeButton()

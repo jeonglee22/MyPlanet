@@ -113,6 +113,7 @@ public class TowerUpgradeUI : MonoBehaviour
     {
         lobbyPanel.SetActive(true);
         gameObject.SetActive(false);
+        towerInfoPanel.SetActive(false);
     }
 
     public void CheckUpgradeAvailability(int towerLevel, int index)
