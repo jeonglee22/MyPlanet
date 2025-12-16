@@ -20,6 +20,7 @@ public class LateralFrontSummonPattern : SummonPattern
         }
 
         int quantity = summonData.EnemyQuantity_1;
+        int moveType = summonEnemyData.MoveType;
 
         Vector3[] spawnPositions = new Vector3[]
         {
@@ -32,12 +33,7 @@ public class LateralFrontSummonPattern : SummonPattern
         {
             Vector3 spawnPos = spawnPositions[i % 3];
 
-            Enemy childEnemy = owner.Spawner.SpawnEnemyAsChild(summonData.Enemy_Id, spawnPos, owner.ScaleData, summonEnemyData.MoveType, false, owner);
-
-            if(childEnemy != null)
-            {
-                owner.ChildEnemy.Add(childEnemy);
-            }
+            owner.Spawner.SpawnEnemiesWithSummon(summonData.Enemy_Id, 1, owner.ScaleData, moveType, false, spawnPos, owner);
         }
 
         isExecuteOneTime = true;

@@ -23,7 +23,7 @@ public class LateralHommingSummonPattern : SummonPattern
 
         int moveType = (int)MoveType.TwoPhaseHomingMovement;
 
-        owner.Spawner.SpawnEnemyAsChild(summonData.Enemy_Id, leftPosition, owner.ScaleData, moveType, false, owner);
-        owner.Spawner.SpawnEnemyAsChild(summonData.Enemy_Id, rightPosition, owner.ScaleData, moveType, false, owner);
+        owner.Spawner.SpawnEnemiesWithSummon(summonData.Enemy_Id, 1, owner.ScaleData, moveType, false, leftPosition, owner);
+        owner.Spawner.SpawnEnemiesWithSummon(summonData.Enemy_Id, 1, owner.ScaleData, moveType, false, rightPosition, owner);
     }
 }

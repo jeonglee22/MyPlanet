@@ -197,6 +197,39 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
+    public void SpawnEnemiesWithSummon(int enemyId, int quantity, ScaleData scaleData, int moveType, bool ShouldDropItems = true, Vector3 spawnPos = default, Enemy parent = null)
+    {
+        PreparePool(enemyId);
+
+        currentTableData = DataTableManager.EnemyTable.Get(enemyId);
+        if (currentTableData == null)
+        {
+            return;
+        }
+
+        for(int i = 0; i < quantity; i++)
+        {
+            var pos = spawnPos == default ? GetRandomPositionInCircle() : GetRandomPositionInCircleWithPos(spawnPos);
+            var enemy = SpawnEnemyAsChild(enemyId, pos, scaleData, moveType, ShouldDropItems, parent);
+            if(enemy != null)
+            {
+                enemy.ShouldDropItems = ShouldDropItems;
+
+                if(parent != null)
+                {
+                    enemy.ParentEnemy = parent;
+                    parent.ChildEnemy.Add(enemy);
+                }
+
+                if(moveType != -1 && moveType != currentTableData.MoveType)
+                {
+                    IMovement movementComponent = MovementManager.Instance.GetMovement(moveType);
+                    enemy.Movement.Initialize(enemy.Movement.moveSpeed, -1, enemy.EnemyType, movementComponent);
+                }
+            }
+        }
+    }
+
     public void SpawnEnemiesInCircle(int enemyId, int quantity, float radius, ScaleData scaleData, bool ShouldDropItems = true, Vector3 centerPos = default)
     {
         PreparePool(enemyId);
