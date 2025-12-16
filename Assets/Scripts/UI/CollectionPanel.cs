@@ -182,22 +182,7 @@ public class CollectionPanel : MonoBehaviour
     {
         InfoPanelClosed();
 
-        if(!CollectionManager.Instance.HasUnsavedChanges())
-        {
-            return;
-        }
-
-        isFromBackButton = false;
-        OnPendingPanelSwitch = null;
-
-        towerPanelBtn.interactable = false;
-        abilityPanelBtn.interactable = false;
-        planetPanelBtn.interactable = false;
-
-        saveBtn.interactable = false;
-        backBtn.interactable = false;
-
-        saveConfirmPanel.SetActive(true);
+        CollectionManager.Instance.SaveCollectionAsync().Forget();
     }
 
     private void OnConfirmYesBtnClicked()
