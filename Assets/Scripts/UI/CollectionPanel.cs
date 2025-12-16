@@ -183,6 +183,10 @@ public class CollectionPanel : MonoBehaviour
         InfoPanelClosed();
 
         CollectionManager.Instance.SaveCollectionAsync().Forget();
+
+        UpdateCoreText();
+        RefreshAllWeights();
+        SortPanelsWeight();
     }
 
     private void OnConfirmYesBtnClicked()
@@ -492,7 +496,16 @@ public class CollectionPanel : MonoBehaviour
             float aWeight = CollectionManager.Instance.GetWeight(aId);
             float bWeight = CollectionManager.Instance.GetWeight(bId);
 
-            return bWeight.CompareTo(aWeight);
+            int weightComparison = bWeight.CompareTo(aWeight);
+            if(weightComparison != 0)
+            {
+                return weightComparison;
+            }
+
+            int aType = a.IsAttackTower ? 0 : 1;
+            int bType = b.IsAttackTower ? 0 : 1;
+
+            return aType.CompareTo(bType);
         });
 
         var rows = new List<Transform>();
