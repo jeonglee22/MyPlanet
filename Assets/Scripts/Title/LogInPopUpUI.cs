@@ -70,6 +70,7 @@ public class LogInPopUpUI : MonoBehaviour
         {
             SetErrorMessage("Failed to save nickname.");
             InteractableButtons(true);
+            AuthManager.Instance.SignOut();
             return;
         }
 
@@ -78,8 +79,11 @@ public class LogInPopUpUI : MonoBehaviour
         {
             SetErrorMessage("Failed to initialize tower data.");
             InteractableButtons(true);
+            AuthManager.Instance.SignOut();
             return;
         }
+
+        await UserAttackPowerManager.Instance.UpdatePlanetPower(UserPlanetManager.Instance.CurrentPlanet);
 
         canvasManager.SwitchToTargetPopUp(MainTitleCanvasManager.PopupName.None);
         infoPopUpUI.SetNickNameText(AuthManager.Instance.UserNickName);
