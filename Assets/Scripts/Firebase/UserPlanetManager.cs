@@ -35,7 +35,7 @@ public class UserPlanetManager : MonoBehaviour
 
         userPlanetRef = FirebaseDatabase.DefaultInstance.GetReference(DatabaseRef.UserPlanets);
 
-        SetDummyUserPlanetData().Forget();
+        // SetDummyUserPlanetData().Forget();
         Debug.Log("UserPlanetManager initialized.");
         
         isInitialized = true;
@@ -60,7 +60,21 @@ public class UserPlanetManager : MonoBehaviour
 
             var json = dataSnapshot.GetRawJsonValue();
             var planetData = UserPlanetData.FromJson(json);
+            
+            if (planetData.planetId == 0)
+            {
+                planetData = new UserPlanetData(
+                    AuthManager.Instance.UserNickName,
+                    planetId: Variables.planetId,
+                    planetUpgrade: 0,
+                    planetLevel: 1,
+                    planetCollectionStat: 0
+                );
+                await UpdateUserPlanetAsync(planetData);
+            }
+
             currentPlanet = planetData;
+            Variables.planetId = planetData.planetId;
 
             return true;
         }
@@ -112,6 +126,7 @@ public class UserPlanetManager : MonoBehaviour
             var json = planetData.ToJson();
 
             await userPlanetRef.Child(uid).SetRawJsonValueAsync(json).AsUniTask();
+            currentPlanet = planetData;
 
             return true;
         }
@@ -146,6 +161,8 @@ public class UserPlanetManager : MonoBehaviour
                 { "planetCollectionStat", planetData.planetCollectionStat },
                 { "towerId", planetData.towerId }
             };
+
+            currentPlanet = planetData;
 
             await userPlanetRef.Child(uid).UpdateChildrenAsync(updateData).AsUniTask();
 
@@ -217,41 +234,41 @@ public class UserPlanetManager : MonoBehaviour
         }
     }
 
-    public async UniTask<bool> SetDummyUserPlanetData()
-    {
-        if (!AuthManager.Instance.IsSignedIn)
-            return false;
+    // public async UniTask<bool> SetDummyUserPlanetData()
+    // {
+    //     if (!AuthManager.Instance.IsSignedIn)
+    //         return false;
 
-        try
-        {
-            var dataSnapshot = await userPlanetRef.GetValueAsync().AsUniTask();
+    //     try
+    //     {
+    //         var dataSnapshot = await userPlanetRef.GetValueAsync().AsUniTask();
 
-            var userCount = dataSnapshot.ChildrenCount;
-            Debug.Log(userCount);
+    //         var userCount = dataSnapshot.ChildrenCount;
+    //         Debug.Log(userCount);
 
-            if (userCount >= dummyDataCount)
-            {
-                Debug.Log("Already have enough dummy data.");
-                return true;
-            }
+    //         if (userCount >= dummyDataCount)
+    //         {
+    //             Debug.Log("Already have enough dummy data.");
+    //             return true;
+    //         }
 
-            var remainCount = dummyDataCount - (int)userCount;
-            for (int i = 0; i < remainCount; i++)
-            {
-                var nickName = $"DummyUser 100{i}";
-                var attackPower = Random.Range(100, 1000);
-                var data = new UserPlanetData(nickName, attackPower);
-                var json = data.ToJson();
+    //         var remainCount = dummyDataCount - (int)userCount;
+    //         for (int i = 0; i < remainCount; i++)
+    //         {
+    //             var nickName = $"DummyUser 100{i}";
+    //             var attackPower = Random.Range(100, 1000);
+    //             var data = new UserPlanetData(nickName, attackPower);
+    //             var json = data.ToJson();
 
-                await userPlanetRef.Push().SetRawJsonValueAsync(json).AsUniTask();
-            }
+    //             await userPlanetRef.Push().SetRawJsonValueAsync(json).AsUniTask();
+    //         }
             
-            return true;
-        }
-        catch (System.Exception ex)
-        {
-            Debug.Log($"Error : {ex.Message}");
-            return false;
-        }
-    }
+    //         return true;
+    //     }
+    //     catch (System.Exception ex)
+    //     {
+    //         Debug.Log($"Error : {ex.Message}");
+    //         return false;
+    //     }
+    // }
 }

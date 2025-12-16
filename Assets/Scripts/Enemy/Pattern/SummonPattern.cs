@@ -1,5 +1,6 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Unity.Mathematics;
 using UnityEngine;
 
 public abstract class SummonPattern : IPattern
@@ -32,7 +33,7 @@ public abstract class SummonPattern : IPattern
         patternData = owner.CurrentPatternData;
         if(patternData != null)
         {
-            summonData = DataTableManager.MinionSpawnTable.Get(patternData.Pattern_Id);
+            summonData = DataTableManager.MinionSpawnTable.Get(patternData.MinionSpawn_Id);
             if(summonData != null)
             {
                 summonEnemyData = DataTableManager.EnemyTable.Get(summonData.Enemy_Id);
@@ -97,7 +98,7 @@ public abstract class SummonPattern : IPattern
 
     protected EnemySpawner GetRandomSpawner()
     {
-        int index = Random.Range(1, SpawnManager.Instance.Spawners.Count - 1);
+        int index = UnityEngine.Random.Range(1, SpawnManager.Instance.Spawners.Count - 1);
         return SpawnManager.Instance.Spawners[index];
     }
 }

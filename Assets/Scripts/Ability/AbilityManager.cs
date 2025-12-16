@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -49,10 +50,24 @@ public class AbilityManager : MonoBehaviour
         if(count == 0)
             return -1;
 
-        var index = Random.Range(0, count);
-        var keys = new List<int>(abilityDict.Keys);
-        // return (int)AbilityId.Hitscan;
-        return keys[index];
+        if(CollectionManager.Instance == null || !CollectionManager.Instance.IsInitialized)
+        {
+            int idx = Random.Range(0, count);
+            var keys = new List<int>(abilityDict.Keys);
+            return keys[idx];
+        }
+
+        //weight pick
+        List<int> candidateIds = new List<int>(abilityDict.Keys);
+        List<float> weights = new List<float>();
+
+        foreach(var id in candidateIds)
+        {
+            float weight = CollectionManager.Instance.GetWeight(id);
+            weights.Add(weight);
+        }
+        
+        return PickRandomFromList(candidateIds, weights);
     }
 
     public static IAbility GetAbility(int id)
@@ -113,9 +128,17 @@ public class AbilityManager : MonoBehaviour
 
             if(useWeight&&weights!=null)
             {
-                float w = raRow.Weight;
-                if (w <= 0) w = 1;
-                weights.Add(w);
+                if(CollectionManager.Instance != null && CollectionManager.Instance.IsInitialized)
+                {
+                    float weight = CollectionManager.Instance.GetWeight(abilityId);
+                    weights.Add(weight);
+                }
+                else
+                {
+                    float w = raRow.Weight;
+                    if (w <= 0) w = 1;
+                    weights.Add(w);
+                }
             }
         }
         return PickRandomFromList(candidateIds, weights);

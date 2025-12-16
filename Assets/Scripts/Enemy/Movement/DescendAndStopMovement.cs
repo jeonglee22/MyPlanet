@@ -14,7 +14,7 @@ public class DescendAndStopMovement : IMovement
 
     private int enemyType;
 
-    public void Initialize(int enemyType)
+    public void Initialize(Enemy owner)
     {
         isArrived = false;
         colliderRadius = 0f;
@@ -23,7 +23,7 @@ public class DescendAndStopMovement : IMovement
 
         targetPosition = new Vector3(offSetBounds.center.x, offSetBounds.yMin - offset, 0f);
 
-        this.enemyType = enemyType;
+        enemyType = owner.EnemyType;
         if(enemyType <= 2)
         {
             initialSpeedMultiplier = 1f;

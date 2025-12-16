@@ -51,7 +51,7 @@ public class DebugButtonsUI : MonoBehaviour
         });
         expButton.onClick.AddListener(() =>
         {
-            planet.CurrentExp += 5f;
+            planet.AddExp(10f);
         });
         debugButtonsPanel.SetActive(false);
     }

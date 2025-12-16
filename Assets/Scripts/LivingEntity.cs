@@ -6,7 +6,7 @@ public class LivingEntity : MonoBehaviour, IDamagable
     [SerializeField] protected float maxHealth = 100f;
     public float MaxHealth { get => maxHealth; set => maxHealth = value; }
 
-    public float Health { get; set; }
+    public virtual float Health { get; set; }
     public bool IsDead { get; protected set; }
 
     public event Action OnDeathEvent;
@@ -24,6 +24,7 @@ public class LivingEntity : MonoBehaviour, IDamagable
             return;
 
         Health -= damage;
+        
         HpDecreseEvent?.Invoke(Health);
 
         if (Health <= 0)

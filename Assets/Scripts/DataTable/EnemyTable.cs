@@ -21,8 +21,10 @@ public class EnemyTableData
     public float UniqueRatePenetration { get; set; }
     public float FixedPenetration { get; set; }
     public float Exp { get; set; }
-    public int PatternList { get; set; }
     public string VisualAsset { get; set; }
+    public int PatternGroup { get; set; }
+    public int PatternList { get; set; }
+
 
     public override string ToString()
     {

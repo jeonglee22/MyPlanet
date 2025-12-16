@@ -60,7 +60,7 @@ public class EnemySpawner : MonoBehaviour
         return enemy;
     }
 
-    private Enemy CreateChildEnemy(int enemyId, Vector3 position, ScaleData scaleData, int moveType)
+    private Enemy CreateChildEnemy(int enemyId, Vector3 position, ScaleData scaleData, int moveType, Enemy parent)
     {
         Enemy enemy = objectPoolManager.Get(enemyId);
         if (enemy == null)
@@ -73,7 +73,7 @@ public class EnemySpawner : MonoBehaviour
         enemy.transform.position = position;
         enemy.Spawner = this;
 
-        enemy.InitializeAsChild(currentTableData, enemyId, objectPoolManager, scaleData, moveType);
+        enemy.InitializeAsChild(currentTableData, enemyId, objectPoolManager, scaleData, moveType, parent);
         return enemy;
     }
 
@@ -193,9 +193,11 @@ public class EnemySpawner : MonoBehaviour
         return CreateEnemy(enemyId, spawnPosition, Vector3.down, scaleData);
     }
 
-    public Enemy SpawnEnemyAsChild(int enemyId, Vector3 spawnPosition, ScaleData scaleData, int moveType, bool ShouldDropItems = true)
+    public Enemy SpawnEnemyAsChild(int enemyId, Vector3 spawnPosition, ScaleData scaleData, int moveType, bool ShouldDropItems = true, Enemy parent = null)
     {
-        var enemy = CreateChildEnemy(enemyId, spawnPosition, scaleData, moveType);
+        PreparePool(enemyId);
+
+        var enemy = CreateChildEnemy(enemyId, spawnPosition, scaleData, moveType, parent);
         if(enemy != null)
         {
             enemy.ShouldDropItems = ShouldDropItems;
@@ -220,6 +222,39 @@ public class EnemySpawner : MonoBehaviour
             if(enemy != null)
             {
                 enemy.ShouldDropItems = ShouldDropItems;
+            }
+        }
+    }
+
+    public void SpawnEnemiesWithSummon(int enemyId, int quantity, ScaleData scaleData, int moveType, bool ShouldDropItems = true, Vector3 spawnPos = default, Enemy parent = null)
+    {
+        PreparePool(enemyId);
+
+        currentTableData = DataTableManager.EnemyTable.Get(enemyId);
+        if (currentTableData == null)
+        {
+            return;
+        }
+
+        for(int i = 0; i < quantity; i++)
+        {
+            var pos = spawnPos == default ? GetRandomPositionInCircle() : GetRandomPositionInCircleWithPos(spawnPos);
+            var enemy = SpawnEnemyAsChild(enemyId, pos, scaleData, moveType, ShouldDropItems, parent);
+            if(enemy != null)
+            {
+                enemy.ShouldDropItems = ShouldDropItems;
+
+                if(parent != null)
+                {
+                    enemy.ParentEnemy = parent;
+                    parent.ChildEnemy.Add(enemy);
+                }
+
+                if(moveType != -1 && moveType != currentTableData.MoveType)
+                {
+                    IMovement movementComponent = MovementManager.Instance.GetMovement(moveType);
+                    enemy.Movement.Initialize(enemy.Movement.moveSpeed, -1, enemy.EnemyType, movementComponent);
+                }
             }
         }
     }

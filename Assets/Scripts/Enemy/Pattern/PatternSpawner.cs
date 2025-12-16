@@ -81,6 +81,7 @@ public class PatternSpawner : MonoBehaviour
         pattern.transform.rotation = Quaternion.LookRotation(direction);
 
         pattern.Initialize(patternProjectileId, damage, speed, lifeTime, direction, this);
+        pattern.gameObject.SetActive(true);
 
         return pattern;
     }

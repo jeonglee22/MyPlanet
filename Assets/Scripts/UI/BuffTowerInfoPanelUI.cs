@@ -12,13 +12,21 @@ public class BuffTowerInfoPanelUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI towerDescriptionText;
 
     [SerializeField] private TextMeshProUGUI slotText;
-    [SerializeField] private TextMeshProUGUI abilityOneText;
-    [SerializeField] private TextMeshProUGUI abilityTwoText;
-    [SerializeField] private TextMeshProUGUI abilityThreeText;
+    [SerializeField] private GameObject abilityOneText;
+    [SerializeField] private GameObject abilityTwoText;
+    [SerializeField] private GameObject abilityThreeText;
 
-    private void Start()
+    private TextMeshProUGUI abilityOneTMP;
+    private TextMeshProUGUI abilityTwoTMP;
+    private TextMeshProUGUI abilityThreeTMP;
+
+    private void Awake()
     {
         exitBtn.onClick.AddListener(OnExitBtnClicked);
+
+        abilityOneTMP = abilityOneText.GetComponentInChildren<TextMeshProUGUI>();
+        abilityTwoTMP = abilityTwoText.GetComponentInChildren<TextMeshProUGUI>();
+        abilityThreeTMP = abilityThreeText.GetComponentInChildren<TextMeshProUGUI>();
     }
 
     private void OnDestroy()
@@ -35,12 +43,41 @@ public class BuffTowerInfoPanelUI : MonoBehaviour
 
         slotText.text = $"{data.SlotNum}";
 
-        var upgradeId = data.BuffTowerReinforceUpgrade_ID[0];
-        var upgradeData = DataTableManager.BuffTowerReinforceUpgradeTable.GetById(upgradeId);
-        
-        abilityOneText.text = upgradeData.SpecialEffect1_ID != 0 ? DataTableManager.SpecialEffectTable.Get(upgradeData.SpecialEffect1_ID).SpecialEffectName : "없음";
-        abilityTwoText.text = upgradeData.SpecialEffect2_ID != 0 ? DataTableManager.SpecialEffectTable.Get(upgradeData.SpecialEffect2_ID).SpecialEffectName : "없음";
-        abilityThreeText.text = upgradeData.SpecialEffect3_ID != 0 ? DataTableManager.SpecialEffectTable.Get(upgradeData.SpecialEffect3_ID).SpecialEffectName : "없음";
+        var specialEffect = DataTableManager.SpecialEffectCombinationTable.Get(data.SpecialEffectCombination_ID);
+        string upDownString = "증가";
+
+        if(specialEffect.SpecialEffect1_ID != 0)
+        {
+            var specialEffectData = DataTableManager.SpecialEffectTable.Get(specialEffect.SpecialEffect1_ID);
+            upDownString = specialEffect.SpecialEffect1Value > 0 ? "증가" : "감소";
+            abilityOneTMP.text = $"{specialEffectData.SpecialEffectName} {upDownString}";
+        }
+        else
+        {
+            abilityOneText.SetActive(false);
+        }
+
+        if(specialEffect.SpecialEffect2_ID != 0)
+        {
+            var specialEffectData = DataTableManager.SpecialEffectTable.Get(specialEffect.SpecialEffect2_ID);
+            upDownString = specialEffect.SpecialEffect2Value > 0 ? "증가" : "감소";
+            abilityTwoTMP.text = $"{specialEffectData.SpecialEffectName} {upDownString}";
+        }
+        else
+        {
+            abilityTwoText.SetActive(false);
+        }
+
+        if(specialEffect.SpecialEffect3_ID != 0)
+        {
+            var specialEffectData = DataTableManager.SpecialEffectTable.Get(specialEffect.SpecialEffect3_ID);
+            upDownString = specialEffect.SpecialEffect3Value > 0 ? "증가" : "감소";
+            abilityThreeTMP.text = $"{specialEffectData.SpecialEffectName} {upDownString}";
+        }
+        else
+        {
+            abilityThreeText.SetActive(false);
+        }
     }
 
     private void OnExitBtnClicked()

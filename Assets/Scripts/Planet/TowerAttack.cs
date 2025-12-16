@@ -190,6 +190,8 @@ public class TowerAttack : MonoBehaviour
     private List<LazertowerAttack> lazers;
     public List<LazertowerAttack> Lazers => lazers;
 
+    private Planet planet;
+
     //-------------------------------------------------------
     private void Awake()
     {
@@ -202,6 +204,16 @@ public class TowerAttack : MonoBehaviour
             .GetComponent<ProjectilePoolManager>();
 
         lazers = new List<LazertowerAttack>();
+    }
+
+    private void Start()
+    {
+        planet = GameObject.FindWithTag(TagName.Planet).GetComponent<Planet>();
+    }
+
+    private void OnDisable()
+    {
+        DeleteExistLazers();
     }
 
     public void SetTowerData(TowerDataSO data)
@@ -277,6 +289,8 @@ public class TowerAttack : MonoBehaviour
 
         if (shootTimer >= shootInterval)
         {
+            DeleteExistLazers();
+
             ShootAtTarget();
             shootTimer = 0f;
             hitScanTimer = 0f;
@@ -285,8 +299,22 @@ public class TowerAttack : MonoBehaviour
         }
     }
 
+    private void DeleteExistLazers()
+    {
+        foreach (var lazer in lazers)
+        {
+            if (lazer == null) continue;
+
+            lazer?.gameObject.SetActive(false);
+        }
+        lazers.Clear();
+    }
+
     private void StartHitscan(float hitScanInterval)
     {
+        if (towerData.towerIdInt == (int)AttackTowerId.Lazer)
+            return;
+
         isHitScanActive = true;
 
         targetingSystem.SetAttacking(true);
@@ -456,7 +484,7 @@ public class TowerAttack : MonoBehaviour
             {
                 projectile.transform.position = target.position;
                 projectile.transform.rotation = Quaternion.LookRotation(direction);
-                Debug.Log(direction);
+                // Debug.Log(direction);
 
                 SettingProjectile(projectile, buffedData, baseData, direction, attackType, target);
                 continue;
@@ -508,7 +536,8 @@ public class TowerAttack : MonoBehaviour
                     baseData,
                     direction,
                     true,
-                    projectilePoolManager.ProjectilePool
+                    projectilePoolManager.ProjectilePool,
+                    planet
         );
 
         if (attackType == (int)ProjectileType.Homing)

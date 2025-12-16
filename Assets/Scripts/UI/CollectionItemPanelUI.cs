@@ -28,6 +28,7 @@ public class CollectionItemPanelUI : MonoBehaviour
 
     public AttackTowerTableRow AttackTowerData { get; private set; }
     public BuffTowerData BuffTowerData { get; private set; }
+    public RandomAbilityData AbilityData { get; private set; }
 
     private void OnDestroy()
     {
@@ -74,6 +75,24 @@ public class CollectionItemPanelUI : MonoBehaviour
         infoBtn.onClick.AddListener(OnInfoBtnClicked);
     }
 
+    public void Initialize(RandomAbilityData data, int dataCount, bool isTower)
+    {
+        var textData = DataTableManager.RandomAbilityTextTable.Get(data.RandomAbilityText_ID);
+
+        towerNameText.text = textData.RandomAbilityName;
+
+        weightId = data.RandomAbility_ID;
+        this.isTower = isTower;
+
+        AbilityData = data;
+
+        UpdateWeightDisplay();
+
+        weightUpBtn.onClick.AddListener(OnWeightUpBtn);
+        weightDownBtn.onClick.AddListener(OnWeightDownBtn);
+        infoBtn.onClick.AddListener(OnInfoBtnClicked);
+    }
+
     public void UpdateWeightDisplay()
     {
         float currentWeight = CollectionManager.Instance.GetWeight(weightId);
@@ -88,10 +107,14 @@ public class CollectionItemPanelUI : MonoBehaviour
         {
             totalWeight = CollectionManager.Instance.GetTotalWeightBuffTowers();
         }
+        else
+        {
+            totalWeight = CollectionManager.Instance.GetTotalWeight(false);
+        }
 
         float probability = totalWeight > 0 ? (currentWeight / totalWeight) * 100f : 0f;
         
-        rateText.text = $"확률: {probability:F2}%";
+        rateText.text = $"확률: {probability:F1}%";
         weightText.text = $"가중치: {currentWeight}";
     }
 

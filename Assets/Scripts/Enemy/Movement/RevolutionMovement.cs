@@ -16,7 +16,7 @@ public class RevolutionMovement : IMovement
 
     private int enemyType;
 
-    public void Initialize(int enemyType)
+    public void Initialize(Enemy owner)
     {
         isPatternLine = false;
         isRightTransform = false;
@@ -38,7 +38,7 @@ public class RevolutionMovement : IMovement
             }
         }
 
-        this.enemyType = enemyType;
+        enemyType = owner.EnemyType;
         if(enemyType <= 2)
         {
             speedMultiplier = 1f;

@@ -32,6 +32,10 @@ public class CollectionManager : MonoBehaviour
     private const float MIN_ABILITY_WEIGHT = 10;
     private const float MAX_ABILITY_WEIGHT = 35;
 
+    private Dictionary<int, float> originalWeights = new Dictionary<int, float>();
+    private int originalTowerCore;
+    private int originalAbilityCore;
+
     private void Awake()
     {
         if (instance == null)
@@ -72,11 +76,15 @@ public class CollectionManager : MonoBehaviour
                 isDirty = true;
                 await SaveCollectionAsync();
             }
+
+            SaveOriginalData();
         }
         else
         {
             towerCore = DEFAULT_TOWER_CORE;
             abilityCore = DEFAULT_ABILITY_CORE;
+
+            SaveOriginalData();
         }
 
         isInitialized = true;
@@ -87,6 +95,18 @@ public class CollectionManager : MonoBehaviour
         if(instance == this)
         {
             instance = null;
+        }
+    }
+
+    private void SaveOriginalData()
+    {
+        originalTowerCore = towerCore;
+        originalAbilityCore = abilityCore;
+        originalWeights.Clear();
+
+        foreach(var kvp in weights)
+        {
+            originalWeights[kvp.Key] = kvp.Value;
         }
     }
 
@@ -112,7 +132,7 @@ public class CollectionManager : MonoBehaviour
             weights[towerId] = tower.TowerWeight;
         }
 
-        var abilities = DataTableManager.RandomAbilityTable.GetAllAbilityIds();
+        var abilities = DataTableManager.RandomAbilityTable.GetAllAbilityDatas();
         foreach (var ability in abilities)
         {
             int abilityId = ability.RandomAbility_ID;
@@ -163,6 +183,8 @@ public class CollectionManager : MonoBehaviour
                     }
                 }
 
+                SaveOriginalData();
+
                 Debug.Log("[Collection] 컬렉션 로드 성공");
             }
             else
@@ -205,6 +227,8 @@ public class CollectionManager : MonoBehaviour
             string json = collectionData.ToJson();
 
             await collectionRef.SetRawJsonValueAsync(json).AsUniTask();
+
+            SaveOriginalData();
 
             isDirty = false;
             Debug.Log("[Collection] 컬렉션 저장 성공");
@@ -286,8 +310,14 @@ public class CollectionManager : MonoBehaviour
         float minWeight = isTower ? MIN_TOWER_WEIGHT : MIN_ABILITY_WEIGHT;
         float maxWeight = isTower ? MAX_TOWER_WEIGHT : MAX_ABILITY_WEIGHT;
 
-        weights[id] = Mathf.Clamp(weight, minWeight, maxWeight);
-        MarkDirty();
+        float newWeight = Mathf.Clamp(weight, minWeight, maxWeight);
+
+        float currentWeight = GetWeight(id);
+        if(Mathf.Abs(currentWeight - newWeight) > 0.001f)
+        {
+            weights[id] = newWeight;
+            MarkDirty();
+        }
     }
 
     public bool TryIncreaseWeight(int id, bool isTower)
@@ -389,5 +419,42 @@ public class CollectionManager : MonoBehaviour
         }
 
         return total;
+    }
+
+    public bool HasUnsavedChanges()
+    {
+        if(towerCore != originalTowerCore || abilityCore != originalAbilityCore)
+        {
+            return true;
+        }
+
+        foreach(var kvp in weights)
+        {
+            if(!originalWeights.TryGetValue(kvp.Key, out float originalWeight) || kvp.Value != originalWeight)
+            {
+                return true;
+            }
+
+            if(Mathf.Abs(kvp.Value - originalWeight) > 0.001f)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public async UniTask DiscardChangesAsync()
+    {
+        towerCore = originalTowerCore;
+        abilityCore = originalAbilityCore;
+
+        weights.Clear();
+        foreach(var kvp in originalWeights)
+        {
+            weights[kvp.Key] = kvp.Value;
+        }
+        
+        isDirty = false;
     }
 }

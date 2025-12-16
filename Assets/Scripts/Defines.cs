@@ -110,6 +110,7 @@ public enum ExecutionTrigger
     OnInterval,
     Immediate,
     OnHealthPercentage,
+    ChildrenAlive,
 }
 
 public enum MoveType
@@ -121,6 +122,8 @@ public enum MoveType
     DescendAndStopMovement = 10,
     Revolution = 11,
     Side,
+    TwoPhaseHomingMovement,
+    TwoPhaseDownMovement,
 }
 
 public enum PatternIds
@@ -138,7 +141,14 @@ public enum PatternIds
     SaturnMeteorRingSummon,
     TitanRevolution,
     HomingMeteorCluster,
-    ChaseMeteorCluster
+    ChaseMeteorCluster,
+    NereidDiaSummon,
+    NereidReflectShield,
+    NeptuneChaseDiaSummon,
+    NeptuneBigDiaSummon,
+    NeptuneFrontDiaSummon,
+    EliteDiaReflectShield,
+    EliteBigDiaReflectShield,
 }
 
 public enum TutorialPoint
@@ -227,11 +237,13 @@ public static class DataTableIds
     public static readonly string Draw = "DrawTable";
     public static readonly string Reward = "RewardTable";
     public static readonly string planet = "PlanetTable";
+    public static readonly string RandomAbilityText = "RandomAbilityTextTable";
 }
 
 public static class Variables
 {
     public static int Stage {get; set;} = 3;
+    public static int planetId {get; set;} = 300001;
 
     private static int quasar = 1;
     public static int Quasar
@@ -245,10 +257,7 @@ public static class Variables
                 quasar = 0;
             }
             
-            if(quasar > 0)
-            {
-                OnQuasarChanged?.Invoke();
-            }
+            OnQuasarChanged?.Invoke();
         }
     }
     public static event Action OnQuasarChanged;
@@ -258,9 +267,10 @@ public static class Variables
 
     public static void Reset()
     {
-        Quasar = 0;
+        Quasar = 1;
         LastBossEnemy = null;
         MiddleBossEnemy = null;
+        planetId = 300001;
     }
 
     public static bool IsTestMode {get; set;} = false;

@@ -96,7 +96,7 @@ public class MeteorClusterPattern : SpecialPattern
         {
             Vector3 spawnPosition = owner.transform.position + childOffsets[i];
 
-            Enemy childMeteor = spawner.SpawnEnemyAsChild(enemyId, spawnPosition, scaleData, childMoveType, owner.ShouldDropItems);
+            Enemy childMeteor = spawner.SpawnEnemyAsChild(enemyId, spawnPosition, scaleData, childMoveType, owner.ShouldDropItems, owner);
             var followMovement = childMeteor.Movement.CurrentMovement as FollowParentMovement;
 
             if(childMeteor != null)
@@ -239,7 +239,7 @@ public class MeteorClusterPattern : SpecialPattern
             if(oldLeaderMovement is ChaseMovement chaseMovement)
             {
                 ChaseMovement newMovement = new ChaseMovement();
-                newMovement.Initialize(owner.EnemyType);
+                newMovement.Initialize(owner);
                 newMovement.OnPatternLine();
 
                 newLeader.Movement.CurrentMovement = newMovement;

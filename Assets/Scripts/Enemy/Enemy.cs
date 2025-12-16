@@ -55,14 +55,26 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     private bool isTutorial = false;
 
     private bool isInvincible = false;
+    public bool IsInvincible => isInvincible;
     private bool hasReachedStartPosition = false;
 
     private bool isTargetable = true;
     public bool IsTargetable => isTargetable;
 
+    public Enemy ParentEnemy { get; set; }
+
+    private Planet planet;
+    
+    public List<Enemy> ChildEnemy { get; set; } = new List<Enemy>();
+    public bool IsReflectShieldActive { get; set; } = false;
+
+    public GameObject ReflectShieldObject { get; set; }
+
     private void Start()
     {
         SetIsTutorial(TutorialManager.Instance?.IsTutorialMode ?? false);
+
+        planet = GameObject.FindWithTag(TagName.Planet).GetComponent<Planet>();
     }
 
     protected override void OnEnable()
@@ -100,6 +112,10 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         movement = null;
 
         OnCollisionDamageCalculate = null;
+
+        ParentEnemy = null;
+
+        ChildEnemy.Clear();
 
         StopLifeTime();
     }
@@ -148,6 +164,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         }
 
         DpsCalculator.AddDamage(damage);
+
+        planet.Health += damage * planet.PlanetData.Drain;
 
         base.OnDamage(damage);
     }
@@ -213,6 +231,11 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
             OnPatternLineTrigger();
         }
 
+        if(other.CompareTag(TagName.Planet))
+        {
+            Debug.Log("Planet");
+        }
+
         if(other.CompareTag(TagName.CenterStone) || data.EnemyType == 4 || data.EnemyType == 3)
         {
             return;
@@ -222,7 +245,24 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         if (damagable != null)
         {
             float damage = OnCollisionDamageCalculate?.Invoke() ?? attack;
-            damagable.OnDamage(damage);
+            var planet = damagable as Planet;
+            if (planet != null)
+            {
+                if (planet.Shield > 0)
+                {
+                    if (planet.Shield >= damage)
+                    {
+                        planet.Shield -= damage;
+                        damage = 0;
+                    }
+                    else
+                    {
+                        damage -= planet.Shield;
+                        planet.Shield = 0;
+                    }
+                }
+                damagable.OnDamage(CalculateTotalDamage(planet.Defense, damage));
+            }
 
             if(IsDead)
             {
@@ -236,6 +276,25 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
             ReturnToPool();
             return;
         }
+    }
+
+    public float CalculateTotalDamage(float planetDef, float damage)
+    {
+        if (damage < 0f)
+        {
+            damage = 0f;
+        }
+
+        var RatePanetration = Mathf.Clamp(ratePenetration, 0f, 100f);
+        // Debug.Log(damage);
+        var totalPlanetDef = planetDef * (1 - RatePanetration / 100f) - fixedPenetration;
+        if(totalPlanetDef < 0)
+        {
+            totalPlanetDef = 0;
+        }
+        var totalDamage = damage * 100f / (100f + totalPlanetDef);
+        
+        return totalDamage;
     }
 
     private void ReturnToPool()
@@ -287,6 +346,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         enemyType = data.EnemyType;
         isTargetable = true;
 
+        ReflectShieldObject = GetComponentInChildren<ReflectShield>(true)?.gameObject;
+
         BossAppearance(enemyData.EnemyType);
 
         AddMovementComponent(data.MoveType, spawnPointIndex);
@@ -296,7 +357,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         StartLifeTime();
     }
 
-    public void InitializeAsChild(EnemyTableData enemyData, int enemyId, ObjectPoolManager<int, Enemy> poolManager, ScaleData scaleData, int moveType)
+    public void InitializeAsChild(EnemyTableData enemyData, int enemyId, ObjectPoolManager<int, Enemy> poolManager, ScaleData scaleData, int moveType, Enemy parent)
     {
         this.enemyId = enemyId;
         objectPoolManager = poolManager;
@@ -319,6 +380,10 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         exp = data.Exp * scaleData.ExpScale;
         
         isTargetable = true;
+
+        ParentEnemy = parent;
+
+        ReflectShieldObject = GetComponentInChildren<ReflectShield>(true)?.gameObject;
 
         AddMovementComponent(moveType, -1);
 
@@ -427,11 +492,11 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
         patternExecutor.Initialize(this);
 
-        if(enemyData.PatternList == 0)
+        if(enemyData.PatternGroup == 0)
         {
             return;
         }
-        List<PatternData> patterns = DataTableManager.PatternTable.GetPatternList(enemyData.PatternList);
+        List<PatternData> patterns = DataTableManager.PatternTable.GetPatternList(enemyData.PatternGroup);
 
         foreach(var patternItem in patterns)
         {

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using Firebase.Database;
 using UnityEngine;
@@ -13,14 +14,18 @@ public class UserAttackPowerManager : MonoBehaviour
     private UserAttackPowerData currentAttackPower;
     public UserAttackPowerData CurrentPlanetPower => currentAttackPower;
 
-    private string similarAttackPowerUserId;
-    public string SimilarAttackPowerUserId => similarAttackPowerUserId;
+    private string similarAttackPowerUserId = string.Empty;
+    public string SimilarAttackPowerUserId
+    { get { return similarAttackPowerUserId;} set { similarAttackPowerUserId = value; } }
 
     private bool isNotSimilarUserFound = false;
     public bool IsNotSimilarUserFound => isNotSimilarUserFound;
 
     private bool isInitialized = false;
     public bool IsInitialized => isInitialized;
+
+    public float PlanetPower { get; set; } = 0f;
+    public float TowerPower { get; set; } = 0f;
 
     private void Awake()
     {
@@ -61,6 +66,7 @@ public class UserAttackPowerManager : MonoBehaviour
             
             var json = dataSnapshot.GetRawJsonValue();
             currentAttackPower = UserAttackPowerData.FromJson(json);
+            await UpdatePlanetPower(UserPlanetManager.Instance.CurrentPlanet);
 
             return true;
         }
@@ -94,42 +100,48 @@ public class UserAttackPowerManager : MonoBehaviour
         }
     }
 
-    public async UniTask<bool> FindSimilarAttackPowerUserAsync()
+    public async UniTask<bool> FindSimilarAttackPowerUserAsync(CancellationToken token)
     {
         if (!AuthManager.Instance.IsSignedIn)
             return false;
 
-        try
-        {
-            var userTowerRef = FirebaseDatabase.DefaultInstance.RootReference.Child(DatabaseRef.UserTowers);
-            var dataSnapshot = await userTowerRef.GetValueAsync().AsUniTask();
+        // try
+        // {
+        //     var userTowerRef = FirebaseDatabase.DefaultInstance.RootReference.Child(DatabaseRef.UserTowers);
+        //     var dataSnapshot = await userTowerRef.GetValueAsync().AsUniTask();
 
-            var userCount = dataSnapshot.ChildrenCount;
-            int index = Random.Range(0, (int)userCount);
+        //     var userCount = dataSnapshot.ChildrenCount;
 
-            int start = 0;
-            foreach (var child in dataSnapshot.Children)
-            {
-                if (index == start)
-                {
-                    var json = child.GetRawJsonValue();
-                    var profile = UserPlanetData.FromJson(json);
-                    similarAttackPowerUserId = child.Key;
-                    break;
-                }
-                start++;
-            }
+        //     var existDataList = new List<string>();
+        //     foreach (var child in dataSnapshot.Children)
+        //     {
+        //         var key = child.Key;
 
-            return true;
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"FindSimilarAttackPowerUserAsync failed: {e.Message}");
-            return false;
-        }
+        //         if (token.IsCancellationRequested)
+        //         {
+        //             Debug.Log("FindSimilarAttackPowerUserAsync cancelled.");
+        //             return false;
+        //         }
 
+        //         var result = await UserTowerManager.Instance.ExistTowerDataAsync(key);
+        //         if (result)
+        //         {
+        //             existDataList.Add(key);
+        //         }
+        //     }
+        //     // Debug.Log(existDataList.Count + " / " + userCount);
 
-        // ------------------------------------------------------------------------------ //
+        //     int index = Random.Range(0, existDataList.Count);
+        //     similarAttackPowerUserId = existDataList[index];
+
+        //     return true;
+        // }
+        // catch (System.Exception e)
+        // {
+        //     Debug.LogError($"FindSimilarAttackPowerUserAsync failed: {e.Message}");
+        //     return false;
+        // }
+
         try
         {
             var dataSnapshot = await userAttackRef.GetValueAsync().AsUniTask();
@@ -147,23 +159,32 @@ public class UserAttackPowerManager : MonoBehaviour
             var currentPower = currentAttackPower.attackPower;
             var similarList = new List<string>();
 
+            bool isLast = false;
+
             while (true)
             {
                 similarList.Clear();
 
                 foreach (var childSnapshot in dataSnapshot.Children)
                 {
+                    if (childSnapshot.Key == AuthManager.Instance.UserId)
+                        continue;
+
                     var json = childSnapshot.GetRawJsonValue();
                     var userAttackPowerData = UserAttackPowerData.FromJson(json);
 
                     var userPower = userAttackPowerData.attackPower;
-
                     if ((userPower > currentPower + aboveDifference) || (userPower < currentPower + belowDifference))
                         continue;
 
+                    var checkTowerExist = await UserTowerManager.Instance.ExistTowerDataAsync(childSnapshot.Key);
+                    if (!checkTowerExist)
+                        continue;
+                    
                     similarList.Add(childSnapshot.Key);
                 }
 
+                Debug.Log("Similar Users Found: " + similarList.Count + " (Range: " + belowDifference + " to " + aboveDifference + ")");
                 if (similarList.Count > 0)
                 {
                     int randomIndex = Random.Range(0, similarList.Count);
@@ -172,9 +193,14 @@ public class UserAttackPowerManager : MonoBehaviour
                     return true;
                 }
 
-                belowDifference -= 200;
-
-                if (belowDifference < 0)
+                belowDifference -= 100;
+                if (currentPower + belowDifference <= 0 && !isLast)
+                {
+                    belowDifference = -(currentPower)-1;
+                    isLast = true;
+                    continue;
+                }
+                else if (currentPower + belowDifference <= 0 && isLast)
                 {
                     isNotSimilarUserFound = true;
                     return false;
@@ -186,5 +212,31 @@ public class UserAttackPowerManager : MonoBehaviour
             Debug.LogError($"FindSimilarAttackPowerUserAsync failed: {e.Message}");
             return false;
         }
+    }
+
+    public async UniTask UpdatePlanetPower(UserPlanetData planetData)
+    {
+        await CalculatePlanetPower(planetData.planetId, planetData.planetLevel, planetData.planetUpgrade);
+
+        SaveUserAttackPowerAsync((int)(PlanetPower + TowerPower)).Forget();
+    }
+
+    public async void UpdateTowerPower(int towerPower)
+    {
+        TowerPower = towerPower;
+
+        SaveUserAttackPowerAsync((int)(PlanetPower + TowerPower)).Forget();
+    }
+
+    private async UniTask CalculatePlanetPower(int planetId, int planetLevel, int planetUpgrade)
+    {
+        await UniTask.WaitUntil(() => DataTableManager.IsInitialized);
+
+        var planetData = DataTableManager.PlanetTable.Get(planetId);
+        // var planetUpgradeData = DataTableManager.PlanetUpgradeTable.Get(planetUpgrade);
+        // var planetLevelData = DataTableManager.PlanetLevelTable.Get(planetLevel);
+
+        var baseAttack = planetData.PlanetHp * (100 + planetData.PlanetArmor) * 0.01f;
+        PlanetPower = baseAttack + planetData.PlanetShield + planetData.RecoveryHp * 420f + planetData.Drain * 100f;
     }
 }

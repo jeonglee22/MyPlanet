@@ -41,6 +41,21 @@ public abstract class SpecialPattern : IPattern
         {
             case ExecutionTrigger.Immediate:
                 return !isExecuteOneTime;
+            case ExecutionTrigger.ChildrenAlive:
+                if(owner.ChildEnemy.Count == 0 || owner.ChildEnemy == null)
+                {
+                    return false;
+                }
+
+                foreach(var child in owner.ChildEnemy)
+                {
+                    if(child != null && !child.IsDead)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
         }
 
         return false;

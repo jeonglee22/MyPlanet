@@ -14,6 +14,15 @@ public class RandomAbilityData
     public int RandonSlotNum { get; set; }
     public int AddSlotNum { get; set; }
     public int DuplicateType { get; set; }
+    public string RandomAbility2Name { get; set; }
+    public int SpecialEffect2_ID { get; set; }
+    public float SpecialEffect2Value { get; set; }
+    public string RandomAbility3Name { get; set; }
+    public int SpecialEffect3_ID { get; set; }
+    public float SpecialEffect3Value { get; set; }
+    public int RandomAbilityText_ID { get; set; }
+    public int RandomAbilityType { get; set; }
+    public float SuperSpecialEffectValue { get; set; }
 
 }
 
@@ -67,7 +76,7 @@ public class RandomAbilityTable : DataTable
         return -1;
     }
 
-    public List<RandomAbilityData> GetAllAbilityIds()
+    public List<RandomAbilityData> GetAllAbilityDatas()
     {
         return new List<RandomAbilityData>(dictionary.Values);
     }
