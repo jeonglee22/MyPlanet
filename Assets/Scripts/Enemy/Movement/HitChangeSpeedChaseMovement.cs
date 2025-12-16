@@ -7,14 +7,11 @@ public class HitChangeSpeedChaseMovement : IMovement
 
     private bool isDirectionSet = false;
     private bool hasHit = false;
-    
-    private Transform ownerTransform;
 
     public void Initialize(Enemy owner)
     {
         isDirectionSet = false;
         hasHit = false;
-        ownerTransform = null;
     }
 
     public Vector3 GetFinalDirection(Vector3 baseDirection, Transform ownerTransform, Transform target)
