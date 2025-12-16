@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3281778175681370433}
   m_Layer: 0
   m_Name: flame kid
-  m_TagString: Untagged
+  m_TagString: ChangedVisual
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -68,7 +68,7 @@ GameObject:
   - component: {fileID: 4274514613079892667}
   m_Layer: 0
   m_Name: flame kid_Transform
-  m_TagString: Untagged
+  m_TagString: ChangeVisual
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -201,7 +201,7 @@ Transform:
   m_GameObject: {fileID: 2184949710791330529}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: -0.69835484, w: 0.7157517}
-  m_LocalPosition: {x: -0, y: 0.12362175, z: 0}
+  m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -218,6 +218,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8409855441540482353}
   - component: {fileID: 3375720831784764083}
+  - component: {fileID: 1987411496325605048}
   m_Layer: 0
   m_Name: Fire_Gazer
   m_TagString: Untagged
@@ -299,6 +300,18 @@ SkinnedMeshRenderer:
     m_Center: {x: -0.19165704, y: -0.0037095696, z: 0.00023773313}
     m_Extent: {x: 0.224686, y: 0.16856849, z: 0.14621118}
   m_DirtyAABB: 0
+--- !u!114 &1987411496325605048
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2715329432502156530}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 619d1bf04fe3f8144821bb656b3d21fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3902249485278390943
 GameObject:
   m_ObjectHideFlags: 0
@@ -309,6 +322,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8071418810694211109}
   - component: {fileID: 7953778945916542030}
+  - component: {fileID: 4183346056800170691}
   m_Layer: 0
   m_Name: Fire_Gazer
   m_TagString: Untagged
@@ -390,6 +404,18 @@ SkinnedMeshRenderer:
     m_Center: {x: -0.19165704, y: -0.0037095696, z: 0.00023773313}
     m_Extent: {x: 0.224686, y: 0.16856849, z: 0.14621118}
   m_DirtyAABB: 0
+--- !u!114 &4183346056800170691
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3902249485278390943}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 619d1bf04fe3f8144821bb656b3d21fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3911113075814831735
 GameObject:
   m_ObjectHideFlags: 0
@@ -415,7 +441,7 @@ Transform:
   m_GameObject: {fileID: 3911113075814831735}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: -0.69835484, w: 0.7157517}
-  m_LocalPosition: {x: -0, y: 0.12362175, z: 0}
+  m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -446,7 +472,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5959812300124789478}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -14.95, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0

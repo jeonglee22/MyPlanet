@@ -15,6 +15,8 @@ public static class TagName
     public static readonly string MainCanvas = "MainCanvas";
     public static readonly string Boss = "Boss";
     public static readonly string BattleUI = "BattleUI";
+    public static readonly string ChangedVisual = "ChangedVisual";
+    public static readonly string ChangeVisual = "ChangeVisual";
 }
 
 public static class ObjectName
