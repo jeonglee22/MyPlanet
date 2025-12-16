@@ -83,6 +83,15 @@ public class LogInPopUpUI : MonoBehaviour
             return;
         }
 
+        var initUpgradeTowerData = await UserTowerUpgradeManager.Instance.InitUserTowerUpgradeAsync();
+        if (initUpgradeTowerData == false)
+        {
+            SetErrorMessage("Failed to initialize tower upgrade data.");
+            InteractableButtons(true);
+            AuthManager.Instance.SignOut();
+            return;
+        }
+
         await UserAttackPowerManager.Instance.UpdatePlanetPower(UserPlanetManager.Instance.CurrentPlanet);
 
         canvasManager.SwitchToTargetPopUp(MainTitleCanvasManager.PopupName.None);

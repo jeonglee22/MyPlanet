@@ -290,6 +290,7 @@ public static class DatabaseRef
     public static readonly string UserPlanets = "userplanets";
     public static readonly string UserTowers = "usertowers";
     public static readonly string UserAttackPowers = "userattackpowers";
+    public static readonly string UserTowerUpgrades = "usertowerupgrades";
 }
 
 public static class PrintedAbility

@@ -108,6 +108,11 @@ public class MainTitleUI : MonoBehaviour
     {
         SetExplainText("Updating user data...");
 
+        await UniTask.WaitUntil(() => UserPlanetManager.Instance.IsInitialized &&
+                                         UserAttackPowerManager.Instance.IsInitialized &&
+                                         UserTowerManager.Instance.IsInitialized &&
+                                         UserTowerUpgradeManager.Instance.IsInitialized);
+
         await UserPlanetManager.Instance.LoadUserPlanetAsync();
 
         await UserAttackPowerManager.Instance.LoadUserAttackPowerAsync();
@@ -115,6 +120,8 @@ public class MainTitleUI : MonoBehaviour
         // await CurrencyManager.Instance.LoadCurrencyAsync();
 
         await UserTowerManager.Instance.LoadUserTowerDataAsync();
+
+        await UserTowerUpgradeManager.Instance.LoadUserTowerUpgradeAsync();
     }
 
     private void OnLogInOutButtonClicked()
