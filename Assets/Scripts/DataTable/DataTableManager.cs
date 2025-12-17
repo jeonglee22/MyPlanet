@@ -49,6 +49,8 @@ public static class DataTableManager
             LoadTableAsync<ItemTable>(DataTableIds.Item),
             LoadTableAsync<PlanetTable>(DataTableIds.planet),
             LoadTableAsync<RandomAbilityTextTable>(DataTableIds.RandomAbilityText),
+            LoadTableAsync<TowerUpgradeTable>(DataTableIds.TowerUpgrade),
+            LoadTableAsync<TowerUpgradeAbilityUnlockTable>(DataTableIds.TowerUpgradeAbilityUnlock),
             LoadTableAsync<SkillTable>(DataTableIds.Skill),
             LoadTableAsync<StageTable>(DataTableIds.Stage),
         };
@@ -230,6 +232,22 @@ public static class DataTableManager
         }
     }
 
+    public static TowerUpgradeTable TowerUpgradeTable
+    {
+        get
+        {
+            return Get<TowerUpgradeTable>(DataTableIds.TowerUpgrade);
+        }
+    }
+
+    public static TowerUpgradeAbilityUnlockTable TowerUpgradeAbilityUnlockTable
+    {
+        get
+        {
+            return Get<TowerUpgradeAbilityUnlockTable>(DataTableIds.TowerUpgradeAbilityUnlock);
+        }
+    }
+    
     public static SkillTable SkillTable
     {
         get

@@ -7,6 +7,7 @@ public class LobbyUI : MonoBehaviour
     [SerializeField] private GameObject gachaMainPanel;
     [SerializeField] private GameObject collectionPanel;
     [SerializeField] private GameObject planetPanel;
+    [SerializeField] private GameObject towerPanel;
 
     [SerializeField] private Button exitBtn;
     [SerializeField] private Button setBtn;
@@ -24,6 +25,7 @@ public class LobbyUI : MonoBehaviour
         storeBtn.onClick.AddListener(OnStoreBtnClicked);
         collectionBtn.onClick.AddListener(OnCollectionBtnClicked);
         planetBtn.onClick.AddListener(OnPlanetBtnClicked);
+        towerBtn.onClick.AddListener(OnTowerBtnClicked);
         
         gachaMainPanel.SetActive(false);
         collectionPanel.SetActive(false);
@@ -41,6 +43,7 @@ public class LobbyUI : MonoBehaviour
         storeBtn.onClick.RemoveListener(OnStoreBtnClicked);
         collectionBtn.onClick.RemoveListener(OnCollectionBtnClicked);
         planetBtn.onClick.RemoveListener(OnPlanetBtnClicked);
+        towerBtn.onClick.RemoveListener(OnTowerBtnClicked);
     }
 
     private void OnPlayBtnClicked()
@@ -63,6 +66,12 @@ public class LobbyUI : MonoBehaviour
     private void OnPlanetBtnClicked()
     {
         planetPanel.SetActive(true);
+        gameObject.SetActive(false);
+    }
+
+    private void OnTowerBtnClicked()
+    {
+        towerPanel.SetActive(true);
         gameObject.SetActive(false);
     }
 }
