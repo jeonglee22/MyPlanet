@@ -96,7 +96,6 @@ public class TwoPhaseHomingMovement : IMovement
         if(!isDirectionCalculated && target != null)
         {
             currentMoveDirection = (target.position - ownerTransform.position).normalized;
-            ownerTransform.LookAt(ownerTransform.position + currentMoveDirection);
             isDirectionCalculated = true;
         }
 

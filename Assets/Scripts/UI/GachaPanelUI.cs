@@ -102,6 +102,15 @@ public class GachaPanelUI : MonoBehaviour
         gachaTenPanelUI.SetActive(false);
 
         rewardResults.Clear();
+
+        if(instantiatedRewardTenObjects.Count != 0)
+        {
+            foreach(var obj in instantiatedRewardTenObjects)
+            {
+                Destroy(obj);
+            }
+            instantiatedRewardTenObjects.Clear();
+        }
     }
 
     private void OnGachaClicked(int drawCount)
