@@ -59,7 +59,7 @@ public class ParabolicShotPattern : ShootingPattern
             spawnPos,
             initialVelocity,
             acceleration,
-            1f,
+            owner.atk,
             skillData.Duration
         );
     }

@@ -22,6 +22,8 @@ public class SimpleSummonPattern : SummonPattern
             int index = Random.Range(2, 4);
             owner.Spawner.SpawnEnemiesWithSummon(summonData.Enemy_Id, summonData.EnemyQuantity_1, owner.ScaleData, summonEnemyData.MoveType, false, SpawnManager.Instance.GetSpawner(index).transform.position, owner);
         }
+
+        owner.Spawner.SpawnEnemiesWithSummon(summonData.Enemy_Id, summonData.EnemyQuantity_1, owner.ScaleData, summonEnemyData.MoveType, false, owner.transform.position, owner);
         
     }
 }
