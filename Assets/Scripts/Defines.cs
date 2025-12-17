@@ -286,7 +286,6 @@ public static class Variables
         Quasar = 1;
         LastBossEnemy = null;
         MiddleBossEnemy = null;
-        planetId = 300001;
     }
 
     public static bool IsTestMode {get; set;} = false;
@@ -321,4 +320,28 @@ public static class PrintedAbility
         200013, // 히트스캔
         200014  // 유도
     };
+}
+
+public enum SpecialEffectId
+{
+    AttackSpeed = 1011001,
+    ProjectileCount,
+    TargetCount,
+    Accuracy,
+    Pierce = 1101001,
+    Chain,
+    Explosion,
+    Homing,
+    Split,
+    FloorAttack,
+    Attack = 1102001,
+    ProjectileSpeed,
+    Acceleration,
+    HitSize,
+    RatePenetration,
+    FixedPenetration,
+    Slow = 1104001,
+    Grouping = 1105001,
+    Duration = 1106001,
+
 }

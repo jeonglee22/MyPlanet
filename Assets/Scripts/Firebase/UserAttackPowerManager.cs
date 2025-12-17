@@ -241,7 +241,7 @@ public class UserAttackPowerManager : MonoBehaviour
         // var planetLevelData = DataTableManager.PlanetLevelTable.Get(planetLevel);
 
         var baseAttack = planetData.PlanetHp * (100 + planetData.PlanetArmor) * 0.01f;
-        PlanetPower = baseAttack + planetData.PlanetShield + planetData.RecoveryHp * 420f + planetData.Drain * 100f;
+        PlanetPower = baseAttack + planetData.PlanetShield + planetData.RecoveryHp * 420f + planetData.Drain * 550f;
     }
 
     private async UniTask CalculateTowerPower()

@@ -54,7 +54,7 @@ public class Planet : LivingEntity
     private float expScale;
     private float recoveryHp;
 
-    private float recoveryInterval = 0.1f;
+    private float recoveryInterval = 1f;
     private float recoveryTimer = 0f;
 
     private float attackPower;
@@ -150,9 +150,9 @@ public class Planet : LivingEntity
 
     private void Update()
     {
-        // recoveryTimer += Time.deltaTime;
-        // if (recoveryTimer < recoveryInterval)
-        //     return;
+        recoveryTimer += Time.deltaTime;
+        if (recoveryTimer < recoveryInterval)
+            return;
 
         if (recoveryHp > 0f && !IsDead)
         {

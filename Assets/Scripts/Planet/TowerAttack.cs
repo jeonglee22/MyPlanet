@@ -55,12 +55,13 @@ public class TowerAttack : MonoBehaviour
     private readonly List<float> fireRateAbilitySources = new List<float>();
     public float BasicFireRate => towerData.fireRate;
     public float fireRateBuffMul = 0f; //fireRate = baseFireRate + fireRateBuffMul
+    private float towerUpgradeFireRateMul = 0f;
     public float CurrentFireRate
     {
         get
         {
             if (towerData == null) return 0f;
-            float finalMul = 1f + fireRateAbilityMul + fireRateBuffMul;
+            float finalMul = 1f + fireRateAbilityMul + fireRateBuffMul + towerUpgradeFireRateMul;
             return towerData.fireRate * finalMul;
         }
     }
@@ -141,7 +142,8 @@ public class TowerAttack : MonoBehaviour
         set => projectileCountFromAbility = value;
     }
     public int ProjectileCountFromAmplifier => projectileCountFromAmplifier;
-    public int TotalProjectilecountvBuffAdd => projectileCountFromAmplifier + projectileCountFromAbility;
+    private int projectileCountFromUpgrade = 0;
+    public int TotalProjectilecountvBuffAdd => projectileCountFromAmplifier + projectileCountFromAbility + projectileCountFromUpgrade;
     public int CurrentProjectileCount
     {
         get
@@ -153,6 +155,14 @@ public class TowerAttack : MonoBehaviour
     public int BaseProjectileCount => baseProjectileCount;
     public int FinalProjectileCount => CurrentProjectileCount;
     //-------------------------------------------------------
+
+    private float damageBuffFromUpgrade = 0f;
+
+    private int additionalDurationFromUpgrade = 0;
+    public int AdditionalDurationFromUpgrade => additionalDurationFromUpgrade;
+
+    private float additionalExplosionRangeFromUpgrade = 0f;
+    public float AdditionalExplosionRangeFromUpgrade => additionalExplosionRangeFromUpgrade;
 
     //Apply Buff Version Projectile Data SO------------------
     private ProjectileData currentProjectileData; //base projectile data from Data Table
@@ -225,6 +235,16 @@ public class TowerAttack : MonoBehaviour
         amplifierAbilityIds.Clear();
         abilitiesDirty = true;
 
+        var towerUpgradeData = UserTowerUpgradeManager.Instance.CurrentTowerUpgradeData;
+        var towerIndex = towerUpgradeData.towerIds.IndexOf(towerData.towerIdInt);
+        if (towerIndex != -1)
+        {
+            var upgradeLevel = towerUpgradeData.upgradeLevels[towerIndex];
+
+            // Apply Upgrade Effects
+            ApplyUpgradeEffects(upgradeLevel);
+        }
+
         //firerate
         fireRateAbilitySources.Clear();
         fireRateAbilityMul = 0f;
@@ -262,6 +282,59 @@ public class TowerAttack : MonoBehaviour
             AddBaseAbility((int)AbilityId.Explosion);
         }
         RecalculateReinforcedBase();
+    }
+
+    private void ApplyUpgradeEffects(int upgradeLevel)
+    {
+
+        var additionalAttack = 0f;
+        var additionalAttackSpeed = 0f;
+        var additionalDuration = 0f;
+        var additionalProjectileNum = 0;
+        var additionalExplosionRange = 0f;
+
+        var externalTowerUpgradeDataList = new List<TowerUpgradeData>();
+        for (int i = 1; i <= upgradeLevel; i++)
+        {
+            var externalTowerUpgradeDataId = DataTableManager.TowerUpgradeTable.GetIdByTowerIdAndUpgradeCount(towerData.towerIdInt, i);
+            if (externalTowerUpgradeDataId != -1)
+            {
+                var externalTowerUpgradeData = DataTableManager.TowerUpgradeTable.Get(externalTowerUpgradeDataId);
+                externalTowerUpgradeDataList.Add(externalTowerUpgradeData);
+            }
+        }
+
+        for (int i = 1; i <= upgradeLevel; i++)
+        {
+            var specialEffectId = externalTowerUpgradeDataList[i - 1].SpecialEffect_ID;
+            var amount = externalTowerUpgradeDataList[i - 1].SpecialEffectValue;
+            switch (specialEffectId)
+            {
+                case (int)SpecialEffectId.AttackSpeed:
+                    additionalAttackSpeed += amount / 100f;
+                    break;
+                case (int)SpecialEffectId.Attack:
+                    additionalAttack += amount / 100f;
+                    break;
+                case (int)SpecialEffectId.Duration:
+                    additionalDuration += amount;
+                    break;
+                case (int)SpecialEffectId.ProjectileCount:
+                    additionalProjectileNum += (int)amount;
+                    break;
+                case (int)SpecialEffectId.Explosion:
+                    additionalExplosionRange += amount;
+                    break;
+                default:
+                    break;   
+            }
+        }
+
+        damageBuffFromUpgrade = additionalAttack;
+        towerUpgradeFireRateMul = additionalAttackSpeed;
+        additionalDurationFromUpgrade = (int)additionalDuration;
+        projectileCountFromUpgrade = additionalProjectileNum;
+        additionalExplosionRangeFromUpgrade = additionalExplosionRange;
     }
 
     private void Update()
@@ -562,6 +635,12 @@ public class TowerAttack : MonoBehaviour
             var ability = AbilityManager.GetAbility(abilityId);
             if (ability == null) continue;
 
+            if (abilityId == (int)AbilityId.Explosion)
+            {
+                var explosionValue = DataTableManager.RandomAbilityTable.Get(abilityId).SpecialEffectValue;
+                var totalExplosionRange = additionalExplosionRangeFromUpgrade + explosionValue;
+                projectile.explosionRadius += totalExplosionRange;
+            }
             ability.ApplyAbility(projectile.gameObject);
             projectile.abilityAction += ability.ApplyAbility;
             projectile.abilityRelease += ability.RemoveAbility;
@@ -825,7 +904,7 @@ public class TowerAttack : MonoBehaviour
         addBuffProjectileData.RatePenetration =
             Mathf.Clamp(finalRate01 * 100f, 0f, 100f);
         //-------------------------------------------
-        float rawAttack = currentProjectileData.Attack * damageBuffMul;
+        float rawAttack = currentProjectileData.Attack * (damageBuffMul + damageBuffFromUpgrade);
 
         addBuffProjectileData.Attack = Mathf.Max(0f, rawAttack);
         addBuffProjectileData.ProjectileAddSpeed = currentProjectileData.ProjectileAddSpeed + accelerationBuffAdd;
@@ -833,6 +912,9 @@ public class TowerAttack : MonoBehaviour
             ? currentProjectileData.AttackType
             : newProjectileAttackType;
         currentProjectileData.AttackType = addBuffProjectileData.AttackType;
+
+        addBuffProjectileData.RemainTime =
+            currentProjectileData.RemainTime + additionalDurationFromUpgrade;
 
         return addBuffProjectileData;
     }
