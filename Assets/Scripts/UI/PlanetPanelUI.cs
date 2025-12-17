@@ -18,6 +18,8 @@ public class PlanetPanelUI : MonoBehaviour
     [SerializeField] private Button[] planetButtons;
     [SerializeField] private TextMeshProUGUI planetNameText;
 
+    private int choosedIndex = -1;
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -41,6 +43,12 @@ public class PlanetPanelUI : MonoBehaviour
         
     }
 
+    void OnEnable()
+    {
+        choosedIndex = -1;
+        planetInfoPanel.SetActive(false);
+    }
+
     public void OnBackBtnClicked()
     {
         lobbyPanel.SetActive(true);
@@ -50,9 +58,9 @@ public class PlanetPanelUI : MonoBehaviour
     public void OnPlanetButtonClicked(int planetIndex)
     {
         // Assuming planet IDs start from 300000 and increment by 1
-        int planetId = 300001 + planetIndex;
-        Variables.planetId = planetId;
+        choosedIndex = planetIndex + 1;
 
+        int planetId = 300000 + planetIndex + 1;
         // Update the planet name display
         SetPlanetName(DataTableManager.PlanetTable.Get(planetId).PlanetName);
         planetInfoPanel.SetActive(true);
@@ -73,6 +81,9 @@ public class PlanetPanelUI : MonoBehaviour
 
         if (AuthManager.Instance == null || !AuthManager.Instance.IsSignedIn)
             return;
+
+        int planetId = 300000 + choosedIndex;
+        Variables.planetId = planetId;
 
         var userPlanetData = new UserPlanetData(
             AuthManager.Instance.UserNickName,

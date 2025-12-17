@@ -140,6 +140,7 @@ public class AuthManager : MonoBehaviour
             currentUser = null;
             nickName = string.Empty;
             Variables.Reset();
+            Variables.planetId = 300001;
             UserAttackPowerManager.Instance.PlanetPower = 0f;
             UserAttackPowerManager.Instance.TowerPower = 0f;
             UserAttackPowerManager.Instance.SimilarAttackPowerUserId = string.Empty;

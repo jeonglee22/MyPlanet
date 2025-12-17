@@ -13,6 +13,7 @@ public class LobbyTowerUpgrade : MonoBehaviour
     [SerializeField] private Button cancelButton;
     [SerializeField] private GameObject confirmPanel;
     [SerializeField] private TowerUpgradeUI towerUpgradeUI;
+    [SerializeField] private TowerInfoPanelUI towerInfoPanelUI;
 
     private int towerId;
 
@@ -75,6 +76,7 @@ public class LobbyTowerUpgrade : MonoBehaviour
     private async UniTask UpdateUIs(UserTowerUpgradeData currentUpgradeData)
     {
         Initialize(towerId);
+        towerInfoPanelUI.Initialize(DataTableManager.AttackTowerTable.GetById(towerId));
 
         var upgradeCountFull = towerUpgradeUI.UpdateTowerUpgradeInfo(currentUpgradeData);
         int totalUpgradePercentFull = Mathf.FloorToInt((float)upgradeCountFull / towerUpgradeUI.TotalUpgrade * 100);
