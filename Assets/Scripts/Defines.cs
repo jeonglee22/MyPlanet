@@ -120,12 +120,12 @@ public enum MoveType
     StraightDown,
     Homing,
     Chase,
-    FollowParent,
-    DescendAndStopMovement = 10,
+    TwoPhaseHomingMovement = 4,
+    TwoPhaseDownMovement = 9,
+    DescendAndStopMovement,
     Revolution = 11,
     Side,
-    TwoPhaseHomingMovement,
-    TwoPhaseDownMovement,
+    FollowParent,
 }
 
 public enum PatternIds

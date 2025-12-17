@@ -4,8 +4,8 @@ public class LateralFrontSummonPattern : SummonPattern
 {
     public override int PatternId => patternData.Pattern_Id;
 
-    private float horizontalOffset = 3f;
-    private float verticalOffset = 3f;
+    private float horizontalOffset = 1f;
+    private float verticalOffset = 1f;
 
     public LateralFrontSummonPattern()
     {
