@@ -27,6 +27,7 @@ public class Projectile : MonoBehaviour , IDisposable
     public float hitRadius = 1f;
     public float acceleration ;
     public int splitCount = 0;
+    public float explosionRadius = 0f;
 
     //collision size
     [SerializeField] private Vector3 baseScale = Vector3.one;

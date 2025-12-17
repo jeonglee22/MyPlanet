@@ -322,3 +322,27 @@ public static class PrintedAbility
         200014  // 유도
     };
 }
+
+public enum SpecialEffectId
+{
+    AttackSpeed = 1011001,
+    ProjectileCount,
+    TargetCount,
+    Accuracy,
+    Pierce = 1101001,
+    Chain,
+    Explosion,
+    Homing,
+    Split,
+    FloorAttack,
+    Attack = 1102001,
+    ProjectileSpeed,
+    Acceleration,
+    HitSize,
+    RatePenetration,
+    FixedPenetration,
+    Slow = 1104001,
+    Grouping = 1105001,
+    Duration = 1106001,
+
+}

@@ -18,6 +18,7 @@ public class ExplosionAbility : EffectAbility
         if(projectile != null)
         {
             projectileData = projectile.projectileData;
+            upgradeAmount = projectile.explosionRadius / 100f;
         }
 
         var enemy = gameObject.GetComponent<Enemy>();
