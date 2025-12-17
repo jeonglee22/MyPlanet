@@ -236,6 +236,8 @@ public static class DataTableIds
     public static readonly string Reward = "RewardTable";
     public static readonly string planet = "PlanetTable";
     public static readonly string RandomAbilityText = "RandomAbilityTextTable";
+    public static readonly string TowerUpgrade = "TowerUpgradeTable";
+    public static readonly string TowerUpgradeAbilityUnlock = "TowerUpgradeAbilityUnlockTable";
 }
 
 public static class Variables
@@ -289,6 +291,7 @@ public static class DatabaseRef
     public static readonly string UserPlanets = "userplanets";
     public static readonly string UserTowers = "usertowers";
     public static readonly string UserAttackPowers = "userattackpowers";
+    public static readonly string UserTowerUpgrades = "usertowerupgrades";
 }
 
 public static class PrintedAbility
