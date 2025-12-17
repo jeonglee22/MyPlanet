@@ -46,6 +46,32 @@ public class PatternSpawner : MonoBehaviour
         return pattern;
     }
 
+    public PatternProjectile SpawnAccelPattern(int skillId, string visualAssetName, Vector3 position, Vector3 initialVelocity, Vector3 acceleration, float damage, float lifeTime)
+    {
+        if(!objectPoolManager.HasPool(skillId))
+        {
+            CreatePoolFromLoadedPrefab(skillId, visualAssetName);
+        }
+
+        PatternProjectile pattern = objectPoolManager.Get(skillId);
+        if(pattern == null)
+        {
+            return null;
+        }
+
+        pattern.transform.position = position;
+
+        if(initialVelocity != Vector3.zero)
+        {
+            pattern.transform.rotation = Quaternion.LookRotation(initialVelocity, Vector3.up);
+        }
+
+        pattern.Initialize(skillId, damage, initialVelocity, acceleration, lifeTime, this);
+        pattern.gameObject.SetActive(true);
+
+        return pattern;
+    }
+
     private void CreatePoolFromLoadedPrefab(int skillId, string visualAssetName)
     {
         GameObject loadedPrefab = LoadManager.GetLoadedGamePrefabOriginal(visualAssetName);

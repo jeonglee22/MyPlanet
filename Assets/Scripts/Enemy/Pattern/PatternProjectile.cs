@@ -24,6 +24,10 @@ public class PatternProjectile : MonoBehaviour , IDisposable
 
     private ParticleSystem[] particleSystems;
 
+    private Vector3 velocity;
+    private Vector3 acceleration;
+    private bool useAcceleration = false;
+
     public void Awake()
     {
         if(particleSystems == null || particleSystems.Length == 0)
@@ -44,6 +48,39 @@ public class PatternProjectile : MonoBehaviour , IDisposable
         spawnTime = Time.time;
         canMove = true;
         canDealDamage = true;
+
+        useAcceleration = false;
+        velocity = direction.normalized * speed;
+
+        OnHitByProjectileEvent = null;
+        OnPlayerHitEvent = null;
+
+        if(particleSystems != null)
+        {
+            foreach(var ps in particleSystems)
+            {
+                if(ps != null)
+                {
+                    ps.Play();
+                }
+            }
+        }
+    }
+
+    public void Initialize(int id, float damage, Vector3 initialVelocity, Vector3 accel, float lifetime, PatternSpawner spawner)
+    {
+        skillId = id;
+        this.damage = damage;
+        lifeTime = lifetime;
+        this.spawner = spawner;
+
+        spawnTime = Time.time;
+        canMove = true;
+        canDealDamage = true;
+
+        useAcceleration = true;
+        velocity = initialVelocity;
+        acceleration = accel;
 
         OnHitByProjectileEvent = null;
         OnPlayerHitEvent = null;
@@ -100,7 +137,15 @@ public class PatternProjectile : MonoBehaviour , IDisposable
             return;
         }
 
-        transform.position += moveDirection * moveSpeed * Time.deltaTime;
+        if(useAcceleration)
+        {
+            velocity += acceleration * Time.deltaTime;
+            transform.position += velocity * Time.deltaTime;
+        }
+        else
+        {
+            transform.position += moveDirection * moveSpeed * Time.deltaTime;
+        }
 
         if(Time.time - spawnTime >= lifeTime)
         {
