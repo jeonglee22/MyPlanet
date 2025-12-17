@@ -296,12 +296,11 @@ public class TowerReinforceManager : MonoBehaviour
         var ra = raTable != null ? raTable.Get(abilityId) : null;
         if (ra == null) return 0f;
 
-        float baseValue = ra.SpecialEffectValue;
+        float baseValue = ra.SuperSpecialEffectValue;
         if (reinforceLevel <= 0) return baseValue;
 
         var sum = GetRandomAbilityReinforceSumForAbility(abilityId, reinforceLevel);
-        float add = sum.GetAdd(ra.SpecialEffect_ID);
-        return baseValue + add;
+        return baseValue + sum.SuperAdd;
     }
 
     private static void Accumulate(Dictionary<int,float> dict, int effectId, float add)
@@ -322,4 +321,36 @@ public class TowerReinforceManager : MonoBehaviour
             return ((long)abilityId<<32) | (uint)reinforceLevel;
         }
     }
+    public Dictionary<int, float> BuildFinalPrimaryValueMap(IEnumerable<int> abilityIds, int reinforceLevel)
+    {
+        var result = new Dictionary<int, float>();
+        foreach (var abilityId in abilityIds)
+        {
+            if (abilityId <= 0) continue;
+            result[abilityId] = GetFinalPrimaryValueForAbility(abilityId, reinforceLevel);
+        }
+        return result;
+    }
+
+    public Dictionary<int, float> BuildFinalSuperValueMap(IEnumerable<int> abilityIds, int reinforceLevel)
+    {
+        var result = new Dictionary<int, float>();
+        foreach (var abilityId in abilityIds)
+        {
+            if (abilityId <= 0) continue;
+            result[abilityId] = GetFinalSuperValueForAbility(abilityId, reinforceLevel);
+        }
+        return result;
+    }
+    public Dictionary<int, RandomAbilityReinforceSum> BuildReinforceSumMap(IEnumerable<int> abilityIds, int reinforceLevel)
+    {
+        var result = new Dictionary<int, RandomAbilityReinforceSum>();
+        foreach (var abilityId in abilityIds)
+        {
+            if (abilityId <= 0) continue;
+            result[abilityId] = GetRandomAbilityReinforceSumForAbility(abilityId, reinforceLevel);
+        }
+        return result;
+    }
+
 }

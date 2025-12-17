@@ -68,6 +68,7 @@ public class TowerAmplifier : MonoBehaviour
         newLevel = Mathf.Max(0, newLevel);
         if (newLevel == reinforceLevel) return;
         reinforceLevel = newLevel;
+
         RecalculateReinforceBuff();
 
         foreach (var t in buffedTargets)
@@ -76,6 +77,7 @@ public class TowerAmplifier : MonoBehaviour
             t.RecalculateAmplifierBuffs();
         }
         RefreshAppliedRandomAbilitiesForAllTargets();
+        OnBuffTargetsChanged?.Invoke();
     }
 
     private void RecalculateReinforceBuff()
@@ -157,13 +159,6 @@ public class TowerAmplifier : MonoBehaviour
 
         info.TotalAmountApplied = newTotal;
         dict[abilityId] = info;
-        if(abilityId==20004)
-        {
-            Debug.Log(
-                $"[AmpRandom][APPLY] amp={name}, target={target.name}, abilityId={abilityId}, " +
-                $"count={info.Count}, totalAmount={info.TotalAmountApplied}, ampReinforce={reinforceLevel}"
-            );
-        }
     }
 
     public void RemoveBuff(TowerAttack target) //single target (destory target tower)
@@ -177,13 +172,6 @@ public class TowerAmplifier : MonoBehaviour
             {
                 int abilityId = kv.Key;
                 var info= kv.Value;
-                if (abilityId == 200004)
-                {
-                    Debug.Log(
-                        $"[AmpRandom][REMOVE] amp={name}, target={target.name}, abilityId={abilityId}, count={count}"
-                    );
-                }
-
                 RemoveAbilityInstanceFromTower(target, abilityId, info.TotalAmountApplied);
                 target.RemoveAmplifierAbility(this, abilityId, info.Count);
             }
@@ -209,13 +197,6 @@ public class TowerAmplifier : MonoBehaviour
             {
                 int abilityId = kv.Key;
                 var info = kv.Value;
-                if (abilityId == 200004)
-                {
-                    Debug.Log(
-                        $"[AmpRandom][CLEAR_ALL] amp={name}, target={target.name}, abilityId={abilityId}, " +
-                        $"count={info.Count}, amount={info.AmountSnapshot}"
-                    );
-                }
                 RemoveAbilityInstanceFromTower(target, abilityId, info.TotalAmountApplied);
                 target.RemoveAmplifierAbility(this, abilityId, info.Count);
             }
@@ -249,18 +230,14 @@ public class TowerAmplifier : MonoBehaviour
             {
                 var info = dict[abilityId];
                 RemoveAbilityInstanceFromTower(t, abilityId, info.TotalAmountApplied);
+                //reinforce sum
                 float perStack = TowerReinforceManager.Instance.GetFinalPrimaryValueForAbility(abilityId, reinforceLevel);
                 float newTotal = perStack * info.Count;
+                
                 ApplyAbilityInstanceToTower(t, abilityId, newTotal);
+                
                 info.TotalAmountApplied = newTotal;
                 dict[abilityId] = info;
-                if(abilityId==200004)
-                {
-                    Debug.Log(
-                        $"[AmpRandom][REFRESH] amp={name}, target={t.name}, abilityId={abilityId}, " +
-                        $"count={info.Count}, newTotal={info.TotalAmountApplied}, ampReinforce={reinforceLevel}"
-                    );
-                }
             }
         }
     }
@@ -545,14 +522,85 @@ public class TowerAmplifier : MonoBehaviour
         
         return ability;
     }
-
-    public void NotifyTargetsAbilityChanged()
+    public void RebuildSlotIndicesOnly(int newSelfIndex, int towerCount)
     {
-        foreach(var kv in appliedAbilityMap)
+        bool hasBuff = buffedSlotIndex != null && buffedSlotIndex.Count > 0;
+        bool hasRandom = randomAbilitySlotIndex != null && randomAbilitySlotIndex.Count > 0;
+
+        if (!hasBuff && !hasRandom)
         {
-            var t = kv.Key;
-            if (t == null) continue;
-            t.RebuildAmplifierAbilityCache(this);
+            selfIndex = newSelfIndex;
+            return;
         }
+
+        int oldSelf = selfIndex;
+
+        List<int> buffOffsets = null;
+        if (hasBuff)
+        {
+            buffOffsets = new List<int>(buffedSlotIndex.Count);
+            foreach (var s in buffedSlotIndex)
+                buffOffsets.Add(s - oldSelf);
+        }
+
+        List<int> randomOffsets = null;
+        if (hasRandom)
+        {
+            randomOffsets = new List<int>(randomAbilitySlotIndex.Count);
+            foreach (var s in randomAbilitySlotIndex)
+                randomOffsets.Add(s - oldSelf);
+        }
+
+        selfIndex = newSelfIndex;
+        buffedSlotIndex.Clear();
+        randomAbilitySlotIndex.Clear();
+
+        if (buffOffsets != null)
+        {
+            foreach (var offset in buffOffsets)
+            {
+                int target = newSelfIndex + offset;
+                target %= towerCount;
+                if (target < 0) target += towerCount;
+                if (target == newSelfIndex) continue;
+                if (!buffedSlotIndex.Contains(target))
+                    buffedSlotIndex.Add(target);
+            }
+        }
+
+        if (randomOffsets != null)
+        {
+            foreach (var offset in randomOffsets)
+            {
+                int target = newSelfIndex + offset;
+                target %= towerCount;
+                if (target < 0) target += towerCount;
+                if (target == newSelfIndex) continue;
+                if (!randomAbilitySlotIndex.Contains(target))
+                    randomAbilitySlotIndex.Add(target);
+            }
+        }
+    }
+
+    public void AddAbilityAndApplyToCurrentTargets(int abilityId)
+    {
+        if (abilityId <= 0) return;
+        if (abilities == null) return;
+
+        abilities.Add(abilityId);
+
+        if (planet == null) return;
+        if (randomAbilitySlotIndex == null || randomAbilitySlotIndex.Count == 0) return;
+
+        for (int i = 0; i < randomAbilitySlotIndex.Count; i++)
+        {
+            int slotIndex = randomAbilitySlotIndex[i];
+            if (buffedSlotIndex != null && buffedSlotIndex.Contains(slotIndex)) continue;
+
+            var target = planet.GetAttackTowerToAmpTower(slotIndex);
+            if (target == null) continue;
+            ApplyRandomAbilityToTarget(target, abilityId);
+        }
+        OnBuffTargetsChanged?.Invoke();
     }
 }

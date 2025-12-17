@@ -189,8 +189,7 @@ public class Planet : LivingEntity
             amp.SetReinforceLevel(amp.ReinforceLevel + 1);
             if (abilityId > 0)
             {
-                amp.AddAbility(abilityId);
-                amp.NotifyTargetsAbilityChanged();
+                amp.AddAbilityAndApplyToCurrentTargets(abilityId);
             }
         }
     }
@@ -311,11 +310,9 @@ public class Planet : LivingEntity
             amplifiersSlots[toIndex] = towers[toIndex]?.GetComponent<TowerAmplifier>();
         }
 
-        if (fromAmp != null)
-            fromAmp.RebuildSlotsForNewIndex(toIndex, slotCount);
-        if (toAmp != null)
-            toAmp.RebuildSlotsForNewIndex(fromIndex, slotCount);
-        
+        if (fromAmp != null) fromAmp.RebuildSlotIndicesOnly(toIndex, slotCount);
+        if (toAmp != null) toAmp.RebuildSlotIndicesOnly(fromIndex, slotCount);
+
         ReapplyAllAmplifierBuffs();
     }
     public void ReapplyAllAmplifierBuffs()
