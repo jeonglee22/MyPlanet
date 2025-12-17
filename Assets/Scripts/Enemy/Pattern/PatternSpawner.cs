@@ -67,7 +67,6 @@ public class PatternSpawner : MonoBehaviour
         }
 
         pattern.Initialize(skillId, damage, initialVelocity, acceleration, lifeTime, this);
-        pattern.gameObject.SetActive(true);
 
         return pattern;
     }

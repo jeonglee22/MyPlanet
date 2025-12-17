@@ -46,6 +46,7 @@ public class PatternManager : MonoBehaviour
         patternDict.Add((int)PatternIds.BigFireEyeShootBigFire, () => new SimpleShotPattern());
         patternDict.Add((int)PatternIds.SunSummonFireChild, () => new SimpleSummonPattern());
         patternDict.Add((int)PatternIds.SunSummonFireEye, () => new SimpleSummonPattern());
+        patternDict.Add((int)PatternIds.SunShootFire, () => new ParabolicShotPattern());
 
     }
 
