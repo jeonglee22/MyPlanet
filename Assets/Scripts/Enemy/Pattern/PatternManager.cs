@@ -41,6 +41,8 @@ public class PatternManager : MonoBehaviour
         patternDict.Add((int)PatternIds.EliteBigDiaReflectShield, () => new ReflectShieldPattern());
         patternDict.Add((int)PatternIds.FireChildHitChangeSpeedChase, () => new HitSpeedBoostPattern());
         patternDict.Add((int)PatternIds.FireEyeShootFire, () => new SimpleShotPattern());
+        patternDict.Add((int)PatternIds.BigFireEyeSummonFireChild, () => new SimpleSummonPattern());
+        patternDict.Add((int)PatternIds.BigFireEyeShootBigFire, () => new SimpleShotPattern());
 
     }
 

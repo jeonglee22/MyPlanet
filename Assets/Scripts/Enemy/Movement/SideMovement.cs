@@ -52,6 +52,8 @@ public class SideMovement : IMovement
 
         Vector3 direction = (currentTarget - currentPos).normalized;
 
+        ownerTransform.LookAt(ownerTransform.position + direction);
+
         return direction;
     }
 

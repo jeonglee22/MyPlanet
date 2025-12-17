@@ -76,6 +76,8 @@ public class TwoPhaseHomingMovement : IMovement
                 isDirectionCalculated = false;
             }
 
+            ownerTransform.LookAt(ownerTransform.position + currentMoveDirection);
+
             return currentMoveDirection;
         }
 
@@ -97,6 +99,8 @@ public class TwoPhaseHomingMovement : IMovement
             ownerTransform.LookAt(ownerTransform.position + currentMoveDirection);
             isDirectionCalculated = true;
         }
+
+        ownerTransform.LookAt(ownerTransform.position + currentMoveDirection);
 
         return currentMoveDirection;
     }
