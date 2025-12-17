@@ -15,6 +15,9 @@ public static class TagName
     public static readonly string MainCanvas = "MainCanvas";
     public static readonly string Boss = "Boss";
     public static readonly string BattleUI = "BattleUI";
+    public static readonly string ChangedVisual = "ChangedVisual";
+    public static readonly string ChangeVisual = "ChangeVisual";
+    public static readonly string PatternProjectile = "PatternProjectile";
 }
 
 public static class ObjectName
@@ -109,6 +112,7 @@ public enum ExecutionTrigger
     Immediate,
     OnHealthPercentage,
     ChildrenAlive,
+    OnHit,
 }
 
 public enum MoveType
@@ -147,6 +151,16 @@ public enum PatternIds
     NeptuneFrontDiaSummon,
     EliteDiaReflectShield,
     EliteBigDiaReflectShield,
+    FireChildHitChangeSpeedChase = 4100024,
+    FireEyeShootFire,
+    BigFireEyeSummonFireChild,
+    BigFireEyeSummonFireEye,
+    BigFireEyeShootBigFire,
+    BigFireEyeFirePillar,
+    SunSummonFireChild,
+    SunSummonFireEye,
+    SunSummonBigFireEye,
+    SunShootFire,
 }
 
 public enum TutorialPoint
@@ -238,6 +252,8 @@ public static class DataTableIds
     public static readonly string RandomAbilityText = "RandomAbilityTextTable";
     public static readonly string TowerUpgrade = "TowerUpgradeTable";
     public static readonly string TowerUpgradeAbilityUnlock = "TowerUpgradeAbilityUnlockTable";
+    public static readonly string Skill = "SkillTable";
+    public static readonly string Stage = "StageTable";
 }
 
 public static class Variables

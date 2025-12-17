@@ -37,6 +37,16 @@ public class LoadManager : MonoBehaviour
         return null;
     }
 
+    public static GameObject GetLoadedGamePrefabOriginal(string prefabName)
+    {
+        if(loadedGamePrefabs.TryGetValue(prefabName, out GameObject prefab))
+        {
+            return prefab;
+        }
+
+        return null;
+    }
+
     public async UniTask<GameObject> LoadEnemyPrefabAsync(int enemyId)
     {
         if (loadedEnemyPrefabs.ContainsKey(enemyId))

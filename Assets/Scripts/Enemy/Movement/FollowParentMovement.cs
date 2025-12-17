@@ -31,6 +31,7 @@ public class FollowParentMovement : IMovement
 
         Vector3 targetPosition = parentTransform.position + localOffset;
         Vector3 direction = targetPosition - ownerTransform.position;
+        ownerTransform.LookAt(ownerTransform.position + direction);
 
         return direction;
     }

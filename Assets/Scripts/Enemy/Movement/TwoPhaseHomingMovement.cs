@@ -46,6 +46,8 @@ public class TwoPhaseHomingMovement : IMovement
         {
             isPatternLine = false;
         }
+
+        waitTime = 0f;
     }
 
     public Vector3 GetFinalDirection(Vector3 baseDirection, Transform ownerTransform, Transform target)
@@ -74,6 +76,8 @@ public class TwoPhaseHomingMovement : IMovement
                 isDirectionCalculated = false;
             }
 
+            ownerTransform.LookAt(ownerTransform.position + currentMoveDirection);
+
             return currentMoveDirection;
         }
 
@@ -92,9 +96,10 @@ public class TwoPhaseHomingMovement : IMovement
         if(!isDirectionCalculated && target != null)
         {
             currentMoveDirection = (target.position - ownerTransform.position).normalized;
-            ownerTransform.LookAt(ownerTransform.position + currentMoveDirection);
             isDirectionCalculated = true;
         }
+
+        ownerTransform.LookAt(ownerTransform.position + currentMoveDirection);
 
         return currentMoveDirection;
     }

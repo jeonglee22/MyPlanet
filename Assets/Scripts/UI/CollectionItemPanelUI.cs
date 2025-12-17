@@ -115,13 +115,9 @@ public class CollectionItemPanelUI : MonoBehaviour
 
         float totalWeight = 0f;
 
-        if(isAttackTower)
+        if(isTower)
         {
-            totalWeight = CollectionManager.Instance.GetTotalWeightAttackTowers();
-        }
-        else if(isBuffTower)
-        {
-            totalWeight = CollectionManager.Instance.GetTotalWeightBuffTowers();
+            totalWeight = CollectionManager.Instance.GetTotalWeightAttackTowers() + CollectionManager.Instance.GetTotalWeightBuffTowers();
         }
         else
         {

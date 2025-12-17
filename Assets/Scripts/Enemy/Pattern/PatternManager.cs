@@ -36,8 +36,17 @@ public class PatternManager : MonoBehaviour
         patternDict.Add((int)PatternIds.NereidReflectShield, () => new ReflectShieldPattern());
         patternDict.Add((int)PatternIds.NeptuneChaseDiaSummon, () => new LateralHommingSummonPattern());
         patternDict.Add((int)PatternIds.NeptuneBigDiaSummon, () => new LateralDownSummonPattern());
+        patternDict.Add((int)PatternIds.NeptuneFrontDiaSummon, () => new LateralDownSummonPattern());
         patternDict.Add((int)PatternIds.EliteDiaReflectShield, () => new ReflectShieldPattern());
         patternDict.Add((int)PatternIds.EliteBigDiaReflectShield, () => new ReflectShieldPattern());
+        patternDict.Add((int)PatternIds.FireChildHitChangeSpeedChase, () => new HitSpeedBoostPattern());
+        patternDict.Add((int)PatternIds.FireEyeShootFire, () => new SimpleShotPattern());
+        patternDict.Add((int)PatternIds.BigFireEyeSummonFireChild, () => new SimpleSummonPattern());
+        patternDict.Add((int)PatternIds.BigFireEyeSummonFireEye, () => new SimpleSummonPattern());
+        patternDict.Add((int)PatternIds.BigFireEyeShootBigFire, () => new SimpleShotPattern());
+        patternDict.Add((int)PatternIds.SunSummonFireChild, () => new SimpleSummonPattern());
+        patternDict.Add((int)PatternIds.SunSummonFireEye, () => new SimpleSummonPattern());
+        patternDict.Add((int)PatternIds.SunShootFire, () => new ParabolicShotPattern());
 
     }
 

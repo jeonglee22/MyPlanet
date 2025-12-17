@@ -202,7 +202,7 @@ public class Projectile : MonoBehaviour , IDisposable
     {
         if (other.gameObject.CompareTag(TagName.Planet) || other.gameObject.CompareTag(TagName.Boss) || other.gameObject.CompareTag(TagName.Projectile)
             || other.gameObject.CompareTag(TagName.DropItem) || other.gameObject.CompareTag(TagName.PatternLine)
-            || other.gameObject.CompareTag(TagName.CenterStone) ||
+            || other.gameObject.CompareTag(TagName.CenterStone) || other.gameObject.CompareTag(TagName.PatternProjectile) ||
             currentPierceCount <= 0)
         {
             return;

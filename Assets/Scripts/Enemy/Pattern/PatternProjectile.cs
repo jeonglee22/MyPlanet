@@ -3,7 +3,6 @@ using UnityEngine;
 
 public class PatternProjectile : MonoBehaviour , IDisposable
 {
-    [SerializeField] private TrailRenderer trailRenderer;
     private float damage;
     private float moveSpeed;
     private float lifeTime;
@@ -11,7 +10,8 @@ public class PatternProjectile : MonoBehaviour , IDisposable
     public Vector3 MoveDirection {set { moveDirection = value.normalized; } }
 
     private float spawnTime;
-    private int patternId;
+    private int skillId;
+    public int SkillId => skillId;
     private PatternSpawner spawner;
 
     private bool canMove;
@@ -22,15 +22,23 @@ public class PatternProjectile : MonoBehaviour , IDisposable
     public event Action<PatternProjectile, float> OnHitByProjectileEvent;
     public event Action<PatternProjectile> OnPlayerHitEvent;
 
+    private ParticleSystem[] particleSystems;
+
+    private Vector3 velocity;
+    private Vector3 acceleration;
+    private bool useAcceleration = false;
+
     public void Awake()
     {
-        if (trailRenderer == null)
-            trailRenderer = GetComponentInChildren<TrailRenderer>();
+        if(particleSystems == null || particleSystems.Length == 0)
+        {
+            particleSystems = GetComponentsInChildren<ParticleSystem>();
+        }
     }
 
     public void Initialize(int id, float damage, float speed, float lifetime, Vector3 direction, PatternSpawner spawner)
     {
-        patternId = id;
+        skillId = id;
         this.damage = damage;
         moveSpeed = speed;
         lifeTime = lifetime;
@@ -41,30 +49,84 @@ public class PatternProjectile : MonoBehaviour , IDisposable
         canMove = true;
         canDealDamage = true;
 
+        useAcceleration = false;
+        velocity = direction.normalized * speed;
+
         OnHitByProjectileEvent = null;
         OnPlayerHitEvent = null;
+
+        if(particleSystems != null)
+        {
+            foreach(var ps in particleSystems)
+            {
+                if(ps != null)
+                {
+                    ps.Play();
+                }
+            }
+        }
+    }
+
+    public void Initialize(int id, float damage, Vector3 initialVelocity, Vector3 accel, float lifetime, PatternSpawner spawner)
+    {
+        skillId = id;
+        this.damage = damage;
+        lifeTime = lifetime;
+        this.spawner = spawner;
+
+        spawnTime = Time.time;
+        canMove = true;
+        canDealDamage = true;
+
+        useAcceleration = true;
+        velocity = initialVelocity;
+        acceleration = accel;
+
+        OnHitByProjectileEvent = null;
+        OnPlayerHitEvent = null;
+
+        if(particleSystems != null)
+        {
+            foreach(var ps in particleSystems)
+            {
+                if(ps != null)
+                {
+                    ps.Play();
+                }
+            }
+        }
     }
 
     private void OnEnable()
     {
         isReturn = false;
-        
-        if(trailRenderer!=null)
+
+        if(particleSystems != null)
         {
-            trailRenderer.Clear();
-            trailRenderer.enabled = true;
-            trailRenderer.emitting = true;
+            foreach(var ps in particleSystems)
+            {
+                if(ps != null)
+                {
+                    ps.Clear();
+                }
+            }
         }
     }
 
     private void OnDisable()
     {
-        if(trailRenderer!=null)
+        if(particleSystems != null)
         {
-            trailRenderer.emitting = false;
-            trailRenderer.Clear();
-            trailRenderer.enabled = false;
+            foreach(var ps in particleSystems)
+            {
+                if(ps != null)
+                {
+                    ps.Clear();
+                    ps.Play();
+                }
+            }
         }
+
         transform.position = PatternSpawner.Instance.transform.position;
     }
 
@@ -75,7 +137,15 @@ public class PatternProjectile : MonoBehaviour , IDisposable
             return;
         }
 
-        transform.position += moveDirection * moveSpeed * Time.deltaTime;
+        if(useAcceleration)
+        {
+            velocity += acceleration * Time.deltaTime;
+            transform.position += velocity * Time.deltaTime;
+        }
+        else
+        {
+            transform.position += moveDirection * moveSpeed * Time.deltaTime;
+        }
 
         if(Time.time - spawnTime >= lifeTime)
         {
@@ -85,7 +155,12 @@ public class PatternProjectile : MonoBehaviour , IDisposable
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag(TagName.Enemy) || isReturn)
+        if (other.CompareTag(TagName.Enemy) || 
+        other.CompareTag(TagName.CenterStone) || 
+        other.CompareTag(TagName.PatternLine) || 
+        other.CompareTag(TagName.PatternProjectile) || 
+        other.CompareTag(TagName.Projectile) || 
+        isReturn)
         {
             return;
         }
@@ -131,11 +206,19 @@ public class PatternProjectile : MonoBehaviour , IDisposable
 
         OnHitByProjectileEvent = null;
         OnPlayerHitEvent = null;
-        if(trailRenderer!=null)
+
+        if(particleSystems != null)
         {
-            trailRenderer.emitting = false;
-            trailRenderer.Clear();
+            foreach(var ps in particleSystems)
+            {
+                if(ps != null)
+                {
+                    ps.Clear();
+                    ps.Play();
+                }
+            }
         }
+
         spawner?.ReturnPatternToPool(this);
     }
 

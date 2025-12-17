@@ -106,7 +106,10 @@ public class BattleUI : MonoBehaviour
 
     public void UpdateWaveToggles()
     {
+        int currentStage = Variables.Stage;
         int currentWave = WaveManager.Instance.WaveCount;
+        bool hasMiddleBoss = Variables.MiddleBossEnemy != null;
+        bool hasLastBoss = Variables.LastBossEnemy != null;
 
         foreach(var toggle in currentStageToggles)
         {
@@ -115,29 +118,57 @@ public class BattleUI : MonoBehaviour
 
         int toggleIndex = -1;
 
-        switch (currentWave)
+        switch (currentStage)
         {
             case 1:
-                toggleIndex = 0;
+                if(currentWave == 3 && hasLastBoss)
+                {
+                    toggleIndex = 3;
+                }
+                else
+                {
+                    toggleIndex = currentWave - 1;
+                }
                 break;
             case 2:
-                toggleIndex = Variables.MiddleBossEnemy != null ? 2 : 1;
+                if(currentWave == 2 && hasMiddleBoss)
+                {
+                    toggleIndex = 2;
+                }
+                else if(currentWave == 3 && hasLastBoss)
+                {
+                    toggleIndex = 4;
+                }
+                else if(currentWave == 3)
+                {
+                    toggleIndex = 3;
+                }
+                else
+                {
+                    toggleIndex = currentWave - 1;
+                }
                 break;
-            case 3:
-                toggleIndex = Variables.Stage == 2 && Variables.LastBossEnemy != null ? 4 : 3;
-                break;
-            case 4:
-                toggleIndex = 4;
-                break;
-            case 5:
-                toggleIndex = (Variables.MiddleBossEnemy != null || Variables.LastBossEnemy != null) ? 6 : 5;
+            default:
+                if(currentWave == 3 && hasMiddleBoss)
+                {
+                    toggleIndex = 3;
+                }
+                else if(currentWave == 5 && hasLastBoss)
+                {
+                    toggleIndex = 6;
+                }
+                else if(currentWave <= 3)
+                {
+                    toggleIndex = currentWave - 1;
+                }
+                else
+                {
+                    toggleIndex = currentWave;
+                }
                 break;
         }
 
-        if(toggleIndex >= 0 && toggleIndex < currentStageToggles.Count)
-        {
-            currentStageToggles[toggleIndex].isOn = true;
-        }
+        currentStageToggles[toggleIndex].isOn = true;
     }
 
     public void OnWaveChanged()

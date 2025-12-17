@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 public static class DataTableManager
@@ -50,6 +51,8 @@ public static class DataTableManager
             LoadTableAsync<RandomAbilityTextTable>(DataTableIds.RandomAbilityText),
             LoadTableAsync<TowerUpgradeTable>(DataTableIds.TowerUpgrade),
             LoadTableAsync<TowerUpgradeAbilityUnlockTable>(DataTableIds.TowerUpgradeAbilityUnlock),
+            LoadTableAsync<SkillTable>(DataTableIds.Skill),
+            LoadTableAsync<StageTable>(DataTableIds.Stage),
         };
 
         await UniTask.WhenAll(tasks);
@@ -242,6 +245,22 @@ public static class DataTableManager
         get
         {
             return Get<TowerUpgradeAbilityUnlockTable>(DataTableIds.TowerUpgradeAbilityUnlock);
+        }
+    }
+    
+    public static SkillTable SkillTable
+    {
+        get
+        {
+            return Get<SkillTable>(DataTableIds.Skill);
+        }
+    }
+
+    public static StageTable StageTable
+    {
+        get
+        {
+            return Get<StageTable>(DataTableIds.Stage);
         }
     }
 

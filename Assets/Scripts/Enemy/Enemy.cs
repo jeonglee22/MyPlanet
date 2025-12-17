@@ -26,6 +26,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     public float atk => attack;
 
     public float def => defense;
+    public float MoveSpeed => moveSpeed;
     private float attack;
     private float defense;
     private float moveSpeed;
@@ -69,6 +70,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     public bool IsReflectShieldActive { get; set; } = false;
 
     public GameObject ReflectShieldObject { get; set; }
+
+    public bool HasHit { get; set; } = false;
 
     private void Start()
     {
@@ -118,6 +121,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         ChildEnemy.Clear();
 
         StopLifeTime();
+
+        HasHit = false;
     }
 
     protected void OnDestroy()
@@ -168,6 +173,13 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         planet.Health += damage * planet.PlanetData.Drain;
 
         base.OnDamage(damage);
+
+        HasHit = true;
+    }
+
+    private void LateUpdate()
+    {
+        HasHit = false;
     }
 
     public override void Die()

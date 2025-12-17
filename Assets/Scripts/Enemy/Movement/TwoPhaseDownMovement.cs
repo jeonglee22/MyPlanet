@@ -46,6 +46,8 @@ public class TwoPhaseDownMovement : IMovement
         {
             isPatternLine = false;
         }
+
+        waitTime = 0f;
     }
 
     public Vector3 GetFinalDirection(Vector3 baseDirection, Transform ownerTransform, Transform target)
@@ -74,6 +76,8 @@ public class TwoPhaseDownMovement : IMovement
                 isDirectionCalculated = false;
             }
 
+            ownerTransform.LookAt(ownerTransform.position + currentMoveDirection);
+
             return currentMoveDirection;
         }
 
@@ -92,9 +96,10 @@ public class TwoPhaseDownMovement : IMovement
         if(!isDirectionCalculated && target != null)
         {
             currentMoveDirection = Vector3.down;
-            ownerTransform.LookAt(ownerTransform.position + currentMoveDirection);
             isDirectionCalculated = true;
         }
+
+        ownerTransform.LookAt(ownerTransform.position + currentMoveDirection);
 
         return currentMoveDirection;
     }
