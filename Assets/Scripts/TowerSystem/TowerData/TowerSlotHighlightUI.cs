@@ -11,10 +11,7 @@ public enum TowerHighlightType
 public class TowerSlotHighlightUI : MonoBehaviour
 {
     [SerializeField] private Image borderImage;
-
-    [SerializeField] private Color fromAttackSourceColor = new Color(1f, 0.35f, 0.35f);
-    [SerializeField] private Color buffTargetColor = new Color(1f, 0.85f, 0.3f); 
-    [SerializeField] private Color randomOnlyColor = new Color(1f, 0.5f, 0.8f);
+    [SerializeField] private Color highlightColor = new Color(1f, 0.85f, 0.3f); 
 
     [Header("Highlight Thickness")]
     [SerializeField] private float highlightScale = 1.08f;
@@ -40,28 +37,15 @@ public class TowerSlotHighlightUI : MonoBehaviour
     {
         if (!initialized || borderImage == null || borderRect == null) return;
 
-        switch (type)
+        if (type == TowerHighlightType.None)
         {
-            case TowerHighlightType.None:
-                borderImage.color = defaultColor;
-                borderRect.localScale = defaultScale;
-                break;
-
-            case TowerHighlightType.FromAttackSource:
-                borderImage.color = fromAttackSourceColor;
-                borderRect.localScale = defaultScale * highlightScale;
-                break;
-
-            case TowerHighlightType.BuffTarget:
-                borderImage.color = buffTargetColor;
-                borderRect.localScale = defaultScale * highlightScale;
-                break;
-
-            case TowerHighlightType.RandomOnlyTarget:
-                borderImage.color = randomOnlyColor;
-                borderRect.localScale = defaultScale * highlightScale;
-                break;
+            borderImage.color = defaultColor;
+            borderRect.localScale = defaultScale;
+            return;
         }
+
+        borderImage.color = highlightColor;
+        borderRect.localScale = defaultScale * highlightScale;
     }
     public void RefreshDefaultColorFromImage()
     {

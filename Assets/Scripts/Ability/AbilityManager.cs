@@ -110,32 +110,30 @@ public class AbilityManager : MonoBehaviour
     {
         var groupRow = DataTableManager.RandomAbilityGroupTable.Get(randomAbilityGroupId);
 
-        string idListString = groupRow.RandomAbilityGroup;
-        string[] tokens = idListString.Split(',');
-        List<int> candidateIds = new List<int>();
+        if (requiredTowerType >= 0 && groupRow.TowerType != requiredTowerType) return -1;
+
+        var candidateIds = new List<int>();
         List<float> weights = useWeight ? new List<float>() : null;
 
-        foreach(var raw in tokens)
+        foreach (var abilityId in groupRow.RandomAbilityGroupList)
         {
-            if (string.IsNullOrWhiteSpace(raw)) continue;
-            if (!int.TryParse(raw.Trim(), out int abilityId)) continue;
+            if (abilityId <= 0) continue;
 
             var raRow = DataTableManager.RandomAbilityTable.Get(abilityId);
             if (raRow == null) continue;
 
             candidateIds.Add(abilityId);
 
-            if(useWeight&&weights!=null)
+            if (useWeight && weights != null)
             {
-                if(CollectionManager.Instance != null && CollectionManager.Instance.IsInitialized)
+                if (CollectionManager.Instance != null && CollectionManager.Instance.IsInitialized)
                 {
-                    float weight = CollectionManager.Instance.GetWeight(abilityId);
-                    weights.Add(weight);
+                    weights.Add(CollectionManager.Instance.GetWeight(abilityId));
                 }
                 else
                 {
                     float w = raRow.Weight;
-                    if (w <= 0) w = 1;
+                    if (w <= 0) w = 1f;
                     weights.Add(w);
                 }
             }

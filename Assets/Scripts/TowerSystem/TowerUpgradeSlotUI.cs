@@ -1294,7 +1294,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         if (!hasTowerData || targetSlot < 0)
         {
-            Debug.Log($"[TowerUpgradeSlotUI] Gold or disabled card clicked at {index}, ignore.");
             if (towerInfoUI != null)
                 towerInfoUI.gameObject.SetActive(false);
             gameObject.SetActive(false);
@@ -1337,6 +1336,11 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         if (installControl.IsUsedSlot(numlist[index]))
         {
+            Debug.Log(
+    $"[Card][UpgradeClick] cardIndex={index}, targetSlot={numlist[index]}, " +
+    $"choiceType={choices[index].InstallType}, ability={choices[index].ability}"
+);
+
             installControl.UpgradeTower(numlist[index]);
             if (towerInfoUI != null)
                 towerInfoUI.gameObject.SetActive(false);
@@ -1475,13 +1479,11 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                             tutorialAmp2Installed = true;
                     }
                 }
-
                 installControl.IsReadyInstall = true;
                 installControl.ChoosedData = choice;
                 installControl.IntallNewTower(index);
                 gameObject.SetActive(false);
             }
-
             if (dragImage != null)
                 BlockUpgradeSlotTouch(false);
 
@@ -1495,7 +1497,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             firstTouchIndex = -1;
         }
     }
-
 
     private int GetEndTouchOnInstallArea()
     {
@@ -1545,7 +1546,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             results[n] = candidates[randIndex];
             candidates.RemoveAt(randIndex);
         }
-
         return results;
     }
     private AmplifierTowerDataSO GetRandomAmplifier()
@@ -1758,12 +1758,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 upgradeProb = 0.9f;
             }
         }
-//         Debug.Log(
-//     $"[UpgradeProb] upgradable={installControl.GetUpgradeableTowerCount()}, " +
-//     $"fieldFull={installControl.CurrentTowerCount >= installControl.MaxTowerCount}, " +
-//     $"newProb={newProb}, upgradeProb={upgradeProb}"
-// );
-
     }
     private int GetTotalTowerCount() //used in tutorial, gold
     {
@@ -1848,7 +1842,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 return candidates[i];
             }
         }
-
         return candidates[candidates.Count - 1];
     }
 
@@ -1967,8 +1960,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 return upgradeSlots[i];
             }
         }
-
         return upgradeSlots[upgradeSlots.Count - 1];
     }
-
 }
