@@ -38,6 +38,8 @@ public class GachaPanelUI : MonoBehaviour
 
     public event Action OnGachaCompleted;
 
+    public event Action OnGachaPanelClosed;
+
     public void Initialize(int needCurrencyValue, int drawGroup, string gachaName)
     {
         this.drawGroup = drawGroup;
@@ -91,6 +93,8 @@ public class GachaPanelUI : MonoBehaviour
 
     private void OnBackBtnClicked()
     {
+        OnGachaPanelClosed?.Invoke();
+
         gachaConfirmUI.SetActive(false);
         noCurrencyText.SetActive(false);
         gameObject.SetActive(false);

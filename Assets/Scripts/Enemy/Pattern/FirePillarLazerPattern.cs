@@ -33,7 +33,7 @@ public class FirePillarLazerPattern : ShootingPattern
             movement.CanMove = false;
         }
 
-        lazer.Initialize(shootPosition, target, damage, skillData, OnLazerComplete, token);
+        lazer.Initialize(shootPosition, target, damage, skillData, owner.transform, OnLazerComplete, token);
 
         lazerObject.SetActive(true);
     }
