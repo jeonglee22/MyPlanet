@@ -1470,7 +1470,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         var installedTowerButton = installedTower.GetComponentInChildren<Button>();
         installedTowerButton.onClick.AddListener(() => OnClickUpgradeUIClicked(index));
         var towerUI = installedTower.GetComponent<NewAmplifierTowerCardUiSetting>();
-        towerUI.SettingNewTowerCard(ampData.BuffTowerId, abilityId, leftIndices, rightIndices);
+        towerUI.SettingNewTowerCard(ampData.BuffTowerId, abilityId, rightIndices, leftIndices);
     }
 
     private void UpgradeTowerCard(int index)
@@ -1537,6 +1537,23 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             return;
 
         dragImage = Instantiate(dragImagePrefab, upgradeUIs[choosedIndex].transform);
+        var dragImageComp = dragImage.transform.GetChild(0).gameObject.GetComponent<Image>();
+        var choosedAttackTowerData = choices[choosedIndex].AttackTowerData;
+        var choosedAmplifierTowerData = choices[choosedIndex].AmplifierTowerData;
+        if (choosedAttackTowerData != null)
+        {
+            var towerData = DataTableManager.AttackTowerTable.GetById(choosedAttackTowerData.towerIdInt);
+            var towerAssetName = towerData.AttackTowerAssetCut;
+            Debug.Log("towerAssetName: " + towerAssetName);
+            dragImageComp.sprite = LoadManager.GetLoadedGameTexture(towerAssetName);
+        }
+        else if (choosedAmplifierTowerData != null)
+        {
+            var ampData = DataTableManager.BuffTowerTable.Get(choosedAmplifierTowerData.BuffTowerId);
+            var ampAssetName = ampData.BuffTowerAssetCut;
+            Debug.Log("ampAssetName: " + ampAssetName);
+            dragImageComp.sprite = LoadManager.GetLoadedGameTexture(ampAssetName);
+        }
         towerImageIsDraging = true;
         dragImage.SetActive(true);
         dragImage.transform.position = touchPos;

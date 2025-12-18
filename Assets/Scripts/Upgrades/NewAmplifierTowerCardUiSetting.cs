@@ -40,44 +40,47 @@ public class NewAmplifierTowerCardUiSetting : MonoBehaviour
         
         var abilityData = DataTableManager.RandomAbilityTable.Get(ability);
 
+        var specialEffectCombination_ID = amplifierTowerData.SpecialEffectCombination_ID;
+        var specialEffectCombinationData = DataTableManager.SpecialEffectCombinationTable.Get(specialEffectCombination_ID);
 
+        var specialEffectID1 = specialEffectCombinationData.SpecialEffect1_ID;
+        var specialEffectValue1 = specialEffectCombinationData.SpecialEffect1Value;
+        var specialEffectID2 = specialEffectCombinationData.SpecialEffect2_ID;
+        var specialEffectValue2 = specialEffectCombinationData.SpecialEffect2Value;
+        var specialEffectID3 = specialEffectCombinationData.SpecialEffect3_ID;
+        var specialEffectValue3 = specialEffectCombinationData.SpecialEffect3Value;
 
-        // var specialEffectName = abilityData.RandomAbilityName;
-        // var specialEffectValue = abilityData.SpecialEffectValue;
-        // var randomAbilityObj1 = Instantiate(randomAbilityObject, contentRoot);
-        // var abilityTexts = randomAbilityObj1.GetComponentsInChildren<TextMeshProUGUI>();
-        
-        // if (abilityTexts.Length != 2)
-        //     return;
+        int[] specialEffectIDs = { specialEffectID1, specialEffectID2, specialEffectID3 };
+        float[] specialEffectValues = { specialEffectValue1, specialEffectValue2, specialEffectValue3 };
 
-        // abilityTexts[0].text = specialEffectName;
-        // abilityTexts[1].text = specialEffectValue.ToString();
+        var abilityName = abilityData.RandomAbilityName;
+        var abilityValue = abilityData.SpecialEffectValue;
 
-        // if (abilityData.SpecialEffect2_ID == 0)
-        //     return;
-        
-        // var specialEffectName2 = abilityData.RandomAbility2Name;
-        // var specialEffectValue2 = abilityData.SpecialEffect2Value;
-        // var randomAbilityObj2 = Instantiate(randomAbilityObject, contentRoot);
-        // var abilityTexts2 = randomAbilityObj2.GetComponentsInChildren<TextMeshProUGUI>();
-        // if (abilityTexts2.Length != 2)
-        //     return;
+        var index = 0;
 
-        // abilityTexts2[0].text = specialEffectName2;
-        // abilityTexts2[1].text = specialEffectValue2.ToString();
+        for (int i = 0; i < specialEffectIDs.Length; i++)
+        {
+            if (specialEffectIDs[i] == 0)
+                break;
 
-        // if (abilityData.SpecialEffect3_ID == 0)
-        //     return;
-        
-        // var specialEffectName3 = abilityData.RandomAbility3Name;
-        // var specialEffectValue3 = abilityData.SpecialEffect3Value;
-        // var randomAbilityObj3 = Instantiate(randomAbilityObject, contentRoot);
-        // var abilityTexts3 = randomAbilityObj3.GetComponentsInChildren<TextMeshProUGUI>();
-        // if (abilityTexts3.Length != 2)
-        //     return;
+            if (index >= abilityTexts.Length || index >= abilityValueTexts.Length)
+                break;
 
-        // abilityTexts3[0].text = specialEffectName3;
-        // abilityTexts3[1].text = specialEffectValue3.ToString();
+            var effectDataId = DataTableManager.RandomAbilityTable.GetAbilityIdFromEffectId(specialEffectIDs[i]);
+            var effectData = DataTableManager.RandomAbilityTable.Get(effectDataId);
+            abilityTexts[index].text = effectData.RandomAbilityName;
+            abilityValueTexts[index].text = specialEffectValues[i].ToString();
+            index++;
+        }
+
+        abilityTexts[index].text = abilityName;
+        abilityValueTexts[index].text = abilityValue.ToString();
+        index++;
+
+        for (int i = index; i < contentRoots.Length; i++)
+        {
+            contentRoots[i].gameObject.SetActive(false);
+        }
     }
 
     private void SetTowerName(string towerName)
@@ -88,18 +91,5 @@ public class NewAmplifierTowerCardUiSetting : MonoBehaviour
     private void SetTowerExplain(string explain)
     {
         towerExplainText.text = explain;
-    }
-
-    private RandomAbilityData GetRandomAbilityDataFromTowerId(int towerId)
-    {
-        var towerData = DataTableManager.AttackTowerTable.GetById(towerId);
-        var projectileId = towerData.Projectile_ID;
-        var projectileData = DataTableManager.ProjectileTable.Get(projectileId);
-        var projectileSpecialEffectId = projectileData.ProjectileProperties1_ID;
-        var proejctileSpecialEffectData = DataTableManager.SpecialEffectTable.Get(projectileSpecialEffectId);
-        var abilityId = DataTableManager.RandomAbilityTable.GetAbilityIdFromEffectId(projectileSpecialEffectId);
-        var abilityData = DataTableManager.RandomAbilityTable.Get(abilityId);
-
-        return abilityData;
     }
 }

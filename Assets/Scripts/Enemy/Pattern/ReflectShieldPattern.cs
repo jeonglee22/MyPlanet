@@ -1,7 +1,5 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Cysharp.Threading.Tasks.Triggers;
-using Unity.Android.Gradle.Manifest;
 using UnityEngine;
 
 public class ReflectShieldPattern : SpecialPattern
