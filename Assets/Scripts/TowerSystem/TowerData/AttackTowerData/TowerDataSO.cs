@@ -25,4 +25,11 @@ public class TowerDataSO : ScriptableObject
     
     [Header("Visual(Except Laser)")]
     public GameObject projectilePrefab;
+
+    [Header("Audio")]
+    public AudioClip shootSfx;      
+    public AudioClip laserLoopSfx;             
+    [Range(0f, 1f)] public float shootVolume = 1f;
+    [Range(0f, 1f)] public float laserLoopVolume = 1f;
+    public Vector2 shootPitchRange = new Vector2(1f, 1f);
 }

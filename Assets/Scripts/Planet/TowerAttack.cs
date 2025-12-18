@@ -217,6 +217,10 @@ public class TowerAttack : MonoBehaviour
 
     private Planet planet;
 
+    //audio-------------------------------------------------
+    [Header("Audio (Optional Override)")]
+    [SerializeField] private AudioSource towerAudioSource;
+    private bool laserLoopPlaying = false;
     //-------------------------------------------------------
     private void Awake()
     {
@@ -229,6 +233,7 @@ public class TowerAttack : MonoBehaviour
             .GetComponent<ProjectilePoolManager>();
 
         lazers = new List<LazertowerAttack>();
+        EnsureAudioSource();
     }
 
     private void Start()
@@ -239,6 +244,7 @@ public class TowerAttack : MonoBehaviour
     private void OnDisable()
     {
         DeleteExistLazers();
+        StopLaserLoop();
     }
 
     public void SetTowerData(TowerDataSO data)
@@ -246,6 +252,7 @@ public class TowerAttack : MonoBehaviour
         towerData = data;
         if (towerData == null) return;
 
+        StopLaserLoop();
         baseAbilityIds.Clear();
         amplifierAbilityIds.Clear();
         abilitiesDirty = true;
@@ -359,6 +366,19 @@ public class TowerAttack : MonoBehaviour
     private void Update()
     {
         if (towerData == null || targetingSystem == null) return;
+        //audio
+        if (towerData.towerIdInt == (int)AttackTowerId.Lazer)
+        {
+            if (isStartLazer)
+            {
+                StartLaserLoop();
+                return; 
+            }
+            else
+            {
+                StopLaserLoop();
+            }
+        }
 
         shootTimer += Time.deltaTime;
 
@@ -400,6 +420,7 @@ public class TowerAttack : MonoBehaviour
             lazer?.gameObject.SetActive(false);
         }
         lazers.Clear();
+        StopLaserLoop();
     }
 
     private void StartHitscan(float hitScanInterval)
@@ -456,18 +477,6 @@ public class TowerAttack : MonoBehaviour
 
         int expectedProjectiles = targetCount * shotCount;
 
-        // Debug.Log(
-        //     $"[ShootAtTarget] {gameObject.name} " +
-        //     $"targetCount={targetCount}, shotCount={shotCount}, " +
-        //     $"expectedProjectiles={expectedProjectiles}, " +
-        //     $"baseProjCount={baseProjectileCount}, " +
-        //     $"extraProjFromAbility={projectileCountFromAbility}, " +
-        //     $"extraProjFromAmp={projectileCountFromAmplifier}, " +
-        //     $"baseTargets={ (targetingSystem != null ? targetingSystem.BaseTargetCount : 0) }, " +
-        //     $"extraTargets={TotalTargetNumberBuffAdd}"
-        // );
-        //
-
         if (targets == null || targets.Count == 0)
         {
             var single = targetingSystem.CurrentTarget;
@@ -497,11 +506,6 @@ public class TowerAttack : MonoBehaviour
                            vp.y >= 0f && vp.y <= 1f);
         if (!inViewport) return;
 
-//         Debug.Log(
-//     $"[FireToTarget] {gameObject.name} " +
-//     $"target={target} shotCount={shotCount}"
-// );
-
         Vector3 baseDirection = (target.position - firePoint.position).normalized;
         float centerIndex = (shotCount - 1) * 0.5f;
 
@@ -513,12 +517,13 @@ public class TowerAttack : MonoBehaviour
 
         for (int i = 0; i < shotCount; i++)
         {
-    //         Debug.Log(
-    //        $"[FireToTargetLoop] {gameObject.name} " +
-    //        $"target={target} projIndex={i + 1}/{shotCount}"
-    //    );
-
             float offsetIndex = i - centerIndex;
+
+            if (towerData.towerIdInt != (int)AttackTowerId.Lazer)
+            {
+                PlayShootOneShot();
+            }
+
             var projectile = ProjectilePoolManager.Instance.GetProjectile(baseData);
             if (isOtherUserTower)
                 projectile.IsOtherUser = true;
@@ -529,6 +534,7 @@ public class TowerAttack : MonoBehaviour
 
             if (towerData.towerIdInt == (int)AttackTowerId.Lazer)
             {
+                StartLaserLoop();
                 var lazerObj = LoadManager.GetLoadedGamePrefab(ObjectName.Lazer);
                 var lazer = lazerObj.GetComponent<LazertowerAttack>();
                 lazers.Add(lazer);
@@ -1282,4 +1288,79 @@ public class TowerAttack : MonoBehaviour
         }
         ampAppliedInstances.Clear();
     }
+    //audio ---------------------------------------
+    private void EnsureAudioSource()
+    {
+        if (towerAudioSource != null) return;
+        if (firePoint != null)
+        {
+            towerAudioSource = firePoint.GetComponent<AudioSource>();
+        }
+
+        if (towerAudioSource == null)
+        {
+            towerAudioSource = GetComponent<AudioSource>();
+        }
+
+        if (towerAudioSource == null)
+        {
+            towerAudioSource = gameObject.AddComponent<AudioSource>();
+        }
+
+        towerAudioSource.playOnAwake = false;
+        towerAudioSource.loop = false;
+    }
+
+    private void PlayShootOneShot()
+    {
+        if (towerData == null) return;
+        if (towerData.shootSfx == null) return;
+
+        EnsureAudioSource();
+
+        float originalPitch = towerAudioSource.pitch;
+        Vector2 pr = towerData.shootPitchRange;
+
+        float p = (Mathf.Approximately(pr.x, pr.y))
+            ? pr.x
+            : UnityEngine.Random.Range(Mathf.Min(pr.x, pr.y), Mathf.Max(pr.x, pr.y));
+
+        towerAudioSource.pitch = p;
+        towerAudioSource.PlayOneShot(towerData.shootSfx, towerData.shootVolume);
+        towerAudioSource.pitch = originalPitch;
+    }
+
+    private void StartLaserLoop()
+    {
+        if (towerData == null) return;
+        if (towerData.laserLoopSfx == null) return;
+
+        EnsureAudioSource();
+
+        if (laserLoopPlaying && towerAudioSource.isPlaying && towerAudioSource.clip == towerData.laserLoopSfx && towerAudioSource.loop)
+            return;
+
+        towerAudioSource.Stop();
+        towerAudioSource.clip = towerData.laserLoopSfx;
+        towerAudioSource.loop = true;
+        towerAudioSource.volume = towerData.laserLoopVolume;
+        towerAudioSource.Play();
+
+        laserLoopPlaying = true;
+    }
+
+    private void StopLaserLoop()
+    {
+        if (towerAudioSource == null) { laserLoopPlaying = false; return; }
+
+        if (towerAudioSource.loop)
+        {
+            towerAudioSource.loop = false;
+            towerAudioSource.Stop();
+            towerAudioSource.clip = null;
+        }
+
+        laserLoopPlaying = false;
+    }
+    //---------------------------------------------
 }
