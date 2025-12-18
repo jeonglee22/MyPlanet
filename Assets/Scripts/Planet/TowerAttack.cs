@@ -57,9 +57,13 @@ public class TowerAttack : MonoBehaviour
     private ProjectilePoolManager projectilePoolManager;
 
     //------------ Amplifier Buff Field ---------------------
+    //damage
     private float damageBuffMul = 1f; //damage = baseDamage * damageBuffMul
     public float DamageBuffMul { get { return damageBuffMul; } set { damageBuffMul = value; } }
     private float accelerationBuffAdd = 0f;  // +=
+
+    private readonly List<float> damageAbilitySources = new List<float>();
+    private float damageAbilityMul = 1f; // self abilities only
 
     //fire rate --------------------------------------------------
     public float fireRateAbilityMul = 0f;
@@ -228,6 +232,10 @@ public class TowerAttack : MonoBehaviour
         baseAbilityIds.Clear();
         amplifierAbilityIds.Clear();
         abilitiesDirty = true;
+
+        //damage
+        damageAbilitySources.Clear();
+        damageAbilityMul = 1f;
 
         //firerate
         fireRateAbilitySources.Clear();
@@ -897,12 +905,6 @@ public class TowerAttack : MonoBehaviour
                 CombinePercentPenetration01(percentPenetrationFromAmplifier, amp.PercentPenetrationBuff);
 
             fixedPenetrationFromAmplifier += amp.FixedPenetrationBuff;
-
-            // Debug.Log(
-            //     $"[AmpBase][FixedPen] tower={name}, amp={amp.name}, " +
-            //     $"amp.FixedPenetrationBuff={amp.FixedPenetrationBuff}, " +
-            //     $"sumAmpFixed={fixedPenetrationFromAmplifier}"
-            // );
             targetNumberFromAmplifier += amp.TargetNumberBuff;
             accuracyFromAmplifier += amp.HitRateBuff;
         }
@@ -940,10 +942,6 @@ public class TowerAttack : MonoBehaviour
         addBuffProjectileData.FixedPenetration =
        baseFixed + fromAbility + fromAmpBase;
 
-        // Debug.Log(
-        //     $"[FixedPen][Calc] tower={name} base={baseFixed}, fromAbility={fromAbility}, " +
-        //     $"fromAmpBase={fromAmpBase}"
-        // );
         //------------------
         //rate penetration---------------------------
         float baseRate01 = Mathf.Clamp01(currentProjectileData.RatePenetration / 100f);
@@ -954,7 +952,7 @@ public class TowerAttack : MonoBehaviour
         addBuffProjectileData.RatePenetration =
             Mathf.Clamp(finalRate01 * 100f, 0f, 100f);
         //-------------------------------------------
-        float rawAttack = currentProjectileData.Attack * damageBuffMul;
+        float rawAttack = currentProjectileData.Attack * damageBuffMul * damageAbilityMul;
 
         addBuffProjectileData.Attack = Mathf.Max(0f, rawAttack);
         addBuffProjectileData.ProjectileAddSpeed = currentProjectileData.ProjectileAddSpeed + accelerationBuffAdd;
@@ -1149,6 +1147,37 @@ public class TowerAttack : MonoBehaviour
             ab.Setting(gameObject);
             appliedSelfAbilities[abilityId] = ab;
         }
+    }
+    //----------------------------------------------------
+    //damage ---------------------------------------------
+    public void AddDamageMulFromAbilitySource(float rate01)
+    {
+        float r = Mathf.Clamp(rate01, -0.99f, 10f); // rate01: 0.2f = +20%
+        if (Mathf.Approximately(r, 0f)) return;
+
+        damageAbilitySources.Add(r);
+        RecalculateDamageMulFromAbility();
+    }
+
+    public void RemoveDamageMulFromAbilitySource(float rate01)
+    {
+        float r = Mathf.Clamp(rate01, -0.99f, 10f);
+
+        int idx = damageAbilitySources.FindIndex(x => Mathf.Approximately(x, r));
+        if (idx >= 0)
+        {
+            damageAbilitySources.RemoveAt(idx);
+            RecalculateDamageMulFromAbility();
+        }
+    }
+
+    private void RecalculateDamageMulFromAbility()
+    {
+        float mul = 1f;
+        foreach (var r in damageAbilitySources)
+            mul *= (1f + r);
+
+        damageAbilityMul = Mathf.Max(0f, mul);
     }
     //----------------------------------------------------
 }
