@@ -1121,33 +1121,28 @@ public class TowerAttack : MonoBehaviour
     //Reinforce ------------------------------------------
     private IAbility CreateSelfAbilityInstanceWithReinforce(int abilityId)
     {
-        var ability = AbilityManager.GetAbility(abilityId);
-        if (ability == null) return null;
-        float finalPrimary = TowerReinforceManager.Instance
-            .GetFinalPrimaryValueForAbility(abilityId, ReinforceLevel);
-        float delta = finalPrimary - ability.UpgradeAmount;
-        if (!Mathf.Approximately(delta, 0f))
-            ability.StackAbility(delta);
-        return ability;
+        return ReinforceAbilityFactory.Create(abilityId, ReinforceLevel);
     }
     private void ReapplyAllSelfAbilitiesByReinforce()
     {
-        foreach(var kv in appliedSelfAbilities)
+        foreach (var kv in appliedSelfAbilities)
         {
             var ab = kv.Value;
             if (ab != null) ab.RemoveAbility(gameObject);
         }
         appliedSelfAbilities.Clear();
-        if (Abilities == null) return;
-        foreach(var abilityId in Abilities)
+
+        foreach (var abilityId in baseAbilityIds)
         {
             var ab = CreateSelfAbilityInstanceWithReinforce(abilityId);
             if (ab == null) continue;
+
             ab.ApplyAbility(gameObject);
             ab.Setting(gameObject);
             appliedSelfAbilities[abilityId] = ab;
         }
     }
+
     //----------------------------------------------------
     //damage ---------------------------------------------
     public void AddDamageMulFromAbilitySource(float rate01)
@@ -1180,4 +1175,21 @@ public class TowerAttack : MonoBehaviour
         damageAbilityMul = Mathf.Max(0f, mul);
     }
     //----------------------------------------------------
+    public void ClearAllAmplifierAbilityStates()
+    {
+        amplifierAbilityIds.Clear();
+        abilitiesDirty = true;
+
+        foreach (var byAbility in ampAppliedInstances.Values)
+        {
+            foreach (var list in byAbility.Values)
+            {
+                for (int i = list.Count - 1; i >= 0; i--)
+                {
+                    list[i]?.RemoveAbility(gameObject);
+                }
+            }
+        }
+        ampAppliedInstances.Clear();
+    }
 }

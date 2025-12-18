@@ -328,14 +328,27 @@ public class Planet : LivingEntity
             {
                 if (atk == null) continue;
                 atk.ClearAllAmplifierBuffs();
+                atk.ClearAllAmplifierAbilityStates();
             }
         }
 
         for (int i = 0; i < amplifiersSlots.Length; i++)
         {
             var amp = amplifiersSlots[i];
-            if (amp == null) continue;
-            amp.ResetLocalBuffStateOnly();
+            if (amp == null || amp.AmplifierTowerData == null) continue;
+
+            var buffSlots = amp.BuffedSlotIndex;
+            if (buffSlots == null || buffSlots.Count == 0) continue;
+
+            foreach (int slotIndex in buffSlots)
+            {
+                if (slotIndex < 0 || slotIndex >= slotCount) continue;
+
+                var attack = GetAttackTowerToAmpTower(slotIndex);
+                if (attack == null) continue;
+
+                amp.ApplyBuffForNewTower(slotIndex, attack);
+            }
         }
 
         for (int i = 0; i < amplifiersSlots.Length; i++)
