@@ -1004,7 +1004,6 @@ public class TowerAttack : MonoBehaviour
         {
             Debug.LogWarning("[AtkReinforce] TowerReinforceManager.Instance is null");
         }
-
         float finalAttack = (originalProjectileData.Attack + addValue) * reinforceAttackScale;
         finalAttack = Mathf.Max(0f, finalAttack);
         currentProjectileData.Attack = finalAttack;
