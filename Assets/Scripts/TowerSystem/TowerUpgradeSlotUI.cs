@@ -3,6 +3,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -1480,6 +1481,19 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         upgradedTower.transform.SetAsFirstSibling();
         var installedTowerButton = upgradedTower.GetComponentInChildren<Button>();
         installedTowerButton.onClick.AddListener(() => OnClickUpgradeUIClicked(index));
+        var towerUI = upgradedTower.GetComponent<UpgradeToweCardUiSetting>();
+
+        var attackTower = installControl.GetAttackTower(numlist[index]);
+        var ampTower = installControl.GetAmplifierTower(numlist[index]);
+
+        if (attackTower != null)
+        {
+            towerUI.SettingUpgradeCard(attackTower.AttackTowerData.towerIdInt, attackTower.ReinforceLevel + 1);
+        }
+        else if (ampTower != null && ampTower.AmplifierTowerData != null)
+        {
+            towerUI.SettingUpgradeCard(ampTower.AmplifierTowerData.BuffTowerId, ampTower.ReinforceLevel + 1);
+        }
     }
 
     public void OnTouchMakeDrageImage()
