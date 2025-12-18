@@ -8,6 +8,10 @@ public class SkillData
 {
     public int Skill_Id { get; set; }
     public string Dev_SkillName { get; set; }
+    public int SkillType { get; set; }
+    public int SkillDamage { get; set; }
+    public int DamageType { get; set; }
+    public int RangeType { get; set; }
     public int RangeValue { get; set; }
     public int ProjectileQty { get; set; }
     public float ProjectileTerm { get; set; }

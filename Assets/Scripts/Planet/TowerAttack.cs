@@ -639,7 +639,7 @@ public class TowerAttack : MonoBehaviour
             {
                 var explosionValue = DataTableManager.RandomAbilityTable.Get(abilityId).SpecialEffectValue;
                 var totalExplosionRange = additionalExplosionRangeFromUpgrade + explosionValue;
-                projectile.explosionRadius += totalExplosionRange;
+                projectile.explosionRadius = totalExplosionRange;
             }
             ability.ApplyAbility(projectile.gameObject);
             projectile.abilityAction += ability.ApplyAbility;
