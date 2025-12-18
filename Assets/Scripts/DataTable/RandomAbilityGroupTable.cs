@@ -15,16 +15,23 @@ public class RandomAbilityGroupData
     {
         RandomAbilityGroupList = new List<int>();
     }
-    
+
     public void SplitRandomAbilityGroup()
     {
-        var items = RandomAbilityGroup.Split(',');
-        foreach(var item in items)
+        RandomAbilityGroupList.Clear();
+        if (string.IsNullOrWhiteSpace(RandomAbilityGroup)) return;
+
+        var cleaned = RandomAbilityGroup.Trim();
+        cleaned = cleaned.Trim('\"');
+        cleaned = cleaned.TrimStart('[').TrimEnd(']');
+        var items = cleaned.Split(',');
+        foreach (var raw in items)
         {
-            if(int.TryParse(item, out int abilityID))
-            {
+            var s = raw.Trim();
+            if (int.TryParse(s, out int abilityID))
                 RandomAbilityGroupList.Add(abilityID);
-            }
+            else
+                Debug.LogWarning($"RandomAbilityGroup 파싱 실패: '{raw}' (원문: '{RandomAbilityGroup}')");
         }
     }
 }
@@ -46,16 +53,8 @@ public class RandomAbilityGroupTable : DataTable
             {
                 Debug.LogError($"키 중복: {item.RandomAbilityGroup_ID}");
             }
-
             item.SplitRandomAbilityGroup();
         }
-
-        /* test : data table load check
-        foreach(var item in list)
-        {
-            Debug.Log(item.ToString());
-        }
-        */
     }
 
     public RandomAbilityGroupData Get(int key)
@@ -75,6 +74,10 @@ public class RandomAbilityGroupTable : DataTable
             return -1;
 
         var index = Random.Range(0, data.RandomAbilityGroupList.Count);
-        return data.RandomAbilityGroupList[index];
+        var picked = data.RandomAbilityGroupList[index];
+
+        Debug.Log($"[RandomAbilityPick] group={key} index={index}/{data.RandomAbilityGroupList.Count} picked={picked}");
+
+        return picked;
     }
 }
