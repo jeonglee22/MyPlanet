@@ -7,7 +7,6 @@ public class SimpleShotPattern : ShootingPattern
 {
     private float shootSpeed = 3f;
     public override int PatternId => (int)PatternIds.SimpleShot;
-
     public override bool RequireAsync => true;
 
     public SimpleShotPattern()
@@ -17,6 +16,8 @@ public class SimpleShotPattern : ShootingPattern
 
     protected override void Shoot(CancellationToken token = default)
     {
+        owner?.PlaySimpleShotSfx();
+
         Vector3 spawnPos = owner.transform.position;
         Vector3 direction = (target.position - spawnPos).normalized;
 

@@ -82,8 +82,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
     [Header("Pattern SFX")]
     [SerializeField] private AudioSource sfxAudioSource;
-    [SerializeField] private AudioClip firePillarShootSfx;
-    [SerializeField, Range(0f, 1f)] private float firePillarShootVolume = 1f;
+    [SerializeField] private AudioClip simpleShotSfx;
+    [SerializeField, Range(0f, 1f)] private float simpleShotVolume = 1f;
     private void Start()
     {
         SetIsTutorial(TutorialManager.Instance?.IsTutorialMode ?? false);
@@ -599,11 +599,11 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         sfxAudioSource.loop = false;
         sfxAudioSource.spatialBlend = 0f;
     }
-
-    public void PlayFirePillarShootSfx()
+    public void PlaySimpleShotSfx()
     {
-        if (firePillarShootSfx == null) return;
+        if (simpleShotSfx == null) return;
+
         EnsureSfxAudioSource();
-        sfxAudioSource.PlayOneShot(firePillarShootSfx, firePillarShootVolume);
+        sfxAudioSource.PlayOneShot(simpleShotSfx, simpleShotVolume);
     }
 }
