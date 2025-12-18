@@ -23,12 +23,11 @@ public class SkillData
     public float Duration { get; set; }
     public float RepeatTerm { get; set; }
     public int RepeatCount { get; set; }
-    public int Stackable { get; set; }
     public string VisualAsset { get; set; }
 
     public override string ToString()
     {
-        return $"Skill_Id: {Skill_Id}, Dev_SkillName: {Dev_SkillName}, RangeValue: {RangeValue}, ProjectileQty: {ProjectileQty}, ProjectileTerm: {ProjectileTerm}, Targeting: {Targeting}, EffectStart: {EffectStart}, EffectDirection: {EffectDirection}, EffectArrive: {EffectArrive}, EffectEnd: {EffectEnd}, Duration: {Duration}, RepeatTerm: {RepeatTerm}, RepeatCount: {RepeatCount}, Stackable: {Stackable}";
+        return $"Skill_Id: {Skill_Id}, Dev_SkillName: {Dev_SkillName}, RangeValue: {RangeValue}, ProjectileQty: {ProjectileQty}, ProjectileTerm: {ProjectileTerm}, Targeting: {Targeting}, EffectStart: {EffectStart}, EffectDirection: {EffectDirection}, EffectArrive: {EffectArrive}, EffectEnd: {EffectEnd}, Duration: {Duration}, RepeatTerm: {RepeatTerm}, RepeatCount: {RepeatCount}";
     }
 }
 

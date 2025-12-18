@@ -1,7 +1,6 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Cysharp.Threading.Tasks.CompilerServices;
 using UnityEngine;
 
 public class FirePillarLazer : MonoBehaviour
@@ -10,7 +9,7 @@ public class FirePillarLazer : MonoBehaviour
     private float laserLength = 10f;
     private float laserWidth = 0.5f;
     private float fieldWidth = 0.2f;
-    private float expandSpeed = 1f;
+    private float expandSpeed = 5f;
 
     private LineRenderer lineRenderer;
     private SpriteRenderer fieldRenderer;
@@ -32,6 +31,9 @@ public class FirePillarLazer : MonoBehaviour
     public event Action OnLazerEnd;
 
     private ParticleSystem laserParticle;
+
+    private Transform ownerTransform;
+    private float particleOffsetY;
 
     private void Awake()
     {
@@ -70,12 +72,12 @@ public class FirePillarLazer : MonoBehaviour
         lineRenderer.endWidth = laserWidth;
         lineRenderer.useWorldSpace = true;
 
-        Color transparentColor = new Color(1f, 1f, 1f, 0f);
+        Color transparentColor = new Color(1f, 1f, 1f, 0.3f);
         lineRenderer.startColor = transparentColor;
         lineRenderer.endColor = transparentColor;
     }
 
-    public void Initialize(Vector3 startPosition, Transform target, float damage, SkillData skillData, Action onEnd = null, CancellationToken token = default)
+    public void Initialize(Vector3 startPosition, Transform target, float damage, SkillData skillData, Transform owner = null, Action onEnd = null, CancellationToken token = default)
     {
         startPoint = startPosition;
         targetTransform = target;
@@ -87,6 +89,16 @@ public class FirePillarLazer : MonoBehaviour
         duration = skillData.Duration;
         repeatCount = skillData.RepeatCount;
         effectArrive = skillData.EffectArrive;
+
+        ownerTransform = owner;
+        if(ownerTransform != null)
+        {
+            SphereCollider ownerCollider = ownerTransform.GetComponent<SphereCollider>();
+            if(ownerCollider != null)
+            {
+                particleOffsetY = ownerCollider.radius;
+            }
+        }
 
         fieldRenderer.enabled = false;
         lineRenderer.enabled = false;
@@ -238,15 +250,15 @@ public class FirePillarLazer : MonoBehaviour
         {
             laserParticle.gameObject.SetActive(true);
 
-            laserParticle.transform.position = startPoint;
-            laserParticle.transform.rotation = transform.rotation * Quaternion.Euler(-90f, 0f, 0f);
+            laserParticle.gameObject.transform.position = startPoint - direction * particleOffsetY;
+            laserParticle.gameObject.transform.rotation = transform.rotation * Quaternion.Euler(-90f, 0f, 0f);
             laserParticle.transform.localScale = Vector3.one;
 
             var main = laserParticle.main;
             main.startSpeed = 0.1f;
 
             var shape = laserParticle.shape;
-            shape.position = Vector3.zero;
+            shape.position = new Vector3(0f, 0f, 2f);
 
             laserParticle.Clear();
             laserParticle.Play();
@@ -256,7 +268,7 @@ public class FirePillarLazer : MonoBehaviour
         lineRenderer.SetPosition(1, startPoint);
 
         float currentLength = 0f;
-        float tickTimer = 0f;
+        float tickTimer = tickInterval;
         int currentTickCount = 0;
 
         while(currentLength < laserLength)
@@ -290,11 +302,13 @@ public class FirePillarLazer : MonoBehaviour
             await UniTask.Yield(token);
         }
 
+        tickTimer = tickInterval;
+
         float expandTime = laserLength / expandSpeed;
         float remainingTime = Mathf.Max(0f, duration - expandTime);
         float elapsedTime = 0f;
 
-        while(elapsedTime < remainingTime && currentTickCount < repeatCount)
+        while(elapsedTime < remainingTime)
         {
             token.ThrowIfCancellationRequested();
 
