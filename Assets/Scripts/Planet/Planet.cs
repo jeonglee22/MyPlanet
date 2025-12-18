@@ -105,13 +105,6 @@ public class Planet : LivingEntity
 
     public bool IsLazerHit = false;
 
-    [Header("SFX")]
-    [SerializeField] private AudioSource hitAudioSource;
-    [SerializeField] private AudioClip playerHitSfx;
-    [SerializeField, Range(0f, 1f)] private float playerHitSfxVolume = 1f;
-    [SerializeField] private float playerHitSfxMinInterval = 0.05f;
-    private float lastHitSfxTime = -999f;
-
     private void Awake()
     {
         planetAttacks = new List<TowerAttack>();
@@ -214,17 +207,12 @@ public class Planet : LivingEntity
         if(newTowerAttack!=null)
         {
             newTowerAttack.SetTowerData(towerData);
-            if (abilityId == -1)
-            {
-                // newTowerAttack.SetRandomAbility();
-            }
-            else
+            if(abilityId>0)
             {
                 newTowerAttack.AddAbility(abilityId);
-                var ability = AbilityManager.GetAbility(abilityId);
-                ability.ApplyAbility(newTowerAttack.gameObject);
             }
-            if(!planetAttacks.Contains(newTowerAttack))
+
+            if (!planetAttacks.Contains(newTowerAttack))
                 planetAttacks.Add(newTowerAttack);
         }
 
@@ -255,6 +243,7 @@ public class Planet : LivingEntity
     public void UpgradeTower(int index, int abilityId)
     {
         var go = towers[index];
+        Debug.Log($"[Planet][UpgradeTower] index={index}, abilityId={abilityId}, go={(go ? go.name : "null")}");
         if (go == null) return;
 
         // Attack Tower
@@ -266,13 +255,6 @@ public class Planet : LivingEntity
             if (abilityId > 0)
             {
                 attack.AddAbility(abilityId);
-
-                var ability = AbilityManager.GetAbility(abilityId);
-                if (ability != null)
-                {
-                    ability.ApplyAbility(attack.gameObject);
-                    ability.Setting(attack.gameObject);
-                }
             }
             return;
         }
@@ -282,10 +264,9 @@ public class Planet : LivingEntity
         if (amp != null)
         {
             amp.SetReinforceLevel(amp.ReinforceLevel + 1);
-
             if (abilityId > 0)
             {
-                amp.AddAbility(abilityId);
+                amp.AddAbilityAndApplyToCurrentTargets(abilityId);
             }
         }
     }
@@ -333,12 +314,12 @@ public class Planet : LivingEntity
     {
         base.OnDamage(damage);
 
-        TryPlayHitSfx();
         Cancel();
+
         Material.color = hitColor;
         ResetColorAsync(0.2f, colorResetCts.Token).Forget();
     }
-
+    
     public override void Die()
     {
         base.Die();
@@ -406,11 +387,9 @@ public class Planet : LivingEntity
             amplifiersSlots[toIndex] = towers[toIndex]?.GetComponent<TowerAmplifier>();
         }
 
-        if (fromAmp != null)
-            fromAmp.RebuildSlotsForNewIndex(toIndex, slotCount);
-        if (toAmp != null)
-            toAmp.RebuildSlotsForNewIndex(fromIndex, slotCount);
-        
+        if (fromAmp != null) fromAmp.RebuildSlotIndicesOnly(toIndex, slotCount);
+        if (toAmp != null) toAmp.RebuildSlotIndicesOnly(fromIndex, slotCount);
+
         ReapplyAllAmplifierBuffs();
     }
     public void ReapplyAllAmplifierBuffs()
@@ -425,14 +404,27 @@ public class Planet : LivingEntity
             {
                 if (atk == null) continue;
                 atk.ClearAllAmplifierBuffs();
+                atk.ClearAllAmplifierAbilityStates();
             }
         }
 
         for (int i = 0; i < amplifiersSlots.Length; i++)
         {
             var amp = amplifiersSlots[i];
-            if (amp == null) continue;
-            amp.ResetLocalBuffStateOnly();
+            if (amp == null || amp.AmplifierTowerData == null) continue;
+
+            var buffSlots = amp.BuffedSlotIndex;
+            if (buffSlots == null || buffSlots.Count == 0) continue;
+
+            foreach (int slotIndex in buffSlots)
+            {
+                if (slotIndex < 0 || slotIndex >= slotCount) continue;
+
+                var attack = GetAttackTowerToAmpTower(slotIndex);
+                if (attack == null) continue;
+
+                amp.ApplyBuffForNewTower(slotIndex, attack);
+            }
         }
 
         for (int i = 0; i < amplifiersSlots.Length; i++)
@@ -499,6 +491,7 @@ public class Planet : LivingEntity
                 planetAttacks.Remove(attack);
             }
         }
+
         var amp = go.GetComponent<TowerAmplifier>();
         if (amp != null && amplifiersSlots != null && index >= 0 && index < amplifiersSlots.Length)
         {
@@ -509,28 +502,6 @@ public class Planet : LivingEntity
         towers[index] = null;
 
         ReapplyAllAmplifierBuffs();
-    }
-    //--------------------------------------------------
-    //audio --------------------------------------------
-    private void EnsureHitAudioSource()
-    {
-        if (hitAudioSource != null) return;
-
-        hitAudioSource = GetComponent<AudioSource>();
-        if (hitAudioSource == null) hitAudioSource = gameObject.AddComponent<AudioSource>();
-
-        hitAudioSource.playOnAwake = false;
-        hitAudioSource.loop = false;
-        hitAudioSource.spatialBlend = 0f;
-    }
-    private void TryPlayHitSfx()
-    {
-        if (playerHitSfx == null) return;
-        if (Time.time - lastHitSfxTime < playerHitSfxMinInterval) return;
-
-        lastHitSfxTime = Time.time;
-        EnsureHitAudioSource();
-        hitAudioSource.PlayOneShot(playerHitSfx, playerHitSfxVolume);
     }
     //--------------------------------------------------
 }

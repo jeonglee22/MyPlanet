@@ -23,10 +23,6 @@ public class TowerAttack : MonoBehaviour
 
     private List<IAbility> testAbilities;
     public List<IAbility> TestAbilities { get { return testAbilities; } set { testAbilities = value; } }
-    
-    [Header("Audio (Optional Override)")]
-    [SerializeField] private AudioSource towerAudioSource;
-    private bool laserLoopPlaying = false;
 
     //test
     //ability ----------------------------------------
@@ -46,13 +42,28 @@ public class TowerAttack : MonoBehaviour
             return mergedAbilityIds;
         }
     }
+
+    //random ability
+    //get from card
+    private readonly List<int> ownedAbilityIds = new List<int>();
+    private readonly Dictionary<int, IAbility> ownedAppliedInstances = new Dictionary<int, IAbility>();
+    private readonly Dictionary<int, IAbility> appliedSelfAbilities = new Dictionary<int, IAbility>();
+    //manage random ability
+    private readonly Dictionary<TowerAmplifier,Dictionary<int, List<IAbility>>> ampAppliedInstances
+        =new Dictionary<TowerAmplifier,Dictionary<int, List<IAbility>>>();
+
+    [SerializeField] private bool debugReinforcedAbility = false;
     //------------------------------------------------
     private ProjectilePoolManager projectilePoolManager;
 
     //------------ Amplifier Buff Field ---------------------
+    //damage
     private float damageBuffMul = 1f; //damage = baseDamage * damageBuffMul
     public float DamageBuffMul { get { return damageBuffMul; } set { damageBuffMul = value; } }
     private float accelerationBuffAdd = 0f;  // +=
+
+    private readonly List<float> damageAbilitySources = new List<float>();
+    private float damageAbilityMul = 1f; // self abilities only
 
     //fire rate --------------------------------------------------
     public float fireRateAbilityMul = 0f;
@@ -218,7 +229,6 @@ public class TowerAttack : MonoBehaviour
             .GetComponent<ProjectilePoolManager>();
 
         lazers = new List<LazertowerAttack>();
-        EnsureAudioSource();
     }
 
     private void Start()
@@ -229,15 +239,12 @@ public class TowerAttack : MonoBehaviour
     private void OnDisable()
     {
         DeleteExistLazers();
-        StopLaserLoop();
     }
 
     public void SetTowerData(TowerDataSO data)
     {
         towerData = data;
         if (towerData == null) return;
-
-        StopLaserLoop();
 
         baseAbilityIds.Clear();
         amplifierAbilityIds.Clear();
@@ -252,6 +259,10 @@ public class TowerAttack : MonoBehaviour
             // Apply Upgrade Effects
             ApplyUpgradeEffects(upgradeLevel);
         }
+
+        //damage
+        damageAbilitySources.Clear();
+        damageAbilityMul = 1f;
 
         //firerate
         fireRateAbilitySources.Clear();
@@ -349,20 +360,6 @@ public class TowerAttack : MonoBehaviour
     {
         if (towerData == null || targetingSystem == null) return;
 
-        //audio sound
-        if (towerData.towerIdInt == (int)AttackTowerId.Lazer)
-        {
-            if (isStartLazer)
-            {
-                StartLaserLoop();
-                return;
-            }
-            else
-            {
-                StopLaserLoop();
-            }
-        }
-
         shootTimer += Time.deltaTime;
 
         //Fire Rate Buff Calculator
@@ -403,7 +400,6 @@ public class TowerAttack : MonoBehaviour
             lazer?.gameObject.SetActive(false);
         }
         lazers.Clear();
-        StopLaserLoop();
     }
 
     private void StartHitscan(float hitScanInterval)
@@ -452,6 +448,26 @@ public class TowerAttack : MonoBehaviour
             }
         }
 
+        //debug
+        int targetCount =
+       (targets != null && targets.Count > 0)
+       ? targets.Count
+       : (targetingSystem.CurrentTarget != null ? 1 : 0);
+
+        int expectedProjectiles = targetCount * shotCount;
+
+        // Debug.Log(
+        //     $"[ShootAtTarget] {gameObject.name} " +
+        //     $"targetCount={targetCount}, shotCount={shotCount}, " +
+        //     $"expectedProjectiles={expectedProjectiles}, " +
+        //     $"baseProjCount={baseProjectileCount}, " +
+        //     $"extraProjFromAbility={projectileCountFromAbility}, " +
+        //     $"extraProjFromAmp={projectileCountFromAmplifier}, " +
+        //     $"baseTargets={ (targetingSystem != null ? targetingSystem.BaseTargetCount : 0) }, " +
+        //     $"extraTargets={TotalTargetNumberBuffAdd}"
+        // );
+        //
+
         if (targets == null || targets.Count == 0)
         {
             var single = targetingSystem.CurrentTarget;
@@ -481,6 +497,11 @@ public class TowerAttack : MonoBehaviour
                            vp.y >= 0f && vp.y <= 1f);
         if (!inViewport) return;
 
+//         Debug.Log(
+//     $"[FireToTarget] {gameObject.name} " +
+//     $"target={target} shotCount={shotCount}"
+// );
+
         Vector3 baseDirection = (target.position - firePoint.position).normalized;
         float centerIndex = (shotCount - 1) * 0.5f;
 
@@ -492,13 +513,12 @@ public class TowerAttack : MonoBehaviour
 
         for (int i = 0; i < shotCount; i++)
         {
+    //         Debug.Log(
+    //        $"[FireToTargetLoop] {gameObject.name} " +
+    //        $"target={target} projIndex={i + 1}/{shotCount}"
+    //    );
+
             float offsetIndex = i - centerIndex;
-
-            if (towerData.towerIdInt != (int)AttackTowerId.Lazer)
-            {
-                PlayShootOneShot();
-            }
-
             var projectile = ProjectilePoolManager.Instance.GetProjectile(baseData);
             if (isOtherUserTower)
                 projectile.IsOtherUser = true;
@@ -509,7 +529,6 @@ public class TowerAttack : MonoBehaviour
 
             if (towerData.towerIdInt == (int)AttackTowerId.Lazer)
             {
-                StartLaserLoop();
                 var lazerObj = LoadManager.GetLoadedGamePrefab(ObjectName.Lazer);
                 var lazer = lazerObj.GetComponent<LazertowerAttack>();
                 lazers.Add(lazer);
@@ -755,6 +774,7 @@ public class TowerAttack : MonoBehaviour
     public void AddAbility(int ability)
     {
         AddBaseAbility(ability);
+        ReapplyAllSelfAbilitiesByReinforce();
     }
     public void RemoveAbility(int ability)
     {
@@ -772,6 +792,131 @@ public class TowerAttack : MonoBehaviour
         AddBaseAbility(ability);
         AbilityManager.GetAbility(ability)?.ApplyAbility(gameObject);
         AbilityManager.GetAbility(ability)?.Setting(gameObject);
+    }
+
+    //from card
+    public void AddOwnedAbility(int abilityId)
+    {
+        if (abilityId <= 0) return;
+        ownedAbilityIds.Add(abilityId);
+        ApplyOwnedAbilityInstance(abilityId);
+    }
+    public void RemoveOwnedAbility(int abilityId)
+    {
+        if (abilityId <= 0) return;
+
+        int idx = ownedAbilityIds.IndexOf(abilityId);
+        if (idx >= 0) ownedAbilityIds.RemoveAt(idx);
+        if(ownedAppliedInstances.TryGetValue(abilityId,out var inst)&&inst!=null)
+        {
+            inst.RemoveAbility(gameObject);
+            ownedAppliedInstances.Remove(abilityId);
+            if(debugReinforcedAbility)
+                Debug.Log($"[OwnedAbility][REMOVE] tower={name}, abilityId={abilityId}, amount={inst.UpgradeAmount}");
+        }
+    }
+    private void ApplyOwnedAbilityInstance(int abilityId)
+    {
+        if(ownedAppliedInstances.TryGetValue(abilityId,out var oldInst)&&oldInst!=null)
+        {
+            oldInst.RemoveAbility(gameObject);
+            ownedAppliedInstances.Remove(abilityId);
+        }
+        var inst = ReinforceAbilityFactory.Create(abilityId, ReinforceLevel);
+        if (inst == null) return;
+        inst.ApplyAbility(gameObject);
+        inst.Setting(gameObject);
+        ownedAppliedInstances[abilityId] = inst;
+
+        if (debugReinforcedAbility)
+            Debug.Log($"[OwnedAbility][APPLY] tower={name}, abilityId={abilityId}, reinforce={ReinforceLevel}, amount={inst.UpgradeAmount}");
+    }
+    public void RebuildOwnedAbilityCache()
+    {
+        var unique = new HashSet<int>(ownedAbilityIds);
+        foreach(var abilityId in unique)
+        {
+            ApplyOwnedAbilityInstance(abilityId);
+        }
+    }
+
+    public void ApplyAmplifierAbilityReinforce(TowerAmplifier source, int abilityId, int sourceReinforceLevel)
+    {
+        if (source == null) return;
+        if (abilityId <= 0) return;
+        var inst = ReinforceAbilityFactory.Create(abilityId, sourceReinforceLevel);
+        if (inst == null) return;
+        inst.ApplyAbility(gameObject);
+        inst.Setting(gameObject);
+        if(!ampAppliedInstances.TryGetValue(source,out var byAbility))
+        {
+            byAbility = new Dictionary<int, List<IAbility>>();
+            ampAppliedInstances[source] = byAbility;
+        }
+        if(!byAbility.TryGetValue(abilityId,out var list))
+        {
+            list = new List<IAbility>();
+            byAbility[abilityId] = list;
+        }
+        list.Add(inst);
+        if (debugReinforcedAbility)
+            Debug.Log($"[AmpAbility][APPLY] tower={name}, amp={source.name}, abilityId={abilityId}, ampReinforce={sourceReinforceLevel}, amount={inst.UpgradeAmount}");
+    }
+    public void RemoveAmplifierAbilityReinforced(TowerAmplifier source, int abilityId, int count)
+    {
+        if (source == null) return;
+        if (abilityId <= 0) return;
+        if (count <= 0) return;
+
+        if (!ampAppliedInstances.TryGetValue(source, out var byAbility)) return;
+        if (!byAbility.TryGetValue(abilityId, out var list)) return;
+        if (list == null || list.Count == 0) return;
+
+        int removeCount = Mathf.Min(count, list.Count);
+
+        // LIFO로 제거 (Apply 순서 역순)
+        for (int i = 0; i < removeCount; i++)
+        {
+            int last = list.Count - 1;
+            var inst = list[last];
+            list.RemoveAt(last);
+
+            if (inst != null)
+                inst.RemoveAbility(gameObject);
+
+            if (debugReinforcedAbility && inst != null)
+                Debug.Log($"[AmpAbility][REMOVE] tower={name}, amp={source.name}, abilityId={abilityId}, amount={inst.UpgradeAmount}");
+        }
+
+        if (list.Count == 0)
+            byAbility.Remove(abilityId);
+
+        if (byAbility.Count == 0)
+            ampAppliedInstances.Remove(source);
+    }
+    public void ClearAllAmplifierAbilitiesFrom(TowerAmplifier source)
+    {
+        if (source == null) return;
+
+        if (!ampAppliedInstances.TryGetValue(source, out var byAbility)) return;
+
+        foreach (var kv in byAbility)
+        {
+            var list = kv.Value;
+            if (list == null) continue;
+
+            for (int i = list.Count - 1; i >= 0; i--)
+            {
+                var inst = list[i];
+                if (inst != null)
+                    inst.RemoveAbility(gameObject);
+            }
+        }
+
+        ampAppliedInstances.Remove(source);
+
+        if (debugReinforcedAbility)
+            Debug.Log($"[AmpAbility][CLEAR_SOURCE] tower={name}, amp={source.name}");
     }
 
     //--------------------------------------------------------
@@ -847,12 +992,6 @@ public class TowerAttack : MonoBehaviour
                 CombinePercentPenetration01(percentPenetrationFromAmplifier, amp.PercentPenetrationBuff);
 
             fixedPenetrationFromAmplifier += amp.FixedPenetrationBuff;
-
-            // Debug.Log(
-            //     $"[AmpBase][FixedPen] tower={name}, amp={amp.name}, " +
-            //     $"amp.FixedPenetrationBuff={amp.FixedPenetrationBuff}, " +
-            //     $"sumAmpFixed={fixedPenetrationFromAmplifier}"
-            // );
             targetNumberFromAmplifier += amp.TargetNumberBuff;
             accuracyFromAmplifier += amp.HitRateBuff;
         }
@@ -890,10 +1029,6 @@ public class TowerAttack : MonoBehaviour
         addBuffProjectileData.FixedPenetration =
        baseFixed + fromAbility + fromAmpBase;
 
-        // Debug.Log(
-        //     $"[FixedPen][Calc] tower={name} base={baseFixed}, fromAbility={fromAbility}, " +
-        //     $"fromAmpBase={fromAmpBase}"
-        // );
         //------------------
         //rate penetration---------------------------
         float baseRate01 = Mathf.Clamp01(currentProjectileData.RatePenetration / 100f);
@@ -904,7 +1039,7 @@ public class TowerAttack : MonoBehaviour
         addBuffProjectileData.RatePenetration =
             Mathf.Clamp(finalRate01 * 100f, 0f, 100f);
         //-------------------------------------------
-        float rawAttack = currentProjectileData.Attack * (damageBuffMul + damageBuffFromUpgrade);
+        float rawAttack = currentProjectileData.Attack * (damageBuffMul + damageAbilityMul + damageBuffFromUpgrade);
 
         addBuffProjectileData.Attack = Mathf.Max(0f, rawAttack);
         addBuffProjectileData.ProjectileAddSpeed = currentProjectileData.ProjectileAddSpeed + accelerationBuffAdd;
@@ -912,7 +1047,6 @@ public class TowerAttack : MonoBehaviour
             ? currentProjectileData.AttackType
             : newProjectileAttackType;
         currentProjectileData.AttackType = addBuffProjectileData.AttackType;
-
         addBuffProjectileData.RemainTime =
             currentProjectileData.RemainTime + additionalDurationFromUpgrade;
 
@@ -926,6 +1060,8 @@ public class TowerAttack : MonoBehaviour
 
         if (reinforceLevel == newLevel) return;
         reinforceLevel = newLevel;
+
+        ReapplyAllSelfAbilitiesByReinforce();
         RecalculateReinforcedBase();
     }
 
@@ -956,10 +1092,8 @@ public class TowerAttack : MonoBehaviour
         {
             Debug.LogWarning("[AtkReinforce] TowerReinforceManager.Instance is null");
         }
-
         float finalAttack = (originalProjectileData.Attack + addValue) * reinforceAttackScale;
         finalAttack = Mathf.Max(0f, finalAttack);
-
         currentProjectileData.Attack = finalAttack;
     }
 
@@ -1074,79 +1208,78 @@ public class TowerAttack : MonoBehaviour
         fireRateAbilityMul = sum;
     }
     //----------------------------------------------------
-    //audio ----------------------------------------------
-    private void EnsureAudioSource()
+    //Reinforce ------------------------------------------
+    private IAbility CreateSelfAbilityInstanceWithReinforce(int abilityId)
     {
-        if (towerAudioSource != null) return;
-
-        if (firePoint != null)
+        return ReinforceAbilityFactory.Create(abilityId, ReinforceLevel);
+    }
+    private void ReapplyAllSelfAbilitiesByReinforce()
+    {
+        foreach (var kv in appliedSelfAbilities)
         {
-            towerAudioSource = firePoint.GetComponent<AudioSource>();
+            var ab = kv.Value;
+            if (ab != null) ab.RemoveAbility(gameObject);
         }
+        appliedSelfAbilities.Clear();
 
-        if (towerAudioSource == null)
+        foreach (var abilityId in baseAbilityIds)
         {
-            towerAudioSource = GetComponent<AudioSource>();
-        }
+            var ab = CreateSelfAbilityInstanceWithReinforce(abilityId);
+            if (ab == null) continue;
 
-        if (towerAudioSource == null)
-        {
-            towerAudioSource = gameObject.AddComponent<AudioSource>();
+            ab.ApplyAbility(gameObject);
+            ab.Setting(gameObject);
+            appliedSelfAbilities[abilityId] = ab;
         }
-
-        towerAudioSource.playOnAwake = false;
-        towerAudioSource.loop = false;
     }
 
-    private void PlayShootOneShot()
+    //----------------------------------------------------
+    //damage ---------------------------------------------
+    public void AddDamageMulFromAbilitySource(float rate01)
     {
-        if (towerData == null) return;
-        if (towerData.shootSfx == null) return;
+        float r = Mathf.Clamp(rate01, -0.99f, 10f); // rate01: 0.2f = +20%
+        if (Mathf.Approximately(r, 0f)) return;
 
-        EnsureAudioSource();
-
-        float originalPitch = towerAudioSource.pitch;
-        Vector2 pr = towerData.shootPitchRange;
-
-        float p = (Mathf.Approximately(pr.x, pr.y))
-            ? pr.x
-            : UnityEngine.Random.Range(Mathf.Min(pr.x, pr.y), Mathf.Max(pr.x, pr.y));
-
-        towerAudioSource.pitch = p;
-        towerAudioSource.PlayOneShot(towerData.shootSfx, towerData.shootVolume);
-        towerAudioSource.pitch = originalPitch;
+        damageAbilitySources.Add(r);
+        RecalculateDamageMulFromAbility();
     }
 
-    private void StartLaserLoop()
+    public void RemoveDamageMulFromAbilitySource(float rate01)
     {
-        if (towerData == null) return;
-        if (towerData.laserLoopSfx == null) return;
+        float r = Mathf.Clamp(rate01, -0.99f, 10f);
 
-        EnsureAudioSource();
-
-        if (laserLoopPlaying && towerAudioSource.isPlaying && towerAudioSource.clip == towerData.laserLoopSfx && towerAudioSource.loop)
-            return;
-
-        towerAudioSource.Stop();
-        towerAudioSource.clip = towerData.laserLoopSfx;
-        towerAudioSource.loop = true;
-        towerAudioSource.volume = towerData.laserLoopVolume;
-        towerAudioSource.Play();
-
-        laserLoopPlaying = true;
-    }
-
-    private void StopLaserLoop()
-    {
-        if (towerAudioSource == null) { laserLoopPlaying = false; return; }
-
-        if (towerAudioSource.loop)
+        int idx = damageAbilitySources.FindIndex(x => Mathf.Approximately(x, r));
+        if (idx >= 0)
         {
-            towerAudioSource.loop = false;
-            towerAudioSource.Stop();
-            towerAudioSource.clip = null;
+            damageAbilitySources.RemoveAt(idx);
+            RecalculateDamageMulFromAbility();
         }
-        laserLoopPlaying = false;
+    }
+
+    private void RecalculateDamageMulFromAbility()
+    {
+        float mul = 1f;
+        foreach (var r in damageAbilitySources)
+            mul *= (1f + r);
+
+        damageAbilityMul = Mathf.Max(0f, mul);
     }
     //----------------------------------------------------
+    public void ClearAllAmplifierAbilityStates()
+    {
+        amplifierAbilityIds.Clear();
+        abilitiesDirty = true;
+
+        foreach (var byAbility in ampAppliedInstances.Values)
+        {
+            foreach (var list in byAbility.Values)
+            {
+                for (int i = list.Count - 1; i >= 0; i--)
+                {
+                    list[i]?.RemoveAbility(gameObject);
+                }
+            }
+        }
+        ampAppliedInstances.Clear();
+    }
 }

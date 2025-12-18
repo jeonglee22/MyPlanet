@@ -41,7 +41,15 @@ public class TowerInstallControl : MonoBehaviour
     }
 
     private int maxTowerCount = 6;
-    public int MaxTowerCount { get => maxTowerCount; }
+    public int MaxTowerCount 
+    { 
+        get => maxTowerCount;
+        set
+        {
+            maxTowerCount = value;
+            OnTowerInstalled?.Invoke();
+        }
+    }
 
     public event Action OnTowerInstalled;
 
@@ -305,6 +313,17 @@ public class TowerInstallControl : MonoBehaviour
 
     public void UpgradeTower(int index)
     {
+        Debug.Log($"[InstallControl][UpgradeTower] slot={index}, used={IsUsedSlot(index)}");
+
+        var atk = GetAttackTower(index);
+        var amp = GetAmplifierTower(index);
+
+        Debug.Log(
+            $"[InstallControl][UpgradeTower] resolved atk={(atk != null ? atk.name : "null")}, " +
+            $"amp={(amp != null ? amp.name : "null")}"
+        );
+
+
         if (!IsReadyInstall) return;
         if (ChoosedData == null) return;
         if (IsSlotMaxLevel(index)) return;
