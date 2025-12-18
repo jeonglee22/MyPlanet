@@ -89,6 +89,11 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         installControl.OnTowerInstalled += SetTowerInstallText;
 
         SetIsTutorial(TutorialManager.Instance.IsTutorialMode);
+
+        if(isTutorial && Variables.Stage == 1)
+        {
+            installControl.MaxTowerCount = 3;
+        }
     }
 
     void OnDestroy()
@@ -1209,13 +1214,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     {
         if (isTutorial && Variables.Stage == 1)
         {
-            ResetChoose();
-            numlist = new List<int>();
-            usedAttackTowerTypesThisRoll.Clear();
-            usedAmplifierTowerTypesThisRoll.Clear();
-            initialOptionKeys = new TowerOptionKey[upgradeUIs.Length];
-
-            SettingStage1Cards(GetTotalTowerCount());
+            RefreshStage1SingleCard(index);
         }
         else
         {
@@ -1969,6 +1968,117 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         }
 
         return upgradeSlots[upgradeSlots.Count - 1];
+    }
+
+    private void RefreshStage1SingleCard(int index)
+    {
+        if (choices != null && index >= 0 && index < choices.Length)
+        {
+            choices[index].InstallType = TowerInstallType.Attack; // default
+            choices[index].AttackTowerData = null;
+            choices[index].AmplifierTowerData = null;
+            choices[index].BuffSlotIndex = null;
+            choices[index].RandomAbilitySlotIndex = null;
+            choices[index].ability = -1;
+        }
+
+        abilities[index] = -1;
+        installControl.IsReadyInstall = false;
+        upgradeUIs[index].GetComponentInChildren<Image>().color = Color.white;
+
+        List<int> emptySlots = new List<int>();
+        List<int> upgradeSlots = new List<int>();
+
+        for (int i = 0; i < installControl.TowerCount; i++)
+        {
+            if (numlist != null && i != index && numlist.Contains(i))
+                continue;
+
+            bool used = installControl.IsUsedSlot(i);
+
+            if (!used)
+            {
+                if (installControl.CurrentTowerCount < installControl.MaxTowerCount)
+                {
+                    emptySlots.Add(i);
+                }
+            }
+            else
+            {
+                if (!installControl.IsSlotMaxLevel(i))
+                {
+                    upgradeSlots.Add(i);
+                }
+            }
+        }
+
+        if (ShouldShowGoldCard())
+        {
+            numlist[index] = -1;
+
+            var btn = upgradeUIs[index].GetComponent<Button>();
+            if (btn != null)
+                btn.interactable = false;
+
+            return;
+        }
+
+        int totalTowerCount = GetTotalTowerCount();
+        bool hasPistol = HasTowerTypeInstalled(tutorialPistolTower);
+        bool hasAmp1 = HasAmplifierInstalled(damageMatrixCoreSO);
+        bool hasAmp2 = HasAmplifierInstalled(proejctileCoreSO);
+
+        List<AmplifierTowerDataSO> remainingAmps = new List<AmplifierTowerDataSO>();
+        if(!hasAmp1 && damageMatrixCoreSO != null)
+        {
+            remainingAmps.Add(damageMatrixCoreSO);
+        }
+        if(!hasAmp2 && proejctileCoreSO != null)
+        {
+            remainingAmps.Add(proejctileCoreSO);
+        }
+
+        if(!hasPistol && totalTowerCount == 0)
+        {
+            if(emptySlots.Count > 0)
+            {
+                int slotIdx = Random.Range(0, emptySlots.Count);
+                int slotNumber = emptySlots[slotIdx];
+                numlist[index] = slotNumber;
+                SetUpTutorialAttackCard(index, slotNumber, isInitial: false);
+            }
+            else
+            {
+                numlist[index] = -1;
+                uiTexts[index].text = string.Empty;
+            }
+            return;
+        }
+
+        if(remainingAmps.Count > 0 && emptySlots.Count > 0)
+        {
+            int slotIdx = Random.Range(0, emptySlots.Count);
+            int slotNumber = emptySlots[slotIdx];
+            
+            var ampData = remainingAmps[Random.Range(0, remainingAmps.Count)];
+
+            numlist[index] = slotNumber;
+            SetUpTutorialAmplifierCard(index, slotNumber, ampData, isInitial: false);
+            return;
+        }
+
+        if(upgradeSlots.Count > 0)
+        {
+            int listIdx = Random.Range(0, upgradeSlots.Count);
+            int slotNumber = upgradeSlots[listIdx];
+
+            numlist[index] = slotNumber;
+            SetUpgradeCardForUsedSlot(index, slotNumber, isInitial: false);
+            return;
+        }
+
+        numlist[index] = -1;
+        uiTexts[index].text = (ShouldShowGoldCard() && index == uiTexts.Length - 1) ? "100\nGOLD" : string.Empty;
     }
 
 }

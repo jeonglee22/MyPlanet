@@ -41,7 +41,15 @@ public class TowerInstallControl : MonoBehaviour
     }
 
     private int maxTowerCount = 6;
-    public int MaxTowerCount { get => maxTowerCount; }
+    public int MaxTowerCount 
+    { 
+        get => maxTowerCount;
+        set
+        {
+            maxTowerCount = value;
+            OnTowerInstalled?.Invoke();
+        }
+    }
 
     public event Action OnTowerInstalled;
 
