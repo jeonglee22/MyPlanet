@@ -55,10 +55,13 @@ public class PlanetStatusUI : MonoBehaviour
     {
         HpValueChanged(planet.Health);
         ExpValueChange(planet.CurrentExp);
-        if (Variables.planetId == barriorPlanet)
+        if(barriorSlider!=null)
+        {
+            if (Variables.planetId == barriorPlanet)
             barriorSlider.value = 1f;
         else
             barriorSlider.value = 0f;
+        }
         ChangeLevelText();
     }
 
