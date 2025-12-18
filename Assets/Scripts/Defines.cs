@@ -151,16 +151,20 @@ public enum PatternIds
     NeptuneFrontDiaSummon,
     EliteDiaReflectShield,
     EliteBigDiaReflectShield,
-    FireChildHitChangeSpeedChase = 4100024,
+    UFOLazer,
+    GalaxyStarShot,
+    SpaceWarmLazer,
+    SpaceWarmGravityShot,
+    FireChildHitChangeSpeedChase,
     FireEyeShootFire,
     BigFireEyeSummonFireChild,
     BigFireEyeSummonFireEye,
     BigFireEyeShootBigFire,
     BigFireEyeFirePillar,
     SunSummonFireChild,
-    SunSummonFireEye,
-    SunSummonBigFireEye,
     SunShootFire,
+    empty,
+    SunParabolicShot,
 }
 
 public enum TutorialPoint
