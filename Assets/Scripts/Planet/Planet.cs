@@ -167,12 +167,14 @@ public class Planet : LivingEntity
     public void UpgradeTower(int index, int abilityId)
     {
         var go = towers[index];
+        Debug.Log($"[Planet][UpgradeTower] index={index}, abilityId={abilityId}, go={(go ? go.name : "null")}");
         if (go == null) return;
 
         // Attack Tower
         var attack = go.GetComponent<TowerAttack>();
         if (attack != null)
         {
+            Debug.Log($"[Planet][UpgradeTower][Attack] tower={attack.name}, beforeLv={attack.ReinforceLevel} -> afterLv={attack.ReinforceLevel + 1}");
             attack.SetReinforceLevel(attack.ReinforceLevel + 1);
 
             if (abilityId > 0)

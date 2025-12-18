@@ -36,6 +36,10 @@ public class TowerReinforceManager : MonoBehaviour
     private readonly Dictionary<long, RandomAbilityReinforceSum> randomAbilitySumCache
         = new Dictionary<long, RandomAbilityReinforceSum>();
 
+    [SerializeField] private bool normalizeRandomAbilityUnits = true;
+    private readonly Dictionary<int, float> randomAbilityUnitScaleCache
+        = new Dictionary<int, float>();
+
     private void Awake()
     {
         if (_instance != null && _instance != this)
@@ -282,13 +286,19 @@ public class TowerReinforceManager : MonoBehaviour
         var ra = raTable != null ? raTable.Get(abilityId) : null;
         if (ra == null) return 0f;
 
-        float baseValue = ra.SpecialEffectValue;
-        if (reinforceLevel <= 0) return baseValue;
+        float scale = GetRandomAbilityUnitScale(abilityId);
+
+        float baseTableValue = ra.SpecialEffectValue;
+        if (reinforceLevel <= 0)
+            return baseTableValue * scale;
 
         var sum = GetRandomAbilityReinforceSumForAbility(abilityId, reinforceLevel);
-        float add = sum.GetAdd(ra.SpecialEffect_ID);
-        return baseValue + add;
+        float addTableValue = sum.GetAdd(ra.SpecialEffect_ID);
+
+        float finalTableValue = baseTableValue + addTableValue;
+        return finalTableValue * scale;
     }
+
 
     public float GetFinalSuperValueForAbility(int abilityId, int reinforceLevel)
     {
@@ -352,5 +362,48 @@ public class TowerReinforceManager : MonoBehaviour
         }
         return result;
     }
+    private float GetRandomAbilityUnitScale(int abilityId)
+    {
+        if (!normalizeRandomAbilityUnits) return 1f;
 
+        if (randomAbilityUnitScaleCache.TryGetValue(abilityId, out var cached))
+            return cached;
+
+        if (!AbilityManager.IsInitialized)
+        {
+            randomAbilityUnitScaleCache[abilityId] = 1f;
+            return 1f;
+        }
+
+        var raTable = DataTableManager.RandomAbilityTable;
+        var ra = raTable != null ? raTable.Get(abilityId) : null;
+        if (ra == null)
+        {
+            randomAbilityUnitScaleCache[abilityId] = 1f;
+            return 1f;
+        }
+
+        float tableBase = ra.SpecialEffectValue;
+        if (Mathf.Approximately(tableBase, 0f))
+        {
+            randomAbilityUnitScaleCache[abilityId] = 1f;
+            return 1f;
+        }
+
+        var baseAbility = AbilityManager.GetAbility(abilityId);
+        if (baseAbility == null)
+        {
+            randomAbilityUnitScaleCache[abilityId] = 1f;
+            return 1f;
+        }
+
+        float internalBase = baseAbility.UpgradeAmount;
+        float scale = internalBase / tableBase;
+
+        if (float.IsNaN(scale) || float.IsInfinity(scale) || Mathf.Approximately(scale, 0f))
+            scale = 1f;
+
+        randomAbilityUnitScaleCache[abilityId] = scale;
+        return scale;
+    }
 }
