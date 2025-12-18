@@ -145,15 +145,7 @@ public class FirePillarLazer : MonoBehaviour
 
         if(laserParticle != null)
         {
-            laserParticle.transform.position = startPoint;
-            laserParticle.transform.rotation = transform.rotation * Quaternion.Euler(-90f, 0f, 0f);
-            laserParticle.transform.localScale = Vector3.one;
-
-            var main = laserParticle.main;
-            main.startSpeed = 0.1f;
-
-            laserParticle.Stop();
-            laserParticle.Clear();
+            laserParticle.gameObject.SetActive(false);
         }
 
         while (elapsedTime < chargeTime)
@@ -244,6 +236,8 @@ public class FirePillarLazer : MonoBehaviour
 
         if(laserParticle != null)
         {
+            laserParticle.gameObject.SetActive(true);
+
             laserParticle.transform.position = startPoint;
             laserParticle.transform.rotation = transform.rotation * Quaternion.Euler(-90f, 0f, 0f);
             laserParticle.transform.localScale = Vector3.one;
@@ -309,9 +303,12 @@ public class FirePillarLazer : MonoBehaviour
 
             if(tickTimer >= tickInterval && currentTickCount < repeatCount)
             {
-                CheckLazerCollision(laserLength);
+                bool hitSomthing = CheckLazerCollision(laserLength);
+                if (hitSomthing)
+                {
+                    currentTickCount++;
+                }
                 tickTimer = 0f;
-                currentTickCount++;
             }
 
             await UniTask.Yield(token);
