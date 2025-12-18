@@ -1,6 +1,6 @@
 using Cysharp.Threading.Tasks;
+using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class PlanetTowerUI : MonoBehaviour
@@ -11,8 +11,12 @@ public class PlanetTowerUI : MonoBehaviour
     [SerializeField] private TowerInstallControl installControl;
     [SerializeField] private RectTransform planetCenter;
     [SerializeField] private GameObject backConfirmPanel;
+    [SerializeField] private GameObject gotoBattlePanel;
+    [SerializeField] private Button gotoBattleYesBtn;
+    [SerializeField] private Button gotoBattleNoBtn;
     [SerializeField] private Button backYexBtn;
     [SerializeField]  private Button backNoBtn;
+    [SerializeField] private TextMeshProUGUI topBannerPanelText;
     private RectTransform dragAreaRect;
     private TowerUpgradeSlotUI towerUpgradeSlotUI;
 
@@ -39,8 +43,8 @@ public class PlanetTowerUI : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        battleButton.onClick.AddListener(OnStartBattelClicked);
-        goToTitleButton?.onClick.AddListener(OnGoToTitleClicked);
+        battleButton.onClick.AddListener(() => gotoBattlePanel.SetActive(true));
+        // goToTitleButton?.onClick.AddListener(() => gotoBattlePanel.SetActive(true));
 
         Angle = 0f;
         
@@ -53,6 +57,17 @@ public class PlanetTowerUI : MonoBehaviour
         backYexBtn.onClick.AddListener(OnBackYesClicked);
         backNoBtn.onClick.AddListener(OnBackNoClicked);
         backConfirmPanel.SetActive(false);
+        gotoBattlePanel.SetActive(false);
+
+        gotoBattleYesBtn.onClick.AddListener(() =>
+        {
+            gotoBattlePanel.SetActive(false);
+            OnStartBattelClicked();
+        });
+        gotoBattleNoBtn.onClick.AddListener(() =>
+        {
+            gotoBattlePanel.SetActive(false);
+        });
     }
 
     void OnEnable()
@@ -89,6 +104,9 @@ public class PlanetTowerUI : MonoBehaviour
         }
 
         if (installControl.CurrentDragGhost != null)
+            return;
+
+        if (gotoBattlePanel.activeSelf)
             return;
 
         if (RectTransformUtility.RectangleContainsScreenPoint(dragAreaRect, TouchManager.Instance.StartTouchPos) &&
@@ -155,5 +173,10 @@ public class PlanetTowerUI : MonoBehaviour
         battleButton.interactable = true;
 
         isBackBtnClicked = false;
+    }
+
+    public void SetTopBannerText(string text)
+    {
+        topBannerPanelText.text = text;
     }
 }
