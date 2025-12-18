@@ -160,6 +160,7 @@ MonoBehaviour:
   hitRadius: 10
   acceleration: 0
   splitCount: 0
+  explosionRadius: 0
   baseScale: {x: 1, y: 1, z: 1}
 --- !u!114 &-5119311211424380075
 MonoBehaviour:
@@ -228,7 +229,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4509397511954154, guid: b68f8f9fee367c44295affc443bfd1ef, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 4509397511954154, guid: b68f8f9fee367c44295affc443bfd1ef, type: 3}
       propertyPath: m_LocalRotation.w
@@ -258,16 +259,23 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 65406379300426774, guid: b68f8f9fee367c44295affc443bfd1ef, type: 3}
-      propertyPath: m_Enabled
-      value: 0
+    - target: {fileID: 199002789043370362, guid: b68f8f9fee367c44295affc443bfd1ef, type: 3}
+      propertyPath: m_Materials.Array.size
+      value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 114504658946540960, guid: b68f8f9fee367c44295affc443bfd1ef, type: 3}
-      propertyPath: m_Enabled
-      value: 0
+    - target: {fileID: 199004365045112480, guid: b68f8f9fee367c44295affc443bfd1ef, type: 3}
+      propertyPath: m_Materials.Array.size
+      value: 1
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 54409772083714010, guid: b68f8f9fee367c44295affc443bfd1ef, type: 3}
+    - target: {fileID: 199302903350264960, guid: b68f8f9fee367c44295affc443bfd1ef, type: 3}
+      propertyPath: m_Materials.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 199740016027652412, guid: b68f8f9fee367c44295affc443bfd1ef, type: 3}
+      propertyPath: m_Materials.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
