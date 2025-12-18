@@ -962,12 +962,6 @@ public class TowerAttack : MonoBehaviour
             ? currentProjectileData.AttackType
             : newProjectileAttackType;
         currentProjectileData.AttackType = addBuffProjectileData.AttackType;
-        Debug.Log(
-    $"[TowerAttack][BuffedProj] tower={name}, " +
-    $"baseAtk(currentBase)={currentProjectileData.Attack}, buffedAtk={addBuffProjectileData.Attack}, " +
-    $"dmgMul={damageBuffMul}, fixedPen(base/ability/amp)={currentProjectileData.FixedPenetration}/{fixedPenetrationBuffAdd}/{fixedPenetrationFromAmplifier}"
-);
-
         return addBuffProjectileData;
     }
 
@@ -978,19 +972,9 @@ public class TowerAttack : MonoBehaviour
 
         if (reinforceLevel == newLevel) return;
         reinforceLevel = newLevel;
-        Debug.Log(
-    $"[TowerAttack][SetReinforceLevel] tower={name}, beforeLv={reinforceLevel}, newLv={newLevel}, " +
-    $"BasicFR={BasicFireRate}, CurrentFR(before)={CurrentFireRate}, " +
-    $"fireRateAbilityMul={fireRateAbilityMul}, fireRateBuffMul={fireRateBuffMul}"
-);
 
         ReapplyAllSelfAbilitiesByReinforce();
         RecalculateReinforcedBase();
-        Debug.Log(
-    $"[TowerAttack][AfterRecalc] tower={name}, lv={reinforceLevel}, " +
-    $"CurrentFR(after)={CurrentFireRate}, fireRateAbilityMul={fireRateAbilityMul}, fireRateBuffMul={fireRateBuffMul}"
-);
-
     }
 
     private void RecalculateReinforcedBase()

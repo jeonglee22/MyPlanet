@@ -174,7 +174,6 @@ public class Planet : LivingEntity
         var attack = go.GetComponent<TowerAttack>();
         if (attack != null)
         {
-            Debug.Log($"[Planet][UpgradeTower][Attack] tower={attack.name}, beforeLv={attack.ReinforceLevel} -> afterLv={attack.ReinforceLevel + 1}");
             attack.SetReinforceLevel(attack.ReinforceLevel + 1);
 
             if (abilityId > 0)
