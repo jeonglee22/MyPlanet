@@ -105,6 +105,13 @@ public class Planet : LivingEntity
 
     public bool IsLazerHit = false;
 
+    [Header("SFX")]
+    [SerializeField] private AudioSource hitAudioSource;
+    [SerializeField] private AudioClip playerHitSfx;
+    [SerializeField, Range(0f, 1f)] private float playerHitSfxVolume = 1f;
+    [SerializeField] private float playerHitSfxMinInterval = 0.05f;
+    private float lastHitSfxTime = -999f;
+
     private void Awake()
     {
         planetAttacks = new List<TowerAttack>();
@@ -326,12 +333,12 @@ public class Planet : LivingEntity
     {
         base.OnDamage(damage);
 
+        TryPlayHitSfx();
         Cancel();
-
         Material.color = hitColor;
         ResetColorAsync(0.2f, colorResetCts.Token).Forget();
     }
-    
+
     public override void Die()
     {
         base.Die();
@@ -412,7 +419,6 @@ public class Planet : LivingEntity
 
         int slotCount = towers.Count;
 
-        // 0) 먼저 모든 공격 타워에서 "증폭 버프"만 싹 지운다
         if (planetAttacks != null)
         {
             foreach (var atk in planetAttacks)
@@ -422,7 +428,6 @@ public class Planet : LivingEntity
             }
         }
 
-        // 1) 모든 증폭타워의 내부 기록만 초기화
         for (int i = 0; i < amplifiersSlots.Length; i++)
         {
             var amp = amplifiersSlots[i];
@@ -430,7 +435,6 @@ public class Planet : LivingEntity
             amp.ResetLocalBuffStateOnly();
         }
 
-        // 2) 각 증폭타워가 기억하고 있는 슬롯 인덱스를 기준으로 다시 적용
         for (int i = 0; i < amplifiersSlots.Length; i++)
         {
             var amp = amplifiersSlots[i];
@@ -487,7 +491,6 @@ public class Planet : LivingEntity
         var go = towers[index];
         if (go == null) return;
 
-        // 공격 타워라면 planetAttacks에서 제거
         var attack = go.GetComponent<TowerAttack>();
         if (attack != null)
         {
@@ -496,20 +499,38 @@ public class Planet : LivingEntity
                 planetAttacks.Remove(attack);
             }
         }
-
-        // 증폭 타워라면 증폭 슬롯에서 제거
         var amp = go.GetComponent<TowerAmplifier>();
         if (amp != null && amplifiersSlots != null && index >= 0 && index < amplifiersSlots.Length)
         {
             amplifiersSlots[index] = null;
         }
 
-        // 실제 오브젝트 제거
         Destroy(go);
         towers[index] = null;
 
-        // 남아 있는 증폭 버프들 다시 셋업
         ReapplyAllAmplifierBuffs();
+    }
+    //--------------------------------------------------
+    //audio --------------------------------------------
+    private void EnsureHitAudioSource()
+    {
+        if (hitAudioSource != null) return;
+
+        hitAudioSource = GetComponent<AudioSource>();
+        if (hitAudioSource == null) hitAudioSource = gameObject.AddComponent<AudioSource>();
+
+        hitAudioSource.playOnAwake = false;
+        hitAudioSource.loop = false;
+        hitAudioSource.spatialBlend = 0f;
+    }
+    private void TryPlayHitSfx()
+    {
+        if (playerHitSfx == null) return;
+        if (Time.time - lastHitSfxTime < playerHitSfxMinInterval) return;
+
+        lastHitSfxTime = Time.time;
+        EnsureHitAudioSource();
+        hitAudioSource.PlayOneShot(playerHitSfx, playerHitSfxVolume);
     }
     //--------------------------------------------------
 }
