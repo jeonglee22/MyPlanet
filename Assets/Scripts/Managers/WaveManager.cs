@@ -54,6 +54,10 @@ public class WaveManager : MonoBehaviour
 
     private bool isTutorial = false;
 
+    [Header("BGM")]
+    [SerializeField] private AudioClip battleBgm;
+    [SerializeField, Range(0f, 1f)] private float battleBgmVolume = 1f;
+    [SerializeField] private AudioSource bgmSource;
     private void Awake()
     {
         if (instance == null)
@@ -65,6 +69,7 @@ public class WaveManager : MonoBehaviour
             Destroy(gameObject);
         }
 
+        EnsureBgmSource();
         Cancel();
         ResetWave();
         Variables.Reset();
@@ -77,6 +82,7 @@ public class WaveManager : MonoBehaviour
 
     private void OnDestroy()
     {
+        StopBattleBgm();
         Cancel();
         Variables.Reset();
     }
@@ -155,6 +161,7 @@ public class WaveManager : MonoBehaviour
         }
 
         Cancel();
+        StartBattleBgm();
 
         CancellationToken cts = waveCts.Token;
 
@@ -298,6 +305,7 @@ public class WaveManager : MonoBehaviour
 
     public void Cancel()
     {
+        StopBattleBgm();
         waveCts?.Cancel();
         waveCts?.Dispose();
         waveCts = new CancellationTokenSource();
@@ -357,6 +365,7 @@ public class WaveManager : MonoBehaviour
         {
             isLastBoss = false;
             isCleared = true;
+            StopBattleBgm();
         }
         else
         {
@@ -370,5 +379,38 @@ public class WaveManager : MonoBehaviour
     private void SetIsTutorial(bool isTutorialMode)
     {
         isTutorial = isTutorialMode;
+    }
+
+    private void EnsureBgmSource()
+    {
+        if (bgmSource != null) return;
+
+        bgmSource = GetComponent<AudioSource>();
+        if (bgmSource == null) bgmSource = gameObject.AddComponent<AudioSource>();
+
+        bgmSource.playOnAwake = false;
+        bgmSource.loop = true;
+        bgmSource.spatialBlend = 0f; 
+    }
+
+    private void StartBattleBgm()
+    {
+        if (battleBgm == null) return;
+
+        EnsureBgmSource();
+
+        if (bgmSource.isPlaying && bgmSource.clip == battleBgm) return;
+
+        bgmSource.clip = battleBgm;
+        bgmSource.volume = battleBgmVolume;
+        bgmSource.loop = true;
+        bgmSource.Play();
+    }
+
+    private void StopBattleBgm()
+    {
+        if (bgmSource == null) return;
+        bgmSource.Stop();
+        bgmSource.clip = null;
     }
 }
