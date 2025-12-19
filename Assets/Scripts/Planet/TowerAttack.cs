@@ -23,6 +23,10 @@ public class TowerAttack : MonoBehaviour
 
     private List<IAbility> testAbilities;
     public List<IAbility> TestAbilities { get { return testAbilities; } set { testAbilities = value; } }
+    
+    [Header("Debug")]
+    [SerializeField] private bool debugBuffedProjectile = true;
+    [SerializeField] private bool debugUpgradeEffects = true;
 
     //test
     //ability ----------------------------------------
@@ -361,6 +365,19 @@ public class TowerAttack : MonoBehaviour
         additionalDurationFromUpgrade = (int)additionalDuration;
         projectileCountFromUpgrade = additionalProjectileNum;
         additionalExplosionRangeFromUpgrade = additionalExplosionRange;
+        if (debugUpgradeEffects)
+        {
+            Debug.Log(
+                $"[TowerAttack][ApplyUpgradeEffects] towerIdInt={(towerData != null ? towerData.towerIdInt : -1)} " +
+                $"upgradeLevel={upgradeLevel}\n" +
+                $"  -> damageBuffFromUpgrade(additionalAttack)={damageBuffFromUpgrade:0.###}\n" +
+                $"  -> towerUpgradeFireRateMul(additionalAttackSpeed)={towerUpgradeFireRateMul:0.###}\n" +
+                $"  -> additionalDurationFromUpgrade={additionalDurationFromUpgrade}\n" +
+                $"  -> projectileCountFromUpgrade={projectileCountFromUpgrade}\n" +
+                $"  -> additionalExplosionRangeFromUpgrade={additionalExplosionRangeFromUpgrade:0.###}"
+            );
+        }
+
     }
 
     private void Update()
@@ -1045,7 +1062,39 @@ public class TowerAttack : MonoBehaviour
         addBuffProjectileData.RatePenetration =
             Mathf.Clamp(finalRate01 * 100f, 0f, 100f);
         //-------------------------------------------
-        float rawAttack = currentProjectileData.Attack * (damageBuffMul + damageAbilityMul + damageBuffFromUpgrade);
+        // --- DEBUG: damage pipeline snapshot (BEFORE) ---
+        if (debugBuffedProjectile)
+        {
+            float baseAtk = currentProjectileData != null ? currentProjectileData.Attack : -1f;
+            float mulAmp = damageBuffMul;                 // amplifier (you said none -> should be 1)
+            float mulAbility = damageAbilityMul;          // self ability sources
+            float mulUpgrade = 1f + damageBuffFromUpgrade; // external upgrade (e.g. +0.05 => 1.05)
+
+            float predicted = (currentProjectileData != null)
+                ? baseAtk * mulAmp * mulAbility * mulUpgrade
+                : -1f;
+
+            Debug.Log(
+                $"[TowerAttack][BuffedProj][BEFORE] towerIdInt={(towerData != null ? towerData.towerIdInt : -1)} " +
+                $"reinforce={reinforceLevel} " +
+                $"baseAtk={baseAtk:0.###} " +
+                $"mulAmp(damageBuffMul)={mulAmp:0.###} " +
+                $"mulAbility(damageAbilityMul)={mulAbility:0.###} " +
+                $"mulUpgrade(1+damageBuffFromUpgrade)={mulUpgrade:0.###} (damageBuffFromUpgrade={damageBuffFromUpgrade:0.###}) " +
+                $"predictedFinalAtk={predicted:0.###}"
+            );
+        }
+
+        float rawAttack = currentProjectileData.Attack * damageBuffMul * damageAbilityMul * (1f + damageBuffFromUpgrade);
+        // --- DEBUG: damage pipeline snapshot (AFTER) ---
+        if (debugBuffedProjectile)
+        {
+            Debug.Log(
+                $"[TowerAttack][BuffedProj][AFTER] towerIdInt={(towerData != null ? towerData.towerIdInt : -1)} " +
+                $"buffedAtk={addBuffProjectileData.Attack:0.###} " +
+                $"curProjAtk={currentProjectileData.Attack:0.###}"
+            );
+        }
 
         addBuffProjectileData.Attack = Mathf.Max(0f, rawAttack);
         addBuffProjectileData.ProjectileAddSpeed = currentProjectileData.ProjectileAddSpeed + accelerationBuffAdd;
@@ -1306,7 +1355,6 @@ public class TowerAttack : MonoBehaviour
         {
             towerAudioSource = gameObject.AddComponent<AudioSource>();
         }
-
         towerAudioSource.playOnAwake = false;
         towerAudioSource.loop = false;
     }
