@@ -1,15 +1,28 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class TutorialUI : PopUpUI
 {
     [SerializeField] private TextMeshProUGUI tutorialText;
     private bool wasTouchingLastFrame = false;
 
+    private Button panelBtn;
+
     public void SetText(string text)
     {
         tutorialText.text = text;
+
+        if(panelBtn == null)
+        {
+            panelBtn = GetComponent<Button>();
+        }
+        panelBtn.onClick.AddListener(() =>
+        {
+            gameObject.SetActive(false);
+            TutorialManager.Instance.OnTextUIDisabled();
+        });
     }
 
     protected override void Update()
