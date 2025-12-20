@@ -332,7 +332,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         }
     }
 
-    public void OnLifeTimeOver()
+    public virtual void OnLifeTimeOver()
     {
         OnLifeTimeOverEvent?.Invoke();
         transform.localScale = originalScale;
@@ -605,5 +605,10 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
         EnsureSfxAudioSource();
         sfxAudioSource.PlayOneShot(simpleShotSfx, simpleShotVolume);
+    }
+
+    public virtual List<Vector3> GetShootPositions()
+    {
+        return new List<Vector3> { transform.position };
     }
 }

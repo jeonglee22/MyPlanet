@@ -28,6 +28,8 @@ public class SpawnManager : MonoBehaviour
 
     public event Action OnBossSpawn;
 
+    public int KilledEnemyCount { get; private set; } = 0;
+
     private void Awake()
     {
         if (instance == null)
@@ -66,6 +68,8 @@ public class SpawnManager : MonoBehaviour
         {
             currentEnemyCount = 0;
         }
+
+        KilledEnemyCount++;
 
         if(currentEnemyCount == 0)
         {

@@ -19,6 +19,7 @@ public class WaveData
     public float ExpScale { get; set; }
     public float SpawnTerm { get; set; }
     public int RepeatCount { get; set; }
+    public int WaveRewardGold { get; set; }
 
     public override string ToString()
     {

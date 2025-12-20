@@ -48,9 +48,13 @@ public class WaveManager : MonoBehaviour
     public bool IsLastBoss => isLastBoss;
     public bool IsMiddleBoss => isMiddleBoss;
 
+    private int accumulateGold = 0;
+    public int AccumulateGold => accumulateGold;
+
     public event Action WaveChange;
     public event Action LastBossSpawned;
     public event Action MiddleBossDefeated;
+    public event Action OnGoldAccumulated;
 
     private bool isTutorial = false;
 
@@ -73,6 +77,7 @@ public class WaveManager : MonoBehaviour
         Cancel();
         ResetWave();
         Variables.Reset();
+        accumulateGold = 0;
     }
 
     private void Start()
