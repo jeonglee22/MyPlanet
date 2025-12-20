@@ -72,6 +72,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     public GameObject ReflectShieldObject { get; set; }
 
     public bool HasHit { get; set; } = false;
+    private bool hasReachedOrbit = false;
+    public bool HasReachedOrbit => hasReachedOrbit;
 
     [Header("Boss SFX")]
     [SerializeField] private AudioSource bossAudioSource;
@@ -540,6 +542,11 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     {
         movement?.OnPatternLine();
         patternExecutor?.OnPatternLine();
+    }
+
+    public void OnOrbitReached()
+    {
+        hasReachedOrbit = true;
     }
 
     public void Dispose()

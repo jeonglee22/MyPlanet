@@ -52,6 +52,12 @@ public class PatternManager : MonoBehaviour
         patternDict.Add((int)PatternIds.GalaxyStarShot, () => new SimpleShotPattern());
         patternDict.Add((int)PatternIds.SpaceWarmLazer, () => new SkillBasedLazerPattern());
         patternDict.Add((int)PatternIds.SpaceWarmGravityShot, () => new SimpleShotPattern());
+        patternDict.Add((int)PatternIds.BlackHolePhotonEnergy, () => new SimpleShotPattern());
+        patternDict.Add((int)PatternIds.BlackHoleMiniBlackHoleSummon, () => new SimpleShotPattern());
+        patternDict.Add((int)PatternIds.BlackHoleLazer, () => new SkillBasedLazerPattern());
+        patternDict.Add((int)PatternIds.BlackHoleExplosionSummon, () => new SimpleShotPattern());
+        patternDict.Add((int)PatternIds.WhiteHoleSpaceWarmSummon, () => new SimpleShotPattern());
+        patternDict.Add((int)PatternIds.WhiteHoleShoot, () => new SimpleShotPattern());
     }
 
     public IPattern GetPattern(int patternId)

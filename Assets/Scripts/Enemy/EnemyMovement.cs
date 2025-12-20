@@ -24,6 +24,15 @@ public class EnemyMovement : MonoBehaviour
     private float debuffTime;
     public float DebuffTime { get => debuffTime; set => debuffTime = value; }
 
+    private Transform centerStone;
+    private float orbitRadius = 1f;
+    private bool hasReachedOribt = false;
+
+    private void Start()
+    {
+        centerStone = GameObject.FindGameObjectWithTag(TagName.CenterStone).transform;
+    }
+
     void OnEnable()
     {
         if(target == null)
@@ -57,6 +66,8 @@ public class EnemyMovement : MonoBehaviour
         float speedMultiplier = currentMovement.GetSpeedMultiplier();
 
         transform.position += finalDirection * moveSpeed * speedMultiplier * Time.deltaTime;
+
+        CheckOrbitReached();
     }
 
     private void Debuff(float time)
@@ -138,5 +149,25 @@ public class EnemyMovement : MonoBehaviour
             moveDirection = Vector3.zero;
             isDirectionSet = false;
         }
+    }
+
+    private void CheckOrbitReached()
+    {
+        if (hasReachedOribt)
+        {
+            return;
+        }
+
+        float distanceToCenter = Vector3.Distance(transform.position, centerStone.position);
+        if (distanceToCenter <= orbitRadius)
+        {
+            hasReachedOribt = true;
+            OnOrbitReached();
+        }
+    }
+
+    public void OnOrbitReached()
+    {
+        owner?.OnOrbitReached();
     }
 }
