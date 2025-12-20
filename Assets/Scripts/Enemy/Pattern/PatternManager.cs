@@ -48,7 +48,7 @@ public class PatternManager : MonoBehaviour
         patternDict.Add((int)PatternIds.SunSummonFireChild, () => new SimpleSummonPattern());
         patternDict.Add((int)PatternIds.SunShootFire, () => new SimpleShotPattern());
         patternDict.Add((int)PatternIds.SunParabolicShot, () => new ParabolicShotPattern());
-
+        patternDict.Add((int)PatternIds.UFOLazer, () => new TrapeZoidLazerPattern());
     }
 
     public IPattern GetPattern(int patternId)

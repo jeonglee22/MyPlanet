@@ -67,7 +67,7 @@ public abstract class SkillBasedLazer : MonoBehaviour
 
     protected abstract void Setup();
 
-    protected virtual void Initialize(Vector3 startPosition, Transform target, float damage, SkillData skillData, Transform owner = null, Action onEnd = null, CancellationToken token = default)
+    public virtual void Initialize(Vector3 startPosition, Transform target, float damage, SkillData skillData, Transform owner = null, Action onEnd = null, CancellationToken token = default)
     {
         startPoint = startPosition;
         targetTransform = target;
@@ -195,6 +195,11 @@ public abstract class SkillBasedLazer : MonoBehaviour
 
         transform.position = startPoint;
 
+        if(direction != Vector3.zero)
+        {
+            transform.rotation = Quaternion.LookRotation(Vector3.forward, direction);
+        }
+
         SetupParticle();
 
         lineRenderer.SetPosition(0, startPoint);
@@ -215,6 +220,8 @@ public abstract class SkillBasedLazer : MonoBehaviour
 
             Vector3 currentEndPoint = startPoint + direction * currentLength;
             lineRenderer.SetPosition(1, currentEndPoint);
+
+            UpdateLaserWidth(currentLength);
 
             if(laserParticle != null)
             {
@@ -270,7 +277,7 @@ public abstract class SkillBasedLazer : MonoBehaviour
         }
     }
 
-    private bool CheckLazerCollision(float currentLength)
+    protected virtual bool CheckLazerCollision(float currentLength)
     {
         RaycastHit[] hits = Physics.RaycastAll(startPoint, direction, currentLength);
         bool hited = false;
@@ -325,5 +332,10 @@ public abstract class SkillBasedLazer : MonoBehaviour
             laserParticle.Clear();
             laserParticle.Play();
         }
+    }
+
+    protected virtual void UpdateLaserWidth(float currentLength)
+    {
+        
     }
 }
