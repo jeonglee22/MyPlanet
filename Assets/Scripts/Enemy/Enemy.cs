@@ -434,7 +434,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         lifeTimeCts = new CancellationTokenSource();
     }
 
-    private async UniTaskVoid LifeTimeTask(CancellationToken token)
+    protected virtual async UniTaskVoid LifeTimeTask(CancellationToken token)
     {
         try
         {
