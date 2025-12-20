@@ -3,7 +3,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
-public abstract class SkillBasedLazer : MonoBehaviour
+public class SkillBasedLazer : MonoBehaviour
 {
     protected float chargeTime = 1.5f;
     protected float laserLength = 10f;
@@ -65,7 +65,13 @@ public abstract class SkillBasedLazer : MonoBehaviour
         Cancel();
     }
 
-    protected abstract void Setup();
+    protected virtual void Setup()
+    {
+        lineRenderer.positionCount = 2;
+        lineRenderer.startWidth = laserWidth;
+        lineRenderer.endWidth = laserWidth;
+        lineRenderer.useWorldSpace = true;
+    }
 
     public virtual void Initialize(Vector3 startPosition, Transform target, float damage, SkillData skillData, Transform owner = null, Action onEnd = null, CancellationToken token = default)
     {
@@ -74,6 +80,15 @@ public abstract class SkillBasedLazer : MonoBehaviour
         this.damage = damage;
         this.skillData = skillData;
         OnLazerEnd = onEnd;
+
+        if(targetTransform != null)
+        {
+            direction = (targetTransform.position - startPoint).normalized;
+        }
+        else
+        {
+            direction = Vector3.down;
+        }
 
         tickInterval = skillData.RepeatTerm;
         duration = skillData.Duration;
@@ -155,7 +170,7 @@ public abstract class SkillBasedLazer : MonoBehaviour
         await UniTask.Yield(token);
     }
 
-    private Vector3 GetTargetPosition()
+    protected Vector3 GetTargetPosition()
     {
         if(targetTransform != null)
         {
@@ -171,7 +186,7 @@ public abstract class SkillBasedLazer : MonoBehaviour
         return startPoint + Vector3.down * 10f;
     }
 
-    private void SetupFinalField()
+    protected void SetupFinalField()
     {
         transform.position = startPoint;
 
