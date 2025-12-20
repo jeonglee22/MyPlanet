@@ -21,6 +21,8 @@ public class PowerUpItemControlUI : MonoBehaviour
     [SerializeField] private GameObject chooseTowerPanel;
     [SerializeField] private GameObject upgradeChooseUis;
 
+    [SerializeField] private Button selectTowerButton;
+
     private List<int> numlist;
     [SerializeField] private TextMeshProUGUI[] uiTexts;
     private List<int> abilities;
@@ -49,6 +51,7 @@ public class PowerUpItemControlUI : MonoBehaviour
         towerCountUpgradeButton.onClick.AddListener(OnMaxTowerCountUpgradeClicked);
         newAbilityUpgradeButton.onClick.AddListener(OnNewAbilityUpgradeClicked);
         itemUseButton.onClick.AddListener(OnItemUseClicked);
+        selectTowerButton.onClick.AddListener(OnUpgradeTowerClicked);
 
         for (int i = 0; i < upgradeUis.Length; i++)
         {
@@ -61,6 +64,7 @@ public class PowerUpItemControlUI : MonoBehaviour
 
         OnQuaserChanged();
         Variables.OnQuasarChanged += OnQuaserChanged;
+        Variables.OnQuasarChanged += SetDeactiveQuasarUiGameObjects;
     }
 
     private async UniTaskVoid OnEnable()
@@ -77,6 +81,22 @@ public class PowerUpItemControlUI : MonoBehaviour
     private void OnDestroy()
     {
         Variables.OnQuasarChanged -= OnQuaserChanged;
+        Variables.OnQuasarChanged -= SetDeactiveQuasarUiGameObjects;
+    }
+
+    private void OnUpgradeTowerClicked()
+    {
+        if (!SettingAbilities(choosedTowerIndex))
+            return;
+
+        towerInfoUI.gameObject.SetActive(false);
+        chooseTowerPanel.SetActive(false);
+        upgradeChooseUis.SetActive(true);
+
+        for (int i = 0; i < uiTexts.Length; i++)
+        {
+            SetUpCard(i);
+        }
     }
 
     private void OnNewAbilityCardClicked(int index)
@@ -112,6 +132,18 @@ public class PowerUpItemControlUI : MonoBehaviour
 
         Variables.Quasar--;
         SetActiveItemUseButton(false);
+
+        ResumeGame();
+    }
+
+    private void ResumeGame()
+    {
+        if (towerInfoUI != null && towerUpgradeSlotUI != null)
+        {
+            towerInfoUI.gameObject.SetActive(false);
+            towerUpgradeSlotUI.gameObject.SetActive(false);
+        }
+        GamePauseManager.Instance.Resume();
     }
 
     private void SetTowerOpenInfoTouch()
@@ -132,17 +164,7 @@ public class PowerUpItemControlUI : MonoBehaviour
 
     private void OnTowerSelectClicked(int index)
     {
-        if (!SettingAbilities(index))
-            return;
-
         choosedTowerIndex = index;
-        chooseTowerPanel.SetActive(false);
-        upgradeChooseUis.SetActive(true);
-
-        for (int i = 0; i < uiTexts.Length; i++)
-        {
-            SetUpCard(i);
-        }
     }
 
     private bool SettingAbilities(int towerIndex)
@@ -189,6 +211,8 @@ public class PowerUpItemControlUI : MonoBehaviour
 
         Variables.Quasar--;
         SetActiveItemUseButton(false);
+
+        ResumeGame();
     }
 
     public void SetActiveItemUseButton(bool isActive)
@@ -207,16 +231,20 @@ public class PowerUpItemControlUI : MonoBehaviour
 
     public void CheckQuasarForReactivation()
     {
-        SetActiveItemUseButton(true);
+        if (Variables.Quasar == 0)
+            SetActiveItemUseButton(false);
+        else
+            SetActiveItemUseButton(true);
     }
 
-    public void SetDeactiveQuasarUiGameObjects()
+    private void SetDeactiveQuasarUiGameObjects()
     {
         itemChoosePanel.SetActive(false);
         towerCountUpgradeButton.gameObject.SetActive(false);
         newAbilityUpgradeButton.gameObject.SetActive(false);
         chooseTowerPanel.SetActive(false);
         upgradeChooseUis.SetActive(false);
+        towerInfoUI.gameObject.SetActive(false);
     }
 
     private void OnItemUseClicked()
@@ -234,6 +262,7 @@ public class PowerUpItemControlUI : MonoBehaviour
             itemChoosePanel.SetActive(true);
             towerUpgradeSlotUI.IsNotUpgradeOpen = true;
             towerUpgradeSlotUI.gameObject.SetActive(true);
+            towerUpgradeSlotUI.IsQuasarItemUsed = true;
             towerCountUpgradeButton.gameObject.SetActive(true);
             newAbilityUpgradeButton.gameObject.SetActive(true);
             abilities = new List<int>();
@@ -241,7 +270,7 @@ public class PowerUpItemControlUI : MonoBehaviour
         }
         else
         {
-            SetDeactiveQuasarUiGameObjects();
+            // SetDeactiveQuasarUiGameObjects();
             SetTowerOpenInfoTouch();
         }
     }
@@ -288,8 +317,21 @@ public class PowerUpItemControlUI : MonoBehaviour
 
     private void SetUpCard(int i)
     {
-        var ability = AbilityManager.GetAbility(abilities[i]);
-        uiTexts[i].text = $"new\n{ability}";
+        // var ability = AbilityManager.GetAbility(abilities[i]);
+        // var abilityTextId = DataTableManager.RandomAbilityTable.Get(abilities[i]).RandomAbilityText_ID;
+        // var abilityExplainTextData = DataTableManager.RandomAbilityTextTable.Get(abilityTextId);
+        // var abilityExplain = abilityExplainTextData?.RandomAbilityDescribe ?? string.Empty;
+        // uiTexts[i].text = abilityExplain;
+
+        var abilityId = abilities[i];
+        var abilityData = DataTableManager.RandomAbilityTable.Get(abilityId);
+        var abilityAmount = abilityData.SpecialEffectValue;
+        var abilityName = abilityData.RandomAbilityName;
+        if (abilityId == (int)AbilityId.Hitscan)
+            uiTexts[i].text = $"{abilityName}\n활성화";
+        else
+            uiTexts[i].text = $"{abilityName}\n+{abilityAmount}";
+
         return;
     }
 

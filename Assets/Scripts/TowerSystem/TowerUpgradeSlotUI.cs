@@ -61,6 +61,8 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     private int firstTouchIndex = -1;
     private bool isFirstInstall = true;
     public bool IsFirstInstall => isFirstInstall;
+    public bool IsQuasarItemUsed { get; set; }
+
     [SerializeField] private Button[] refreshButtons;
 
     //debug
@@ -112,13 +114,28 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         if (isNotUpgradeOpen)
         {
+            if(IsQuasarItemUsed)
+            {
+                IsQuasarItemUsed = false;
+                isNotUpgradeOpen = false;
+                planetTowerUI.SetTopBannerText(GameStrings.QuasarItemUsed);
+                planetTowerUI.IsTowerSetting = false;
+                planetTowerUI.IsQuasarItemUsed = true;
+                SetActiveRefreshButtons(false);
+                return;
+            }
+            
             isNotUpgradeOpen = false;
+            planetTowerUI.SetTopBannerText(GameStrings.TowerSetting);
+            planetTowerUI.IsTowerSetting = true;
             SetActiveRefreshButtons(false);
             return;
         }
+        
 
         // gameResumeButton.interactable = false;
-
+        planetTowerUI.SetTopBannerText(GameStrings.TowerUpgrade);
+        planetTowerUI.IsTowerSetting = false;
         if (upgradeUIs == null || upgradeUIs.Length == 0)
             return;
         if (refreshButtons == null || refreshButtons.Length != upgradeUIs.Length)
@@ -183,6 +200,8 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         }
 
         if (towerInfoUI != null && towerInfoUI.gameObject.activeSelf) return;
+        if (UIBlockPanelControl.IsBlockedPanel) return;
+        if (planetTowerUI.ISConfirmPanelActive) return;
 
         OnTouchStateCheck();
         OnTouchMakeDrageImage();

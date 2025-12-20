@@ -346,3 +346,16 @@ public enum SpecialEffectId
     Duration = 1106001,
 
 }
+
+public class GameStrings
+{
+    public static readonly string TowerSetting = "배치";
+    public static readonly string TowerUpgrade = "증강";
+    public static readonly string QuasarItemUsed = "퀘이사";
+    public static readonly string QuasarItemSkipTitle = "퀘이사 미선택";
+    public static readonly string QuasarItemSkipped = "퀘이사 아이템을 사용하지 않고\n스킵하시겠습니까?";
+    public static readonly string QuasarItemDeleted = "(스킵하면 퀘이사 아이템이 사라집니다.)";
+    public static readonly string TowerUpgradeSkipTitle = "증강 미선택";
+    public static readonly string TowerUpgradeSkipped = "타워 증강을 하지 않고\n스킵하시겠습니까?";
+    public static readonly string TowerUpgradeDeleted = "(스킵하면 타워 증강이 사라집니다.)";
+}

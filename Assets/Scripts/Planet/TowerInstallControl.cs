@@ -93,6 +93,7 @@ public class TowerInstallControl : MonoBehaviour
     public RectTransform RightRotateRect => rightRotateRect;
 
     private bool isDraggingTower = false;
+    public bool IsDraggingTower => isDraggingTower;
     private int dragSourceIndex = -1;
     private GameObject currentDragGhost;
     public GameObject CurrentDragGhost => currentDragGhost;
@@ -108,6 +109,9 @@ public class TowerInstallControl : MonoBehaviour
     [SerializeField] private GameObject yesOrNoPanel;
     [SerializeField] private Button deleteYesButton;
     [SerializeField] private Button deleteNoButton;
+
+    [Header("Block Panels")]
+    [SerializeField] private UIBlockPanelControl blockPanel;
 
     private int pendingDeleteIndex = -1;
 
@@ -499,13 +503,17 @@ public class TowerInstallControl : MonoBehaviour
 
             if (ChoosedData.InstallType == TowerInstallType.Attack)
             {
-                image.color = Color.Lerp(Color.red, Color.blue, (float)index / (towerCount - 1));
-                text.text = index.ToString();
+                var id = ChoosedData.AttackTowerData.towerIdInt;
+                var imageAsset = DataTableManager.AttackTowerTable.GetById(id)?.AttackTowerAsset;
+                image.sprite = LoadManager.GetLoadedGameTexture(imageAsset);
+                // text.text = index.ToString();
             }
             else
             {
-                image.color = Color.yellow;
-                text.text = $"{index}+";
+                var id = ChoosedData.AmplifierTowerData.BuffTowerId;
+                var imageAsset = DataTableManager.BuffTowerTable.Get(id)?.BuffTowerAsset;
+                image.sprite = LoadManager.GetLoadedGameTexture(imageAsset);
+                // text.text = $"{index}+";
             }
 
             var highlight = newTower.GetComponent<TowerSlotHighlightUI>();
@@ -563,6 +571,14 @@ public class TowerInstallControl : MonoBehaviour
         if (tower == null) return;
 
         tower.GetComponent<RectTransform>().localScale = Vector3.one * 1.5f;
+    }
+
+    private void SizeDownSlot(int index)
+    {
+        var tower = towers[index];
+        if (tower == null) return;
+
+        tower.GetComponent<RectTransform>().localScale = Vector3.one;
     }
 
     public TowerDataSO GetTowerData(int index)
@@ -763,6 +779,7 @@ public class TowerInstallControl : MonoBehaviour
         if (dragImagePrefab != null && uiCanvas != null)
         {
             currentDragGhost = Instantiate(dragImagePrefab, uiCanvas.transform);
+            currentDragGhost.GetComponent<RectTransform>().localScale = Vector3.one * 1.5f;
             currentDragGhostRect = currentDragGhost.GetComponent<RectTransform>();
 
             var sourceObj = towers[index];
@@ -779,14 +796,15 @@ public class TowerInstallControl : MonoBehaviour
                     var ghostImage = ghostUI.IconImage;
                     ghostImage.sprite = sourceImage.sprite;
                     ghostImage.color = sourceImage.color;
-                    ghostImage.preserveAspect = true;
-                    ghostImage.rectTransform.sizeDelta = new Vector2(25f, 50f);
+                    // ghostImage.preserveAspect = true;
+                    // ghostImage.rectTransform.sizeDelta = new Vector2(25f, 50f);
                 }
                 var c = sourceImage.color;
                 c.a = 0f;
                 sourceImage.color = c;
             }
             UpdateDragGhostPosition(screenPos);
+            blockPanel.gameObject.SetActive(true);
         }
     }
 
@@ -811,6 +829,25 @@ public class TowerInstallControl : MonoBehaviour
             out localPos);
 
         currentDragGhostRect.anchoredPosition = localPos;
+
+        for (int i = 0; i < towers.Count; i++)
+        {
+            var index = i;
+            if (index == dragSourceIndex) continue;
+
+            var tower = towers[index];
+
+            var towerRect = tower.GetComponent<RectTransform>();
+            if (RectTransformUtility.RectangleContainsScreenPoint(towerRect, screenPos))
+            {
+                SizeUpSlot(index);
+                Debug.Log($"[TowerInstallControl] Drag Over Slot {index}");
+                continue;
+            }
+
+            SizeDownSlot(index);
+        }
+        
     }
 
     public void OnSlotLongPressEnd(int index, Vector2 screenPos)
@@ -818,6 +855,9 @@ public class TowerInstallControl : MonoBehaviour
         if (!isDraggingTower) return;
 
         int sourceIndex = dragSourceIndex; // Cleanup 전에 따로 보관
+        blockPanel.gameObject.SetActive(false);
+
+        currentDragGhost.transform.localScale = Vector3.one;
 
         // ---- 휴지통 영역에 드랍됐는지 먼저 체크 ----
         bool droppedOnTrash = false;
