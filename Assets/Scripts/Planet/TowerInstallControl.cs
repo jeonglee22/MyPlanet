@@ -109,6 +109,7 @@ public class TowerInstallControl : MonoBehaviour
     [SerializeField] private GameObject yesOrNoPanel;
     [SerializeField] private Button deleteYesButton;
     [SerializeField] private Button deleteNoButton;
+    [SerializeField] private TextMeshProUGUI deleteConfirmText;
 
     [Header("Block Panels")]
     [SerializeField] private UIBlockPanelControl blockPanel;
@@ -774,7 +775,11 @@ public class TowerInstallControl : MonoBehaviour
         }
 
         if (trashIconObj != null)
+        {        
             trashIconObj.SetActive(canShowTrash);
+            beforeTopBannerText = planetTowerUI.CurrentTopBannerPanelText;
+            planetTowerUI.SetTopBannerText(GameStrings.TowerDelete);
+        }
         //drag prefab
         if (dragImagePrefab != null && uiCanvas != null)
         {
@@ -1206,6 +1211,8 @@ public class TowerInstallControl : MonoBehaviour
     }
     //--------------------------------------------------------------
     //rm tower -----------------------------------------------------
+    private string beforeTopBannerText = string.Empty;
+
     private void ShowDeleteConfirm()
     {
         if (deleteConfirmPanel != null)
@@ -1214,6 +1221,26 @@ public class TowerInstallControl : MonoBehaviour
             yesOrNoPanel.gameObject.SetActive(true);
             deleteYesButton.gameObject.SetActive(true);
             deleteNoButton.gameObject.SetActive(true);
+
+            var index = pendingDeleteIndex;
+            var tower = towers[index];
+            if (tower == null) return;
+
+            var attack = GetAttackTower(index);
+            var amp = GetAmplifierTower(index);
+            if (attack != null)
+            {
+                var towerId = attack.AttackTowerData.towerIdInt;
+                var towerData = DataTableManager.AttackTowerTable.GetById(towerId);
+                deleteConfirmText.text = $"{towerData?.AttackTowerName} {GameStrings.DeleteTowerConfirm}";
+            }
+            else if (amp != null)
+            {
+                var towerId = amp.AmplifierTowerData.BuffTowerId;
+                var towerData = DataTableManager.BuffTowerTable.Get(towerId);
+                deleteConfirmText.text = $"{towerData?.BuffTowerName} {GameStrings.DeleteTowerConfirm}";
+            }
+            blockPanel.gameObject.SetActive(true);
         }
     }
 
@@ -1232,7 +1259,9 @@ public class TowerInstallControl : MonoBehaviour
             yesOrNoPanel.gameObject.SetActive(false);
             deleteYesButton.gameObject.SetActive(false);
             deleteNoButton.gameObject.SetActive(false);
+            planetTowerUI.SetTopBannerText(beforeTopBannerText);
         }
+        blockPanel.gameObject.SetActive(false);
     }
 
     private void OnDeleteNo()
@@ -1241,6 +1270,9 @@ public class TowerInstallControl : MonoBehaviour
 
         if (deleteConfirmPanel != null)
             deleteConfirmPanel.SetActive(false);
+
+        planetTowerUI.SetTopBannerText(beforeTopBannerText);
+        blockPanel.gameObject.SetActive(false);
     }
     private void PerformDelete(int index)
     {

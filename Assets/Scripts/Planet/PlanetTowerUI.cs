@@ -18,6 +18,7 @@ public class PlanetTowerUI : MonoBehaviour
     [SerializeField] private Button backYexBtn;
     [SerializeField]  private Button backNoBtn;
     [SerializeField] private TextMeshProUGUI topBannerPanelText;
+    public string CurrentTopBannerPanelText => topBannerPanelText.text;
     [SerializeField] private TextMeshProUGUI confirmPanelText;
     [SerializeField] private TextMeshProUGUI confirmPanelSubText;
     [SerializeField] private TextMeshProUGUI confirmPanelTitleText;
@@ -159,6 +160,7 @@ public class PlanetTowerUI : MonoBehaviour
         if (isQuasarItemUsed)
         {
             Variables.Quasar--;
+            isQuasarItemUsed = false;
         }
 
         GamePauseManager.Instance.Resume();

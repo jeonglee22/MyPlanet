@@ -114,10 +114,11 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         if (isNotUpgradeOpen)
         {
+            isNotUpgradeOpen = false;
+
             if(IsQuasarItemUsed)
             {
                 IsQuasarItemUsed = false;
-                isNotUpgradeOpen = false;
                 planetTowerUI.SetTopBannerText(GameStrings.QuasarItemUsed);
                 planetTowerUI.IsTowerSetting = false;
                 planetTowerUI.IsQuasarItemUsed = true;
@@ -125,17 +126,18 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 return;
             }
             
-            isNotUpgradeOpen = false;
             planetTowerUI.SetTopBannerText(GameStrings.TowerSetting);
             planetTowerUI.IsTowerSetting = true;
+            planetTowerUI.IsQuasarItemUsed = false;
             SetActiveRefreshButtons(false);
             return;
         }
-        
 
         // gameResumeButton.interactable = false;
         planetTowerUI.SetTopBannerText(GameStrings.TowerUpgrade);
+        planetTowerUI.IsQuasarItemUsed = false;
         planetTowerUI.IsTowerSetting = false;
+
         if (upgradeUIs == null || upgradeUIs.Length == 0)
             return;
         if (refreshButtons == null || refreshButtons.Length != upgradeUIs.Length)
