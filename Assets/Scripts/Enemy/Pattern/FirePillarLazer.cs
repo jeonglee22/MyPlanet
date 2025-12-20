@@ -72,7 +72,7 @@ public class FirePillarLazer : MonoBehaviour
         lineRenderer.endWidth = laserWidth;
         lineRenderer.useWorldSpace = true;
 
-        Color transparentColor = new Color(1f, 1f, 1f, 0.3f);
+        Color transparentColor = new Color(1f, 1f, 1f, 0f);
         lineRenderer.startColor = transparentColor;
         lineRenderer.endColor = transparentColor;
     }
