@@ -9,6 +9,7 @@ public class SpecialEffectData
     public string SpecialEffectName { get; set; }
     public int SpecialEffectValueType { get; set; }
     public string SpecialEffectFile { get; set; }
+    public float SpecialEffectAbility { get; set; }
 
     public override string ToString()
     {

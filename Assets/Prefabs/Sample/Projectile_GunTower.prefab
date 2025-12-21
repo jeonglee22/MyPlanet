@@ -162,6 +162,7 @@ MonoBehaviour:
   hitRadius: 10
   acceleration: 0
   splitCount: 0
+  explosionRadius: 0
   baseScale: {x: 1, y: 1, z: 1}
 --- !u!114 &8188470898701761425
 MonoBehaviour:
@@ -344,14 +345,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: vfx_Projectile_Trail01_Orange
       objectReference: {fileID: 0}
-    - target: {fileID: 1697879271537238, guid: 64c5a6e8823ab1347b119c3148fd71d8, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1739335742506484, guid: 64c5a6e8823ab1347b119c3148fd71d8, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 4550230064872828, guid: 64c5a6e8823ab1347b119c3148fd71d8, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -392,48 +385,7 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 96347622896641130, guid: 64c5a6e8823ab1347b119c3148fd71d8, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 96517153413866460, guid: 64c5a6e8823ab1347b119c3148fd71d8, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 114390068540151312, guid: 64c5a6e8823ab1347b119c3148fd71d8, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 114390068540151312, guid: 64c5a6e8823ab1347b119c3148fd71d8, type: 3}
-      propertyPath: muzzlePrefab
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 114390068540151312, guid: 64c5a6e8823ab1347b119c3148fd71d8, type: 3}
-      propertyPath: 'trails.Array.data[0]'
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 114390068540151312, guid: 64c5a6e8823ab1347b119c3148fd71d8, type: 3}
-      propertyPath: 'trails.Array.data[1]'
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 135898405161089132, guid: 64c5a6e8823ab1347b119c3148fd71d8, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 199004438423571566, guid: 64c5a6e8823ab1347b119c3148fd71d8, type: 3}
-      propertyPath: m_Materials.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 199430817634661098, guid: 64c5a6e8823ab1347b119c3148fd71d8, type: 3}
-      propertyPath: m_Materials.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 199952566798457474, guid: 64c5a6e8823ab1347b119c3148fd71d8, type: 3}
-      propertyPath: m_Materials.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 54016919864105464, guid: 64c5a6e8823ab1347b119c3148fd71d8, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

@@ -4,7 +4,7 @@ public class LateralDownSummonPattern : SummonPattern
 {
     public override int PatternId => patternData.Pattern_Id;
 
-    private float horizontalOffset = 3f;
+    private float horizontalOffset = 1f;
 
     private bool isRight = false;
 

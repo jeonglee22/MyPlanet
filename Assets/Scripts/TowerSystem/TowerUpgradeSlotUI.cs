@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
+using NUnit.Framework;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -89,7 +90,21 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     private const int MaxReinforceLevel = 4;
 
     [SerializeField] private PlanetTowerUI planetTowerUI;
+
+    private bool hasInitializedForStage1 = false;
     //----------------------------------------
+
+    private void Awake()
+    {
+        if (Variables.Stage == 1)
+        {
+            hasLastChosenOption = false;
+            lastChosenOption = default;
+            tutorialPistolInstalled = false;
+            tutorialAmp1Installed = false;
+            tutorialAmp2Installed = false;
+        }
+    }
 
     private void Start()
     {
@@ -101,6 +116,11 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         installControl.OnTowerInstalled += SetTowerInstallText;
 
         SetIsTutorial(TutorialManager.Instance.IsTutorialMode);
+
+        if(isTutorial && Variables.Stage == 1)
+        {
+            installControl.MaxTowerCount = 3;
+        }
     }
 
     void OnDestroy()
@@ -151,6 +171,18 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             refreshButton.gameObject.SetActive(true);
             refreshButton.interactable = true;
         }
+
+        if (Variables.Stage == 1 && !hasInitializedForStage1)
+        {
+            hasLastChosenOption = false;
+            lastChosenOption = default;
+            tutorialPistolInstalled = false;
+            tutorialAmp1Installed = false;
+            tutorialAmp2Installed = false;
+
+            hasInitializedForStage1 = true;
+        }
+
         SettingUpgradeCards();
 
         if (usedRefreshButton != null)
@@ -181,6 +213,15 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         isStartTouch = false;
         towerImageIsDraging = false;
         isFirstInstall = false;
+
+        if (Variables.Stage == 1)
+        {
+            hasLastChosenOption = false;
+            lastChosenOption = default;
+            tutorialPistolInstalled = false;
+            tutorialAmp1Installed = false;
+            tutorialAmp2Installed = false;
+        }
 
         if(isTutorial && Variables.Stage == 1)
         {
@@ -227,7 +268,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         int totalTowerCount = GetTotalTowerCount();
 
-        if (isTutorial && Variables.Stage == 1)
+        if (Variables.Stage == 1)
         {
             SettingStage1Cards(totalTowerCount);
             return;
@@ -294,10 +335,28 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         {
             for (int cardIndex = 0; cardIndex < upgradeUIs.Length; cardIndex++)
             {
-                numlist.Add(-1);
-                // uiTexts[cardIndex].text =
-                //     (cardIndex == uiTexts.Length - 1) ? "100\nGOLD" : string.Empty;
+                int slotNumber = -1;
+
+                if(emptySlots.Count > 0)
+                {
+                    int slotIdx = Random.Range(0, emptySlots.Count);
+                    slotNumber = emptySlots[slotIdx];
+                    emptySlots.RemoveAt(slotIdx);
+                }
+
+                numlist.Add(slotNumber);
+                SetUpNewInstallCard(cardIndex, slotNumber, isInitial: true);
             }
+
+            numlist.Add(-1);
+            // uiTexts[uiTexts.Length - 1].text = "100\nGOLD";
+
+            var goldBtn = upgradeUIs[upgradeUIs.Length - 1].GetComponentInChildren<Button>();
+            if(goldBtn != null)
+            {
+                goldBtn.interactable = true;
+            }
+
             return;
         }
 
@@ -322,12 +381,25 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
             if (!canNew && !canUpgrade)
             {
-                numlist.Add(-1);
+                if (ShouldShowGoldCard() && cardIndex == upgradeUIs.Length - 1)
+                {
+                    numlist.Add(-1);
+                    // uiTexts[cardIndex].text = "100\nGOLD";
+                }
+                else
+                {
+                    int slotNum = -1;
 
-                // if (ShouldShowGoldCard() && cardIndex == uiTexts.Length - 1)
-                //     uiTexts[cardIndex].text = "100\nGOLD";
-                // else
-                //     uiTexts[cardIndex].text = string.Empty;
+                    if(emptySlots.Count > 0)
+                    {
+                        int slotIdx = Random.Range(0, emptySlots.Count);
+                        slotNum = emptySlots[slotIdx];
+                        emptySlots.RemoveAt(slotIdx);
+                    }
+
+                    numlist.Add(slotNum);
+                    SetUpNewInstallCard(cardIndex, slotNum, isInitial: true);
+                }
 
                 continue;
             }
@@ -395,8 +467,18 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             {
                 if (upgradeSlots.Count == 0)
                 {
-                    numlist.Add(-1);
-                    // uiTexts[cardIndex].text = "";
+                    int slotNum = -1;
+
+                    if(emptySlots.Count > 0)
+                    {
+                        int slotIdx = Random.Range(0, emptySlots.Count);
+                        slotNum = emptySlots[slotIdx];
+                        emptySlots.RemoveAt(slotIdx);
+                    }
+
+                    numlist.Add(slotNum);
+                    SetUpNewInstallCard(cardIndex, slotNum, isInitial: true);
+
                     continue;
                 }
 
@@ -465,10 +547,22 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         {
             for (int cardIndex = 0; cardIndex < upgradeUIs.Length; cardIndex++)
             {
-                numlist.Add(-1);
-                // uiTexts[cardIndex].text =
-                //     (cardIndex == uiTexts.Length - 1) ? "100\nGOLD" : string.Empty;
+                int slotNum = -1;
+
+                if(emptySlots.Count > 0)
+                {
+                    int slotIdx = Random.Range(0, emptySlots.Count);
+                    slotNum = emptySlots[slotIdx];
+                    emptySlots.RemoveAt(slotIdx);
+                }
+
+                numlist.Add(slotNum);
+                SetUpNewInstallCard(cardIndex, slotNum, isInitial: true);
             }
+
+            numlist.Add(-1);
+            // uiTexts[uiTexts.Length - 1].text = "100\nGOLD";
+
             return;
         }
 
@@ -498,8 +592,9 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 }
                 else
                 {
-                    numlist.Add(-1);
-                    // uiTexts[cardIndex].text = string.Empty;
+                    int slotNumber = -1;
+                    numlist.Add(slotNumber);
+                    SetUpTutorialAttackCard(cardIndex, slotNumber, isInitial: true);
                 }
                 continue;
             }
@@ -532,11 +627,27 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             }
 
             // 4) 여기까지 왔는데 더 이상 설치/업그레이드 둘 다 불가하면 빈칸이나 GOLD
-            numlist.Add(-1);
-            // uiTexts[cardIndex].text =
-            //     (ShouldShowGoldCard() && cardIndex == uiTexts.Length - 1)
-            //     ? "100\nGOLD"
-            //     : string.Empty;
+            if(ShouldShowGoldCard() && cardIndex == upgradeUIs.Length - 1)
+            {
+                numlist.Add(-1);
+                // uiTexts[cardIndex].text = "100\nGOLD";
+            }
+            else
+            {
+                int slotNum = -1;
+
+                for(int i = 0; i < installControl.TowerCount; i++)
+                {
+                    if (!installControl.IsUsedSlot(i) && installControl.CurrentTowerCount < installControl.MaxTowerCount)
+                    {
+                        slotNum = i;
+                        break;
+                    }
+                }
+
+                numlist.Add(slotNum);
+                SetUpNewInstallCard(cardIndex, slotNum, isInitial: true);
+            }
         }
     }
     /// <summary>
@@ -582,7 +693,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
     private bool HasTowerTypeInstalled(TowerDataSO towerData)
     {
-        if (isTutorial && Variables.Stage == 1 && towerData == tutorialPistolTower)
+        if (Variables.Stage == 1 && towerData == tutorialPistolTower)
             return tutorialPistolInstalled;
 
         if (towerData == null) return false;
@@ -601,7 +712,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
     private bool HasAmplifierInstalled(AmplifierTowerDataSO target)
     {
-        if (isTutorial && Variables.Stage == 1)
+        if (Variables.Stage == 1)
         {
             if (target == damageMatrixCoreSO)
                 return tutorialAmp1Installed;
@@ -982,34 +1093,35 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             }
             else                                                    //max: gold card
             {
-                abilities[i] = -1;
-
-                choices[i].InstallType = TowerInstallType.Attack; //default
-                choices[i].AttackTowerData = null;
-                choices[i].AmplifierTowerData = null;
-                choices[i].BuffSlotIndex = null;
-                choices[i].RandomAbilitySlotIndex = null;
-                choices[i].ability = -1;
-
-                if (numlist != null && i >= 0 && i < numlist.Count)
-                    numlist[i] = -1;
-
-                // var btn = upgradeUIs[i].GetComponent<Button>();
-                // if (btn != null)
-                //     btn.interactable = false;
-                
-                if (i == upgradeUIs.Length - 1)
-                    Instantiate(goldCardPrefab, upgradeUIs[i].transform);
-                    // uiTexts[i].text = "100\nGOLD";
-                else
+                if(ShouldShowGoldCard() && i == upgradeUIs.Length - 1)
                 {
+                    abilities[i] = -1;
+
+                    choices[i].InstallType = TowerInstallType.Attack; //default
+                    choices[i].AttackTowerData = null;
+                    choices[i].AmplifierTowerData = null;
+                    choices[i].BuffSlotIndex = null;
+                    choices[i].RandomAbilitySlotIndex = null;
+                    choices[i].ability = -1;
+
+                    if (numlist != null && i >= 0 && i < numlist.Count)
+                        numlist[i] = -1;
+
+                    // var btn = upgradeUIs[i].GetComponent<Button>();
+                    // if (btn != null)
+                    //     btn.interactable = false;
                     
+                    if (i == upgradeUIs.Length - 1)
+                        Instantiate(goldCardPrefab, upgradeUIs[i].transform);
+                        // uiTexts[i].text = "100\nGOLD";
+                    else
+                    {
+                        SetUpNewAmplifierCard(i, slotNumber, isInitial);
+                    }
                 }
-                    // uiTexts[i].text = string.Empty;
             }
             return;
         }
-
         if (isInitial) usedAttackTowerTypesThisRoll.Add(towerData);
 
         int abilityId = -1;
@@ -1154,23 +1266,70 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         List<int> candidates = new List<int>();
 
-        for (int i = 0; i < installControl.TowerCount; i++)
+        if (ShouldShowGoldCard())
         {
-            if (numlist != null && i != index && numlist.Contains(i))
+            if(index == upgradeUIs.Length - 1)
+            {
+                numlist[index] = -1;
+                // uiTexts[index].text = "100\nGOLD";
+
+                var btn = upgradeUIs[index].GetComponent<Button>();
+                if (btn != null)
+                {
+                    btn.interactable = true;
+                }
+
+                return;
+            }
+            else
+            {
+                List<int> emptySlots = new List<int>();
+                for(int i = 0; i < installControl.TowerCount; i++)
+                {
+                    if(numlist != null && i != index && numlist.Contains(i))
+                    {
+                        continue;
+                    }
+
+                    if (!installControl.IsUsedSlot(i) && installControl.CurrentTowerCount < installControl.MaxTowerCount)
+                    {
+                        emptySlots.Add(i);
+                    }
+                }
+
+                int slotNumber = -1;
+                if(emptySlots.Count > 0)
+                {
+                    int slotIdx = Random.Range(0, emptySlots.Count);
+                    slotNumber = emptySlots[slotIdx];
+                }
+
+                numlist[index] = slotNumber;
+                SetUpNewInstallCard(index, slotNumber, isInitial: false);
+
+                return ;
+            }
+        }
+
+        for(int i = 0; i < installControl.TowerCount; i++)
+        {
+            if(numlist != null && i != index && numlist.Contains(i))
+            {
                 continue;
+            }
 
             bool used = installControl.IsUsedSlot(i);
 
             if (!used)
             {
-                if (installControl.CurrentTowerCount < installControl.MaxTowerCount)
+                if(installControl.CurrentTowerCount < installControl.MaxTowerCount)
                 {
                     candidates.Add(i);
                 }
             }
             else
             {
-                if (!installControl.IsSlotMaxLevel(i))
+                if(!installControl.IsSlotMaxLevel(i))
                 {
                     candidates.Add(i);
                 }
@@ -1179,18 +1338,25 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         if (candidates.Count == 0)
         {
-            numlist[index] = -1;
+            int slotNumber = -1;
 
-            // var btn = upgradeUIs[index].GetComponent<Button>();
-            // if (btn != null)
-            //     btn.interactable = false;
+            for(int i = 0; i < installControl.TowerCount; i++)
+            {
+                if(numlist != null && i != index && numlist.Contains(i))
+                {
+                    continue;
+                }
 
-            if (index == upgradeUIs.Length - 1)
-                Instantiate(goldCardPrefab, upgradeUIs[index].transform);
-            else
-                // uiTexts[index].text = string.Empty;
+                if(!installControl.IsUsedSlot(i) && installControl.CurrentTowerCount < installControl.MaxTowerCount)
+                {
+                    slotNumber = i;
+                    break;
+                }
+            }
 
-            Debug.Log($"[Upgrade Refresh] 더 이상 설치/강화 가능한 슬롯이 없어서 GOLD/빈 카드로 유지됨. cardIndex={index}");
+            numlist[index] = slotNumber;
+            SetUpNewInstallCard(index, slotNumber, isInitial: false);
+
             return;
         }
 
@@ -1295,13 +1461,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     {
         if (isTutorial && Variables.Stage == 1)
         {
-            ResetChoose();
-            numlist = new List<int>();
-            usedAttackTowerTypesThisRoll.Clear();
-            usedAmplifierTowerTypesThisRoll.Clear();
-            initialOptionKeys = new TowerOptionKey[upgradeUIs.Length];
-
-            SettingStage1Cards(GetTotalTowerCount());
+            RefreshStage1SingleCard(index);
         }
         else
         {
@@ -1391,12 +1551,31 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         int targetSlot = (numlist != null && index < numlist.Count) ? numlist[index] : -1;
 
+        if(hasTowerData && targetSlot < 0)
+        {
+            for(int i = 0; i < installControl.TowerCount; i++)
+            {
+                if(!installControl.IsUsedSlot(i) && installControl.CurrentTowerCount < installControl.MaxTowerCount)
+                {
+                    targetSlot = i;
+                    if(numlist != null && index < numlist.Count)
+                    {
+                        numlist[index] = i;
+                    }
+                    break;
+                }
+            }
+        }
+
         if (!hasTowerData || targetSlot < 0)
         {
-            Debug.Log($"[TowerUpgradeSlotUI] Gold or disabled card clicked at {index}, ignore.");
-            if (towerInfoUI != null)
-                towerInfoUI.gameObject.SetActive(false);
-            gameObject.SetActive(false);
+            if (!hasTowerData)
+            {
+                if (towerInfoUI != null)
+                    towerInfoUI.gameObject.SetActive(false);
+                gameObject.SetActive(false);
+            }
+            
             return;
         }
 
@@ -1445,6 +1624,11 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         if (installControl.IsUsedSlot(numlist[index]))
         {
+            Debug.Log(
+    $"[Card][UpgradeClick] cardIndex={index}, targetSlot={numlist[index]}, " +
+    $"choiceType={choices[index].InstallType}, ability={choices[index].ability}"
+);
+
             installControl.UpgradeTower(numlist[index]);
             if (towerInfoUI != null)
                 towerInfoUI.gameObject.SetActive(false);
@@ -1568,6 +1752,29 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             return;
 
         int targetSlot = (numlist != null && choosedIndex < numlist.Count) ? numlist[choosedIndex] : -1;
+
+        if(targetSlot < 0)
+        {
+            bool hasTowerData = (choices != null && choosedIndex < choices.Length) &&
+            (choices[choosedIndex].AttackTowerData != null || choices[choosedIndex].AmplifierTowerData != null);
+
+            if (hasTowerData)
+            {
+                for(int i = 0; i < installControl.TowerCount; i++)
+                {
+                    if(!installControl.IsUsedSlot(i) && installControl.CurrentTowerCount < installControl.MaxTowerCount)
+                    {
+                        targetSlot = i;
+                        if(numlist != null && choosedIndex < numlist.Count)
+                        {
+                            numlist[choosedIndex] = i;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
         if (targetSlot < 0 || installControl.IsUsedSlot(targetSlot))
             return;
 
@@ -1647,13 +1854,11 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                             tutorialAmp2Installed = true;
                     }
                 }
-
                 installControl.IsReadyInstall = true;
                 installControl.ChoosedData = choice;
                 installControl.IntallNewTower(index);
                 gameObject.SetActive(false);
             }
-
             if (dragImage != null)
                 BlockUpgradeSlotTouch(false);
 
@@ -1667,7 +1872,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             firstTouchIndex = -1;
         }
     }
-
 
     private int GetEndTouchOnInstallArea()
     {
@@ -1717,7 +1921,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             results[n] = candidates[randIndex];
             candidates.RemoveAt(randIndex);
         }
-
         return results;
     }
     private AmplifierTowerDataSO GetRandomAmplifier()
@@ -1930,12 +2133,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 upgradeProb = 0.9f;
             }
         }
-//         Debug.Log(
-//     $"[UpgradeProb] upgradable={installControl.GetUpgradeableTowerCount()}, " +
-//     $"fieldFull={installControl.CurrentTowerCount >= installControl.MaxTowerCount}, " +
-//     $"newProb={newProb}, upgradeProb={upgradeProb}"
-// );
-
     }
     private int GetTotalTowerCount() //used in tutorial, gold
     {
@@ -2020,7 +2217,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 return candidates[i];
             }
         }
-
         return candidates[candidates.Count - 1];
     }
 
@@ -2139,8 +2335,159 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 return upgradeSlots[i];
             }
         }
-
         return upgradeSlots[upgradeSlots.Count - 1];
+    }
+    private void RefreshStage1SingleCard(int index)
+    {
+        if (choices != null && index >= 0 && index < choices.Length)
+        {
+            choices[index].InstallType = TowerInstallType.Attack; // default
+            choices[index].AttackTowerData = null;
+            choices[index].AmplifierTowerData = null;
+            choices[index].BuffSlotIndex = null;
+            choices[index].RandomAbilitySlotIndex = null;
+            choices[index].ability = -1;
+        }
+
+        abilities[index] = -1;
+        installControl.IsReadyInstall = false;
+        upgradeUIs[index].GetComponentInChildren<Image>().color = Color.white;
+
+        List<int> emptySlots = new List<int>();
+        List<int> upgradeSlots = new List<int>();
+
+        for (int i = 0; i < installControl.TowerCount; i++)
+        {
+            if (numlist != null && i != index && numlist.Contains(i))
+                continue;
+
+            bool used = installControl.IsUsedSlot(i);
+
+            if (!used)
+            {
+                if (installControl.CurrentTowerCount < installControl.MaxTowerCount)
+                {
+                    emptySlots.Add(i);
+                }
+            }
+            else
+            {
+                if (!installControl.IsSlotMaxLevel(i))
+                {
+                    upgradeSlots.Add(i);
+                }
+            }
+        }
+
+        if (ShouldShowGoldCard())
+        {
+            if(index < upgradeUIs.Length - 1)
+            {
+                int slotNumber = -1;
+                if(emptySlots.Count > 0)
+                {
+                    int slotIdx = Random.Range(0, emptySlots.Count);
+                    slotNumber = emptySlots[slotIdx];
+                }
+
+                numlist[index] = slotNumber;
+                SetUpTutorialAttackCard(index, slotNumber, isInitial: false);
+            }
+            else
+            {
+                numlist[index] = -1;
+                // uiTexts[index].text = "100\nGOLD";
+
+                var btn = upgradeUIs[index].GetComponent<Button>();
+                if (btn != null)
+                {
+                    btn.interactable = true;
+                }
+            }
+
+            return;
+        }
+
+        int totalTowerCount = GetTotalTowerCount();
+        bool hasPistol = HasTowerTypeInstalled(tutorialPistolTower);
+        bool hasAmp1 = HasAmplifierInstalled(damageMatrixCoreSO);
+        bool hasAmp2 = HasAmplifierInstalled(proejctileCoreSO);
+
+        List<AmplifierTowerDataSO> remainingAmps = new List<AmplifierTowerDataSO>();
+        if(!hasAmp1 && damageMatrixCoreSO != null)
+        {
+            remainingAmps.Add(damageMatrixCoreSO);
+        }
+        if(!hasAmp2 && proejctileCoreSO != null)
+        {
+            remainingAmps.Add(proejctileCoreSO);
+        }
+
+        if(!hasPistol && totalTowerCount == 0)
+        {
+            if(emptySlots.Count > 0)
+            {
+                int slotIdx = Random.Range(0, emptySlots.Count);
+                int slotNumber = emptySlots[slotIdx];
+                numlist[index] = slotNumber;
+                SetUpTutorialAttackCard(index, slotNumber, isInitial: false);
+            }
+            else
+            {
+                int slotNumber = -1;
+                numlist[index] = slotNumber;
+                SetUpTutorialAttackCard(index, slotNumber, isInitial: false);
+            }
+            return;
+        }
+
+        if(remainingAmps.Count > 0 && emptySlots.Count > 0)
+        {
+            int slotIdx = Random.Range(0, emptySlots.Count);
+            int slotNumber = emptySlots[slotIdx];
+            
+            var ampData = remainingAmps[Random.Range(0, remainingAmps.Count)];
+
+            numlist[index] = slotNumber;
+            SetUpTutorialAmplifierCard(index, slotNumber, ampData, isInitial: false);
+            return;
+        }
+
+        if(upgradeSlots.Count > 0)
+        {
+            int listIdx = Random.Range(0, upgradeSlots.Count);
+            int slotNumber = upgradeSlots[listIdx];
+
+            numlist[index] = slotNumber;
+            SetUpgradeCardForUsedSlot(index, slotNumber, isInitial: false);
+            return;
+        }
+
+        if(ShouldShowGoldCard() && index == upgradeUIs.Length - 1)
+        {
+            numlist[index] = -1;
+            // uiTexts[index].text = "100\nGOLD";
+        }
+        else
+        {
+            int slotNumber = -1;
+            for(int i = 0; i < installControl.TowerCount; i++)
+            {
+                if(numlist != null && numlist.Contains(i))
+                {
+                    continue;
+                }
+
+                if(!installControl.IsUsedSlot(i) && installControl.CurrentTowerCount < installControl.MaxTowerCount)
+                {
+                    slotNumber = i;
+                    break;
+                }
+            }
+
+            numlist[index] = slotNumber;
+            SetUpTutorialAttackCard(index, slotNumber, isInitial: false);
+        }
     }
 
 }

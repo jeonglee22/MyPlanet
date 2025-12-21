@@ -120,12 +120,12 @@ public enum MoveType
     StraightDown,
     Homing,
     Chase,
-    FollowParent,
-    DescendAndStopMovement = 10,
+    TwoPhaseHomingMovement = 4,
+    TwoPhaseDownMovement = 9,
+    DescendAndStopMovement,
     Revolution = 11,
     Side,
-    TwoPhaseHomingMovement,
-    TwoPhaseDownMovement,
+    FollowParent,
 }
 
 public enum PatternIds
@@ -151,16 +151,20 @@ public enum PatternIds
     NeptuneFrontDiaSummon,
     EliteDiaReflectShield,
     EliteBigDiaReflectShield,
-    FireChildHitChangeSpeedChase = 4100024,
+    UFOLazer,
+    GalaxyStarShot,
+    SpaceWarmLazer,
+    SpaceWarmGravityShot,
+    FireChildHitChangeSpeedChase,
     FireEyeShootFire,
     BigFireEyeSummonFireChild,
     BigFireEyeSummonFireEye,
     BigFireEyeShootBigFire,
     BigFireEyeFirePillar,
     SunSummonFireChild,
-    SunSummonFireEye,
-    SunSummonBigFireEye,
     SunShootFire,
+    empty,
+    SunParabolicShot,
 }
 
 public enum TutorialPoint
@@ -250,6 +254,7 @@ public static class DataTableIds
     public static readonly string Reward = "RewardTable";
     public static readonly string planet = "PlanetTable";
     public static readonly string RandomAbilityText = "RandomAbilityTextTable";
+    public static readonly string RandomAbilityReinforceUpgrade = "RandomAbilityReinforceUpgradeTable";
     public static readonly string TowerUpgrade = "TowerUpgradeTable";
     public static readonly string TowerUpgradeAbilityUnlock = "TowerUpgradeAbilityUnlockTable";
     public static readonly string Skill = "SkillTable";

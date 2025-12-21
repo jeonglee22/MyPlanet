@@ -126,7 +126,6 @@ public class PatternProjectile : MonoBehaviour , IDisposable
                 }
             }
         }
-
         transform.position = PatternSpawner.Instance.transform.position;
     }
 

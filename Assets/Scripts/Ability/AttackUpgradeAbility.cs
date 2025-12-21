@@ -17,8 +17,7 @@ public class AttackUpgradeAbility : PassiveAbility
         var towerAttack = gameObject.GetComponent<TowerAttack>();
         if (towerAttack != null)
         {
-            towerAttack.DamageBuffMul += upgradeAmount;
-            // Debug.Log("Damage Apply");
+            towerAttack.AddDamageMulFromAbilitySource(upgradeAmount); 
         }
     }
 
@@ -26,11 +25,11 @@ public class AttackUpgradeAbility : PassiveAbility
     {
         base.RemoveAbility(gameObject);
 
-        // var projectile = gameObject.GetComponent<Projectile>();
-        // if (projectile != null)
-        // {
-        //     projectile.damage -= projectile.projectileData.Attack * upgradeAmount;
-        // }
+        var towerAttack = gameObject.GetComponent<TowerAttack>();
+        if (towerAttack != null)
+        {
+            towerAttack.RemoveDamageMulFromAbilitySource(upgradeAmount);
+        }
     }
 
     public override void Setting(GameObject gameObject)

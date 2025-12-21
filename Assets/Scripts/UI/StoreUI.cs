@@ -40,6 +40,8 @@ public class StoreUI : MonoBehaviour
         inventoryBtn.onClick.AddListener(OnInventoryBtnClicked);
 
         InitializeInventory();
+
+        gachaPanelUI.OnGachaPanelClosed += OnInventoryBtnActive;
     }
 
     private void OnDestroy()
@@ -47,11 +49,16 @@ public class StoreUI : MonoBehaviour
         gachaPanelUI.OnGachaCompleted -= UpdateCurrencyUI;
         backBtn.onClick.RemoveListener(OnBackBtnClicked);
         inventoryBtn.onClick.RemoveListener(OnInventoryBtnClicked);
+
+        gachaPanelUI.OnGachaPanelClosed -= OnInventoryBtnActive;
     }
 
     private void OnBackBtnClicked()
     {
         lobbyPanel.SetActive(true);
+        gachaPanelUI.gameObject.SetActive(false);
+        inventory.SetActive(false);
+        OnInventoryBtnActive();
         gameObject.SetActive(false);
     }
 
@@ -78,6 +85,9 @@ public class StoreUI : MonoBehaviour
     {
         gachaPanelUI.Initialize(info.needCurrencyValue, info.drawGroup, info.gachaName);
         gachaPanelUI.gameObject.SetActive(true);
+
+        inventory.SetActive(false);
+        inventoryBtn.interactable = false;
     }
 
     private void UpdateCurrencyUI()
@@ -114,4 +124,6 @@ public class StoreUI : MonoBehaviour
 
         inventory.SetActive(!inventory.activeSelf);
     }
+
+    public void OnInventoryBtnActive() => inventoryBtn.interactable = true;
 }
