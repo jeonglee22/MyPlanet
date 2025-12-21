@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using UnityEditor.Search;
 using UnityEngine;
 
 public struct ScaleData
@@ -51,6 +52,8 @@ public class WaveManager : MonoBehaviour
     public event Action WaveChange;
     public event Action LastBossSpawned;
     public event Action MiddleBossDefeated;
+
+    [SerializeField] private BattleUI battleUI;
 
     private bool isTutorial = false;
 
@@ -285,6 +288,12 @@ public class WaveManager : MonoBehaviour
 
         if(currentWaveIndex < waveDatas.Count && !isBossBattle)
         {
+            // var currentWave = waveDatas[currentWaveIndex];
+            // var waveReward = currentWave.WaveReward;
+            // if (waveReward > 0)
+            // {
+            //     battleUI.AddCoinGainText(waveReward);   
+            // }
             await StartNextWave(cts);
         }
     }

@@ -19,10 +19,19 @@ public class BattleUI : MonoBehaviour
 
     [SerializeField] private TextMeshProUGUI bossNameText;
     [SerializeField] private Slider bossHpSlider;
+
+    [SerializeField] private TextMeshProUGUI enemyKillCountText;
+    [SerializeField] private TextMeshProUGUI coinGainText;
     
     private float battleTime = 0f;
 
     private bool isTutorial = false;
+
+    private int enemyKiilCount = 0;
+    public int EnemyKiilCount { get => enemyKiilCount; set => enemyKiilCount = value; }
+
+    private int coinGain = 0;
+    public int CoinGain { get => coinGain; set => coinGain = value; }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
@@ -35,6 +44,9 @@ public class BattleUI : MonoBehaviour
 
         WaveManager.Instance.WaveChange += OnWaveChanged;
         SpawnManager.Instance.OnBossSpawn += OnWaveChanged;
+
+        SetCoinGainText();
+        SetEnemyKillCountText();
 
         foreach(var toggleObj in toggleObjects)
         {
@@ -195,5 +207,33 @@ public class BattleUI : MonoBehaviour
     private void SetIsTutorial(bool isTutorialMode)
     {
         isTutorial = isTutorialMode;
+    }
+
+    public void AddEnemyKillCountText(int killCount)
+    {
+        enemyKiilCount += killCount;
+        SetEnemyKillCountText();
+    }
+
+    public void AddEnemyKillCountText()
+    {
+        enemyKiilCount += 1;
+        SetEnemyKillCountText();
+    }
+
+    public void SetEnemyKillCountText()
+    {
+        enemyKillCountText.text = $"{enemyKiilCount}";
+    }
+
+    public void AddCoinGainText(int coinGain)
+    {
+        this.coinGain += coinGain;
+        SetCoinGainText();
+    }
+
+    public void SetCoinGainText()
+    {
+        coinGainText.text = $"{coinGain}";
     }
 }

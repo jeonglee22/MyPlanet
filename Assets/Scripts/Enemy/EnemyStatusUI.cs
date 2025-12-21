@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,6 +7,8 @@ public class EnemyStatusUI : MonoBehaviour
     private Enemy enemy;
     [SerializeField] private Canvas canvas;
     [SerializeField] private Slider hpSlider;
+    [SerializeField] private TextMeshProUGUI damagePopupTextPrefab;
+    [SerializeField] private Transform damagePopupSpawnPoint;
 
     private Transform cameraTransform;
     private BattleUI battleUI;
@@ -17,6 +20,7 @@ public class EnemyStatusUI : MonoBehaviour
     {
         enemy = GetComponentInParent<Enemy>();
         enemy.HpDecreseEvent += HpValueChanged;
+        enemy.DamageEvent += MakeDamagePopup;
 
         cameraTransform = Camera.main.transform;
 
@@ -55,6 +59,11 @@ public class EnemyStatusUI : MonoBehaviour
     private void OnDisable()
     {
         hpSlider.gameObject.SetActive(false);
+        var childs = damagePopupSpawnPoint.GetComponentsInChildren<RectTransform>();
+        foreach(var child in childs)
+        {
+            Destroy(child.gameObject);
+        }
     }
 
     private void OnDestroy()
@@ -73,5 +82,11 @@ public class EnemyStatusUI : MonoBehaviour
             hpSlider.gameObject.SetActive(true);
             hpSlider.value = hp / enemy.MaxHealth;
         }
+    }
+
+    private void MakeDamagePopup(float damage)
+    {
+        var popup = Instantiate(damagePopupTextPrefab, damagePopupSpawnPoint);
+        popup.text = Mathf.RoundToInt(damage).ToString();
     }
 }
