@@ -7,7 +7,7 @@ public class SkillBasedLazer : MonoBehaviour
 {
     protected float chargeTime = 1.5f;
     protected float laserLength = 10f;
-    protected float laserWidth = 0.5f;
+    protected float laserWidth = 1f;
     protected float fieldWidth = 0.2f;
     protected float expandSpeed = 5f;
 
@@ -343,6 +343,7 @@ public class SkillBasedLazer : MonoBehaviour
 
             var shape = laserParticle.shape;
             shape.position = new Vector3(0f, 0f, 2f);
+            shape.radius = laserWidth / 2f;
 
             laserParticle.Clear();
             laserParticle.Play();
