@@ -51,7 +51,7 @@ public class PowerUpItemControlUI : MonoBehaviour
         towerCountUpgradeButton.onClick.AddListener(OnMaxTowerCountUpgradeClicked);
         newAbilityUpgradeButton.onClick.AddListener(OnNewAbilityUpgradeClicked);
         itemUseButton.onClick.AddListener(OnItemUseClicked);
-        selectTowerButton.onClick.AddListener(OnUpgradeTowerClicked);
+        // selectTowerButton.onClick.AddListener(OnUpgradeTowerClicked);
 
         for (int i = 0; i < upgradeUis.Length; i++)
         {
@@ -84,7 +84,7 @@ public class PowerUpItemControlUI : MonoBehaviour
         Variables.OnQuasarChanged -= SetDeactiveQuasarUiGameObjects;
     }
 
-    private void OnUpgradeTowerClicked()
+    public void OnUpgradeTowerClicked()
     {
         if (!SettingAbilities(choosedTowerIndex))
             return;
@@ -299,6 +299,11 @@ public class PowerUpItemControlUI : MonoBehaviour
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(() => OnTowerSelectClicked(index));
         }
+
+        towerInfoUI.SetTitleText(GameStrings.TowerUpgradePopupTitle);
+        towerInfoUI.SetCheckText(GameStrings.Choose);
+        towerInfoUI.SetActiveCancelButton(true);
+        towerInfoUI.SetConfirmButtonFunction(OnUpgradeTowerClicked);
     }
 
     private void SetTowerInstallText()

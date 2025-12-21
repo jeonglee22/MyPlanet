@@ -62,6 +62,7 @@ public class TowerInstallControl : MonoBehaviour
     public float TowerRadius { get => towerRadius; }
 
     [SerializeField] private PlanetTowerUI planetTowerUI;
+    [SerializeField] private PowerUpItemControlUI powerUpItemControlUI;
     private float currentAngle;
     public float CurrentAngle { get => currentAngle; }
 
@@ -737,6 +738,26 @@ public class TowerInstallControl : MonoBehaviour
     public void OnSlotClick(int index)
     {
         OpenInfoUI(index);
+
+        var infoUI = towerInfoObj.GetComponent<TowerInfoUI>();
+        if (infoUI == null) return;
+
+        // if (planetTowerUI.IsQuasarItemUsed)
+        // {
+        //     infoUI.SetTitleText(GameStrings.TowerUpgradePopupTitle);
+        //     infoUI.SetCheckText(GameStrings.Choose);
+        //     infoUI.SetActiveCancelButton(true);
+
+        //     infoUI.SetConfirmButtonFunction(powerUpItemControlUI.OnUpgradeTowerClicked);
+        // }
+        // else
+        // {
+        infoUI.SetTitleText(GameStrings.TowerSettingPopupTitle);
+        infoUI.SetCheckText(GameStrings.Confirm);
+        infoUI.SetActiveCancelButton(false);
+
+        infoUI.SetConfirmButtonFunction(infoUI.OnCloseInfoClicked);
+        // }
     }
 
     public void OnSlotLongPressStart(int index, Vector2 screenPos)
@@ -777,7 +798,7 @@ public class TowerInstallControl : MonoBehaviour
         if (trashIconObj != null)
         {        
             trashIconObj.SetActive(canShowTrash);
-            beforeTopBannerText = planetTowerUI.CurrentTopBannerPanelText;
+            beforeTopBannerText = string.Copy(planetTowerUI.CurrentTopBannerPanelText);
             planetTowerUI.SetTopBannerText(GameStrings.TowerDelete);
         }
         //drag prefab
@@ -902,6 +923,7 @@ public class TowerInstallControl : MonoBehaviour
             {
                 Debug.Log($"[TowerInstallControl] Long press drag end, no valid target. index={sourceIndex}");
             }
+            planetTowerUI.SetTopBannerText(beforeTopBannerText);
 
             // 고스트/투명 처리 복구
             CleanupDragVisual();
