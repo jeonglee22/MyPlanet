@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -1308,11 +1309,10 @@ public class TowerAttack : MonoBehaviour
 
     private void RecalculateDamageMulFromAbility()
     {
-        float mul = 1f;
+        float sum = 0f;
         foreach (var r in damageAbilitySources)
-            mul *= (1f + r);
-
-        damageAbilityMul = Mathf.Max(0f, mul);
+            sum += r;
+        damageAbilityMul = 1f + sum;
     }
     //----------------------------------------------------
     public void ClearAllAmplifierAbilityStates()
@@ -1406,4 +1406,322 @@ public class TowerAttack : MonoBehaviour
         laserLoopPlaying = false;
     }
     //---------------------------------------------
+public string GetDebugInfo()
+{
+    StringBuilder sb = new StringBuilder();
+
+    // 타워 기본 정보
+    sb.AppendLine($"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    if (towerData != null)
+    {
+            sb.AppendLine($"타워 타입: {towerData.towerId.Replace("\\n", " ")} (ID: {towerData.towerIdInt})");
+        }
+    sb.AppendLine($"강화 레벨: {reinforceLevel}");
+    sb.AppendLine($"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // 공격력 (Damage)
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    sb.AppendLine();
+    sb.AppendLine("🔥 공격력 (DAMAGE)");
+
+    float baseAtk = currentProjectileData != null ? currentProjectileData.Attack : 0f;
+    sb.AppendLine($"  기본 (Base):                  {baseAtk:F2}");
+
+    // 강화 보너스 계산
+    if (originalProjectileData != null && currentProjectileData != null)
+    {
+        float reinforceBonus = currentProjectileData.Attack - originalProjectileData.Attack;
+        if (!Mathf.Approximately(reinforceBonus, 0f))
+        {
+            sb.AppendLine($"  강화 보너스 (Reinforce):       +{reinforceBonus:F2}  (Lv.{reinforceLevel})");
+        }
+    }
+
+    // 증폭타워 배율
+    if (!Mathf.Approximately(damageBuffMul, 1f))
+    {
+        float percent = (damageBuffMul - 1f) * 100f;
+            sb.AppendLine($"  증폭타워 배율 (Amplifier):     ×{damageBuffMul:F3}  ({percent:+0.0}%)");
+            if (activeAmplifierBuffs != null && activeAmplifierBuffs.Count > 0)
+        {
+            foreach (var amp in activeAmplifierBuffs)
+            {
+                if (amp == null) continue;
+                float buffPercent = amp.DamageBuff * 100f;
+                sb.AppendLine($"    • {amp.name}: {buffPercent:+F1}%");
+            }
+        }
+    }
+
+    // 자체 능력 배율
+    if (!Mathf.Approximately(damageAbilityMul, 1f))
+    {
+        float percent = (damageAbilityMul - 1f) * 100f;
+        sb.AppendLine($"  자체 능력 배율 (Self Ability): ×{damageAbilityMul:F3}  ({percent:+F1}%)");
+        if (damageAbilitySources != null && damageAbilitySources.Count > 0)
+        {
+            sb.AppendLine($"    • {damageAbilitySources.Count}개 소스:");
+            for (int i = 0; i < damageAbilitySources.Count; i++)
+            {
+                float srcPercent = damageAbilitySources[i] * 100f;
+                sb.AppendLine($"      [{i + 1}] {srcPercent:+F1}%");
+            }
+        }
+    }
+
+    // 외부 업그레이드
+    if (!Mathf.Approximately(damageBuffFromUpgrade, 0f))
+    {
+        float percent = damageBuffFromUpgrade * 100f;
+        sb.AppendLine($"  외부 업그레이드 (Upgrade):     +{percent:F1}%");
+    }
+
+    // 최종값
+    float finalDamage = baseAtk * damageBuffMul * damageAbilityMul * (1f + damageBuffFromUpgrade);
+    sb.AppendLine($"  ─────────────────────────────────");
+    sb.AppendLine($"  최종 공격력 (FINAL):           {finalDamage:F2}");
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // 공격 속도 (Fire Rate)
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    sb.AppendLine();
+    sb.AppendLine("⚡ 공격 속도 (FIRE RATE)");
+
+    float baseFR = towerData != null ? towerData.fireRate : 0f;
+    sb.AppendLine($"  기본 (Base):                  {baseFR:F2} /s");
+
+    if (!Mathf.Approximately(fireRateBuffMul, 0f))
+    {
+        float percent = fireRateBuffMul * 100f;
+        sb.AppendLine($"  증폭타워 보너스 (Amplifier):   {percent:+F1}%");
+    }
+
+    if (!Mathf.Approximately(fireRateAbilityMul, 0f))
+    {
+        float percent = fireRateAbilityMul * 100f;
+        sb.AppendLine($"  자체 능력 보너스 (Ability):    {percent:+F1}%");
+        if (fireRateAbilitySources != null && fireRateAbilitySources.Count > 0)
+        {
+            sb.AppendLine($"    • {fireRateAbilitySources.Count}개 소스:");
+            for (int i = 0; i < fireRateAbilitySources.Count; i++)
+            {
+                float srcPercent = fireRateAbilitySources[i] * 100f;
+                sb.AppendLine($"      [{i + 1}] {srcPercent:+F1}%");
+            }
+        }
+    }
+
+    if (!Mathf.Approximately(towerUpgradeFireRateMul, 0f))
+    {
+        float percent = towerUpgradeFireRateMul * 100f;
+        sb.AppendLine($"  외부 업그레이드 (Upgrade):     {percent:+F1}%");
+    }
+
+    sb.AppendLine($"  ─────────────────────────────────");
+    sb.AppendLine($"  최종 공격속도 (FINAL):         {CurrentFireRate:F2} /s");
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // 투사체 개수 (Projectile Count)
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    sb.AppendLine();
+    sb.AppendLine("🎯 투사체 개수 (PROJECTILE COUNT)");
+    sb.AppendLine($"  기본 (Base):                  {baseProjectileCount}");
+
+    if (projectileCountFromAmplifier > 0)
+    {
+        sb.AppendLine($"  증폭타워 (Amplifier):          +{projectileCountFromAmplifier}");
+    }
+
+    if (projectileCountFromAbility > 0)
+    {
+        sb.AppendLine($"  자체 능력 (Ability):           +{projectileCountFromAbility}");
+    }
+
+    if (projectileCountFromUpgrade > 0)
+    {
+        sb.AppendLine($"  외부 업그레이드 (Upgrade):     +{projectileCountFromUpgrade}");
+    }
+
+    sb.AppendLine($"  ─────────────────────────────────");
+    sb.AppendLine($"  최종 투사체 개수 (FINAL):      {CurrentProjectileCount}");
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // 명중률 (Accuracy)
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    sb.AppendLine();
+    sb.AppendLine("🎲 명중률 (ACCURACY)");
+
+    float baseAcc = towerData != null ? towerData.Accuracy : 0f;
+    sb.AppendLine($"  기본 (Base):                  {baseAcc:F1}%");
+
+    if (!Mathf.Approximately(accuracyFromAmplifier, 0f))
+    {
+        sb.AppendLine($"  증폭타워 (Amplifier):          {accuracyFromAmplifier:+F1}%");
+    }
+
+    if (!Mathf.Approximately(accuracyBuffAdd, 0f))
+    {
+        sb.AppendLine($"  자체 능력 (Ability):           {accuracyBuffAdd:+F1}%");
+    }
+
+    sb.AppendLine($"  ─────────────────────────────────");
+    sb.AppendLine($"  최종 명중률 (FINAL):           {FinalHitRate:F1}%");
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // 관통 (Penetration)
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    sb.AppendLine();
+    sb.AppendLine("🔓 관통 (PENETRATION)");
+
+    // 퍼센트 관통
+    sb.AppendLine("  [퍼센트 관통 (Percent)]");
+    float basePercent = currentProjectileData != null ? currentProjectileData.RatePenetration : 0f;
+    sb.AppendLine($"    기본 (Base):                {basePercent:F1}%");
+
+    if (!Mathf.Approximately(percentPenetrationFromAmplifier, 0f))
+    {
+        sb.AppendLine($"    증폭타워 (Amplifier):        {percentPenetrationFromAmplifier * 100f:F1}%");
+    }
+
+    if (!Mathf.Approximately(percentPenetrationFromAbility, 0f))
+    {
+        sb.AppendLine($"    자체 능력 (Ability):         {percentPenetrationFromAbility * 100f:F1}%");
+        if (percentPenAbilitySources != null && percentPenAbilitySources.Count > 0)
+        {
+            sb.AppendLine($"      • {percentPenAbilitySources.Count}개 소스:");
+            for (int i = 0; i < percentPenAbilitySources.Count; i++)
+            {
+                float srcPercent = percentPenAbilitySources[i] * 100f;
+                sb.AppendLine($"        [{i + 1}] {srcPercent:F1}%");
+            }
+        }
+    }
+
+    // 고정 관통
+    sb.AppendLine("  [고정 관통 (Fixed)]");
+    float baseFixed = currentProjectileData != null ? currentProjectileData.FixedPenetration : 0f;
+    sb.AppendLine($"    기본 (Base):                {baseFixed:F1}");
+
+    if (!Mathf.Approximately(fixedPenetrationFromAmplifier, 0f))
+    {
+        sb.AppendLine($"    증폭타워 (Amplifier):        +{fixedPenetrationFromAmplifier:F1}");
+    }
+
+    if (!Mathf.Approximately(fixedPenetrationBuffAdd, 0f))
+    {
+        sb.AppendLine($"    자체 능력 (Ability):         +{fixedPenetrationBuffAdd:F1}");
+    }
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // 타겟 개수 (Target Count)
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    sb.AppendLine();
+    sb.AppendLine("👥 타겟 개수 (TARGET COUNT)");
+
+    float baseTarget = currentProjectileData != null ? currentProjectileData.TargetNum : 1f;
+    sb.AppendLine($"  기본 (Base):                  {baseTarget:F0}");
+
+    if (targetNumberFromAmplifier > 0)
+    {
+        sb.AppendLine($"  증폭타워 (Amplifier):          +{targetNumberFromAmplifier}");
+    }
+
+    if (targetNumberFromAbility > 0)
+    {
+        sb.AppendLine($"  자체 능력 (Ability):           +{targetNumberFromAbility}");
+    }
+
+    int totalExtra = TotalTargetNumberExtra;
+    if (totalExtra > 0)
+    {
+        sb.AppendLine($"  ─────────────────────────────────");
+        sb.AppendLine($"  추가 타겟 (Extra):             +{totalExtra}");
+    }
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // 히트 반경 (Hit Radius)
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    sb.AppendLine();
+    sb.AppendLine("📏 히트 반경 (HIT RADIUS)");
+
+    float baseRadius = currentProjectileData != null ? currentProjectileData.CollisionSize : 0f;
+    sb.AppendLine($"  기본 (Base):                  {baseRadius:F2}");
+
+    if (!Mathf.Approximately(ampHitRadiusMul, 1f))
+    {
+        float percent = (ampHitRadiusMul - 1f) * 100f;
+        sb.AppendLine($"  증폭타워 배율 (Amplifier):     ×{ampHitRadiusMul:F3}  ({percent:+F1}%)");
+    }
+
+    if (hitRadiusAbilitySources != null && hitRadiusAbilitySources.Count > 0)
+    {
+        sb.AppendLine($"  자체 능력 소스 (Ability):      {hitRadiusAbilitySources.Count}개");
+        for (int i = 0; i < hitRadiusAbilitySources.Count; i++)
+        {
+            float srcPercent = hitRadiusAbilitySources[i] * 100f;
+            sb.AppendLine($"    [{i + 1}] {srcPercent:+F1}%");
+        }
+    }
+
+    sb.AppendLine($"  ─────────────────────────────────");
+    sb.AppendLine($"  최종 배율 (FINAL Mul):         ×{hitRadiusBuffMul:F3}");
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // 어빌리티 (Abilities)
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    sb.AppendLine();
+    sb.AppendLine("✨ 어빌리티 (ABILITIES)");
+
+    if (baseAbilityIds != null && baseAbilityIds.Count > 0)
+    {
+        sb.AppendLine($"  [자체 어빌리티 ({baseAbilityIds.Count}개)]");
+        foreach (var abilityId in baseAbilityIds)
+        {
+            var abilityData = DataTableManager.RandomAbilityTable?.Get(abilityId);
+                string abilityName = abilityData != null ? abilityData.RandomAbilityName : $"ID:{abilityId}";
+                sb.AppendLine($"    • {abilityName} (ID: {abilityId})");
+        }
+    }
+
+    if (amplifierAbilityIds != null && amplifierAbilityIds.Count > 0)
+    {
+        sb.AppendLine($"  [증폭타워로부터 받은 어빌리티 ({amplifierAbilityIds.Count}개 소스)]");
+        foreach (var kv in amplifierAbilityIds)
+        {
+            var source = kv.Key;
+            var list = kv.Value;
+            if (source == null || list == null) continue;
+
+            sb.AppendLine($"    • 소스: 슬롯 {source.SelfIndex} (강화 Lv.{source.ReinforceLevel})");
+            foreach (var abilityId in list)
+            {
+                var abilityData = DataTableManager.RandomAbilityTable?.Get(abilityId);
+                    string abilityName = abilityData != null ? abilityData.RandomAbilityName : $"ID:{abilityId}";
+                    sb.AppendLine($"      - {abilityName} (ID: {abilityId})");
+            }
+        }
+    }
+
+    if (ownedAbilityIds != null && ownedAbilityIds.Count > 0)
+    {
+        sb.AppendLine($"  [카드로 획득한 어빌리티 ({ownedAbilityIds.Count}개)]");
+        var uniqueOwned = new System.Collections.Generic.HashSet<int>(ownedAbilityIds);
+        foreach (var abilityId in uniqueOwned)
+        {
+            var abilityData = DataTableManager.RandomAbilityTable?.Get(abilityId);
+                string abilityName = abilityData != null ? abilityData.RandomAbilityName : $"ID:{abilityId}";
+                int count = 0;
+            foreach (var id in ownedAbilityIds)
+            {
+                if (id == abilityId) count++;
+            }
+            sb.AppendLine($"    • {abilityName} (ID: {abilityId}) ×{count}");
+        }
+    }
+
+    sb.AppendLine($"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+
+    return sb.ToString();
+}
 }

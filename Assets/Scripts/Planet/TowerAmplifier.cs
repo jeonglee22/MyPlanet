@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 [System.Flags]
@@ -555,4 +556,187 @@ public class TowerAmplifier : MonoBehaviour
         }
         OnBuffTargetsChanged?.Invoke();
     }
+public string GetDebugInfo()
+{
+    StringBuilder sb = new StringBuilder();
+
+    sb.AppendLine($"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+
+    if (amplifierTowerData != null)
+    {
+        sb.AppendLine($"증폭 타워 타입: {amplifierTowerData.name}");
+    }
+    else
+    {
+        sb.AppendLine($"증폭 타워 (데이터 없음)");
+    }
+
+    sb.AppendLine($"강화 레벨: {reinforceLevel}");
+    sb.AppendLine($"자체 슬롯 인덱스: {selfIndex}");
+    sb.AppendLine($"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // 버프 제공 정보
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    sb.AppendLine();
+    sb.AppendLine("버프 제공 (BUFF TARGETS)");
+
+    if (buffedSlotIndex != null && buffedSlotIndex.Count > 0)
+    {
+        sb.AppendLine($"  버프 대상 슬롯: {string.Join(", ", buffedSlotIndex)}");
+        sb.AppendLine($"  대상 개수: {buffedSlotIndex.Count}개");
+    }
+    else
+    {
+        sb.AppendLine($"  버프 대상: 없음");
+    }
+
+    // 버프 내용
+    if (amplifierTowerData != null)
+    {
+        sb.AppendLine();
+        sb.AppendLine("  [제공하는 버프 내용]");
+
+        if (!Mathf.Approximately(amplifierTowerData.DamageBuff, 0f))
+        {
+            float percent = amplifierTowerData.DamageBuff * 100f;
+            sb.AppendLine($"공격력:        {percent:+F1}%");
+        }
+
+        if (!Mathf.Approximately(amplifierTowerData.FireRateBuff, 1f))
+        {
+            float percent = (amplifierTowerData.FireRateBuff - 1f) * 100f;
+            sb.AppendLine($"공격속도:      {percent:+F1}%");
+        }
+
+        if (!Mathf.Approximately(amplifierTowerData.AccelerationBuff, 0f))
+        {
+            sb.AppendLine($"투사체 가속:   +{amplifierTowerData.AccelerationBuff:F2}");
+        }
+
+        if (amplifierTowerData.ProjectileCountBuff > 0)
+        {
+            sb.AppendLine($"투사체 개수:   +{amplifierTowerData.ProjectileCountBuff}");
+        }
+
+        if (!Mathf.Approximately(amplifierTowerData.HitRadiusBuff, 0f))
+        {
+            sb.AppendLine($"    ? 히트 반경:     {amplifierTowerData.HitRadiusBuff:+F1}%");
+        }
+
+        if (!Mathf.Approximately(amplifierTowerData.PercentPenetrationBuff, 0f))
+        {
+            float percent = amplifierTowerData.PercentPenetrationBuff * 100f;
+            sb.AppendLine($"    ? 퍼센트 관통:   {percent:+F1}%");
+        }
+
+        if (!Mathf.Approximately(amplifierTowerData.FixedPenetrationBuff, 0f))
+        {
+            sb.AppendLine($"    ? 고정 관통:     +{amplifierTowerData.FixedPenetrationBuff:F1}");
+        }
+
+        if (amplifierTowerData.TargetNumberBuff > 0)
+        {
+            sb.AppendLine($"    ? 타겟 개수:     +{amplifierTowerData.TargetNumberBuff}");
+        }
+
+        if (!Mathf.Approximately(amplifierTowerData.HitRateBuff, 0f))
+        {
+            sb.AppendLine($"    ? 명중률:        {amplifierTowerData.HitRateBuff:+F1}%");
+        }
+    }
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // 어빌리티 정보
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    sb.AppendLine();
+    sb.AppendLine("? 랜덤 어빌리티 (RANDOM ABILITIES)");
+
+    if (abilities != null && abilities.Count > 0)
+    {
+        sb.AppendLine($"  보유 어빌리티: {abilities.Count}개");
+
+        if (randomAbilitySlotIndex != null && randomAbilitySlotIndex.Count > 0)
+        {
+            sb.AppendLine($"  적용 대상 슬롯: {string.Join(", ", randomAbilitySlotIndex)}");
+        }
+
+        sb.AppendLine();
+        sb.AppendLine("  [어빌리티 목록]");
+        foreach (var abilityId in abilities)
+        {
+            var abilityData = DataTableManager.RandomAbilityTable?.Get(abilityId);
+                string abilityName = abilityData != null ? abilityData.RandomAbilityName : $"ID:{abilityId}";
+                float abilityValue = abilityData != null ? abilityData.SpecialEffectValue : 0f;
+
+            sb.AppendLine($"    ? {abilityName}");
+            sb.AppendLine($"      - ID: {abilityId}");
+            sb.AppendLine($"      - 값: {abilityValue}");
+        }
+    }
+    else
+    {
+        sb.AppendLine($"  랜덤 어빌리티: 없음");
+    }
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // 실제 적용 상태
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    sb.AppendLine();
+    sb.AppendLine("?? 적용 상태 (APPLICATION STATUS)");
+
+    int buffedCount = buffedTargets != null ? buffedTargets.Count : 0;
+    sb.AppendLine($"  기본 버프 적용된 타워: {buffedCount}개");
+
+    int abilityTargetCount = appliedAbilityMap != null ? appliedAbilityMap.Count : 0;
+    sb.AppendLine($"  랜덤 어빌리티 적용된 타워: {abilityTargetCount}개");
+
+    if (appliedAbilityMap != null && appliedAbilityMap.Count > 0)
+    {
+        sb.AppendLine();
+        sb.AppendLine("  [어빌리티 적용 상세]");
+        foreach (var kv in appliedAbilityMap)
+        {
+            var target = kv.Key;
+            var abilityDict = kv.Value;
+
+            if (target == null) continue;
+
+                // 타겟 타워의 슬롯 인덱스 찾기
+                int targetSlot = -1;
+                if (planet != null)
+                {
+                    for (int i = 0; i < planet.TowerCount; i++)
+                    {
+                        var tower = planet.GetAttackTowerToAmpTower(i);
+                        if (tower == target)
+                        {
+                            targetSlot = i;
+                            break;
+                        }
+                    }
+                }
+
+                sb.AppendLine($"    ? 타겟 슬롯 {targetSlot}:");
+
+            if (abilityDict != null)
+            {
+                foreach (var abKv in abilityDict)
+                {
+                    int abilityId = abKv.Key;
+                    var info = abKv.Value;
+
+                    var abilityData = DataTableManager.RandomAbilityTable?.Get(abilityId);
+                        string abilityName = abilityData != null ? abilityData.RandomAbilityName : $"ID:{abilityId}";
+
+                        sb.AppendLine($"      - {abilityName}: 스택 {info.Count}개, 총량 {info.TotalAmountApplied:F2}");
+                }
+            }
+        }
+    }
+
+    sb.AppendLine($"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+
+    return sb.ToString();
+}
 }
