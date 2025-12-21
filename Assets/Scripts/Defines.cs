@@ -172,6 +172,7 @@ public enum PatternIds
     BlackHoleExplosionSummon,
     WhiteHoleSpaceWarmSummon,
     WhiteHoleShoot,
+    ExplosionEnemy,
 }
 
 public enum TutorialPoint

@@ -58,6 +58,7 @@ public class PatternManager : MonoBehaviour
         patternDict.Add((int)PatternIds.BlackHoleExplosionSummon, () => new SimpleShotPattern());
         patternDict.Add((int)PatternIds.WhiteHoleSpaceWarmSummon, () => new SimpleShotPattern());
         patternDict.Add((int)PatternIds.WhiteHoleShoot, () => new SimpleShotPattern());
+        patternDict.Add((int)PatternIds.ExplosionEnemy, () => new ExplosionPattern());
     }
 
     public IPattern GetPattern(int patternId)

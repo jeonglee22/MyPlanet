@@ -25,7 +25,8 @@ public class EnemyMovement : MonoBehaviour
     public float DebuffTime { get => debuffTime; set => debuffTime = value; }
 
     private Transform centerStone;
-    private float orbitRadius = 1f;
+    private float orbitXAxisLimit = 1.4f;
+    private float orbitYAxisLimit = 1.2f;
     private bool hasReachedOribt = false;
 
     private void Start()
@@ -45,6 +46,7 @@ public class EnemyMovement : MonoBehaviour
         isDebuff = false;
         isDirectionSet = false;
         debuffTime = 0f;
+        hasReachedOribt = false;
     }
 
     protected virtual void Update()
@@ -163,8 +165,13 @@ public class EnemyMovement : MonoBehaviour
             return;
         }
 
-        float distanceToCenter = Vector3.Distance(transform.position, centerStone.position);
-        if (distanceToCenter <= orbitRadius)
+        Vector3 relativePos = transform.position - centerStone.position;
+
+        float normalizedX = relativePos.x / orbitXAxisLimit;
+        float normalizedY = relativePos.y / orbitYAxisLimit;
+        float ellipseValue = (normalizedX * normalizedX) + (normalizedY * normalizedY);
+
+        if(ellipseValue <= 1f)
         {
             hasReachedOribt = true;
             OnOrbitReached();
@@ -173,6 +180,6 @@ public class EnemyMovement : MonoBehaviour
 
     public void OnOrbitReached()
     {
-        owner?.OnOrbitReached();
+        owner.HasReachedOrbit = true;
     }
 }

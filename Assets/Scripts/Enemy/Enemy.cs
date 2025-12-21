@@ -73,7 +73,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
     public bool HasHit { get; set; } = false;
     private bool hasReachedOrbit = false;
-    public bool HasReachedOrbit => hasReachedOrbit;
+    public bool HasReachedOrbit { get => hasReachedOrbit; set => hasReachedOrbit = value; }
 
     [Header("Boss SFX")]
     [SerializeField] private AudioSource bossAudioSource;
@@ -373,6 +373,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
         ReflectShieldObject = GetComponentInChildren<ReflectShield>(true)?.gameObject;
 
+        hasReachedOrbit = false;
+
         BossAppearance(enemyData.EnemyType);
 
         AddMovementComponent(data.MoveType, spawnPointIndex);
@@ -409,6 +411,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         ParentEnemy = parent;
 
         ReflectShieldObject = GetComponentInChildren<ReflectShield>(true)?.gameObject;
+
+        hasReachedOrbit = false;
 
         AddMovementComponent(moveType, -1);
 
@@ -542,11 +546,6 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     {
         movement?.OnPatternLine();
         patternExecutor?.OnPatternLine();
-    }
-
-    public void OnOrbitReached()
-    {
-        hasReachedOrbit = true;
     }
 
     public void Dispose()

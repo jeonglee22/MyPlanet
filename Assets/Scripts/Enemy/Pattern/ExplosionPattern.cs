@@ -23,17 +23,16 @@ public class ExplosionPattern : SpecialPattern
             return;
         }
 
-        DealExplosionDamage();
-
-        owner.Die();
-
         isExecuteOneTime = true;
+
+        DealExplosionDamage();
+    
+        owner.OnLifeTimeOver();
     }
 
-    public override UniTask ExecuteAsync(CancellationToken token)
+    public override async UniTask ExecuteAsync(CancellationToken token)
     {
-        Execute();
-        return UniTask.CompletedTask;
+        
     }
 
     public override void PatternUpdate()
