@@ -249,6 +249,7 @@ public class TowerInfoUI : MonoBehaviour
         }
 
         gameObject.SetActive(false);
+        installControl.ClearAllSlotHighlights();
     }
 
     public void SetTowerImage(Sprite sprite)

@@ -123,6 +123,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         StopLifeTime();
 
         HasHit = false;
+
     }
 
     protected void OnDestroy()

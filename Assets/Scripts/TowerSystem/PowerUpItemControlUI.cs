@@ -46,6 +46,13 @@ public class PowerUpItemControlUI : MonoBehaviour
 
     private bool isTutorial = false;
 
+    private bool isTowerChoosingState = false;
+    public bool IsTowerChoosingState
+    {
+        get { return isTowerChoosingState; }
+        set { isTowerChoosingState = value; }
+    }
+
     private void Start()
     {
         towerCountUpgradeButton.onClick.AddListener(OnMaxTowerCountUpgradeClicked);
@@ -92,6 +99,7 @@ public class PowerUpItemControlUI : MonoBehaviour
         towerInfoUI.gameObject.SetActive(false);
         chooseTowerPanel.SetActive(false);
         upgradeChooseUis.SetActive(true);
+        installControl.ClearAllSlotHighlights();
 
         for (int i = 0; i < uiTexts.Length; i++)
         {
@@ -144,6 +152,7 @@ public class PowerUpItemControlUI : MonoBehaviour
             towerUpgradeSlotUI.gameObject.SetActive(false);
         }
         GamePauseManager.Instance.Resume();
+        isTowerChoosingState = false;
     }
 
     private void SetTowerOpenInfoTouch()
@@ -211,6 +220,7 @@ public class PowerUpItemControlUI : MonoBehaviour
 
         Variables.Quasar--;
         SetActiveItemUseButton(false);
+        isTowerChoosingState = false;
 
         ResumeGame();
     }
@@ -245,6 +255,7 @@ public class PowerUpItemControlUI : MonoBehaviour
         chooseTowerPanel.SetActive(false);
         upgradeChooseUis.SetActive(false);
         towerInfoUI.gameObject.SetActive(false);
+        isTowerChoosingState = false;
     }
 
     private void OnItemUseClicked()
@@ -304,6 +315,8 @@ public class PowerUpItemControlUI : MonoBehaviour
         towerInfoUI.SetCheckText(GameStrings.Choose);
         towerInfoUI.SetActiveCancelButton(true);
         towerInfoUI.SetConfirmButtonFunction(OnUpgradeTowerClicked);
+
+        isTowerChoosingState = true;
     }
 
     private void SetTowerInstallText()

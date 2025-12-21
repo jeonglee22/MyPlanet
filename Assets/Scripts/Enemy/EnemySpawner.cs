@@ -62,6 +62,7 @@ public class EnemySpawner : MonoBehaviour
         enemy.Initialize(currentTableData, enemyId, objectPoolManager, scaleData, spawnPointIndex);
         if (battleUI != null)
         {
+            enemy.OnDeathEvent -= battleUI.AddEnemyKillCountText;
             enemy.OnDeathEvent += battleUI.AddEnemyKillCountText;
         }
         

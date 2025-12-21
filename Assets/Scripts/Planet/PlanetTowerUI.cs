@@ -164,6 +164,7 @@ public class PlanetTowerUI : MonoBehaviour
         }
 
         GamePauseManager.Instance.Resume();
+        installControl.ClearAllSlotHighlights();
     }
 
     private void OnGoToBattleClicked()
@@ -174,6 +175,7 @@ public class PlanetTowerUI : MonoBehaviour
                 towerInfoUI.gameObject.SetActive(false);
             gameObject.SetActive(false);
             GamePauseManager.Instance.Resume();
+            installControl.ClearAllSlotHighlights();
         }
         else
         {

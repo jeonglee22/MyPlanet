@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks.Triggers;
 using TMPro;
@@ -22,7 +23,9 @@ public class BattleUI : MonoBehaviour
 
     [SerializeField] private TextMeshProUGUI enemyKillCountText;
     [SerializeField] private TextMeshProUGUI coinGainText;
-    
+    [SerializeField] private Button gamePauseButton;
+    [SerializeField] private GameObject gamePausePanel;
+
     private float battleTime = 0f;
 
     private bool isTutorial = false;
@@ -38,6 +41,7 @@ public class BattleUI : MonoBehaviour
     void Start()
     {
         statusUIButton.onClick.AddListener(OnOpenTowerStatusClicked);
+        gamePauseButton.onClick.AddListener(OnGamePauseButtonClicked);
         battleTime = 0f;
 
         stageText.text = $"STAGE {Variables.Stage}";
@@ -75,6 +79,18 @@ public class BattleUI : MonoBehaviour
         bossHpSlider.gameObject.SetActive(false);
 
         SetIsTutorial(TutorialManager.Instance.IsTutorialMode);
+    }
+
+    private void OnGamePauseButtonClicked()
+    {
+        var gamePauseSetting = gamePausePanel.GetComponent<GameStopUI>();
+        gamePauseSetting.SettingTowerObjects();
+
+        gamePauseSetting.SetCoinCountText(coinGain);
+        gamePauseSetting.SetEnemyKillCountText(enemyKiilCount);
+
+        GamePauseManager.Instance.Pause();
+        gamePausePanel.SetActive(true);
     }
 
     public void OnDestroy()

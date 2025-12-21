@@ -55,6 +55,10 @@ public class EnemyStatusUI : MonoBehaviour
         {
             battleUI?.SetBossHp(enemy.Data.EnemyTextName, enemy.Health, enemy.MaxHealth);
         }
+
+        enemy = GetComponentInParent<Enemy>();
+        enemy.HpDecreseEvent += HpValueChanged;
+        enemy.DamageEvent += MakeDamagePopup;
     }
 
     private void OnDisable()
@@ -65,11 +69,17 @@ public class EnemyStatusUI : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
+
+        if(enemy != null)
+        {
+            enemy.HpDecreseEvent -= HpValueChanged;
+            enemy.DamageEvent -= MakeDamagePopup;
+        }
     }
 
     private void OnDestroy()
     {
-        enemy.HpDecreseEvent -= HpValueChanged;
+        
     }
 
     private void HpValueChanged(float hp)

@@ -653,7 +653,7 @@ public class TowerInstallControl : MonoBehaviour
         return towers[index].GetComponent<TowerSlotHighlightUI>();
     }
 
-    private void ClearAllSlotHighlights()
+    public void ClearAllSlotHighlights()
     {
         if (towers == null) return;
 
@@ -752,6 +752,9 @@ public class TowerInstallControl : MonoBehaviour
         // }
         // else
         // {
+        if (powerUpItemControlUI.IsTowerChoosingState)
+            return;
+
         infoUI.SetTitleText(GameStrings.TowerSettingPopupTitle);
         infoUI.SetCheckText(GameStrings.Confirm);
         infoUI.SetActiveCancelButton(false);
