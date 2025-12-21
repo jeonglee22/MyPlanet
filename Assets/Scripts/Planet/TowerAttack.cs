@@ -97,11 +97,6 @@ public class TowerAttack : MonoBehaviour
 
     //percentpenetration ---------------
     private float percentPenetrationFromAbility = 0f;
-    public float PercentPenetrationBuffMul
-    {
-        get => percentPenetrationFromAbility;
-        set => percentPenetrationFromAbility = Mathf.Clamp01(value);
-    }
     private float percentPenetrationFromAmplifier = 0f;
 
     private readonly System.Collections.Generic.List<float> percentPenAbilitySources

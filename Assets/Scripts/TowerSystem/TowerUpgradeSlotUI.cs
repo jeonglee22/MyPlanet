@@ -830,8 +830,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             $"{ampName}\n" +
             buffBlock +
             $"---\n" +
-            $"{ampAbilityName}\n" +
-            randomBlock;
+            $"{ampAbilityName}\n";
     }
 
 
@@ -877,128 +876,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         string abilityName = GetAbilityName(abilityId);
 
         uiTexts[i].text = $"{towerName}\n\n{abilityName}";
-    }
-
-
-    private void SetUpCard(int i, int slotNumber)
-    {
-        //Random Tower Type (0: Attack, 1: Amplifier)
-        int towerType = Random.Range(0, 2);
-
-        if(isFirstInstall) towerType = 0;
-
-        if (towerType == 0) //Attack
-        {
-            var towerData = installControl.GetRandomAttackTowerDataForCard();
-
-            choices[i].InstallType = TowerInstallType.Attack;
-            choices[i].AttackTowerData = towerData;
-            choices[i].AmplifierTowerData = null;
-            choices[i].BuffSlotIndex = null;
-            choices[i].RandomAbilitySlotIndex = null;
-
-            int abilityId = GetAbilityIdForAttackTower(towerData);
-            abilities[i] = abilityId;
-            choices[i].ability = abilityId;
-
-            string towerName = towerData != null ? towerData.towerId : "AttackTower";
-            string abilityName = GetAbilityName(abilityId);
-
-            uiTexts[i].text = $"{towerName}\n\n{abilityName}";
-            return;
-        }
-
-        if(towerType==1)
-        {
-            if(isTutorial && Variables.Stage == 1)
-            {
-                TutorialManager.Instance.ShowTutorialStep(3);
-            }
-
-            var ampData = GetRandomAmplifier();
-
-            choices[i].InstallType = TowerInstallType.Amplifier;
-            choices[i].AmplifierTowerData = ampData;
-            choices[i].AttackTowerData = null;
-
-            //AmpTower Random Ability
-            int ampAbilityId = GetRandomAbilityForAmplifier(ampData);
-            choices[i].ability = ampAbilityId;  // using in Planet.SetAmplifierTower �� TowerAmplifier
-            abilities[i] = ampAbilityId;
-
-            string ampAbilityName = GetAbilityName(ampAbilityId);
-
-            // ---------- PlaceType / RandonSlotNum / AddSlotNum ----------
-            int[] buffOffsets = null;
-            int[] randomOffsets = null;
-
-            int placeType = 0;
-            int randomSlotNum = 0;
-            int addSlotNum = 0;
-
-            var raRow = DataTableManager.RandomAbilityTable.Get(ampAbilityId);
-            if (raRow != null)
-            {
-                placeType = raRow.PlaceType;
-                randomSlotNum = Mathf.Max(0, raRow.RandonSlotNum);
-                addSlotNum = Mathf.Max(0, raRow.AddSlotNum);
-            }
-
-            int baseBuffCount = Mathf.Max(1, ampData.FixedBuffedSlotCount);
-            int effectiveBuffCount = baseBuffCount;
-
-            switch (placeType)
-            {
-                case 0:
-                default:
-                    {
-                        effectiveBuffCount = baseBuffCount;
-                        buffOffsets = GetRandomBuffSlot(effectiveBuffCount);
-
-                        if (randomSlotNum > 0)
-                            randomOffsets = GetRandomBuffSlot(randomSlotNum);
-                        break;
-                    }
-                case 1:
-                    {
-                        effectiveBuffCount = baseBuffCount;
-                        buffOffsets = GetRandomBuffSlot(effectiveBuffCount);
-
-                        if (buffOffsets != null && buffOffsets.Length > 0)
-                        {
-                            int idx = Random.Range(0, buffOffsets.Length);
-                            randomOffsets = new int[] { buffOffsets[idx] };
-                        }
-                        break;
-                    }
-                case 2:
-                    {
-                        effectiveBuffCount = baseBuffCount + addSlotNum;
-                        buffOffsets = GetRandomBuffSlot(effectiveBuffCount);
-
-                        if (randomSlotNum > 0)
-                            randomOffsets = GetRandomBuffSlot(randomSlotNum);
-                        break;
-                    }
-            }
-
-            choices[i].BuffSlotIndex = buffOffsets;
-            choices[i].RandomAbilitySlotIndex = randomOffsets;
-
-            //Card Text Info ------------------------------------
-            string ampName = string.IsNullOrEmpty(ampData.BuffTowerName)
-            ? ampData.AmplifierType.ToString()
-            : ampData.BuffTowerName;
-
-            string buffBlock=FormatOffsetArray(buffOffsets);
-            string randomBlock=FormatOffsetArray(randomOffsets);
-            uiTexts[i].text =
-                $"{ampName}\n" +
-                buffBlock +
-                $"---" +
-                $"\n{ampAbilityName}\n" +
-                randomBlock;
-        }
     }
 
     private void SetUpNewAttackCard(int i, int slotNumber, bool isInitial)

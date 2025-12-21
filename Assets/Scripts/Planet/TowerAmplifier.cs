@@ -355,7 +355,7 @@ public class TowerAmplifier : MonoBehaviour
         }
         //--------------------------------------------------------
         if (filteredBuffTowers.Count == 0) return;
-        
+
         //Remember Buffed Slots
         buffedSlotIndex.AddRange(filteredBuffTowers);
         randomAbilitySlotIndex.AddRange(filteredBuffTowers);
@@ -504,9 +504,8 @@ public class TowerAmplifier : MonoBehaviour
     public void RebuildSlotIndicesOnly(int newSelfIndex, int towerCount)
     {
         bool hasBuff = buffedSlotIndex != null && buffedSlotIndex.Count > 0;
-        bool hasRandom = randomAbilitySlotIndex != null && randomAbilitySlotIndex.Count > 0;
 
-        if (!hasBuff && !hasRandom)
+        if (!hasBuff)
         {
             selfIndex = newSelfIndex;
             return;
@@ -514,51 +513,26 @@ public class TowerAmplifier : MonoBehaviour
 
         int oldSelf = selfIndex;
 
-        List<int> buffOffsets = null;
-        if (hasBuff)
-        {
-            buffOffsets = new List<int>(buffedSlotIndex.Count);
-            foreach (var s in buffedSlotIndex)
-                buffOffsets.Add(s - oldSelf);
-        }
+        List<int> buffOffsets = new List<int>(buffedSlotIndex.Count);
+        foreach (var s in buffedSlotIndex)
+            buffOffsets.Add(s - oldSelf);
 
-        List<int> randomOffsets = null;
-        if (hasRandom)
-        {
-            randomOffsets = new List<int>(randomAbilitySlotIndex.Count);
-            foreach (var s in randomAbilitySlotIndex)
-                randomOffsets.Add(s - oldSelf);
-        }
+        ClearAllbuffs();
 
         selfIndex = newSelfIndex;
         buffedSlotIndex.Clear();
         randomAbilitySlotIndex.Clear();
 
-        if (buffOffsets != null)
+        foreach (var offset in buffOffsets)
         {
-            foreach (var offset in buffOffsets)
-            {
-                int target = newSelfIndex + offset;
-                target %= towerCount;
-                if (target < 0) target += towerCount;
-                if (target == newSelfIndex) continue;
-                if (!buffedSlotIndex.Contains(target))
-                    buffedSlotIndex.Add(target);
-            }
+            int target = newSelfIndex + offset;
+            target %= towerCount;
+            if (target < 0) target += towerCount;
+            if (target == newSelfIndex) continue;
+            if (!buffedSlotIndex.Contains(target))
+                buffedSlotIndex.Add(target);
         }
-
-        if (randomOffsets != null)
-        {
-            foreach (var offset in randomOffsets)
-            {
-                int target = newSelfIndex + offset;
-                target %= towerCount;
-                if (target < 0) target += towerCount;
-                if (target == newSelfIndex) continue;
-                if (!randomAbilitySlotIndex.Contains(target))
-                    randomAbilitySlotIndex.Add(target);
-            }
-        }
+        randomAbilitySlotIndex.AddRange(buffedSlotIndex);
     }
 
     public void AddAbilityAndApplyToCurrentTargets(int abilityId)
@@ -569,12 +543,11 @@ public class TowerAmplifier : MonoBehaviour
         abilities.Add(abilityId);
 
         if (planet == null) return;
-        if (randomAbilitySlotIndex == null || randomAbilitySlotIndex.Count == 0) return;
+        if (buffedSlotIndex == null || buffedSlotIndex.Count == 0) return;
 
-        for (int i = 0; i < randomAbilitySlotIndex.Count; i++)
+        for (int i = 0; i < buffedSlotIndex.Count; i++) 
         {
-            int slotIndex = randomAbilitySlotIndex[i];
-            if (buffedSlotIndex != null && buffedSlotIndex.Contains(slotIndex)) continue;
+            int slotIndex = buffedSlotIndex[i];
 
             var target = planet.GetAttackTowerToAmpTower(slotIndex);
             if (target == null) continue;

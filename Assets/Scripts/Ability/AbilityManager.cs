@@ -39,7 +39,7 @@ public class AbilityManager : MonoBehaviour
         abilityDict.Add((int)AbilityId.TargetCount, new TargetCountUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.TargetCount).SpecialEffectValue));
         abilityDict.Add((int)AbilityId.Hitscan, new HitScanUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Hitscan).SpecialEffectValue));
         abilityDict.Add((int)AbilityId.Accuracy, new AccuracyAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Accuracy).SpecialEffectValue));
-        abilityDict.Add((int)AbilityId.AttackSpeedOneTarget, new AttackSpeedOneTargetAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.AttackDamage).SpecialEffectValue));
+        abilityDict.Add((int)AbilityId.AttackSpeedOneTarget, new AttackSpeedOneTargetAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.AttackSpeedOneTarget).SpecialEffectValue));
     }
 
     public static int GetRandomAbility()
