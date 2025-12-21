@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -8,15 +9,35 @@ public class ExplosionPattern : SpecialPattern
 
     private float explosionRadius = 3f;
 
+    private GameObject changeAsset;
+    private GameObject changedAsset;
+    private ParticleSystem explosionEffect;
+
+    private Collider enemyCollider;
+    private Canvas statusCanvas;
+
     public override void Initialize(Enemy enemy, EnemyMovement movement, EnemyTableData enemyData)
     {
         base.Initialize(enemy, movement, enemyData);
         Trigger = ExecutionTrigger.OnOrbitReached;
 
-        RequireAsync = false;
+        RequireAsync = true;
+
+        FindVisualAssets();
+
+        FindCompoenents();
+
+        SetupExplosionEffect();
+
+        SetInitialVisual();
     }
 
     public override void Execute()
+    {
+        
+    }
+
+    public override async UniTask ExecuteAsync(CancellationToken token)
     {
         if (isExecuteOneTime)
         {
@@ -25,14 +46,36 @@ public class ExplosionPattern : SpecialPattern
 
         isExecuteOneTime = true;
 
+        if(movement != null)
+        {
+            movement.CanMove = false;
+        }
+
+        if(enemyCollider != null)
+        {
+            enemyCollider.enabled = false;
+        }
+
+        if(statusCanvas != null)
+        {
+            statusCanvas.gameObject.SetActive(false);
+        }
+
         DealExplosionDamage();
+
+        ChangeToExplosionVisual();
+
+        if(explosionEffect != null)
+        {
+            explosionEffect.Play();
+            
+            float duration = explosionEffect.main.duration + explosionEffect.main.startLifetime.constantMax;
+            await UniTask.Delay(TimeSpan.FromSeconds(duration), cancellationToken: token);
+        }
+
+        ResetState();
     
         owner.OnLifeTimeOver();
-    }
-
-    public override async UniTask ExecuteAsync(CancellationToken token)
-    {
-        
     }
 
     public override void PatternUpdate()
@@ -54,4 +97,91 @@ public class ExplosionPattern : SpecialPattern
             }
         }
     }
+
+    private void FindVisualAssets()
+    {
+        if(owner == null)
+        {
+            return;
+        }
+
+        Transform[] children = owner.GetComponentsInChildren<Transform>(true);
+
+        foreach(Transform child in children)
+        {
+            if(child.CompareTag(TagName.ChangeVisual))
+            {
+                changeAsset = child.gameObject;
+                explosionEffect = changeAsset.GetComponent<ParticleSystem>();
+            }
+            else if(child.CompareTag(TagName.ChangedVisual))
+            {
+                changedAsset = child.gameObject;
+            }
+
+            if(changeAsset != null && changedAsset != null)
+            {
+                break;
+            }
+        }
+    }
+
+    private void SetupExplosionEffect()
+    {
+        if(explosionEffect != null)
+        {
+            var shape = explosionEffect.shape;
+            shape.radius = explosionRadius;
+        }
+    }
+
+    private void SetInitialVisual()
+    {
+        if(changeAsset != null && changedAsset != null)
+        {
+            changeAsset.SetActive(false);
+            changedAsset.SetActive(true);
+        }
+    }
+
+    private void ChangeToExplosionVisual()
+    {
+        if(changeAsset != null && changedAsset != null)
+        {
+            changeAsset.SetActive(true);
+            changedAsset.SetActive(false);
+        }
+    }
+
+    private void FindCompoenents()
+    {
+        if(owner == null)
+        {
+            return;
+        }
+
+        enemyCollider = owner.GetComponent<SphereCollider>();
+
+        statusCanvas = owner.GetComponentInChildren<Canvas>(true);
+    }
+
+    private void ResetState()
+    {
+        if(movement != null)
+        {
+            movement.CanMove = true;
+        }
+
+        if(enemyCollider != null)
+        {
+            enemyCollider.enabled = true;
+        }
+
+        if(statusCanvas != null)
+        {
+            statusCanvas.gameObject.SetActive(true);
+        }
+
+        SetInitialVisual();
+    }   
 }
