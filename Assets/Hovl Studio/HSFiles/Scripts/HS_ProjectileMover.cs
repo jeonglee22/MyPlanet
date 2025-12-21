@@ -58,6 +58,12 @@ public class HS_ProjectileMover : MonoBehaviour
             }
             if (lightSourse != null)
                 lightSourse.enabled = true;
+            
+            if(projectilePS != null)
+            {
+                projectilePS.Clear();
+                projectilePS.Play();
+            }
         }
     }
 

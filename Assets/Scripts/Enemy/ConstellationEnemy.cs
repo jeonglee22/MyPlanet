@@ -106,6 +106,8 @@ public class ConstellationEnemy : Enemy
     private void LateUpdate()
     {
         UpdateLinePositions();
+
+        
     }
 
     private void UpdateLinePositions()
@@ -189,7 +191,7 @@ public class ConstellationEnemy : Enemy
         var parentCollider = GetComponent<SphereCollider>();
         if(parentCollider != null)
         {
-            parentCollider.enabled = false;
+            parentCollider.enabled = true;
         }
     }
 
@@ -251,5 +253,14 @@ public class ConstellationEnemy : Enemy
         }
 
         base.OnLifeTimeOver();
+    }
+
+    public void DisableCollider()
+    {
+        var parentCollider = GetComponent<SphereCollider>();
+        if(parentCollider != null)
+        {
+            parentCollider.enabled = false;
+        }
     }
 }

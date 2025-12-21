@@ -148,6 +148,11 @@ public class EnemyMovement : MonoBehaviour
         {
             moveDirection = Vector3.zero;
             isDirectionSet = false;
+
+            if(owner is ConstellationEnemy constellationEnemy)
+            {
+                constellationEnemy.DisableCollider();
+            }
         }
     }
 
