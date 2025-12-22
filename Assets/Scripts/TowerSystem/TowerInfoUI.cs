@@ -17,6 +17,7 @@ public class TowerInfoUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI attackTowerExplainText;
     [SerializeField] private TextMeshProUGUI amplifierExplainText;
     [SerializeField] private Image towerImage;
+    [SerializeField] private Image amplifierImage;
     [SerializeField] private TextMeshProUGUI checkText;
     [SerializeField] private TextMeshProUGUI topBannerNameText;
     [SerializeField] private GameObject cancelButton;
@@ -198,11 +199,11 @@ public class TowerInfoUI : MonoBehaviour
             FillAmplifierTowerInfo(index, amplifierTower);
             SetAbilityExplainForAmplifier(amplifierTower);
 
-            var attackTowerData = amplifierTower.AmplifierTowerData;
-            var towerId = attackTowerData.BuffTowerId;
+            var amplifierTowerData = amplifierTower.AmplifierTowerData;
+            var towerId = amplifierTowerData.BuffTowerId;
             var towerImage = DataTableManager.BuffTowerTable.Get(towerId)?.BuffTowerAsset;
             var sprite = LoadManager.GetLoadedGameTexture(towerImage);
-            SetTowerImage(sprite);
+            SetAmplifierTowerImage(sprite);
             return;
         }
 
@@ -264,6 +265,14 @@ public class TowerInfoUI : MonoBehaviour
         if (towerImage != null)
         {
             towerImage.sprite = sprite;
+        }
+    }
+
+    public void SetAmplifierTowerImage(Sprite sprite)
+    {
+        if (towerImage != null)
+        {
+            amplifierImage.sprite = sprite;
         }
     }
 
@@ -553,8 +562,10 @@ public class TowerInfoUI : MonoBehaviour
 
             string text = (count <= 1) ? displayName : $"{displayName}x{count}";
             var go = Instantiate(specialRandomBlockPrefab, specialRandomRoot);
-            var tmp = go.GetComponentInChildren<TextMeshProUGUI>();
-            if (tmp != null) tmp.text = text;
+            var abilityInfo = go.GetComponent<TowerAbilityInfoUI>();
+            abilityInfo.SetAbilityInfo(abilityId);
+            // var tmp = go.GetComponentInChildren<TextMeshProUGUI>();
+            // if (tmp != null) tmp.text = text;
         }
     }
 
@@ -889,6 +900,22 @@ public class TowerInfoUI : MonoBehaviour
         if (tmp != null)
             tmp.text = text;
     }
+
+    private void AddEffectLine(RectTransform root, string text, string baseValue)
+    {
+        if (root == null) return;
+        if (effectLinePrefab == null) return;
+        if (string.IsNullOrEmpty(text)) return;
+
+        var go = Instantiate(effectLinePrefab, root);
+        var abilityInfo = go.GetComponent<TowerAbilityInfoUI>();
+        abilityInfo.SetAbilityInfo(text, baseValue);
+        // var tmp = go.GetComponentInChildren<TextMeshProUGUI>();
+        // Debug.Log(tmp);
+        // if (tmp != null)
+        //     tmp.text = text;
+    }
+
     private string BuildStatChangeLine(string statName, float delta, string formattedValue)
     {
         if (Mathf.Approximately(delta, 0f)) return null;
@@ -896,6 +923,15 @@ public class TowerInfoUI : MonoBehaviour
         string dir = delta > 0f ? "상승" : "하락";
         return $"{statName} 능력치 {dir} ({formattedValue})";
     }
+
+    private string BuildStatChangeLine(string statName, float delta)
+    {
+        if (Mathf.Approximately(delta, 0f)) return null;
+
+        string dir = delta > 0f ? "상승" : "하락";
+        return $"{statName} 능력치 {dir}";
+    }
+
 
     private void FillBasicBuffEffects(TowerAmplifier amplifierTower)
     {
@@ -918,8 +954,8 @@ public class TowerInfoUI : MonoBehaviour
         {
             float delta = ampData.DamageBuff;
             string value = FormatPercentFromAdd(delta); // "+40%"
-            string line = BuildStatChangeLine("공격력", delta, value);
-            AddEffectLine(basicEffectListRoot, line);
+            string line = BuildStatChangeLine("공격력", delta);
+            AddEffectLine(basicEffectListRoot, line, value);
         }
 
         // 공속 (FireRateBuff: mul, 1.2 -> +20%)
@@ -927,8 +963,8 @@ public class TowerInfoUI : MonoBehaviour
         {
             float delta = ampData.FireRateBuff - 1f;
             string value = FormatPercentFromMul(ampData.FireRateBuff);
-            string line = BuildStatChangeLine("공격 속도", delta, value);
-            AddEffectLine(basicEffectListRoot, line);
+            string line = BuildStatChangeLine("공격 속도", delta);
+            AddEffectLine(basicEffectListRoot, line, value);
         }
 
         // 투사체 수 +N
@@ -936,8 +972,8 @@ public class TowerInfoUI : MonoBehaviour
         {
             float delta = ampData.ProjectileCountBuff;
             string value = delta > 0 ? $"+{delta}" : delta.ToString();
-            string line = BuildStatChangeLine("투사체 수", delta, value);
-            AddEffectLine(basicEffectListRoot, line);
+            string line = BuildStatChangeLine("투사체 수", delta);
+            AddEffectLine(basicEffectListRoot, line, value);
         }
 
         // 타겟 수 +N
@@ -945,8 +981,8 @@ public class TowerInfoUI : MonoBehaviour
         {
             float delta = ampData.TargetNumberBuff;
             string value = delta > 0 ? $"+{delta}" : delta.ToString();
-            string line = BuildStatChangeLine("타겟 수", delta, value);
-            AddEffectLine(basicEffectListRoot, line);
+            string line = BuildStatChangeLine("타겟 수", delta);
+            AddEffectLine(basicEffectListRoot, line , value);
         }
 
         // 충돌 크기 (HitRadiusBuff: add, 0.25 -> +25%)
@@ -954,8 +990,8 @@ public class TowerInfoUI : MonoBehaviour
         {
             float delta = ampData.HitRadiusBuff;
             string value = FormatPercentFromAdd(delta);
-            string line = BuildStatChangeLine("충돌 크기", delta, value);
-            AddEffectLine(basicEffectListRoot, line);
+            string line = BuildStatChangeLine("충돌 크기", delta);
+            AddEffectLine(basicEffectListRoot, line , value);
         }
 
         // 비율 관통력 (PercentPenetrationBuff: add, 0.2 -> +20%)
@@ -964,8 +1000,8 @@ public class TowerInfoUI : MonoBehaviour
             float delta = ampData.PercentPenetrationBuff; // 0.2 → +20%
             float percent = delta * 100f;
             string value = $"{percent:+0.##;-0.##}%";
-            string line = BuildStatChangeLine("비율 관통력", delta, value);
-            AddEffectLine(basicEffectListRoot, line);
+            string line = BuildStatChangeLine("비율 관통력", delta);
+            AddEffectLine(basicEffectListRoot, line , value);
         }
 
         // 고정 관통 +N
@@ -973,8 +1009,8 @@ public class TowerInfoUI : MonoBehaviour
         {
             float delta = ampData.FixedPenetrationBuff;
             string value = delta > 0 ? $"+{delta:0.##}" : $"{delta:0.##}";
-            string line = BuildStatChangeLine("고정\n관통력", delta, value);
-            AddEffectLine(basicEffectListRoot, line);
+            string line = BuildStatChangeLine("고정\n관통력", delta);
+            AddEffectLine(basicEffectListRoot, line, value);
         }
 
         // 명중률 (HitRateBuff: mul, 1.2 -> +20%)
@@ -1006,8 +1042,6 @@ public class TowerInfoUI : MonoBehaviour
 
         // if (!amplifierTower.HasAppliedRandomAbilities) return;
 
-        bool hasAnyLine = false;
-
         foreach (var abilityId in abilities)
         {
             var raRow = DataTableManager.RandomAbilityTable?.Get(abilityId);
@@ -1022,8 +1056,8 @@ public class TowerInfoUI : MonoBehaviour
 
             foreach (var line in lines)
             {
-                AddEffectLine(randomEffectListRoot, line);
-                hasAnyLine = true;
+                AddEffectLine(randomEffectListRoot, line, effectValue.ToString());
+
             }
         }
     }
@@ -1040,7 +1074,7 @@ public class TowerInfoUI : MonoBehaviour
             case 200001: // 공격력%
                 {
                     string formatted = $"{effectValue:+0;-0}%";
-                    string line = BuildStatChangeLine("공격력", effectValue, formatted);
+                    string line = BuildStatChangeLine("공격력", effectValue);
                     if (line != null) result.Add(line);
                     break;
                 }
@@ -1049,7 +1083,7 @@ public class TowerInfoUI : MonoBehaviour
             case 200017: // 공속% (다른 PlaceType 버전)
                 {
                     string formatted = $"{effectValue:+0;-0}%";
-                    string line = BuildStatChangeLine("공격 속도", effectValue, formatted);
+                    string line = BuildStatChangeLine("공격 속도", effectValue);
                     if (line != null) result.Add(line);
                     break;
                 }
@@ -1057,7 +1091,7 @@ public class TowerInfoUI : MonoBehaviour
             case 200003: // 비율 관통력
                 {
                     string formatted = $"{effectValue:+0;-0}%";
-                    string line = BuildStatChangeLine("비율 관통력", effectValue, formatted);
+                    string line = BuildStatChangeLine("비율 관통력", effectValue);
                     if (line != null) result.Add(line);
                     break;
                 }
@@ -1065,7 +1099,7 @@ public class TowerInfoUI : MonoBehaviour
             case 200004: // 고정 관통력
                 {
                     string formatted = $"{effectValue:+0.##;-0.##}";
-                    string line = BuildStatChangeLine("고정 관통력", effectValue, formatted);
+                    string line = BuildStatChangeLine("고정 관통력", effectValue);
                     if (line != null) result.Add(line);
                     break;
                 }
@@ -1073,7 +1107,7 @@ public class TowerInfoUI : MonoBehaviour
             case 200005: // 둔화 (이동 속도 감소)
                 {
                     string formatted = $"{effectValue:+0;-0}%";
-                    string line = BuildStatChangeLine("이동 속도 감소", effectValue, formatted);
+                    string line = BuildStatChangeLine("이동 속도 감소", effectValue);
                     if (line != null) result.Add(line);
                     break;
                 }
@@ -1081,7 +1115,7 @@ public class TowerInfoUI : MonoBehaviour
             case 200006: // 충돌크기
                 {
                     string formatted = $"{effectValue:+0;-0}%";
-                    string line = BuildStatChangeLine("충돌 크기", effectValue, formatted);
+                    string line = BuildStatChangeLine("충돌 크기", effectValue);
                     if (line != null) result.Add(line);
                     break;
                 }
@@ -1089,7 +1123,7 @@ public class TowerInfoUI : MonoBehaviour
             case 200007: // 연쇄
                 {
                     string formatted = $"{effectValue:+0;-0}";
-                    string line = BuildStatChangeLine("연쇄 횟수", effectValue, formatted);
+                    string line = BuildStatChangeLine("연쇄 횟수", effectValue);
                     if (line != null) result.Add(line);
                     break;
                 }
@@ -1099,7 +1133,7 @@ public class TowerInfoUI : MonoBehaviour
                     if (!Mathf.Approximately(effectValue, 0f))
                     {
                         string formatted = $"{effectValue:+0;-0}";
-                        string line = BuildStatChangeLine("폭발 효과", effectValue, formatted);
+                        string line = BuildStatChangeLine("폭발 효과", effectValue);
                         if (line != null) result.Add(line);
                     }
                     else
@@ -1112,7 +1146,7 @@ public class TowerInfoUI : MonoBehaviour
             case 200009: // 관통
                 {
                     string formatted = $"{effectValue:+0;-0}";
-                    string line = BuildStatChangeLine("관통 횟수", effectValue, formatted);
+                    string line = BuildStatChangeLine("관통 횟수", effectValue);
                     if (line != null) result.Add(line);
                     break;
                 }
@@ -1120,7 +1154,7 @@ public class TowerInfoUI : MonoBehaviour
             case 200010: // 분열
                 {
                     string formatted = $"{effectValue:+0;-0}";
-                    string line = BuildStatChangeLine("분열 투사체 수", effectValue, formatted);
+                    string line = BuildStatChangeLine("분열 투사체 수", effectValue);
                     if (line != null) result.Add(line);
                     break;
                 }
