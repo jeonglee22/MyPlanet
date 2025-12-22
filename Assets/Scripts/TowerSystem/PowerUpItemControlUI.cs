@@ -347,6 +347,8 @@ public class PowerUpItemControlUI : MonoBehaviour
         numlist = null;
 
         Variables.OnQuasarChanged -= CheckQuasarForReactivation;
+
+        SoundManager.Instance.PlayDeployClose();
     }
 
     private void SetUpCard(int i)

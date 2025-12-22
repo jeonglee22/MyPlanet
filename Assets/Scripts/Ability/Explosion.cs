@@ -16,9 +16,6 @@ public class Explosion : MonoBehaviour
 
     private ParticleSystem[] explosionParticles;
 
-    [Header("SFX")]
-    [SerializeField] private AudioClip explosionSfx;
-    [SerializeField, Range(0f, 1f)] private float explosionSfxVolume = 1f;
     private bool sfxPlayed = false;
 
     void Awake()
@@ -89,18 +86,6 @@ public class Explosion : MonoBehaviour
         if (sfxPlayed) return;
         sfxPlayed = true;
 
-        if (explosionSfx == null) return;
-
-        var go = new GameObject("SFX_Explosion");
-        go.transform.position = transform.position;
-
-        var src = go.AddComponent<AudioSource>();
-        src.playOnAwake = false;
-        src.loop = false;
-        src.spatialBlend = 0f; // 2D
-        src.volume = explosionSfxVolume;
-
-        src.PlayOneShot(explosionSfx);
-        Destroy(go, explosionSfx.length + 0.1f);
+        SoundManager.Instance.PlayExplosionEffect(gameObject.transform.position);
     }
 }

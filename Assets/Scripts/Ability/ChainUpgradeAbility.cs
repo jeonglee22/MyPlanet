@@ -73,6 +73,8 @@ public class ChainUpgradeAbility : EffectAbility
             return;
         }
 
+        SoundManager.Instance.PlayChainEffect(nextEnemy.transform.position);
+
         int chainLevel = Mathf.FloorToInt(upgradeAmount) - count + 1;
         float chainDecay = Mathf.Pow(chainDamageMultiplier, chainLevel);
         projectileData.Attack = buffedData.Attack * chainDecay;

@@ -62,6 +62,9 @@ public class SoundManager : MonoBehaviour
     [SerializeField] private AudioClip loginBGM;
     [SerializeField] private AudioClip lobbyBGM;
     [SerializeField] private AudioClip battleBGM;
+    public AudioClip BattleBGM => battleBGM;
+    public AudioClip LobbyBGM => lobbyBGM;
+    public AudioClip LoginBGM => loginBGM;
 
     private const int POOLSIZE = 35;
 
@@ -387,7 +390,7 @@ public class SoundManager : MonoBehaviour
     public void PlayExplosionEffect(Vector3 pos) => PlaySfx(explosionEffect, pos, (int)SoundPriority.VeryHigh);
     public void PlayReflectShield(Vector3 pos) => PlaySfx(reflectShield, pos, (int)SoundPriority.High);
 
-    public void PlayTitanLaser(Vector3 pos) => PlaySfx(enemyLaser, pos, (int)SoundPriority.High);
+    public void PlayEnemyLaser(Vector3 pos) => PlaySfx(enemyLaser, pos, (int)SoundPriority.High);
     public void PlaySunFireball(Vector3 pos) => PlaySfx(sunFireball, pos, (int)SoundPriority.High);
     public void PlayBossAppear(Vector3 pos) => PlaySfx(bossAppear, pos, (int)SoundPriority.Critical);
 

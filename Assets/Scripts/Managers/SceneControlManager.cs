@@ -47,6 +47,8 @@ public class SceneControlManager : MonoBehaviour
 
     public async UniTask LoadScene(string sceneName, List<UniTask> additionalTasks = null)
     {
+        SoundManager.Instance.StopBGM();
+
         loadingCanvas.SetActive(true);
         IsLoading = true;
         // Time.timeScale = 0f;
@@ -77,6 +79,15 @@ public class SceneControlManager : MonoBehaviour
         currentSceneName = sceneName;
         loadingCanvas.SetActive(false);
         // Time.timeScale = 1f;
+
+        if(sceneName == SceneName.BattleScene)
+        {
+            SoundManager.Instance.PlayBGM(SoundManager.Instance.BattleBGM);
+        }
+        else if(sceneName == SceneName.LobbyScene)
+        {
+            SoundManager.Instance.PlayBGM(SoundManager.Instance.LobbyBGM);
+        }
     }
 
     public async UniTask WaitSceneLoadMinimun(float waitTime)

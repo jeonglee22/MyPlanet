@@ -31,6 +31,8 @@ public class ParabolicShotPattern : ShootingPattern
 
             Shoot(token);
 
+            SoundManager.Instance.PlaySunFireball(owner.transform.position);
+
             if(i < projectileCount - 1 && projectileTerm > 0f)
             {
                 await UniTask.Delay(System.TimeSpan.FromSeconds(projectileTerm), cancellationToken: token);

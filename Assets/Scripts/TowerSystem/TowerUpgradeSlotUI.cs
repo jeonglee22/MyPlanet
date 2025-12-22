@@ -1468,6 +1468,8 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
     public void OnClickRefreshButton(int index)
     {
+        SoundManager.Instance.PlayRefreshSound();
+
         if (isTutorial && Variables.Stage == 1)
         {
             RefreshStage1SingleCard(index);

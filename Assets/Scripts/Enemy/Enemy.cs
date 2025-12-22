@@ -75,17 +75,6 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     private bool hasReachedOrbit = false;
     public bool HasReachedOrbit { get => hasReachedOrbit; set => hasReachedOrbit = value; }
 
-    [Header("Boss SFX")]
-    [SerializeField] private AudioSource bossAudioSource;
-    [SerializeField] private AudioClip middleBossSpawnSfx;
-    [SerializeField] private AudioClip lastBossSpawnSfx;
-    [SerializeField, Range(0f, 1f)] private float bossSpawnSfxVolume = 1f;
-    [SerializeField] private float bossSpawnSfxGapSeconds = 0.15f;
-
-    [Header("Pattern SFX")]
-    [SerializeField] private AudioSource sfxAudioSource;
-    [SerializeField] private AudioClip simpleShotSfx;
-    [SerializeField, Range(0f, 1f)] private float simpleShotVolume = 1f;
     private void Start()
     {
         SetIsTutorial(TutorialManager.Instance?.IsTutorialMode ?? false);
@@ -469,7 +458,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
             return;
         }
 
-        PlayBossSpawnSfx(enemyType);
+        SoundManager.Instance.PlayBossAppear(transform.position);
 
         var radius = gameObject.GetComponent<SphereCollider>().radius * transform.localScale.x;
         transform.position = Spawner.transform.position + new Vector3(0f, radius, 0f);
@@ -557,61 +546,6 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     private void SetIsTutorial(bool isTutorialMode)
     {
         isTutorial = isTutorialMode;
-    }
-
-    private void EnsureBossAudioSource()
-    {
-        if (bossAudioSource != null) return;
-
-        bossAudioSource = GetComponent<AudioSource>();
-        if (bossAudioSource == null) bossAudioSource = gameObject.AddComponent<AudioSource>();
-
-        bossAudioSource.playOnAwake = false;
-        bossAudioSource.loop = false;
-        bossAudioSource.spatialBlend = 0f;
-    }
-
-    private void PlayBossSpawnSfx(int enemyType)
-    {
-        AudioClip clip = null;
-        if (enemyType == 3) clip = middleBossSpawnSfx;
-        else if (enemyType == 4) clip = lastBossSpawnSfx;
-
-        if (clip == null) return;
-
-        EnsureBossAudioSource();
-        PlayBossSpawnSfxRepeatAsync(clip, 3).Forget();
-    }
-    private async UniTaskVoid PlayBossSpawnSfxRepeatAsync(AudioClip clip, int count)
-    {
-        for (int i = 0; i < count; i++)
-        {
-            bossAudioSource.PlayOneShot(clip, bossSpawnSfxVolume);
-            if (i < count - 1)
-            {
-                var wait = clip.length + bossSpawnSfxGapSeconds;
-                await UniTask.Delay(TimeSpan.FromSeconds(wait), ignoreTimeScale: true);
-            }
-        }
-    }
-
-    private void EnsureSfxAudioSource()
-    {
-        if (sfxAudioSource != null) return;
-
-        sfxAudioSource = GetComponent<AudioSource>();
-        if (sfxAudioSource == null) sfxAudioSource = gameObject.AddComponent<AudioSource>();
-
-        sfxAudioSource.playOnAwake = false;
-        sfxAudioSource.loop = false;
-        sfxAudioSource.spatialBlend = 0f;
-    }
-    public void PlaySimpleShotSfx()
-    {
-        if (simpleShotSfx == null) return;
-
-        EnsureSfxAudioSource();
-        sfxAudioSource.PlayOneShot(simpleShotSfx, simpleShotVolume);
     }
 
     public virtual List<Vector3> GetShootPositions()
