@@ -160,6 +160,7 @@ Transform:
   m_Children:
   - {fileID: 1040107964374705171}
   - {fileID: 7281721690066054218}
+  - {fileID: 1810490063496981494}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &4526675612517391057
@@ -306,6 +307,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canvas: {fileID: 2499001061570755770}
   hpSlider: {fileID: 3642176486700133332}
+  damagePopupTextPrefab: {fileID: 6847116968901548312, guid: 0b7c71188da340b4a9ff2aea243d0b31, type: 3}
+  damagePopupSpawnPoint: {fileID: 1810490063496981494}
 --- !u!135 &6556962389658190673
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -327,6 +330,37 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &2696009333548023264
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1810490063496981494}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1810490063496981494
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2696009333548023264}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.11, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1779442582325868679}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1829357316145898015
 PrefabInstance:
   m_ObjectHideFlags: 0
