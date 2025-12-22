@@ -39,6 +39,12 @@ public class Projectile : MonoBehaviour , IDisposable
     public event Action<GameObject> abilityAction;
     public event Action<GameObject> abilityRelease;
 
+    //super special effect
+    public int towerReinforceLevel = 0;
+    public System.Collections.Generic.List<int> towerAbilities;
+    public float damageMultiplier = 1.0f;
+    public int hitCount = 0;
+
     private bool isFinish = false;
     public bool IsFinish { get => isFinish; set => isFinish = value; }
     public bool IsOtherUser { get; set; }
@@ -166,7 +172,9 @@ public class Projectile : MonoBehaviour , IDisposable
         Vector3 direction, 
         bool isHit, 
         ObjectPoolManager<ProjectileData, Projectile> poolManager,
-        Planet planet = null
+        Planet planet = null,
+        int reinforceLevel = 0,
+        System.Collections.Generic.List<int> abilities = null
         )
     {
         this.projectileData = projectileData;
@@ -183,6 +191,15 @@ public class Projectile : MonoBehaviour , IDisposable
         FixedPanetration = projectileData.FixedPenetration;
         damage = projectileData.Attack;
         hitRadius = projectileData.CollisionSize;
+
+        //super special effect
+        this.towerReinforceLevel = reinforceLevel;
+        this.towerAbilities = abilities != null
+            ? new System.Collections.Generic.List<int>(abilities)
+            : new System.Collections.Generic.List<int>();
+
+        this.damageMultiplier = 1.0f;
+        this.hitCount = 0;
 
         //hit size
         float baseSize = poolKey != null ? poolKey.CollisionSize : projectileData.CollisionSize;
@@ -214,8 +231,21 @@ public class Projectile : MonoBehaviour , IDisposable
         if (damagable != null && enemy != null && isHit)
         {
             abilityAction?.Invoke(other.gameObject);
+
+            float pierceMul = GetPierceDamageMultiplier();
+            float originalMul = damageMultiplier;
+
+            if (hitCount > 0 && !Mathf.Approximately(pierceMul, 1f))
+            {
+                damageMultiplier *= pierceMul;
+            }
+
             var damage = CalculateTotalDamage(enemy.Data.Defense);
             damagable.OnDamage(damage);
+
+            damageMultiplier = originalMul;
+
+            hitCount++;
         }
 
         currentPierceCount--;
@@ -229,10 +259,9 @@ public class Projectile : MonoBehaviour , IDisposable
     
     public float CalculateTotalDamage(float enemyDef)
     {
-        if (damage < 0f)
-        {
-            damage = 0f;
-        }
+        float effectiveDamage = damage * damageMultiplier;
+        if (effectiveDamage < 0f)
+            effectiveDamage = 0f;
 
         var RatePanetration = Mathf.Clamp(this.RatePanetration, 0f, 100f);
         // Debug.Log(damage);
@@ -241,8 +270,7 @@ public class Projectile : MonoBehaviour , IDisposable
         {
             totalEnemyDef = 0;
         }
-        var totalDamage = damage * 100f / (100f + totalEnemyDef);
-        
+        var totalDamage = effectiveDamage * 100f / (100f + totalEnemyDef);
         return totalDamage;
     }
 
@@ -262,5 +290,30 @@ public class Projectile : MonoBehaviour , IDisposable
     public void ForceFinish()
     {
         isFinish = true;
+    }
+
+    private bool HasAbility(int abilityId)
+    {
+        return towerAbilities != null && towerAbilities.Contains(abilityId);
+    }
+    private float GetPierceDamageMultiplier()
+    {
+        const int PIERCE_ABILITY_ID = 200009;
+
+        if (!HasAbility(PIERCE_ABILITY_ID))
+            return 1f;
+
+        if (!DataTableManager.IsInitialized)
+            return 1f;
+
+        var ra = DataTableManager.RandomAbilityTable?.Get(PIERCE_ABILITY_ID);
+        if (ra == null || ra.RandomAbilityType != 1)
+            return 1f;
+
+        if (TowerReinforceManager.Instance == null)
+            return 1f;
+
+        return TowerReinforceManager.Instance
+            .GetFinalSuperValueForAbility(PIERCE_ABILITY_ID, towerReinforceLevel);
     }
 }
