@@ -47,6 +47,13 @@ public class TowerInfoUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI lifeTimeValueText;
     [SerializeField] private TextMeshProUGUI projectileSizeValueText;
 
+    [SerializeField] private TextMeshProUGUI chainValueText;
+    [SerializeField] private TextMeshProUGUI explosionValueText;
+    [SerializeField] private TextMeshProUGUI splitValueText;
+    [SerializeField] private TextMeshProUGUI pierceValueText;
+    [SerializeField] private TextMeshProUGUI hitScanValueText;
+    [SerializeField] private TextMeshProUGUI homingValueText;
+
     [Header("Attack Tower Additional Data")]
     [SerializeField] private TextMeshProUGUI damageValueAdditionalText;
     [SerializeField] private TextMeshProUGUI fireRateValueAdditionalText;
@@ -59,6 +66,13 @@ public class TowerInfoUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI targetNumberValueAdditionalText;
     [SerializeField] private TextMeshProUGUI projectileNumberValueAdditionalText;
     [SerializeField] private TextMeshProUGUI lifeTimeValueAdditionalText;
+
+    [SerializeField] private TextMeshProUGUI chainValueAdditionalText;
+    [SerializeField] private TextMeshProUGUI explosionValueAdditionalText;
+    [SerializeField] private TextMeshProUGUI splitValueAdditionalText;
+    [SerializeField] private TextMeshProUGUI pierceValueAdditionalText;
+    [SerializeField] private TextMeshProUGUI hitScanValueAdditionalText;
+    [SerializeField] private TextMeshProUGUI homingValueAdditionalText;
 
     private TextMeshProUGUI rangeValueText;
     private TextMeshProUGUI towerIdValueText;
@@ -353,6 +367,13 @@ public class TowerInfoUI : MonoBehaviour
         SetText(towerIdValueText, value);
         SetText(rangeValueText, value);
 
+        SetText(chainValueText, value);
+        SetText(explosionValueText, value);
+        SetText(splitValueText, value);
+        SetText(pierceValueText, value);
+        SetText(hitScanValueText, value);
+        SetText(homingValueText, value);
+
         SetText(damageValueAdditionalText, value);
         SetText(fireRateValueAdditionalText, value);
         SetText(fixedPenetrationValueAdditionalText, value);
@@ -364,6 +385,13 @@ public class TowerInfoUI : MonoBehaviour
         SetText(projectileNumberValueAdditionalText, value);
 
         SetText(lifeTimeValueAdditionalText, value);
+
+        SetText(chainValueAdditionalText, value);
+        SetText(explosionValueAdditionalText, value);
+        SetText(splitValueAdditionalText, value);
+        SetText(pierceValueAdditionalText, value);
+        SetText(hitScanValueAdditionalText, value);
+        SetText(homingValueAdditionalText, value);
     }
 
     private void FillAttackTowerInfo(int index, TowerAttack attackTower)
@@ -484,6 +512,106 @@ public class TowerInfoUI : MonoBehaviour
         //Range 
         SetText(rangeValueText, attackTowerData.rangeData != null
                 ? attackTowerData.rangeData.GetRange().ToString("0.0") : null);
+        
+        var ablityDict = new Dictionary<int, int>();
+        foreach (var abilityId in abilities)
+        {
+            if (ablityDict.TryGetValue(abilityId, out int current))
+            {
+                ablityDict[abilityId] = current + 1;
+            }
+            else
+            {
+                ablityDict[abilityId] = 1;
+            }
+        }
+
+        ResetAdditionalAbilityTexts();
+
+        foreach (var kvp in ablityDict)
+        {
+            int abilityId = kvp.Key;
+            int count = kvp.Value;
+
+            var ability = AbilityManager.GetAbility(abilityId);
+            if (ability == null) continue;
+
+            var total= ability.UpgradeAmount * count;
+            Debug.Log($"AbilityId: {abilityId}, Count: {count}, Total Upgrade Amount: {total}");
+            switch (abilityId)
+            {
+                case (int)AbilityId.Chain:
+                    {
+                        SetStatText(chainValueText, 0, total, "0");
+                        SetAdditionalStatText(chainValueAdditionalText, 0, total, "0");
+                        break;
+                    }
+                case (int)AbilityId.Explosion:
+                    {
+                        var towerId = attackTowerData.towerIdInt;
+                        float baseValue = 0f;
+                        if (towerId == (int)AttackTowerId.Missile)
+                            baseValue = 100f;
+                        SetStatText(explosionValueText, baseValue, total * 100f, "0");
+                        SetAdditionalStatText(explosionValueAdditionalText, baseValue, total * 100f, "0");
+                        break;
+                    }
+                case (int)AbilityId.Split:
+                    {
+                        SetStatText(splitValueText, 0, total, "0");
+                        SetAdditionalStatText(splitValueAdditionalText, 0, total, "0");
+                        break;
+                    }
+                case (int)AbilityId.Pierce:
+                    {
+                        SetStatText(pierceValueText, 0, total, "0");
+                        SetAdditionalStatText(pierceValueAdditionalText, 0, total, "0");
+                        break;
+                    }
+                case (int)AbilityId.Hitscan:
+                    {
+                        if (total > 0)
+                        {
+                            SetText(hitScanValueText, "활성화");
+                        }
+                        else
+                        {
+                            SetText(hitScanValueText, "비활성화");
+                        }
+                        break;
+                    }
+                case (int)AbilityId.Homing:
+                    {
+                        if (total > 0)
+                        {
+                            SetText(homingValueText, "활성화");
+                        }
+                        else
+                        {
+                            SetText(homingValueText, "비활성화");
+                        }
+                        break;
+                    }
+
+            }
+            // Process ability effects on stats if needed
+        }
+    }
+
+    private void ResetAdditionalAbilityTexts()
+    {
+        SetText(chainValueText, "-");
+        SetAdditionalStatText(chainValueAdditionalText, 0, 0, "0");
+        SetText(explosionValueText, "-");
+        SetAdditionalStatText(explosionValueAdditionalText, 0, 0, "0");
+        SetText(splitValueText,  "-");
+        SetAdditionalStatText(splitValueAdditionalText, 0, 0, "0");
+        SetText(pierceValueText, "-");
+        SetAdditionalStatText(pierceValueAdditionalText, 0, 0, "0");
+        SetText(hitScanValueText, "-");
+        SetAdditionalStatText(hitScanValueAdditionalText, 0, 0, "0");
+        SetText(homingValueText, "-");
+        SetAdditionalStatText(homingValueAdditionalText, 0, 0, "0");
     }
 
     private void SetAbilityExplainForAttack(TowerAttack attackTower)
