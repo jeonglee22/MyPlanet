@@ -13,11 +13,12 @@ public class StageData
     public int StageIndex { get; set; }
     [TypeConverter(typeof(IntArrayConverter))]
     public int[] WaveGroup { get; set; }
-    [TypeConverter(typeof(IntArrayConverter))]
-    public int[] FirstReward_Id { get; set; }
-    [TypeConverter(typeof(IntArrayConverter))]
-    public int[] Reward_Id { get; set; }
+    public int FirstReward_Id { get; set; }
+    public int Reward_Id { get; set; }
     public int UnlockCondition { get; set; }
+    public string BossName { get; set; }
+    public string StageImage { get; set; }
+    public string LockedStageName { get; set; }
 
     public override string ToString()
     {
