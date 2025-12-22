@@ -137,7 +137,22 @@ public class SoundManager : MonoBehaviour
         if (AuthManager.Instance.IsSignedIn)
         {
             InitializeReference();
-            await LoadSettingsAsync();
+
+            var dataSnapshot = await settingsRef.GetValueAsync().AsUniTask();
+            if (dataSnapshot.Exists)
+            {
+                await LoadSettingsAsync();
+            }
+            else
+            {
+                masterVolume = 1f;
+                bgmVolume = 1f;
+                sfxVolume = 1f;
+                isMute = false;
+
+                await SaveSettingsAsync();
+                ApplyVolumes();
+            }
         }
         else
         {
@@ -170,7 +185,7 @@ public class SoundManager : MonoBehaviour
         settingsRef = FirebaseDatabase.DefaultInstance.GetReference("userdata").Child(userId).Child("settings");
     }
 
-    private async UniTask LoadSettingsAsync()
+    public async UniTask LoadSettingsAsync()
     {
         if(!AuthManager.Instance.IsSignedIn)
         {
@@ -203,7 +218,7 @@ public class SoundManager : MonoBehaviour
         }
     }
 
-    private async UniTask SaveSettingsAsync()
+    public async UniTask SaveSettingsAsync()
     {
         if(!AuthManager.Instance.IsSignedIn)
         {
@@ -232,7 +247,7 @@ public class SoundManager : MonoBehaviour
     {
         SetVolume(bgmParam, masterVolume * bgmVolume);
         SetVolume(sfxParam, masterVolume * sfxVolume);
-        //MuteAll(isMute);
+        MuteAll(isMute);
     }
 
     private void SetVolume(string param, float vol)
@@ -259,24 +274,21 @@ public class SoundManager : MonoBehaviour
     {
         masterVolume = Mathf.Clamp01(vol);
         ApplyVolumes();
-        SaveSettingsAsync().Forget();
     }
 
     public void SetBGMVolume(float vol)
     {
         bgmVolume = Mathf.Clamp01(vol);
         ApplyVolumes();
-        SaveSettingsAsync().Forget();
     }
 
     public void SetSFXVolume(float vol)
     {
         sfxVolume = Mathf.Clamp01(vol);
         ApplyVolumes();
-        SaveSettingsAsync().Forget();
     }
 
-    public void MutAll(bool mute)
+    public void MuteAll(bool mute)
     {
         isMute = mute;
         if (mute)
@@ -287,8 +299,6 @@ public class SoundManager : MonoBehaviour
         {
             mixer.SetFloat(masterParam, 0f);
         }
-
-        SaveSettingsAsync().Forget();
     }
 
     public float GetMasterVolume() => masterVolume;
