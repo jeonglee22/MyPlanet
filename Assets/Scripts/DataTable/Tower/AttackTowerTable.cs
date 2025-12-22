@@ -20,6 +20,8 @@ public class AttackTowerTableRow
     public float TowerWeight { get; set; }
     public int Order { get; set; }
     public int TowerText_ID { get; set; }
+    public string AttackTowerAsset { get; set; }
+    public string AttackTowerAssetCut { get; set; }
 
     [Name("TowerReinforceUpgrade_ID")]
     public string TowerReinforceUpgrade_ID_Raw { get; set; }

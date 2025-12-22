@@ -56,6 +56,9 @@ public class WaveManager : MonoBehaviour
     public event Action MiddleBossDefeated;
     public event Action OnGoldAccumulated;
 
+    [SerializeField] private BattleUI battleUI;
+    [SerializeField] private BossAppearEffect bossAppearEffect;
+
     private bool isTutorial = false;
 
     [Header("BGM")]
@@ -122,6 +125,11 @@ public class WaveManager : MonoBehaviour
         foreach(int enemyId in enemyIds)
         {
             SpawnManager.Instance.PrepareEnemyPools(enemyId);
+        }
+
+        if (waveData.RepeatCount == 0 && waveData.SpawnTerm == 0f)
+        {
+            bossAppearEffect.gameObject.SetActive(true);
         }
 
         Debug.Log($"Preloaded assets for Wave ID: {waveData.Wave_Id}");
@@ -297,6 +305,12 @@ public class WaveManager : MonoBehaviour
 
         if(currentWaveIndex < waveDatas.Count && !isBossBattle)
         {
+            // var currentWave = waveDatas[currentWaveIndex];
+            // var waveReward = currentWave.WaveReward;
+            // if (waveReward > 0)
+            // {
+            //     battleUI.AddCoinGainText(waveReward);   
+            // }
             await StartNextWave(cts);
         }
     }

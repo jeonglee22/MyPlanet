@@ -16,6 +16,11 @@ public class TowerInfoUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI amplifierNameText;
     [SerializeField] private TextMeshProUGUI attackTowerExplainText;
     [SerializeField] private TextMeshProUGUI amplifierExplainText;
+    [SerializeField] private Image towerImage;
+    [SerializeField] private TextMeshProUGUI checkText;
+    [SerializeField] private TextMeshProUGUI topBannerNameText;
+    [SerializeField] private GameObject cancelButton;
+    [SerializeField] private Button confirmButton;
 
     [Header("Switch Data Panel")]
     [SerializeField] private GameObject attackTowerDataPanel;
@@ -108,6 +113,33 @@ public class TowerInfoUI : MonoBehaviour
         }
     }
 
+    public void SetActiveCancelButton(bool isActive)
+    {
+        if (cancelButton != null)
+            cancelButton.SetActive(isActive);
+    }
+
+    public void SetConfirmButtonFunction(UnityEngine.Events.UnityAction action)
+    {
+        if (confirmButton != null)
+        {
+            confirmButton.onClick.RemoveAllListeners();
+            confirmButton.onClick.AddListener(action);
+        }
+    }
+
+    public void SetTitleText(string text)
+    {
+        if (topBannerNameText != null)
+            topBannerNameText.text = text;
+    }
+
+    public void SetCheckText(string text)
+    {
+        if (checkText != null)
+            checkText.text = text;
+    }
+
     public void SetInfo(int index)
     {
         if (contentRect == null && scrollRect != null)
@@ -142,6 +174,12 @@ public class TowerInfoUI : MonoBehaviour
             FillAttackTowerInfo(index, attackTower);
             SetAbilityExplainForAttack(attackTower);
             SetSpecialAbilityForAttackPanel(attackTower);
+
+            var attackTowerData = attackTower.AttackTowerData;
+            var towerId = attackTowerData.towerIdInt;
+            var towerImage = DataTableManager.AttackTowerTable.GetById(towerId)?.AttackTowerAsset;
+            var sprite = LoadManager.GetLoadedGameTexture(towerImage);
+            SetTowerImage(sprite);
             return;
         }
 
@@ -152,6 +190,12 @@ public class TowerInfoUI : MonoBehaviour
 
             FillAmplifierTowerInfo(index, amplifierTower);
             SetAbilityExplainForAmplifier(amplifierTower);
+
+            var attackTowerData = amplifierTower.AmplifierTowerData;
+            var towerId = attackTowerData.BuffTowerId;
+            var towerImage = DataTableManager.BuffTowerTable.Get(towerId)?.BuffTowerAsset;
+            var sprite = LoadManager.GetLoadedGameTexture(towerImage);
+            SetTowerImage(sprite);
             return;
         }
 
@@ -205,6 +249,15 @@ public class TowerInfoUI : MonoBehaviour
         }
 
         gameObject.SetActive(false);
+        installControl.ClearAllSlotHighlights();
+    }
+
+    public void SetTowerImage(Sprite sprite)
+    {
+        if (towerImage != null)
+        {
+            towerImage.sprite = sprite;
+        }
     }
 
     private void SetText(TextMeshProUGUI tmp, string value, float buffedValue = float.MaxValue, string suffix = "")

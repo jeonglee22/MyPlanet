@@ -11,6 +11,7 @@ public class LivingEntity : MonoBehaviour, IDamagable
 
     public event Action OnDeathEvent;
     public event Action<float> HpDecreseEvent;
+    public event Action<float> DamageEvent;
 
     protected virtual void OnEnable()
     {
@@ -25,6 +26,7 @@ public class LivingEntity : MonoBehaviour, IDamagable
 
         Health -= damage;
         
+        DamageEvent?.Invoke(damage);
         HpDecreseEvent?.Invoke(Health);
 
         if (Health <= 0)

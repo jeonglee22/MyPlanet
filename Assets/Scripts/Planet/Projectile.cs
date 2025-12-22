@@ -71,6 +71,7 @@ public class Projectile : MonoBehaviour , IDisposable
             trailRenderer.Clear();
             trailRenderer.enabled = false;
         }
+        explosionRadius = 0f;
     }
 
     private void Update()

@@ -1,6 +1,6 @@
 using Cysharp.Threading.Tasks;
+using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class PlanetTowerUI : MonoBehaviour
@@ -11,8 +11,17 @@ public class PlanetTowerUI : MonoBehaviour
     [SerializeField] private TowerInstallControl installControl;
     [SerializeField] private RectTransform planetCenter;
     [SerializeField] private GameObject backConfirmPanel;
+    [SerializeField] private GameObject confirmPanel;
+    public bool ISConfirmPanelActive => confirmPanel.activeSelf;
+    [SerializeField] private Button gotoBattleYesBtn;
+    [SerializeField] private Button gotoBattleNoBtn;
     [SerializeField] private Button backYexBtn;
     [SerializeField]  private Button backNoBtn;
+    [SerializeField] private TextMeshProUGUI topBannerPanelText;
+    public string CurrentTopBannerPanelText => topBannerPanelText.text;
+    [SerializeField] private TextMeshProUGUI confirmPanelText;
+    [SerializeField] private TextMeshProUGUI confirmPanelSubText;
+    [SerializeField] private TextMeshProUGUI confirmPanelTitleText;
     private RectTransform dragAreaRect;
     private TowerUpgradeSlotUI towerUpgradeSlotUI;
 
@@ -30,6 +39,10 @@ public class PlanetTowerUI : MonoBehaviour
     private bool isOpen = false;
     private bool isBackBtnClicked = false;
     public bool IsBackBtnClicked => isBackBtnClicked;
+    private bool isTowerSetting = false;
+    public bool IsTowerSetting { get { return isTowerSetting; } set { isTowerSetting = value; } }
+    private bool isQuasarItemUsed = false;
+    public bool IsQuasarItemUsed { get { return isQuasarItemUsed; } set { isQuasarItemUsed = value; } }
 
     void Awake()
     {
@@ -39,8 +52,8 @@ public class PlanetTowerUI : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        battleButton.onClick.AddListener(OnStartBattelClicked);
-        goToTitleButton?.onClick.AddListener(OnGoToTitleClicked);
+        battleButton.onClick.AddListener(OnGoToBattleClicked);
+        // goToTitleButton?.onClick.AddListener(() => gotoBattlePanel.SetActive(true));
 
         Angle = 0f;
         
@@ -53,6 +66,17 @@ public class PlanetTowerUI : MonoBehaviour
         backYexBtn.onClick.AddListener(OnBackYesClicked);
         backNoBtn.onClick.AddListener(OnBackNoClicked);
         backConfirmPanel.SetActive(false);
+        confirmPanel.SetActive(false);
+
+        gotoBattleYesBtn.onClick.AddListener(() =>
+        {
+            confirmPanel.SetActive(false);
+            OnStartBattelClicked();
+        });
+        gotoBattleNoBtn.onClick.AddListener(() =>
+        {
+            confirmPanel.SetActive(false);
+        });
     }
 
     void OnEnable()
@@ -89,6 +113,9 @@ public class PlanetTowerUI : MonoBehaviour
         }
 
         if (installControl.CurrentDragGhost != null)
+            return;
+
+        if (confirmPanel.activeSelf)
             return;
 
         if (RectTransformUtility.RectangleContainsScreenPoint(dragAreaRect, TouchManager.Instance.StartTouchPos) &&
@@ -129,16 +156,43 @@ public class PlanetTowerUI : MonoBehaviour
         if (towerInfoUI != null)
             towerInfoUI.gameObject.SetActive(false);
         gameObject.SetActive(false);
+
+        if (isQuasarItemUsed)
+        {
+            Variables.Quasar--;
+            isQuasarItemUsed = false;
+        }
+
         GamePauseManager.Instance.Resume();
+        installControl.ClearAllSlotHighlights();
     }
 
-    private void OnGoToTitleClicked()
+    private void OnGoToBattleClicked()
     {
-        goToTitleButton.interactable = false;
-        battleButton.interactable = false;
-
-        backConfirmPanel.SetActive(true);
-        isBackBtnClicked = true;
+        if (isTowerSetting)
+        {
+            if (towerInfoUI != null)
+                towerInfoUI.gameObject.SetActive(false);
+            gameObject.SetActive(false);
+            GamePauseManager.Instance.Resume();
+            installControl.ClearAllSlotHighlights();
+        }
+        else
+        {
+            confirmPanel.SetActive(true);
+            if (isQuasarItemUsed)
+            {
+                confirmPanelTitleText.text = GameStrings.QuasarItemSkipTitle;
+                confirmPanelText.text = GameStrings.QuasarItemSkipped;
+                confirmPanelSubText.text = GameStrings.QuasarItemDeleted;
+            }
+            else
+            {
+                confirmPanelTitleText.text = GameStrings.TowerUpgradeSkipTitle;
+                confirmPanelText.text = GameStrings.TowerUpgradeSkipped;
+                confirmPanelSubText.text = GameStrings.TowerUpgradeDeleted;
+            }
+        }
     }
 
     private void OnBackYesClicked()
@@ -155,5 +209,10 @@ public class PlanetTowerUI : MonoBehaviour
         battleButton.interactable = true;
 
         isBackBtnClicked = false;
+    }
+
+    public void SetTopBannerText(string text)
+    {
+        topBannerPanelText.text = text;
     }
 }

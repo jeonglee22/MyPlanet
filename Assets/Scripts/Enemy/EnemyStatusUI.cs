@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,6 +7,8 @@ public class EnemyStatusUI : MonoBehaviour
     private Enemy enemy;
     [SerializeField] private Canvas canvas;
     [SerializeField] private Slider hpSlider;
+    [SerializeField] private GameObject damagePopupTextPrefab;
+    [SerializeField] private Transform damagePopupSpawnPoint;
 
     private Transform cameraTransform;
     private BattleUI battleUI;
@@ -17,6 +20,7 @@ public class EnemyStatusUI : MonoBehaviour
     {
         enemy = GetComponentInParent<Enemy>();
         enemy.HpDecreseEvent += HpValueChanged;
+        enemy.DamageEvent += MakeDamagePopup;
 
         cameraTransform = Camera.main.transform;
 
@@ -57,6 +61,7 @@ public class EnemyStatusUI : MonoBehaviour
 
         canvas.transform.position = enemy.transform.position + canvasOffset;
         canvas.transform.rotation = Quaternion.identity;
+        
     }
 
     private void OnEnable()
@@ -67,16 +72,31 @@ public class EnemyStatusUI : MonoBehaviour
         {
             battleUI?.SetBossHp(enemy.Data.EnemyTextName, enemy.Health, enemy.MaxHealth);
         }
+
+        enemy = GetComponentInParent<Enemy>();
+        enemy.HpDecreseEvent += HpValueChanged;
+        enemy.DamageEvent += MakeDamagePopup;
     }
 
     private void OnDisable()
     {
         hpSlider.gameObject.SetActive(false);
+        var childs = damagePopupSpawnPoint.GetComponentsInChildren<RectTransform>();
+        foreach(var child in childs)
+        {
+            Destroy(child.gameObject);
+        }
+
+        if(enemy != null)
+        {
+            enemy.HpDecreseEvent -= HpValueChanged;
+            enemy.DamageEvent -= MakeDamagePopup;
+        }
     }
 
     private void OnDestroy()
     {
-        enemy.HpDecreseEvent -= HpValueChanged;
+        
     }
 
     private void HpValueChanged(float hp)
@@ -90,5 +110,15 @@ public class EnemyStatusUI : MonoBehaviour
             hpSlider.gameObject.SetActive(true);
             hpSlider.value = hp / enemy.MaxHealth;
         }
+    }
+
+    private void MakeDamagePopup(float damage)
+    {
+        var popup = Instantiate(damagePopupTextPrefab, damagePopupSpawnPoint);
+        var popupText = popup.GetComponentInChildren<TextMeshProUGUI>();
+        popupText.text = Mathf.RoundToInt(damage).ToString();
+        var popupCanvas = popup.GetComponentInChildren<Canvas>();
+        popupCanvas.transform.rotation = Quaternion.identity;
+        popupCanvas.transform.position = enemy.transform.position - canvasOffset;
     }
 }

@@ -11,7 +11,7 @@ public class PlayInfoUI : MonoBehaviour
     void Start()
     {
         Application.targetFrameRate = 60;
-        fpsText.color = Color.yellow;
+        // fpsText.color = Color.yellow;
     }
 
     // Update is called once per frame
@@ -27,6 +27,6 @@ public class PlayInfoUI : MonoBehaviour
 
     private void SetFpsText(float deltaTime)
     {
-        fpsText.text = $"FPS: {Mathf.RoundToInt(1f / deltaTime)}";
+        // fpsText.text = $"FPS: {Mathf.RoundToInt(1f / deltaTime)}";
     }
 }
