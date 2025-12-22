@@ -58,6 +58,19 @@ public class GachaPanelUI : MonoBehaviour
         confirmNoBtn.onClick.AddListener(OnConfirmNoBtnClicked);
         exitRewardOnceBtn.onClick.AddListener(OnGachaBackBtnClicked);
         exitRewardTenBtn.onClick.AddListener(OnGachaBackBtnClicked);
+
+        AddBtnSound();
+    }
+
+    private void AddBtnSound()
+    {
+        backBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        buyOnceBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        buyTenBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        confirmYesBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        confirmNoBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        exitRewardOnceBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        exitRewardTenBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
     }
 
     private void ResetBtn()

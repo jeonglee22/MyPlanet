@@ -16,6 +16,9 @@ public class GameResultUI : MonoBehaviour
         // restartButton.onClick.AddListener(() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex));
         restartButton?.onClick.AddListener(OnRestartCliecked);
         returnToTitleButton?.onClick.AddListener(OnReturnToTitleClicked);
+
+        restartButton?.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        returnToTitleButton?.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
     }
 
     public void SetResultText(bool isWin)

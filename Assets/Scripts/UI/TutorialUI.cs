@@ -22,6 +22,7 @@ public class TutorialUI : PopUpUI
         {
             gameObject.SetActive(false);
             TutorialManager.Instance.OnTextUIDisabled();
+            SoundManager.Instance.PlayClickSound();
         });
     }
 

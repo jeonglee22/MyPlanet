@@ -19,6 +19,7 @@ public class RandomAbilityInfoUI : MonoBehaviour
     private void Awake()
     {
         closeBtn.onClick.AddListener(OnExitBtnClicked);
+        closeBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
 
         abilityEffectOneTMP = abilityEffectOneText.GetComponentInChildren<TextMeshProUGUI>();
         abilityEffectTwoTMP = abilityEffectTwoText.GetComponentInChildren<TextMeshProUGUI>();
@@ -57,7 +58,7 @@ public class RandomAbilityInfoUI : MonoBehaviour
 
     private void OnDestroy()
     {
-        closeBtn.onClick.RemoveListener(OnExitBtnClicked);
+        closeBtn.onClick.RemoveAllListeners();
     }
 
     private void OnExitBtnClicked()

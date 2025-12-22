@@ -55,6 +55,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         get { return isNotUpgradeOpen; }
         set { isNotUpgradeOpen = value; }
     }
+    private bool isOpenDeploy = false;
 
     private GameObject dragImage = null;
     public GameObject DragImage => dragImage;
@@ -135,6 +136,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         if (isNotUpgradeOpen)
         {
             isNotUpgradeOpen = false;
+            isOpenDeploy = true;
 
             if(IsQuasarItemUsed)
             {
@@ -233,6 +235,13 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         }
 
         gameResumeButton.interactable = true;
+
+        if(isOpenDeploy)
+        {
+            isOpenDeploy = false;
+            SoundManager.Instance.PlayDeployClose();
+            return;
+        }
     }
 
     private void Update()

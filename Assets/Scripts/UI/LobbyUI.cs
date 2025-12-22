@@ -26,6 +26,8 @@ public class LobbyUI : MonoBehaviour
         collectionBtn.onClick.AddListener(OnCollectionBtnClicked);
         planetBtn.onClick.AddListener(OnPlanetBtnClicked);
         towerBtn.onClick.AddListener(OnTowerBtnClicked);
+
+        AddBtnSound();
         
         gachaMainPanel.SetActive(false);
         collectionPanel.SetActive(false);
@@ -37,13 +39,22 @@ public class LobbyUI : MonoBehaviour
         ResetBtn();
     }
 
+    private void AddBtnSound()
+    {
+        playBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        storeBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        collectionBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        planetBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        towerBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+    }
+
     private void ResetBtn()
     {
-        playBtn.onClick.RemoveListener(OnPlayBtnClicked);
-        storeBtn.onClick.RemoveListener(OnStoreBtnClicked);
-        collectionBtn.onClick.RemoveListener(OnCollectionBtnClicked);
-        planetBtn.onClick.RemoveListener(OnPlanetBtnClicked);
-        towerBtn.onClick.RemoveListener(OnTowerBtnClicked);
+        playBtn.onClick.RemoveAllListeners();
+        storeBtn.onClick.RemoveAllListeners();
+        collectionBtn.onClick.RemoveAllListeners();
+        planetBtn.onClick.RemoveAllListeners();
+        towerBtn.onClick.RemoveAllListeners();
     }
 
     private void OnPlayBtnClicked()

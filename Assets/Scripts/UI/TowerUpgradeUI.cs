@@ -28,10 +28,12 @@ public class TowerUpgradeUI : MonoBehaviour
     void Start()
     {
         backBtn.onClick.AddListener(OnBackBtnClicked);
+        backBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
         for (int i = 0; i < towerButtons.Length; i++)
         {
             int index = i;
             towerButtons[i].onClick.AddListener(() => OnTowerButtonClicked(index));
+            towerButtons[i].onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
         }
     }
 

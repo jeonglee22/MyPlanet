@@ -1,13 +1,10 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Firebase.Database;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Audio;
-using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 
 public class SoundManager : MonoBehaviour
@@ -53,12 +50,12 @@ public class SoundManager : MonoBehaviour
 
     [Header("UI Sounds")]
     [SerializeField] private AudioClip levelUpSound;
-    [SerializeField] private AudioClip quasarSelect;
     [SerializeField] private AudioClip refreshSound;
-    [SerializeField] private AudioClip deployOpen;
-    [SerializeField] private AudioClip deployClose;
     [SerializeField] private AudioClip victorySound;
     [SerializeField] private AudioClip defeatSound;
+    [SerializeField] private AudioClip quasarSelect;
+    [SerializeField] private AudioClip deployOpen;
+    [SerializeField] private AudioClip deployClose;
     [SerializeField] private AudioClip clickSound;
 
     [Header("Background Music")]
@@ -159,7 +156,9 @@ public class SoundManager : MonoBehaviour
 
     private void Cancel()
     {
-        
+        destroyCts?.Cancel();
+        destroyCts?.Dispose();
+        destroyCts = new CancellationTokenSource();
     } 
 
     private void InitializeReference()
@@ -399,6 +398,7 @@ public class SoundManager : MonoBehaviour
     public void PlayDeployClose() => sfxButtonSource.PlayOneShot(deployClose);
     public void PlayVictorySound() => sfxButtonSource.PlayOneShot(victorySound);
     public void PlayDefeatSound() => sfxButtonSource.PlayOneShot(defeatSound);
+    public void PlayClickSound() => sfxButtonSource.PlayOneShot(clickSound);
 
     public void PlayBGM(AudioClip clip)
     {

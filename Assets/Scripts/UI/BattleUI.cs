@@ -42,6 +42,8 @@ public class BattleUI : MonoBehaviour
     {
         statusUIButton.onClick.AddListener(OnOpenTowerStatusClicked);
         gamePauseButton.onClick.AddListener(OnGamePauseButtonClicked);
+        statusUIButton.onClick.AddListener(() => SoundManager.Instance.PlayDeployOpen());
+        gamePauseButton.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
         battleTime = 0f;
 
         stageText.text = $"STAGE {Variables.Stage}";
@@ -97,6 +99,9 @@ public class BattleUI : MonoBehaviour
     {
         WaveManager.Instance.WaveChange -= OnWaveChanged;
         SpawnManager.Instance.OnBossSpawn -= OnWaveChanged;
+
+        statusUIButton.onClick.RemoveAllListeners();
+        gamePauseButton.onClick.RemoveAllListeners();
     }
 
     // Update is called once per frame

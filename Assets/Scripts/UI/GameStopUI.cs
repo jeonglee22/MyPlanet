@@ -39,6 +39,29 @@ public class GameStopUI : MonoBehaviour
 
         confirmYesButton.onClick.AddListener(OnConfirmYesClicked);
         confirmNoButton.onClick.AddListener(OnConfirmNoClicked);
+
+        AddBtnSound();
+    }
+
+    private void AddBtnSound()
+    {
+        gameResumeButton.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        goToHomeButton.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        settingButton.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        detailButton.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        confirmYesButton.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        confirmNoButton.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+    }
+
+    private void OnDestroy()
+    {
+        gameResumeButton.onClick.RemoveAllListeners();
+        goToHomeButton.onClick.RemoveAllListeners();
+        settingButton.onClick.RemoveAllListeners();
+        detailButton.onClick.RemoveAllListeners();
+
+        confirmYesButton.onClick.RemoveAllListeners();
+        confirmNoButton.onClick.RemoveAllListeners();
     }
 
     void OnEnable()

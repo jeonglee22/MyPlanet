@@ -23,6 +23,7 @@ public class BuffTowerInfoPanelUI : MonoBehaviour
     private void Awake()
     {
         exitBtn.onClick.AddListener(OnExitBtnClicked);
+        exitBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
 
         abilityOneTMP = abilityOneText.GetComponentInChildren<TextMeshProUGUI>();
         abilityTwoTMP = abilityTwoText.GetComponentInChildren<TextMeshProUGUI>();
@@ -31,7 +32,7 @@ public class BuffTowerInfoPanelUI : MonoBehaviour
 
     private void OnDestroy()
     {
-        exitBtn.onClick.RemoveListener(OnExitBtnClicked);
+        exitBtn.onClick.RemoveAllListeners();
     }
 
     public void Initialize(BuffTowerData data)
