@@ -12,6 +12,7 @@ public class Explosion : MonoBehaviour
     private float FixedPanetration = 0f;
     private float RatePanetration = 0f;
     private float damage = 0f;
+    private float explosionDamageMultiplier = 0.1f;
 
     private ParticleSystem[] explosionParticles;
 
@@ -26,7 +27,7 @@ public class Explosion : MonoBehaviour
         explosionParticles = GetComponentsInChildren<ParticleSystem>();
     }
 
-    public void SetInit(float initRadius, float explosionRadius, ProjectileData projectileData)
+    public void SetInit(float initRadius, float explosionRadius, ProjectileData projectileData, float damageMultiplier = 0.1f)
     {
         this.initRadius = initRadius;
         this.explosionRadius = explosionRadius;
@@ -79,7 +80,7 @@ public class Explosion : MonoBehaviour
         {
             totalEnemyDef = 0;
         }
-        var totalDamage = damage * 0.7f * 100f / (100f + totalEnemyDef);
+        var totalDamage = damage * explosionDamageMultiplier * 100f / (100f + totalEnemyDef);
         return totalDamage;
     }
 
