@@ -72,6 +72,22 @@ public class PowerUpItemControlUI : MonoBehaviour
         OnQuaserChanged();
         Variables.OnQuasarChanged += OnQuaserChanged;
         Variables.OnQuasarChanged += SetDeactiveQuasarUiGameObjects;
+
+        AddButtonSound();
+    }
+
+    private void AddButtonSound()
+    {
+        towerCountUpgradeButton.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        newAbilityUpgradeButton.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        itemUseButton.onClick.AddListener(() => SoundManager.Instance.PlayQuasarSelect());
+
+        for (int i = 0; i < upgradeUis.Length; i++)
+        {
+            int index = i;
+            var button = upgradeUis[index].GetComponent<Button>();
+            button.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        }
     }
 
     private async UniTaskVoid OnEnable()

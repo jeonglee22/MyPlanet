@@ -9,11 +9,6 @@ public class PlayManager : MonoBehaviour
 
     private bool isTutorial = false;
 
-    [Header("Result SFX")]
-    [SerializeField] private AudioSource resultAudioSource;
-    [SerializeField] private AudioClip clearSfx;
-    [SerializeField] private AudioClip failSfx;
-    [SerializeField, Range(0f, 1f)] private float resultSfxVolume = 1f;
     private bool hasEnded = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -50,7 +45,7 @@ public class PlayManager : MonoBehaviour
         if (hasEnded) return;
         hasEnded = true;
 
-        PlayResultSfx(failSfx);
+        SoundManager.Instance.PlayDefeatSound();
 
         if (gameOverUI != null)
         {
@@ -74,7 +69,7 @@ public class PlayManager : MonoBehaviour
             TutorialManager.Instance.ShowTutorialStep(12);
         }
 
-        PlayResultSfx(clearSfx);
+        SoundManager.Instance.PlayVictorySound();
 
         if (gameOverUI != null)
         {
@@ -88,25 +83,5 @@ public class PlayManager : MonoBehaviour
     private void SetIsTutorial(bool isTutorialMode)
     {
         isTutorial = isTutorialMode;
-    }
-
-    private void EnsureResultAudioSource()
-    {
-        if (resultAudioSource != null) return;
-
-        resultAudioSource = GetComponent<AudioSource>();
-        if (resultAudioSource == null) resultAudioSource = gameObject.AddComponent<AudioSource>();
-
-        resultAudioSource.playOnAwake = false;
-        resultAudioSource.loop = false;
-        resultAudioSource.spatialBlend = 0f; 
-    }
-
-    private void PlayResultSfx(AudioClip clip)
-    {
-        if (clip == null) return;
-
-        EnsureResultAudioSource();
-        resultAudioSource.PlayOneShot(clip, resultSfxVolume);
     }
 }
