@@ -12,6 +12,12 @@ public class TowerDamageInfoUI : MonoBehaviour
     [SerializeField] private List<TextMeshProUGUI> towerNames;
     [SerializeField] private List<Slider> towerDamagePercentSliders;
     [SerializeField] private List<GameObject> damageInfoObjects;
+    [SerializeField] private RectTransform infoPanel;
+    
+    public void OnClosePanelClicked()
+    {
+        gameObject.SetActive(false);
+    }
 
     public void SetTowerDamageInfos(Planet planet)
     {
@@ -39,9 +45,11 @@ public class TowerDamageInfoUI : MonoBehaviour
 
             towerImages[i].sprite = towerSprite;
             towerNames[i].text = towerTableData.AttackTowerName;
-            // towerDamageTexts[i].text = info.Damage.ToString("N0");
-            // towerDamagePercentTexts[i].text = info.DamagePercent.ToString("F2") + "%";
-            // towerDamagePercentSliders[i].value = info.DamagePercent / 100f;
+            towerDamageTexts[i].text = tower.TotalDamageDealt.ToString("N0");
+            towerDamagePercentTexts[i].text = (tower.TotalDamageDealt * 100f / totalDamage).ToString("F2") + "%";
+            towerDamagePercentSliders[i].value = tower.TotalDamageDealt / totalDamage;
+
+            damageInfoObjects[i].SetActive(true);
         }
 
         for (int i = attackTowers.Count; i < towerImages.Count; i++)
@@ -52,8 +60,12 @@ public class TowerDamageInfoUI : MonoBehaviour
 
     private float CalculateTotalDamage(List<TowerAttack> attackTowers)
     {
-        
-        return 0f;
+        var damageSum = 0f;
+        foreach (var tower in attackTowers)
+        {
+            damageSum += tower.TotalDamageDealt;
+        }
+        return damageSum > 0f ? damageSum : 0.00001f;
     }
 
     private void Update()
@@ -64,7 +76,7 @@ public class TowerDamageInfoUI : MonoBehaviour
         }
 
         var touchPos = TouchManager.Instance.TouchPos;
-        if (RectTransformUtility.RectangleContainsScreenPoint(this.GetComponent<RectTransform>(), touchPos))
+        if (!RectTransformUtility.RectangleContainsScreenPoint(infoPanel, touchPos))
         {
             gameObject.SetActive(false);
         }

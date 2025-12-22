@@ -10,6 +10,7 @@ public class BattleUI : MonoBehaviour
     [SerializeField] private Button statusUIButton;
     [SerializeField] private GameObject towerInstallUiObj;
     [SerializeField] private TextMeshProUGUI timeText;
+    public TextMeshProUGUI TimeText { get => timeText; }
     [SerializeField] private TextMeshProUGUI stageText;
 
     [SerializeField] private List<Toggle> waveToggles;
@@ -27,6 +28,7 @@ public class BattleUI : MonoBehaviour
     [SerializeField] private GameObject gamePausePanel;
 
     private float battleTime = 0f;
+    public float BattleTime { get => battleTime; }
 
     private bool isTutorial = false;
 
