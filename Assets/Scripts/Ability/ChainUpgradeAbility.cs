@@ -8,8 +8,10 @@ public class ChainUpgradeAbility : EffectAbility
     private ProjectileData baseData;
     private ProjectileData buffedData;
     private bool isSetup = false;
-
     private List<Enemy> hitEnemies;
+
+    private Projectile cachedProjectile;
+    private float chainDamageMultiplier;
 
     public ChainUpgradeAbility(float amount)
     {
@@ -50,17 +52,20 @@ public class ChainUpgradeAbility : EffectAbility
 
     private void ChainingDamage(Enemy enemy, int count)
     {
-        if(enemy == null || count <= 0 || projectileData == null)
-            return;
-        
-        var nearboundEnemyColliders = Physics.OverlapSphere(enemy.transform.position, 2f);
-        if(nearboundEnemyColliders.Length == 0)
+        if (enemy == null || count <= 0 || projectileData == null)
             return;
 
-        var nextEnemies = nearboundEnemyColliders.ToList().ConvertAll(x => x.GetComponent<Enemy>()).FindAll(x => !hitEnemies.Contains(x));
+        var nearboundEnemyColliders = Physics.OverlapSphere(enemy.transform.position, 2f);
+        if (nearboundEnemyColliders.Length == 0)
+            return;
+
+        var nextEnemies = nearboundEnemyColliders.ToList()
+            .ConvertAll(x => x.GetComponent<Enemy>())
+            .FindAll(x => x != null && !hitEnemies.Contains(x));
+
         if (nextEnemies.Count == 0)
             return;
-        
+
         var index = Random.Range(0, nextEnemies.Count);
         var nextEnemy = nextEnemies[index];
         if (nextEnemy == null)
@@ -68,8 +73,11 @@ public class ChainUpgradeAbility : EffectAbility
             return;
         }
 
-        projectileData.Attack = buffedData.Attack * Mathf.Pow(0.9f, (upgradeAmount - count));
-        nextEnemy.OnDamage(CalculateTotalDamage(enemy.Data.Defense));
+        int chainLevel = Mathf.FloorToInt(upgradeAmount) - count + 1;
+        float chainDecay = Mathf.Pow(chainDamageMultiplier, chainLevel);
+        projectileData.Attack = buffedData.Attack * chainDecay;
+
+        nextEnemy.OnDamage(CalculateTotalDamage(nextEnemy.Data.Defense));
         hitEnemies.Add(nextEnemy);
         ChainingDamage(nextEnemy, count - 1);
     }
@@ -93,8 +101,10 @@ public class ChainUpgradeAbility : EffectAbility
     {
         if (projectile != null)
         {
+            this.cachedProjectile = projectile;
             baseData = projectile.BaseData;
             buffedData = projectile.projectileData;
+            chainDamageMultiplier = GetChainDamageMultiplier();
         }
     }
 
@@ -106,14 +116,43 @@ public class ChainUpgradeAbility : EffectAbility
     public float CalculateTotalDamage(float enemyDef)
     {
         var RatePanetration = Mathf.Clamp(projectileData.RatePenetration, 0f, 100f);
-        // Debug.Log(damage);
+
         var totalEnemyDef = enemyDef * (1 - RatePanetration / 100f) - projectileData.FixedPenetration;
-        if(totalEnemyDef < 0)
+        if (totalEnemyDef < 0)
         {
             totalEnemyDef = 0;
         }
+
         var totalDamage = projectileData.Attack * 100f / (100f + totalEnemyDef);
-        
+
         return totalDamage;
+    }
+
+    private float GetChainDamageMultiplier()
+    {
+        const int CHAIN_ABILITY_ID = 200007;
+
+        if (cachedProjectile == null)
+            return 0.2f; 
+
+        if (cachedProjectile.towerAbilities == null ||
+            !cachedProjectile.towerAbilities.Contains(CHAIN_ABILITY_ID))
+            return 0.2f;
+
+        if (!DataTableManager.IsInitialized)
+            return 0.2f;
+
+        var ra = DataTableManager.RandomAbilityTable?.Get(CHAIN_ABILITY_ID);
+        if (ra == null || ra.RandomAbilityType != 1)
+            return 0.2f;
+
+        if (TowerReinforceManager.Instance == null)
+            return 0.2f;
+
+        return TowerReinforceManager.Instance
+            .GetFinalSuperValueForAbility(
+                CHAIN_ABILITY_ID,
+                cachedProjectile.towerReinforceLevel
+            );
     }
 }
