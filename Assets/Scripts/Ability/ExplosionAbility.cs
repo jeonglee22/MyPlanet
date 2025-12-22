@@ -30,7 +30,7 @@ public class ExplosionAbility : EffectAbility
             obj.transform.position = enemy.transform.position;
             var explosion = obj.GetComponent<Explosion>();
             float explosionDamageMul = GetExplosionDamageMultiplier();
-            explosion.SetInit(0.01f, upgradeAmount, projectileData);
+            explosion.SetInit(0.01f, upgradeAmount, projectileData, cachedProjectile);
         }
     }
 

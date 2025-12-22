@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -9,6 +10,18 @@ public class GameResultUI : MonoBehaviour
     [SerializeField] private Button returnToTitleButton;
     [SerializeField] private TextMeshProUGUI resultText;
     [SerializeField] private TowerInstallControl installControl;
+
+    [SerializeField] private TextMeshProUGUI gameResultText;
+    [SerializeField] private TextMeshProUGUI timeText;
+    [SerializeField] private TextMeshProUGUI stageText;
+    [SerializeField] private TextMeshProUGUI enemyKillText;
+
+    [SerializeField] private Button checkButton;
+    [SerializeField] private GameObject detailPanel;
+    [SerializeField] private Button detailButton;
+
+    [SerializeField] private List<Image> dropItemImages;
+    [SerializeField] private List<TextMeshProUGUI> dropItemTexts;
 
     void Start()
     {

@@ -38,6 +38,7 @@ public class Projectile : MonoBehaviour , IDisposable
     private CancellationTokenSource lifeTimeCts;
     public event Action<GameObject> abilityAction;
     public event Action<GameObject> abilityRelease;
+    public event Action<float> damageEvent;
 
     //super special effect
     public int towerReinforceLevel = 0;
@@ -88,6 +89,7 @@ public class Projectile : MonoBehaviour , IDisposable
             Cancel();
             abilityRelease?.Invoke(gameObject);
             abilityRelease = null;
+            damageEvent = null;
             objectPoolManager.Return(poolKeyData, this);
             return;
         }
@@ -249,6 +251,7 @@ public class Projectile : MonoBehaviour , IDisposable
 
             var damage = CalculateTotalDamage(enemy.Data.Defense);
             damagable.OnDamage(damage);
+            ActionEvent(damage);
 
             damageMultiplier = originalMul;
 
@@ -261,7 +264,13 @@ public class Projectile : MonoBehaviour , IDisposable
         {
             abilityAction = null;
             isFinish = true;
+            damageEvent = null;
         }
+    }
+
+    public void ActionEvent(float damage)
+    {
+        damageEvent?.Invoke(damage);
     }
     
     public float CalculateTotalDamage(float enemyDef)
