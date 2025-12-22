@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -18,19 +19,23 @@ public class SimpleShotPattern : ShootingPattern
     {
         owner?.PlaySimpleShotSfx();
 
-        Vector3 spawnPos = owner.transform.position;
-        Vector3 direction = (target.position - spawnPos).normalized;
+        List<Vector3> shootPositions = owner.GetShootPositions();
+        
+        foreach(var spawnPos in shootPositions)
+        {
+            Vector3 direction = (target.position - spawnPos).normalized;
 
-        PatternProjectile projectile = spawner.SpawnPattern
-        (
-            patternData.Skill_Id,
-            skillData.VisualAsset,
-            spawnPos,
-            direction,
-            owner.atk,
-            shootSpeed,
-            skillData.Duration
-        );
+            PatternProjectile projectile = spawner.SpawnPattern
+            (
+                patternData.Skill_Id,
+                skillData.VisualAsset,
+                spawnPos,
+                direction,
+                owner.atk,
+                shootSpeed,
+                skillData.Duration
+            );
+        }
     }
 
     public override async UniTask ExecuteAsync(CancellationToken token)

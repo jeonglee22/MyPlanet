@@ -58,28 +58,21 @@ public class HS_ProjectileMover : MonoBehaviour
             }
             if (lightSourse != null)
                 lightSourse.enabled = true;
-            col.enabled = true;
-            rb.constraints = RigidbodyConstraints.None;
-        }
-    }
-
-    protected virtual void FixedUpdate()
-    {
-        if (speed != 0)
-        {
-            rb.linearVelocity = transform.forward * speed;      
+            
+            if(projectilePS != null)
+            {
+                projectilePS.Clear();
+                projectilePS.Play();
+            }
         }
     }
 
     //https ://docs.unity3d.com/ScriptReference/Rigidbody.OnCollisionEnter.html
     protected virtual void OnCollisionEnter(Collision collision)
     {
-        //Lock all axes movement and rotation
-        rb.constraints = RigidbodyConstraints.FreezeAll;
         //speed = 0;
         if (lightSourse != null)
             lightSourse.enabled = false;
-        col.enabled = false;
         if (projectilePS)
         {
             projectilePS.Stop();
@@ -109,17 +102,6 @@ public class HS_ProjectileMover : MonoBehaviour
                 ParticleSystem detachedPS = detachedPrefab.GetComponent<ParticleSystem>();
                 detachedPS.Stop();
             }
-        }
-        if (notDestroy)
-            StartCoroutine(DisableTimer(hitPS.main.duration));
-        else
-        {
-            if (hitPS != null)
-            {
-                Destroy(gameObject, hitPS.main.duration);
-            }
-            else
-                Destroy(gameObject, 1);
         }
     }
 }

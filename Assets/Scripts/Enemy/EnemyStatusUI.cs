@@ -27,7 +27,24 @@ public class EnemyStatusUI : MonoBehaviour
             battleUI = GameObject.FindGameObjectWithTag(TagName.BattleUI).GetComponent<BattleUI>();        
         }
 
-        radius = enemy.GetComponent<SphereCollider>().radius * enemy.transform.lossyScale.y;
+        ConstellationEnemy constellationEnemy = enemy as ConstellationEnemy;
+        if(constellationEnemy != null)
+        {
+            radius = 1f;
+        }
+        else
+        {
+            var collider = enemy.GetComponent<SphereCollider>();
+            if(collider != null)
+            {
+                radius = collider.radius * enemy.transform.localScale.y;
+            }
+            else
+            {
+                radius = 0.5f;
+            }
+        }
+
         canvasOffset = new Vector3(0f, -(radius + 0.1f), 0f);
     }
 

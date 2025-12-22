@@ -113,6 +113,7 @@ public enum ExecutionTrigger
     OnHealthPercentage,
     ChildrenAlive,
     OnHit,
+    OnOrbitReached,
 }
 
 public enum MoveType
@@ -165,6 +166,13 @@ public enum PatternIds
     SunShootFire,
     empty,
     SunParabolicShot,
+    BlackHolePhotonEnergy,
+    BlackHoleMiniBlackHoleSummon,
+    BlackHoleLazer,
+    BlackHoleExplosionSummon,
+    WhiteHoleSpaceWarmSummon,
+    WhiteHoleShoot,
+    ExplosionEnemy,
 }
 
 public enum TutorialPoint

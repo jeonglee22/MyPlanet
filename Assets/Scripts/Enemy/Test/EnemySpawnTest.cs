@@ -26,7 +26,7 @@ public class EnemySpawnTest : MonoBehaviour
     void OnEnable()
     {
         enemyDropdown.onValueChanged.AddListener((i) => SetEnemyId(i));
-        enemyId = 400102;
+        enemyId = 1;
 
         var bossObject = GameObject.FindGameObjectWithTag("Boss");
         Variables.TestBossEnemyObject = bossObject;
@@ -109,6 +109,30 @@ public class EnemySpawnTest : MonoBehaviour
                 break;
             case 19:
                 enemyId = 400408;
+                break;
+            case 20:
+                enemyId = 1;
+                break;
+            case 21:
+                enemyId = 400110;
+                break;
+            case 22:
+                enemyId = 400113;
+                break;
+            case 23:
+                enemyId = 400211;
+                break;
+            case 24:
+                enemyId = 400305;
+                break;
+            case 25:
+                enemyId = 400405;
+                break;
+            case 26:
+                enemyId = 400306;
+                break;
+            case 27:
+                enemyId = 400407;
                 break;
         }
     }

@@ -505,7 +505,16 @@ public class CollectionPanel : MonoBehaviour
             int aType = a.IsAttackTower ? 0 : 1;
             int bType = b.IsAttackTower ? 0 : 1;
 
-            return aType.CompareTo(bType);
+            int typeComparison = aType.CompareTo(bType);
+            if(typeComparison != 0)
+            {
+                return typeComparison;
+            }
+
+            int aOrder = a.IsAttackTower ? a.AttackTowerData.Order : a.BuffTowerData.Order;
+            int bOrder = b.IsAttackTower ? b.AttackTowerData.Order : b.BuffTowerData.Order;
+
+            return aOrder.CompareTo(bOrder);
         });
 
         var rows = new List<Transform>();

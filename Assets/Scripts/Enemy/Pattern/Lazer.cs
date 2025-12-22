@@ -6,20 +6,20 @@ using UnityEngine;
 
 public class Lazer : MonoBehaviour
 {
-    private float chargeTime = 3f;
-    private float duration = 2f;
-    private float laserLength = 10f;
-    private float laserWidth = 0.5f;
-    private float fieldWidth = 0.2f;
-    private float tickInterval = 0.1f;
+    protected float chargeTime = 3f;
+    protected float duration = 2f;
+    protected float laserLength = 10f;
+    protected float laserWidth = 0.5f;
+    protected float fieldWidth = 0.2f;
+    protected float tickInterval = 0.1f;
 
-    private LineRenderer lineRenderer;
-    private SpriteRenderer fieldRenderer;
+    protected LineRenderer lineRenderer;
+    protected SpriteRenderer fieldRenderer;
     
     private float damage;
-    private Vector3 direction;
-    private Vector3 startPoint;
-    private Vector3 endPoint;
+    protected Vector3 direction;
+    protected Vector3 startPoint;
+    protected Vector3 endPoint;
 
     private CancellationTokenSource lazerCts;
 
@@ -50,7 +50,7 @@ public class Lazer : MonoBehaviour
         Cancel();
     }
 
-    private void Setup()
+    protected virtual void Setup()
     {
         lineRenderer.positionCount = 2;
         lineRenderer.startWidth = laserWidth;
@@ -125,7 +125,7 @@ public class Lazer : MonoBehaviour
         return Mathf.Max(0.1f, distanceBottom);
     }
 
-    private void SetupField()
+    protected virtual void SetupField()
     {
         transform.position = startPoint;
 

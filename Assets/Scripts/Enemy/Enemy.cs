@@ -72,6 +72,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     public GameObject ReflectShieldObject { get; set; }
 
     public bool HasHit { get; set; } = false;
+    private bool hasReachedOrbit = false;
+    public bool HasReachedOrbit { get => hasReachedOrbit; set => hasReachedOrbit = value; }
 
     [Header("Boss SFX")]
     [SerializeField] private AudioSource bossAudioSource;
@@ -332,14 +334,14 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         }
     }
 
-    public void OnLifeTimeOver()
+    public virtual void OnLifeTimeOver()
     {
         OnLifeTimeOverEvent?.Invoke();
         transform.localScale = originalScale;
         objectPoolManager?.Return(enemyId, this);
     }
 
-    public void Initialize(EnemyTableData enemyData, int enemyId, ObjectPoolManager<int, Enemy> poolManager, ScaleData scaleData, int spawnPointIndex)
+    public virtual void Initialize(EnemyTableData enemyData, int enemyId, ObjectPoolManager<int, Enemy> poolManager, ScaleData scaleData, int spawnPointIndex)
     {
         this.enemyId = enemyId;
 
@@ -370,6 +372,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         isTargetable = true;
 
         ReflectShieldObject = GetComponentInChildren<ReflectShield>(true)?.gameObject;
+
+        hasReachedOrbit = false;
 
         BossAppearance(enemyData.EnemyType);
 
@@ -408,6 +412,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
         ReflectShieldObject = GetComponentInChildren<ReflectShield>(true)?.gameObject;
 
+        hasReachedOrbit = false;
+
         AddMovementComponent(moveType, -1);
 
         if(patternExecutor == null)
@@ -434,7 +440,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         lifeTimeCts = new CancellationTokenSource();
     }
 
-    private async UniTaskVoid LifeTimeTask(CancellationToken token)
+    protected virtual async UniTaskVoid LifeTimeTask(CancellationToken token)
     {
         try
         {
@@ -605,5 +611,10 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
         EnsureSfxAudioSource();
         sfxAudioSource.PlayOneShot(simpleShotSfx, simpleShotVolume);
+    }
+
+    public virtual List<Vector3> GetShootPositions()
+    {
+        return new List<Vector3> { transform.position };
     }
 }

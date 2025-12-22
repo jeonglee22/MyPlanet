@@ -141,6 +141,9 @@ public class PatternExecutor : MonoBehaviour
         bool hasHealthPercentagePattern = false;
         IPattern healthPercentagePattern = null;
 
+        bool hasOrbitReachedPattern = false;
+        IPattern orbitReachedPattern = null;
+
         foreach(var pattern in patterns)
         {
             if (patternCooldowns.ContainsKey(pattern) && patternCooldowns[pattern] > 0f)
@@ -150,6 +153,13 @@ public class PatternExecutor : MonoBehaviour
 
             if(patternCooldowns[pattern] <= 0f && pattern.CanExecute())
             {
+                if(pattern.Trigger == ExecutionTrigger.OnOrbitReached)
+                {
+                    hasOrbitReachedPattern = true;
+                    orbitReachedPattern = pattern;
+                    break;
+                }
+
                 if(pattern.Trigger == ExecutionTrigger.OnHealthPercentage)
                 {
                     hasHealthPercentagePattern = true;
@@ -163,7 +173,7 @@ public class PatternExecutor : MonoBehaviour
             }
         }
 
-        IPattern selectedPattern = hasHealthPercentagePattern ? healthPercentagePattern : SelectPatternWeight(availablePatterns, weights);
+        IPattern selectedPattern = hasOrbitReachedPattern ? orbitReachedPattern : hasHealthPercentagePattern ? healthPercentagePattern : SelectPatternWeight(availablePatterns, weights);
         if(selectedPattern != null)
         {
             ExecutePatternAsync(selectedPattern, patternCts.Token).Forget();
@@ -196,11 +206,16 @@ public class PatternExecutor : MonoBehaviour
             return;
         }
 
+        int repeatCount = patternRepeatExecutions[pattern];
+        float repeatDelay = patternData.RepeatDelay;
+        float patternDelay = patternData.PatternDelay;
+        float cooltime = patternData.Cooltime;
+
         isExecutePattern = true;
 
         try
         {
-            for(int i = 0; i < patternRepeatExecutions[pattern]; i++)
+            for(int i = 0; i < repeatCount; i++)
             {
                 token.ThrowIfCancellationRequested();
 
@@ -213,20 +228,20 @@ public class PatternExecutor : MonoBehaviour
                     pattern.Execute();
                 }
 
-                if(i < patternRepeatExecutions[pattern] - 1 && patternData.RepeatDelay > 0f)
+                if(i < repeatCount - 1 && repeatDelay > 0f)
                 {
-                    await UniTask.Delay(System.TimeSpan.FromSeconds(patternData.RepeatDelay), cancellationToken: token);
+                    await UniTask.Delay(System.TimeSpan.FromSeconds(repeatDelay), cancellationToken: token);
                 }
             }
 
-            if(patternData.PatternDelay > 0f)
+            if(patternDelay > 0f)
             {
-                await UniTask.Delay(System.TimeSpan.FromSeconds(patternData.PatternDelay), cancellationToken: token);
+                await UniTask.Delay(System.TimeSpan.FromSeconds(patternDelay), cancellationToken: token);
             }
 
             if(patternCooldowns.ContainsKey(pattern))
             {
-                patternCooldowns[pattern] = patternData.Cooltime;
+                patternCooldowns[pattern] = cooltime;
             }
         }
         catch(System.OperationCanceledException)

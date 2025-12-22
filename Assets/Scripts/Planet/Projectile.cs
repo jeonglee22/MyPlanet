@@ -209,8 +209,14 @@ public class Projectile : MonoBehaviour , IDisposable
             return;
         }
         
-        var damagable = other.gameObject.GetComponent<IDamagable>();
         var enemy = other.gameObject.GetComponent<Enemy>();
+        if(enemy == null)
+        {
+            enemy = other.gameObject.GetComponentInParent<Enemy>();
+        }
+
+        var damagable = enemy as IDamagable;
+
         if (damagable != null && enemy != null && isHit)
         {
             abilityAction?.Invoke(other.gameObject);
