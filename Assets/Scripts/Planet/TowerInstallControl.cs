@@ -1276,13 +1276,13 @@ public class TowerInstallControl : MonoBehaviour
             {
                 var towerId = attack.AttackTowerData.towerIdInt;
                 var towerData = DataTableManager.AttackTowerTable.GetById(towerId);
-                deleteConfirmText.text = $"{towerData?.AttackTowerName} {GameStrings.DeleteTowerConfirm}";
+                deleteConfirmText.text = $"{towerData?.AttackTowerName}{GameStrings.DeleteTowerConfirm}";
             }
             else if (amp != null)
             {
                 var towerId = amp.AmplifierTowerData.BuffTowerId;
                 var towerData = DataTableManager.BuffTowerTable.Get(towerId);
-                deleteConfirmText.text = $"{towerData?.BuffTowerName} {GameStrings.DeleteTowerConfirm}";
+                deleteConfirmText.text = $"{towerData?.BuffTowerName}{GameStrings.DeleteTowerConfirm}";
             }
             blockPanel.gameObject.SetActive(true);
         }

@@ -372,7 +372,7 @@ public class GameStrings
     public static readonly string TowerUpgradeSkipTitle = "증강 미선택";
     public static readonly string TowerUpgradeSkipped = "타워 증강을 하지 않고\n스킵하시겠습니까?";
     public static readonly string TowerUpgradeDeleted = "(스킵하면 타워 증강이 사라집니다.)";
-    public static readonly string DeleteTowerConfirm = "타워를\n정말 제거하시겠습니까?";
+    public static readonly string DeleteTowerConfirm = "를\n정말 제거하시겠습니까?";
 
     public static readonly string TowerSettingPopupTitle = "타워 정보";
     public static readonly string TowerUpgradePopupTitle = "타워 선택";
