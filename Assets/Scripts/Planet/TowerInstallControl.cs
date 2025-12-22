@@ -70,6 +70,7 @@ public class TowerInstallControl : MonoBehaviour
     public float TowerRadius { get => towerRadius; }
 
     [SerializeField] private PlanetTowerUI planetTowerUI;
+    [SerializeField] private PowerUpItemControlUI powerUpItemControlUI;
     private float currentAngle;
     public float CurrentAngle { get => currentAngle; }
 
@@ -101,6 +102,7 @@ public class TowerInstallControl : MonoBehaviour
     public RectTransform RightRotateRect => rightRotateRect;
 
     private bool isDraggingTower = false;
+    public bool IsDraggingTower => isDraggingTower;
     private int dragSourceIndex = -1;
     private GameObject currentDragGhost;
     public GameObject CurrentDragGhost => currentDragGhost;
@@ -116,6 +118,10 @@ public class TowerInstallControl : MonoBehaviour
     [SerializeField] private GameObject yesOrNoPanel;
     [SerializeField] private Button deleteYesButton;
     [SerializeField] private Button deleteNoButton;
+    [SerializeField] private TextMeshProUGUI deleteConfirmText;
+
+    [Header("Block Panels")]
+    [SerializeField] private UIBlockPanelControl blockPanel;
 
     private int pendingDeleteIndex = -1;
 
@@ -518,13 +524,17 @@ public class TowerInstallControl : MonoBehaviour
 
             if (ChoosedData.InstallType == TowerInstallType.Attack)
             {
-                image.color = Color.Lerp(Color.red, Color.blue, (float)index / (towerCount - 1));
-                text.text = index.ToString();
+                var id = ChoosedData.AttackTowerData.towerIdInt;
+                var imageAsset = DataTableManager.AttackTowerTable.GetById(id)?.AttackTowerAsset;
+                image.sprite = LoadManager.GetLoadedGameTexture(imageAsset);
+                // text.text = index.ToString();
             }
             else
             {
-                image.color = Color.yellow;
-                text.text = $"{index}+";
+                var id = ChoosedData.AmplifierTowerData.BuffTowerId;
+                var imageAsset = DataTableManager.BuffTowerTable.Get(id)?.BuffTowerAsset;
+                image.sprite = LoadManager.GetLoadedGameTexture(imageAsset);
+                // text.text = $"{index}+";
             }
 
             var highlight = newTower.GetComponent<TowerSlotHighlightUI>();
@@ -582,6 +592,14 @@ public class TowerInstallControl : MonoBehaviour
         if (tower == null) return;
 
         tower.GetComponent<RectTransform>().localScale = Vector3.one * 1.5f;
+    }
+
+    private void SizeDownSlot(int index)
+    {
+        var tower = towers[index];
+        if (tower == null) return;
+
+        tower.GetComponent<RectTransform>().localScale = Vector3.one;
     }
 
     public TowerDataSO GetTowerData(int index)
@@ -654,7 +672,7 @@ public class TowerInstallControl : MonoBehaviour
         return towers[index].GetComponent<TowerSlotHighlightUI>();
     }
 
-    private void ClearAllSlotHighlights()
+    public void ClearAllSlotHighlights()
     {
         if (towers == null) return;
 
@@ -739,6 +757,29 @@ public class TowerInstallControl : MonoBehaviour
     public void OnSlotClick(int index)
     {
         OpenInfoUI(index);
+
+        var infoUI = towerInfoObj.GetComponent<TowerInfoUI>();
+        if (infoUI == null) return;
+
+        // if (planetTowerUI.IsQuasarItemUsed)
+        // {
+        //     infoUI.SetTitleText(GameStrings.TowerUpgradePopupTitle);
+        //     infoUI.SetCheckText(GameStrings.Choose);
+        //     infoUI.SetActiveCancelButton(true);
+
+        //     infoUI.SetConfirmButtonFunction(powerUpItemControlUI.OnUpgradeTowerClicked);
+        // }
+        // else
+        // {
+        if (powerUpItemControlUI.IsTowerChoosingState)
+            return;
+
+        infoUI.SetTitleText(GameStrings.TowerSettingPopupTitle);
+        infoUI.SetCheckText(GameStrings.Confirm);
+        infoUI.SetActiveCancelButton(false);
+
+        infoUI.SetConfirmButtonFunction(infoUI.OnCloseInfoClicked);
+        // }
     }
 
     public void OnSlotLongPressStart(int index, Vector2 screenPos)
@@ -777,11 +818,16 @@ public class TowerInstallControl : MonoBehaviour
         }
 
         if (trashIconObj != null)
+        {        
             trashIconObj.SetActive(canShowTrash);
+            beforeTopBannerText = string.Copy(planetTowerUI.CurrentTopBannerPanelText);
+            planetTowerUI.SetTopBannerText(GameStrings.TowerDelete);
+        }
         //drag prefab
         if (dragImagePrefab != null && uiCanvas != null)
         {
             currentDragGhost = Instantiate(dragImagePrefab, uiCanvas.transform);
+            currentDragGhost.GetComponent<RectTransform>().localScale = Vector3.one * 1.5f;
             currentDragGhostRect = currentDragGhost.GetComponent<RectTransform>();
 
             var sourceObj = towers[index];
@@ -798,14 +844,15 @@ public class TowerInstallControl : MonoBehaviour
                     var ghostImage = ghostUI.IconImage;
                     ghostImage.sprite = sourceImage.sprite;
                     ghostImage.color = sourceImage.color;
-                    ghostImage.preserveAspect = true;
-                    ghostImage.rectTransform.sizeDelta = new Vector2(25f, 50f);
+                    // ghostImage.preserveAspect = true;
+                    // ghostImage.rectTransform.sizeDelta = new Vector2(25f, 50f);
                 }
                 var c = sourceImage.color;
                 c.a = 0f;
                 sourceImage.color = c;
             }
             UpdateDragGhostPosition(screenPos);
+            blockPanel.gameObject.SetActive(true);
         }
     }
 
@@ -830,6 +877,25 @@ public class TowerInstallControl : MonoBehaviour
             out localPos);
 
         currentDragGhostRect.anchoredPosition = localPos;
+
+        for (int i = 0; i < towers.Count; i++)
+        {
+            var index = i;
+            if (index == dragSourceIndex) continue;
+
+            var tower = towers[index];
+
+            var towerRect = tower.GetComponent<RectTransform>();
+            if (RectTransformUtility.RectangleContainsScreenPoint(towerRect, screenPos))
+            {
+                SizeUpSlot(index);
+                Debug.Log($"[TowerInstallControl] Drag Over Slot {index}");
+                continue;
+            }
+
+            SizeDownSlot(index);
+        }
+        
     }
 
     public void OnSlotLongPressEnd(int index, Vector2 screenPos)
@@ -837,6 +903,9 @@ public class TowerInstallControl : MonoBehaviour
         if (!isDraggingTower) return;
 
         int sourceIndex = dragSourceIndex; // Cleanup 전에 따로 보관
+        blockPanel.gameObject.SetActive(false);
+
+        currentDragGhost.transform.localScale = Vector3.one;
 
         // ---- 휴지통 영역에 드랍됐는지 먼저 체크 ----
         bool droppedOnTrash = false;
@@ -876,6 +945,7 @@ public class TowerInstallControl : MonoBehaviour
             {
                 Debug.Log($"[TowerInstallControl] Long press drag end, no valid target. index={sourceIndex}");
             }
+            planetTowerUI.SetTopBannerText(beforeTopBannerText);
 
             // 고스트/투명 처리 복구
             CleanupDragVisual();
@@ -1185,6 +1255,8 @@ public class TowerInstallControl : MonoBehaviour
     }
     //--------------------------------------------------------------
     //rm tower -----------------------------------------------------
+    private string beforeTopBannerText = string.Empty;
+
     private void ShowDeleteConfirm()
     {
         if (deleteConfirmPanel != null)
@@ -1193,6 +1265,26 @@ public class TowerInstallControl : MonoBehaviour
             yesOrNoPanel.gameObject.SetActive(true);
             deleteYesButton.gameObject.SetActive(true);
             deleteNoButton.gameObject.SetActive(true);
+
+            var index = pendingDeleteIndex;
+            var tower = towers[index];
+            if (tower == null) return;
+
+            var attack = GetAttackTower(index);
+            var amp = GetAmplifierTower(index);
+            if (attack != null)
+            {
+                var towerId = attack.AttackTowerData.towerIdInt;
+                var towerData = DataTableManager.AttackTowerTable.GetById(towerId);
+                deleteConfirmText.text = $"{towerData?.AttackTowerName}{GameStrings.DeleteTowerConfirm}";
+            }
+            else if (amp != null)
+            {
+                var towerId = amp.AmplifierTowerData.BuffTowerId;
+                var towerData = DataTableManager.BuffTowerTable.Get(towerId);
+                deleteConfirmText.text = $"{towerData?.BuffTowerName}{GameStrings.DeleteTowerConfirm}";
+            }
+            blockPanel.gameObject.SetActive(true);
         }
     }
 
@@ -1211,7 +1303,9 @@ public class TowerInstallControl : MonoBehaviour
             yesOrNoPanel.gameObject.SetActive(false);
             deleteYesButton.gameObject.SetActive(false);
             deleteNoButton.gameObject.SetActive(false);
+            planetTowerUI.SetTopBannerText(beforeTopBannerText);
         }
+        blockPanel.gameObject.SetActive(false);
     }
 
     private void OnDeleteNo()
@@ -1220,6 +1314,9 @@ public class TowerInstallControl : MonoBehaviour
 
         if (deleteConfirmPanel != null)
             deleteConfirmPanel.SetActive(false);
+
+        planetTowerUI.SetTopBannerText(beforeTopBannerText);
+        blockPanel.gameObject.SetActive(false);
     }
     private void PerformDelete(int index)
     {

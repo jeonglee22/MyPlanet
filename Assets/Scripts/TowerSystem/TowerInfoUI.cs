@@ -16,6 +16,11 @@ public class TowerInfoUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI amplifierNameText;
     [SerializeField] private TextMeshProUGUI attackTowerExplainText;
     [SerializeField] private TextMeshProUGUI amplifierExplainText;
+    [SerializeField] private Image towerImage;
+    [SerializeField] private TextMeshProUGUI checkText;
+    [SerializeField] private TextMeshProUGUI topBannerNameText;
+    [SerializeField] private GameObject cancelButton;
+    [SerializeField] private Button confirmButton;
 
     [Header("Switch Data Panel")]
     [SerializeField] private GameObject attackTowerDataPanel;
@@ -71,6 +76,9 @@ public class TowerInfoUI : MonoBehaviour
     public int CurrentSlotIndex => infoIndex;
     private bool isSameTower;
 
+    [Header("Debug")]
+    [SerializeField] private bool debugDamageSource = true;
+    [SerializeField] private bool debugAmplifierSources = true;
 
     private void OnEnable()
     {
@@ -108,6 +116,33 @@ public class TowerInfoUI : MonoBehaviour
         }
     }
 
+    public void SetActiveCancelButton(bool isActive)
+    {
+        if (cancelButton != null)
+            cancelButton.SetActive(isActive);
+    }
+
+    public void SetConfirmButtonFunction(UnityEngine.Events.UnityAction action)
+    {
+        if (confirmButton != null)
+        {
+            confirmButton.onClick.RemoveAllListeners();
+            confirmButton.onClick.AddListener(action);
+        }
+    }
+
+    public void SetTitleText(string text)
+    {
+        if (topBannerNameText != null)
+            topBannerNameText.text = text;
+    }
+
+    public void SetCheckText(string text)
+    {
+        if (checkText != null)
+            checkText.text = text;
+    }
+
     public void SetInfo(int index)
     {
         if (contentRect == null && scrollRect != null)
@@ -138,10 +173,20 @@ public class TowerInfoUI : MonoBehaviour
         {
             if (attackTowerDataPanel != null) attackTowerDataPanel.SetActive(true);
             if (buffTowerDataPanel != null) buffTowerDataPanel.SetActive(false);
+            if (debugDamageSource)
+            {
+                Debug.Log($"[TowerInfoUI][SetInfo] slot={index} towerIdInt={attackTower.AttackTowerData.towerIdInt} reinforce={attackTower.ReinforceLevel} obj={attackTower.gameObject.name}");
+            }
 
             FillAttackTowerInfo(index, attackTower);
             SetAbilityExplainForAttack(attackTower);
             SetSpecialAbilityForAttackPanel(attackTower);
+
+            var attackTowerData = attackTower.AttackTowerData;
+            var towerId = attackTowerData.towerIdInt;
+            var towerImage = DataTableManager.AttackTowerTable.GetById(towerId)?.AttackTowerAsset;
+            var sprite = LoadManager.GetLoadedGameTexture(towerImage);
+            SetTowerImage(sprite);
             return;
         }
 
@@ -152,6 +197,12 @@ public class TowerInfoUI : MonoBehaviour
 
             FillAmplifierTowerInfo(index, amplifierTower);
             SetAbilityExplainForAmplifier(amplifierTower);
+
+            var attackTowerData = amplifierTower.AmplifierTowerData;
+            var towerId = attackTowerData.BuffTowerId;
+            var towerImage = DataTableManager.BuffTowerTable.Get(towerId)?.BuffTowerAsset;
+            var sprite = LoadManager.GetLoadedGameTexture(towerImage);
+            SetTowerImage(sprite);
             return;
         }
 
@@ -205,6 +256,15 @@ public class TowerInfoUI : MonoBehaviour
         }
 
         gameObject.SetActive(false);
+        installControl.ClearAllSlotHighlights();
+    }
+
+    public void SetTowerImage(Sprite sprite)
+    {
+        if (towerImage != null)
+        {
+            towerImage.sprite = sprite;
+        }
     }
 
     private void SetText(TextMeshProUGUI tmp, string value, float buffedValue = float.MaxValue, string suffix = "")
@@ -326,6 +386,15 @@ public class TowerInfoUI : MonoBehaviour
 
         var baseProj = attackTower.BaseProjectileData ?? attackTowerData.projectileType;
         var buffedProj = attackTower.BuffedProjectileData ?? baseProj;
+        if (debugDamageSource)
+        {
+            DumpAttackDamageDebug(index, attackTower, baseProj, buffedProj);
+        }
+
+        if (debugAmplifierSources)
+        {
+            DumpAmplifierDamageSources(index);
+        }
 
         if (baseProj != null)
         {
@@ -1118,4 +1187,99 @@ public class TowerInfoUI : MonoBehaviour
         }
         return result;
     }
+    private void DumpAttackDamageDebug(int slotIndex, TowerAttack attackTower, ProjectileData baseProj, ProjectileData buffedProj)
+    {
+        if (attackTower == null) return;
+
+        var td = attackTower.AttackTowerData;
+        if (td == null)
+        {
+            Debug.LogWarning($"[TowerInfoUI][DmgDebug] slot={slotIndex} towerData is null");
+            return;
+        }
+
+        // 원본(테이블)로 세팅된 projectileType (SetTowerData에서 originalProjectileData를 넣고 있음)
+        var tableBase = td.projectileType;
+
+        float tableAtk = tableBase != null ? tableBase.Attack : -1f;
+        float baseAtk = baseProj != null ? baseProj.Attack : -1f;
+        float finalAtk = buffedProj != null ? buffedProj.Attack : -1f;
+
+        float tableToBase = baseAtk - tableAtk;   // 강화(또는 base 재구성)로 변한 흔적
+        float baseToFinal = finalAtk - baseAtk;   // 증폭/능력/업글로 변한 흔적
+        float tableToFinal = finalAtk - tableAtk; // 최종 변화량
+
+        // 기타 같이 보면 좋은 값들
+        float basicFR = attackTower.BasicFireRate;
+        float finalFR = attackTower.CurrentFireRate;
+        int basePC = attackTower.BaseProjectileCount;
+        int finalPC = attackTower.CurrentProjectileCount;
+        float baseHit = td.Accuracy;
+        float finalHit = attackTower.FinalHitRate;
+
+        // 능력 목록도 같이 (개틀링만 초기부터 들어가 있나 확인)
+        var abs = attackTower.Abilities;
+        string abilityList = (abs == null || abs.Count == 0) ? "none" : string.Join(",", abs);
+
+        Debug.Log(
+            $"[TowerInfoUI][DmgDebug] slot={slotIndex} towerIdInt={td.towerIdInt} reinforce={attackTower.ReinforceLevel}\n" +
+            $"  tableAtk={tableAtk:0.###}\n"+
+            $"  baseAtk ={baseAtk:0.###}   Δ(table->base)={tableToBase:0.###}\n" +
+            $"  finalAtk={finalAtk:0.###} Δ(base->final)={baseToFinal:0.###}  Δ(table->final)={tableToFinal:0.###}\n" +
+            $"  FR base={basicFR:0.###} final={finalFR:0.###} | PC base={basePC} final={finalPC} | Hit base={baseHit:0.###} final={finalHit:0.###}\n" +
+            $"  Abilities[{(abs != null ? abs.Count : 0)}]={abilityList}"
+        );
+    }
+    private void DumpAmplifierDamageSources(int slotIndex)
+    {
+        if (installControl == null) return;
+
+        var sb = new StringBuilder();
+        sb.AppendLine($"[TowerInfoUI][AmpSrc] slot={slotIndex} check amplifiers...");
+
+        int count = 0;
+
+        foreach (var amp in installControl.GetAllAmplifiers())
+        {
+            if (amp == null || amp.AmplifierTowerData == null) continue;
+
+            bool inBase = false;
+            bool inRandom = false;
+
+            var baseSlots = amp.BuffedSlotIndex;
+            if (baseSlots != null)
+            {
+                for (int i = 0; i < baseSlots.Count; i++)
+                {
+                    if (baseSlots[i] == slotIndex) { inBase = true; break; }
+                }
+            }
+
+            var randSlots = amp.RandomAbilitySlotIndex;
+            if (randSlots != null)
+            {
+                for (int i = 0; i < randSlots.Count; i++)
+                {
+                    if (randSlots[i] == slotIndex) { inRandom = true; break; }
+                }
+            }
+
+            if (!inBase && !inRandom) continue;
+
+            count++;
+
+            var data = amp.AmplifierTowerData;
+            sb.AppendLine(
+                $"  amp={amp.name} selfIndex={amp.SelfIndex} reinforce={amp.ReinforceLevel} target(base={inBase}, random={inRandom}) " +
+                $"DamageBuff(add)={data.DamageBuff:0.###} FireRateBuff(mul)={data.FireRateBuff:0.###}"
+            );
+        }
+
+        if (count == 0)
+            sb.AppendLine("  (none) this slot is not targeted by any amplifier.");
+
+        Debug.Log(sb.ToString());
+    }
+
+
 }

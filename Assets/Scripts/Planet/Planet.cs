@@ -412,7 +412,7 @@ public class Planet : LivingEntity
             {
                 if (atk == null) continue;
                 atk.ClearAllAmplifierBuffs();
-                atk.ClearAllAmplifierAbilityStates();
+                atk.ClearAllAmplifierAbilityStates();  // ← 이 줄 추가
             }
         }
 
@@ -425,45 +425,6 @@ public class Planet : LivingEntity
             if (buffSlots == null || buffSlots.Count == 0) continue;
 
             foreach (int slotIndex in buffSlots)
-            {
-                if (slotIndex < 0 || slotIndex >= slotCount) continue;
-
-                var attack = GetAttackTowerToAmpTower(slotIndex);
-                if (attack == null) continue;
-
-                amp.ApplyBuffForNewTower(slotIndex, attack);
-            }
-        }
-
-        for (int i = 0; i < amplifiersSlots.Length; i++)
-        {
-            var amp = amplifiersSlots[i];
-            if (amp == null || amp.AmplifierTowerData == null) continue;
-
-            var buffSlots = amp.BuffedSlotIndex;
-            var randomSlots = amp.RandomAbilitySlotIndex;
-
-            if ((buffSlots == null || buffSlots.Count == 0) &&
-                (randomSlots == null || randomSlots.Count == 0))
-            {
-                continue;
-            }
-
-            HashSet<int> targetSlots = new HashSet<int>();
-
-            if (buffSlots != null)
-            {
-                foreach (var s in buffSlots)
-                    targetSlots.Add(s);
-            }
-
-            if (randomSlots != null)
-            {
-                foreach (var s in randomSlots)
-                    targetSlots.Add(s);
-            }
-
-            foreach (int slotIndex in targetSlots)
             {
                 if (slotIndex < 0 || slotIndex >= slotCount) continue;
 

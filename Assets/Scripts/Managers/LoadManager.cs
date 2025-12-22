@@ -10,6 +10,7 @@ public class LoadManager : MonoBehaviour
     private Dictionary<int, GameObject> loadedEnemyPrefabs = new Dictionary<int, GameObject>();
 
     private static Dictionary<string, GameObject> loadedGamePrefabs = new Dictionary<string, GameObject>();
+    private static Dictionary<string, Sprite> loadedGameTextures = new Dictionary<string, Sprite>();
 
     public async UniTask LoadGamePrefabAsync(string labelName)
     {
@@ -26,12 +27,37 @@ public class LoadManager : MonoBehaviour
         }
     }
 
+    public async UniTask LoadGameTextureAsync(string labelName)
+    {
+        try
+        {
+            var spriteLoaded = await Addressables.LoadAssetsAsync<Sprite>(labelName).ToUniTask();
+            foreach (var sprite in spriteLoaded)
+            {
+                loadedGameTextures.Add(sprite.name, sprite);
+            }
+        }
+        catch (System.Exception)
+        {
+        }
+    }
+
     public static GameObject GetLoadedGamePrefab(string prefabName)
     {
         if(loadedGamePrefabs.TryGetValue(prefabName, out GameObject prefab))
         {
             var newObj = Instantiate(prefab);
             return newObj;
+        }
+
+        return null;
+    }
+
+    public static Sprite GetLoadedGameTexture(string textureName)
+    {
+        if(loadedGameTextures.TryGetValue(textureName, out Sprite sprite))
+        {
+            return sprite;
         }
 
         return null;
