@@ -259,6 +259,14 @@ MonoBehaviour:
   drops:
   - {fileID: 7868635946703768277, guid: ee7d656b900243d409db3ae78ca6a484, type: 3}
   - {fileID: 31110662301590275, guid: 9582314d14910f246a67c46ddb49ca20, type: 3}
+  bossAudioSource: {fileID: 0}
+  middleBossSpawnSfx: {fileID: 0}
+  lastBossSpawnSfx: {fileID: 0}
+  bossSpawnSfxVolume: 1
+  bossSpawnSfxGapSeconds: 0.15
+  sfxAudioSource: {fileID: 0}
+  simpleShotSfx: {fileID: 0}
+  simpleShotVolume: 1
 --- !u!114 &-609195503171963458
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -995,6 +1003,10 @@ PrefabInstance:
     - target: {fileID: 702077302815554574, guid: 4b2f8155bce81424e925c01131e3dc49, type: 3}
       propertyPath: m_Color.r
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 702077302815554574, guid: 4b2f8155bce81424e925c01131e3dc49, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1491346876150034832, guid: 4b2f8155bce81424e925c01131e3dc49, type: 3}
       propertyPath: m_AnchorMax.x
