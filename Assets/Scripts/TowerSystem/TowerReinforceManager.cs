@@ -286,17 +286,13 @@ public class TowerReinforceManager : MonoBehaviour
         var ra = raTable != null ? raTable.Get(abilityId) : null;
         if (ra == null) return 0f;
 
-        float scale = GetRandomAbilityUnitScale(abilityId);
-
         float baseTableValue = ra.SpecialEffectValue;
-        if (reinforceLevel <= 0)
-            return baseTableValue * scale;
+        if (reinforceLevel <= 0) return baseTableValue;
 
         var sum = GetRandomAbilityReinforceSumForAbility(abilityId, reinforceLevel);
         float addTableValue = sum.GetAdd(ra.SpecialEffect_ID);
-
         float finalTableValue = baseTableValue + addTableValue;
-        return finalTableValue * scale;
+        return finalTableValue;
     }
 
 

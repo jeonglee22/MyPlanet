@@ -1273,10 +1273,22 @@ public class TowerAttack : MonoBehaviour
         }
         appliedSelfAbilities.Clear();
 
+        Debug.Log(
+        $"[TowerAttack][ReapplySelfAbilities] " +
+        $"tower={name}, reinforce={ReinforceLevel}\n" +
+        $"  baseAbilityIds 개수={baseAbilityIds.Count}\n" +
+        $"  baseAbilityIds={string.Join(", ", baseAbilityIds)}"
+    );
+
         foreach (var abilityId in baseAbilityIds)
         {
             var ab = CreateSelfAbilityInstanceWithReinforce(abilityId);
             if (ab == null) continue;
+
+            Debug.Log(
+            $"[TowerAttack][ReapplySelfAbilities] " +
+            $"abilityId={abilityId}, ab.UpgradeAmount={ab.UpgradeAmount}"
+        );
 
             ab.ApplyAbility(gameObject);
             ab.Setting(gameObject);
@@ -1312,7 +1324,13 @@ public class TowerAttack : MonoBehaviour
         float sum = 0f;
         foreach (var r in damageAbilitySources)
             sum += r;
-        damageAbilityMul = 1f + sum;
+        damageAbilityMul = Mathf.Max(0f, 1f + sum);
+
+        Debug.Log(
+        $"[TowerAttack][RecalculateDamage] tower={name}\n" +
+        $"  damageAbilitySources={string.Join(", ", damageAbilitySources)}\n" +
+        $"  sum={sum}, damageAbilityMul={damageAbilityMul}"
+        );
     }
     //----------------------------------------------------
     public void ClearAllAmplifierAbilityStates()
