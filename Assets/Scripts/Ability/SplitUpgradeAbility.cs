@@ -159,6 +159,7 @@ public class SplitUpgradeAbility : EffectAbility
 
         float splitMul = GetSplitDamageMultiplier();
         newProjectiles.damageMultiplier = splitMul;
+        newProjectiles.damageEvent += towerAttack.AdddamageDealt;
 
         var abilities = towerAttack?.Abilities;
 

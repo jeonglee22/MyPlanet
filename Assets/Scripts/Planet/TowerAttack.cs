@@ -217,6 +217,9 @@ public class TowerAttack : MonoBehaviour
 
     private Planet planet;
 
+    private float totalDamageDealt = 0f;
+    public float TotalDamageDealt => totalDamageDealt;
+
     //audio-------------------------------------------------
     [Header("Audio (Optional Override)")]
     [SerializeField] private AudioSource towerAudioSource;
@@ -245,6 +248,11 @@ public class TowerAttack : MonoBehaviour
     {
         DeleteExistLazers();
         StopLaserLoop();
+    }
+
+    public void AdddamageDealt(float damage)
+    {
+        totalDamageDealt += damage;
     }
 
     public void SetTowerData(TowerDataSO data)
@@ -540,6 +548,8 @@ public class TowerAttack : MonoBehaviour
             var projectile = ProjectilePoolManager.Instance.GetProjectile(baseData);
             if (isOtherUserTower)
                 projectile.IsOtherUser = true;
+
+            projectile.damageEvent += AdddamageDealt;
 
             var verticalDirection = new Vector3(-baseDirection.y, baseDirection.x, baseDirection.z).normalized;
 

@@ -19,6 +19,7 @@ public class GameStopUI : MonoBehaviour
     [SerializeField] private List<GameObject> amplifierTowerObjects;
 
     [SerializeField] private GameObject confirmPanel;
+    [SerializeField] private GameObject detailPanel;
 
     [SerializeField] private Button confirmYesButton;
     [SerializeField] private Button confirmNoButton;
@@ -82,6 +83,9 @@ public class GameStopUI : MonoBehaviour
 
     private void OnOpenDetailClicked()
     {
+        detailPanel.SetActive(true);
+        var towerDamageInfo = detailPanel.GetComponent<TowerDamageInfoUI>();
+        towerDamageInfo.SetTowerDamageInfos(planet);
     }
 
     private void OnOpenSettingClicked()

@@ -8,6 +8,7 @@ public class Planet : LivingEntity
 {
     private List<GameObject> towers; 
     private List<TowerAttack> planetAttacks; //Only Attack Tower
+    private Dictionary<int, float> towerDamageDict = new Dictionary<int, float>();
     private TowerAmplifier[] amplifiersSlots; //Installed Amplifer Tower
 
     [SerializeField] private GameObject towerPrefab; //Attack Tower

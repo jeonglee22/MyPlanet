@@ -439,6 +439,12 @@ public class TowerInstallControl : MonoBehaviour
         return candidates[candidates.Count - 1];
     }
 
+    private void SettingUpgradeStar(int index)
+    {
+        var tower = towers[index];
+        // var towerUI = tower.GetComponent<
+    }
+
     public void IntallNewTower(int index)
     {
         if (!IsReadyInstall) return;
