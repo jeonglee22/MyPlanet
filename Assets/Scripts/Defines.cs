@@ -268,6 +268,7 @@ public static class DataTableIds
     public static readonly string TowerUpgradeAbilityUnlock = "TowerUpgradeAbilityUnlockTable";
     public static readonly string Skill = "SkillTable";
     public static readonly string Stage = "StageTable";
+    public static readonly string LobbyString = "LobbyString";
 }
 
 public static class Variables

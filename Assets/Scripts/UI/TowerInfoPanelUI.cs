@@ -66,6 +66,7 @@ public class TowerInfoPanelUI : MonoBehaviour
             }
         }
 
+        towerLevel = Mathf.Min(towerLevel, 3);
         for (int i = 1; i <= towerLevel; i++)
         {
             var specialEffectId = externalTowerUpgradeDataList[i - 1].SpecialEffect_ID;

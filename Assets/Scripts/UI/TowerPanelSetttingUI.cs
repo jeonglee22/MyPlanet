@@ -17,12 +17,18 @@ public class TowerPanelSetttingUI : MonoBehaviour
 
         if (attackTowerData != null)
         {
-            towerNameText.text = attackTowerData.AttackTowerName;
+            var attackTowerExplainId = attackTowerData.TowerText_ID;
+            var attackTowerExplainData = DataTableManager.TowerExplainTable.Get(attackTowerExplainId);
+
+            towerNameText.text = attackTowerExplainData.TowerName;
             towerIconImage.sprite = LoadManager.GetLoadedGameTexture(attackTowerData.AttackTowerAsset);
         }
         else if (amplifierTowerData != null)
         {
-            towerNameText.text = amplifierTowerData.BuffTowerName;
+            var amplifierTowerExplainId = amplifierTowerData.TowerText_ID;
+            var amplifierTowerExplainData = DataTableManager.TowerExplainTable.Get(amplifierTowerExplainId);
+
+            towerNameText.text = amplifierTowerExplainData.TowerName;
             towerIconImage.sprite = LoadManager.GetLoadedGameTexture(amplifierTowerData.BuffTowerAsset);
         }
     }

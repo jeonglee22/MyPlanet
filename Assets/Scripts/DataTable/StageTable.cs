@@ -19,6 +19,7 @@ public class StageData
     public string BossName { get; set; }
     public string StageImage { get; set; }
     public string LockedStageName { get; set; }
+    public string LockedStageImage { get; set; }
 
     public override string ToString()
     {
@@ -63,5 +64,10 @@ public class StageTable : DataTable
         }
 
         return dictionary[key];
+    }
+
+    public int GetStageCount()
+    {
+        return dictionary.Count;
     }
 }
