@@ -52,6 +52,7 @@ public static class DataTableManager
             LoadTableAsync<TowerUpgradeAbilityUnlockTable>(DataTableIds.TowerUpgradeAbilityUnlock),
             LoadTableAsync<SkillTable>(DataTableIds.Skill),
             LoadTableAsync<StageTable>(DataTableIds.Stage),
+            LoadTableAsync<LobbyStringTable>(DataTableIds.LobbyString),
         };
 
         await UniTask.WhenAll(tasks);
@@ -268,6 +269,14 @@ public static class DataTableManager
         get 
         {
             return Get<RandomAbilityReinforceUpgradeTable>(DataTableIds.RandomAbilityReinforceUpgrade);
+        }
+    }
+
+    public static LobbyStringTable LobbyStringTable
+    {
+        get
+        {
+            return Get<LobbyStringTable>(DataTableIds.LobbyString);
         }
     }
 
