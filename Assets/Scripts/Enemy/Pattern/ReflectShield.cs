@@ -22,6 +22,8 @@ public class ReflectShield : MonoBehaviour
             return;
         }
 
+        SoundManager.Instance.PlayReflectShield(gameObject.transform.position);
+
         Vector3 incomDirection = projectile.transform.forward;
         Vector3 contactPoint = other.ClosestPoint(transform.position);
         Vector3 normal = (contactPoint - transform.position).normalized;

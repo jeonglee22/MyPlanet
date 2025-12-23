@@ -105,12 +105,6 @@ public class Planet : LivingEntity
 
     public bool IsLazerHit = false;
 
-    [Header("SFX")]
-    [SerializeField] private AudioSource hitAudioSource;
-    [SerializeField] private AudioClip playerHitSfx;
-    [SerializeField, Range(0f, 1f)] private float playerHitSfxVolume = 1f;
-    [SerializeField] private float playerHitSfxMinInterval = 0.05f;
-
     private float lastHitSfxTime = -999f;
 
     private void Awake()
@@ -188,6 +182,7 @@ public class Planet : LivingEntity
         //Debug.Log("LevelUpCount" + count);
         for (int i = 0; i < count; i++)
         {
+            SoundManager.Instance.PlayLevelUpSound();
             levelUpEvent?.Invoke();
             await UniTask.WaitUntil(() => !towerInstallControl.isInstall);
         }
@@ -321,7 +316,7 @@ public class Planet : LivingEntity
     public override void OnDamage(float damage)
     {
         base.OnDamage(damage);
-        TryPlayHitSfx();
+        SoundManager.Instance.PlayPlanetHit(transform.position);
 
         Cancel();
         Material.color = hitColor;
@@ -471,28 +466,6 @@ public class Planet : LivingEntity
         towers[index] = null;
 
         ReapplyAllAmplifierBuffs();
-    }
-    //--------------------------------------------------
-    //audio --------------------------------------------
-    private void EnsureHitAudioSource()
-    {
-        if (hitAudioSource != null) return;
-
-        hitAudioSource = GetComponent<AudioSource>();
-        if (hitAudioSource == null) hitAudioSource = gameObject.AddComponent<AudioSource>();
-
-        hitAudioSource.playOnAwake = false;
-        hitAudioSource.loop = false;
-        hitAudioSource.spatialBlend = 0f; 
-    }
-    private void TryPlayHitSfx()
-    {
-        if (playerHitSfx == null) return;
-        if (Time.time - lastHitSfxTime < playerHitSfxMinInterval) return;
-
-        lastHitSfxTime = Time.time;
-        EnsureHitAudioSource();
-        hitAudioSource.PlayOneShot(playerHitSfx, playerHitSfxVolume);
     }
     //--------------------------------------------------
 

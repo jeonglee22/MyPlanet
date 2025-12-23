@@ -66,6 +66,8 @@ public class MainTitleUI : MonoBehaviour
         finishLoading = true;
 
         // gameStartButton.interactable = false;
+
+        SoundManager.Instance.PlayLoginBGM();
     }
 
     private void OpenExitPanel()

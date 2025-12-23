@@ -29,6 +29,9 @@ public class LogInPopUpUI : MonoBehaviour
         signUpButton.onClick.AddListener(() => OnSignInButtonClicked());
         closeButton.onClick.AddListener(() => canvasManager.SwitchToTargetPopUp(MainTitleCanvasManager.PopupName.None));
 
+        signUpButton.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        closeButton.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+
         SetErrorMessage(string.Empty);
 
         InteractableButtons(true);

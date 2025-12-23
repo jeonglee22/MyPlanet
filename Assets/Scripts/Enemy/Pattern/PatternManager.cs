@@ -55,10 +55,11 @@ public class PatternManager : MonoBehaviour
         patternDict.Add((int)PatternIds.BlackHolePhotonEnergy, () => new SimpleShotPattern());
         patternDict.Add((int)PatternIds.BlackHoleMiniBlackHoleSummon, () => new SimpleShotPattern());
         patternDict.Add((int)PatternIds.BlackHoleLazer, () => new SkillBasedLazerPattern());
-        patternDict.Add((int)PatternIds.BlackHoleExplosionSummon, () => new SimpleShotPattern());
-        patternDict.Add((int)PatternIds.WhiteHoleSpaceWarmSummon, () => new SimpleShotPattern());
+        patternDict.Add((int)PatternIds.BlackHoleExplosionSummon, () => new SimpleSummonPattern());
+        patternDict.Add((int)PatternIds.WhiteHoleSpaceWarmSummon, () => new SimpleSummonPattern());
         patternDict.Add((int)PatternIds.WhiteHoleShoot, () => new SimpleShotPattern());
         patternDict.Add((int)PatternIds.ExplosionEnemy, () => new ExplosionPattern());
+        patternDict.Add((int)PatternIds.ConstellationShoot, () => new SimpleShotPattern());
     }
 
     public IPattern GetPattern(int patternId)

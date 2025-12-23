@@ -47,6 +47,8 @@ public class LazerPattern : ShootingPattern
         lazer.Initialize(shootPosition, shootDirection, damage, OnLazerComplete, null, token);
 
         lazerObject.SetActive(true);
+
+        SoundManager.Instance.PlayEnemyLaser(owner.transform.position);
     }
 
     public override async UniTask ExecuteAsync(CancellationToken token)

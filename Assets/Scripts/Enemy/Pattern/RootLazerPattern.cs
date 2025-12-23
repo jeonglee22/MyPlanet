@@ -60,6 +60,8 @@ public class RootLazerPattern : LazerPattern
         {
             movement.CanMove = false;
         }
+
+        SoundManager.Instance.PlayEnemyLaser(owner.transform.position);
     }
 
     private LazerNode GenerateRootTree(Vector3 startPosition)

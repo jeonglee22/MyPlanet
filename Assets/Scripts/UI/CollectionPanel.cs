@@ -55,6 +55,8 @@ public class CollectionPanel : MonoBehaviour
         saveYesBtn.onClick.AddListener(OnConfirmYesBtnClicked);
         saveNoBtn.onClick.AddListener(OnConfirmNoBtnClicked);
 
+        AddBtnSound();
+
         Initialize().Forget();
         towerPanelObj.SetActive(true);
         abilityPanelObj.SetActive(false);
@@ -72,14 +74,24 @@ public class CollectionPanel : MonoBehaviour
         InfoPanelClosed();
     }
 
+    private void AddBtnSound()
+    {
+        backBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        towerPanelBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        abilityPanelBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        saveBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        saveYesBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        saveNoBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+    }
+
     private void ResetBtn()
     {
-        backBtn.onClick.RemoveListener(OnBackBtn);
-        towerPanelBtn.onClick.RemoveListener(OnTowerPanelBtn);
-        abilityPanelBtn.onClick.RemoveListener(OnAbilityPanelBtn);
-        saveBtn.onClick.RemoveListener(OnSaveBtnClicked);
-        saveYesBtn.onClick.RemoveListener(OnConfirmYesBtnClicked);
-        saveNoBtn.onClick.RemoveListener(OnConfirmNoBtnClicked);
+        backBtn.onClick.RemoveAllListeners();
+        towerPanelBtn.onClick.RemoveAllListeners();
+        abilityPanelBtn.onClick.RemoveAllListeners();
+        saveBtn.onClick.RemoveAllListeners();
+        saveYesBtn.onClick.RemoveAllListeners();
+        saveNoBtn.onClick.RemoveAllListeners();
     }
 
     public void OnBackBtn()

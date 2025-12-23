@@ -35,6 +35,22 @@ public class PlanetPanelUI : MonoBehaviour
         saveYesBtn.onClick.AddListener(() => OnSaveYesBtnClicked().Forget());
         saveNoBtn.onClick.AddListener(OnSaveNoBtnClicked);
 
+        AddBtnSound();
+
+    }
+
+    private void AddBtnSound()
+    {
+        backBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        choosePlanetBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        saveYesBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        saveNoBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+
+        for (int i = 0; i < planetButtons.Length; i++)
+        {
+            int index = i;
+            planetButtons[i].onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        }
     }
 
     // Update is called once per frame

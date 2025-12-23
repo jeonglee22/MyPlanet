@@ -26,6 +26,9 @@ public class InfoPopUpUI : MonoBehaviour
         logOutButton.onClick.AddListener(() => OnLogOutButtonClicked());
         closeButton.onClick.AddListener(() => canvasManager.SwitchToTargetPopUp(MainTitleCanvasManager.PopupName.None));
 
+        logOutButton.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        closeButton.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+
         InteractableButtons(true);
     }
 

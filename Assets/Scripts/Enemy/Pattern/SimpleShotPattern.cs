@@ -17,8 +17,6 @@ public class SimpleShotPattern : ShootingPattern
 
     protected override void Shoot(CancellationToken token = default)
     {
-        owner?.PlaySimpleShotSfx();
-
         List<Vector3> shootPositions = owner.GetShootPositions();
         
         foreach(var spawnPos in shootPositions)

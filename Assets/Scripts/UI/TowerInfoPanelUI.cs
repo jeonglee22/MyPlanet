@@ -26,11 +26,12 @@ public class TowerInfoPanelUI : MonoBehaviour
     private void Awake()
     {
         exitBtn.onClick.AddListener(OnExitBtnClicked);
+        exitBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
     }
 
     private void OnDestroy()
     {
-        exitBtn.onClick.RemoveListener(OnExitBtnClicked);
+        exitBtn.onClick.RemoveAllListeners();
     }
 
     private void OnDisable()
