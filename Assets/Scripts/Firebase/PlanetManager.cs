@@ -11,6 +11,7 @@ public class UserPlanetInfo
     public bool owned;
     public int level;
     public int starLevel;
+    public int pieceId;
 
     public string ToJson()
     {
@@ -59,6 +60,11 @@ public class PlanetManager : MonoBehaviour
             return userPlanetsData.planets.TryGetValue(planetKey, out var planetInfo) ? planetInfo : null;
         }
     }
+
+    private const int maxLevel = 50;
+    private const int maxStarLevel = 5;
+    public int MaxLevel => maxLevel;
+    public int MaxStarLevel => maxStarLevel;
 
     private void Awake()
     {
@@ -133,9 +139,15 @@ public class PlanetManager : MonoBehaviour
             {
                 name = planetData.PlanetName,
                 owned = i == 0,
-                level = 1,
-                starLevel = 1
+                level = 0,
+                starLevel = 0,
+                pieceId = planetData.PieceId
             };
+
+            if(i == 0)
+            {
+                userPlanetsData.planets[planetKey].starLevel = 1;
+            }
         }
     }
 

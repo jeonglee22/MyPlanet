@@ -212,7 +212,8 @@ public enum CurrencyType
 
 public enum PlanetType
 {
-    HealthPlanet = 0,
+    BasePlanet = 300001,
+    HealthPlanet,
     DefensePlanet,
     ShieldPlanet,
     BloodAbsorbPlanet,
@@ -268,6 +269,8 @@ public static class DataTableIds
     public static readonly string TowerUpgradeAbilityUnlock = "TowerUpgradeAbilityUnlockTable";
     public static readonly string Skill = "SkillTable";
     public static readonly string Stage = "StageTable";
+    public static readonly string PlanetLvUpgrade = "PlanetLvUpgradeTable";
+    public static readonly string PlanetStarUpgrade = "PlanetStarUpgradeTable";
 }
 
 public static class Variables

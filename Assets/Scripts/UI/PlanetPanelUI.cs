@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -37,6 +39,7 @@ public class PlanetPanelUI : MonoBehaviour
 
         AddBtnSound();
 
+        InitializePlanetPanelUI();
     }
 
     private void AddBtnSound()
@@ -121,5 +124,36 @@ public class PlanetPanelUI : MonoBehaviour
     public void SetPlanetName(string planetName)
     {
         planetNameText.text = planetName;
+    }
+
+    public void InitializePlanetPanelUI()
+    {
+        var planetDatas = DataTableManager.PlanetTable.GetAll();
+        var allPlanetInfo = PlanetManager.Instance.GetAllPlanets();
+        
+        for(int i = 0; i < planetButtons.Length; i++)
+        {
+            if(i < planetDatas.Count)
+            {
+                var planetData = planetDatas[i];
+                string planetKey = planetData.Planet_ID.ToString();
+
+                if(allPlanetInfo.TryGetValue(planetKey, out var userPlanetInfo))
+                {
+                    planetButtons[i].gameObject.SetActive(true);
+
+                    PlanetItemUI planetItemUI = planetButtons[i].GetComponent<PlanetItemUI>();
+
+                    if(planetItemUI != null)
+                    {
+                        planetItemUI.Initialize(planetData, userPlanetInfo);
+                    }
+                }
+            }
+            else
+            {
+                planetButtons[i].gameObject.SetActive(false);
+            }
+        }   
     }
 }
