@@ -98,6 +98,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     {
         if (Variables.Stage == 1)
         {
+            ExclusiveAbilityRunTracker.Clear();
             hasLastChosenOption = false;
             lastChosenOption = default;
             tutorialPistolInstalled = false;
@@ -1856,6 +1857,16 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 }
                 installControl.IsReadyInstall = true;
                 installControl.ChoosedData = choice;
+                if (choice.InstallType == TowerInstallType.Attack &&
+                    choice.AttackTowerData != null &&
+                    choice.ability > 0)
+                {
+                    int towerId = choice.AttackTowerData.towerIdInt;
+                    if (IsExclusiveUnlockAbility(towerId, choice.ability))
+                    {
+                        ExclusiveAbilityRunTracker.MarkTaken(choice.ability);
+                    }
+                }
                 installControl.IntallNewTower(index);
                 gameObject.SetActive(false);
             }
@@ -1937,15 +1948,37 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     {
         int abilityId = -1;
 
-        if (towerData != null && towerData.randomAbilityGroupId > 0)
+        if (towerData == null || towerData.randomAbilityGroupId <= 0)return -1;
+
+        int attackTowerId = towerData.towerIdInt;
+        int exclusiveId = GetExclusiveUnlockAbilityId(attackTowerId);
+
+        int safe = 0;
+        while (true)
         {
+            safe++;
+            if (safe > 200) break; 
+
             abilityId = AbilityManager.GetRandomAbilityFromGroup(
                 towerData.randomAbilityGroupId,
-                requiredTowerType: 0,    // 0: Attack Tower
+                requiredTowerType: 0,   
                 useWeight: true);
+
+            if (abilityId <= 0) continue;
+            if (exclusiveId > 0 && abilityId == exclusiveId)
+            {
+                if (!IsTowerUpgradeLevelAtLeast4(attackTowerId))
+                    continue;
+
+                if (ExclusiveAbilityRunTracker.IsTaken(abilityId))
+                    continue;
+            }
+            return abilityId;
         }
-        return abilityId;
+
+        return -1;
     }
+
 
     private void SetIsTutorial(bool isTutorial)
     {
@@ -2489,5 +2522,45 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             SetUpTutorialAttackCard(index, slotNumber, isInitial: false);
         }
     }
+    //unlock
+    private int GetTowerUpgradeLevel(int attackTowerId)
+    {
+        var mgr = UserTowerUpgradeManager.Instance;
+        if (mgr == null || mgr.CurrentTowerUpgradeData == null) return 0;
 
+        var data = mgr.CurrentTowerUpgradeData;
+        if (data.towerIds == null || data.upgradeLevels == null) return 0;
+
+        int idx = data.towerIds.IndexOf(attackTowerId);
+        if (idx < 0 || idx >= data.upgradeLevels.Count) return 0;
+
+        return data.upgradeLevels[idx];
+    }
+
+    private bool IsTowerUpgradeLevelAtLeast4(int attackTowerId)
+    {
+        return GetTowerUpgradeLevel(attackTowerId) >= 4;
+    }
+
+    private int GetExclusiveUnlockAbilityId(int attackTowerId)
+    {
+        if (!DataTableManager.IsInitialized) return -1;
+
+        var table = DataTableManager.TowerUpgradeAbilityUnlockTable;
+        if (table == null) return -1;
+
+        int rowId = table.GetDataId(attackTowerId);
+        if (rowId <= 0) return -1;
+
+        var row = table.Get(rowId);
+        if (row == null) return -1;
+
+        return row.RandomAbility_ID;
+    }
+
+    private bool IsExclusiveUnlockAbility(int attackTowerId, int abilityId)
+    {
+        int exclusiveId = GetExclusiveUnlockAbilityId(attackTowerId);
+        return exclusiveId > 0 && abilityId == exclusiveId;
+    }
 }

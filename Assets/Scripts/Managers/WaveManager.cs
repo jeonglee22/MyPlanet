@@ -75,7 +75,7 @@ public class WaveManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-
+        BattleRandomAbilityUnlockPatcher.ResetForNewBattle();
         EnsureBgmSource();
         Cancel();
         ResetWave();

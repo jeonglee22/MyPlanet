@@ -2,7 +2,9 @@ using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+using UnityEngine.InputSystem;
+#endif
 public class LobbyTowerUpgrade : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI starDustText;
@@ -27,6 +29,20 @@ public class LobbyTowerUpgrade : MonoBehaviour
         cancelButton.onClick.AddListener(() => confirmPanel.SetActive(false));
         confirmButton.onClick.AddListener(() => OnClickConfirmButton().Forget());
     }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    private void Update()
+    {
+        if (Keyboard.current != null && Keyboard.current.f10Key.wasPressedThisFrame)
+        {
+            UserData.TowerEnhanceItem += 100000;
+            ItemManager.Instance.SaveItemsAsync().Forget();
+            CurrencyManager.Instance.SaveCurrencyAsync().Forget();
+            Debug.Log($"[DEBUG] Stardust +100000 => {UserData.TowerEnhanceItem}");
+            Initialize(towerId);
+        }
+    }
+#endif
 
     private async UniTaskVoid OnClickConfirmButton()
     {
@@ -116,7 +132,6 @@ public class LobbyTowerUpgrade : MonoBehaviour
             Debug.Log("최대 레벨 도달");
             return;
         }
-
         confirmPanel.SetActive(true);
     }
 

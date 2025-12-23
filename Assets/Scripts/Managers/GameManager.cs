@@ -12,8 +12,9 @@ public class GameManager : MonoBehaviour
 
         // await DataTableManager.InitializeAsync();
         // await loadManager.LoadGamePrefabAsync(AddressLabel.Prefab);
-        
+
         //await loadManager.TestLoadEnemy();
+        await BattleRandomAbilityUnlockPatcher.ApplyOnceAsync(); //unlock
         await WaveManager.Instance.InitializeStage(Variables.Stage);
 
         int enemyLayer = LayerMask.NameToLayer(TagName.Enemy);

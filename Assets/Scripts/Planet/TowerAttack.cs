@@ -312,7 +312,7 @@ public class TowerAttack : MonoBehaviour
 
     private void ApplyUpgradeEffects(int upgradeLevel)
     {
-
+        int effectiveUpgradeLevel = Mathf.Min(upgradeLevel, 3); //unlock
         var additionalAttack = 0f;
         var additionalAttackSpeed = 0f;
         var additionalDuration = 0f;
@@ -320,7 +320,7 @@ public class TowerAttack : MonoBehaviour
         var additionalExplosionRange = 0f;
 
         var externalTowerUpgradeDataList = new List<TowerUpgradeData>();
-        for (int i = 1; i <= upgradeLevel; i++)
+        for (int i = 1; i <= effectiveUpgradeLevel; i++)
         {
             var externalTowerUpgradeDataId = DataTableManager.TowerUpgradeTable.GetIdByTowerIdAndUpgradeCount(towerData.towerIdInt, i);
             if (externalTowerUpgradeDataId != -1)
@@ -330,7 +330,7 @@ public class TowerAttack : MonoBehaviour
             }
         }
 
-        for (int i = 1; i <= upgradeLevel; i++)
+        for (int i = 1; i <= effectiveUpgradeLevel; i++)
         {
             var specialEffectId = externalTowerUpgradeDataList[i - 1].SpecialEffect_ID;
             var amount = externalTowerUpgradeDataList[i - 1].SpecialEffectValue;

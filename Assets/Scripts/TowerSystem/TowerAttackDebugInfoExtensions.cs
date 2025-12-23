@@ -225,7 +225,7 @@ public static class TowerAttackDebugInfoExtensions
         if (!Mathf.Approximately(percentPenetrationFromAbility, 0f))
         {
             sb.AppendLine($"    자체 능력 (Ability):         {percentPenetrationFromAbility * 100f:F1}%");
-            if (percentPenAbilitySources != null && percentPenAbilitySources.Count > 0)
+            if (percentPenAbilitySources != null)  
             {
                 sb.AppendLine($"      • {percentPenAbilitySources.Count}개 소스:");
                 for (int i = 0; i < percentPenAbilitySources.Count; i++)
@@ -235,7 +235,6 @@ public static class TowerAttackDebugInfoExtensions
                 }
             }
         }
-
         // 고정 관통
         sb.AppendLine("  [고정 관통 (Fixed)]");
         float baseFixed = currentProjectileData != null ? currentProjectileData.FixedPenetration : 0f;
