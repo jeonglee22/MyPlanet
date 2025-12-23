@@ -157,6 +157,7 @@ public class TowerAmplifier : MonoBehaviour
         if(info.Count>0)
         {
             RemoveAbilityInstanceFromTower(target, abilityId, info.TotalAmountApplied);
+            target.RemoveAmplifierAbilityReinforced(this, abilityId, info.Count);
         }
         info.Count += 1;
         float perStack = TowerReinforceManager.Instance.GetFinalPrimaryValueForAbility(abilityId, reinforceLevel);
@@ -251,22 +252,12 @@ public class TowerAmplifier : MonoBehaviour
 
     private void ApplyAbilityInstanceToTower(TowerAttack target, int abilityId, float totalAmount)
     {
-        var ab = AbilityManager.GetAbility(abilityId);
-        if (ab == null) return;
-
-        float delta = totalAmount - ab.UpgradeAmount;
-        if (!Mathf.Approximately(delta, 0f)) ab.StackAbility(delta);
-        ab.ApplyAbility(target.gameObject);
-        ab.Setting(target.gameObject);
+        target.ApplyAmplifierAbilityReinforce(this, abilityId, reinforceLevel);
     }
 
     private void RemoveAbilityInstanceFromTower(TowerAttack target, int abilityId, float totalAmount)
     {
-        var ab = AbilityManager.GetAbility(abilityId);
-        if (ab == null) return;
-        float delta = totalAmount - ab.UpgradeAmount;
-        if (!Mathf.Approximately(delta, 0f)) ab.StackAbility(delta);
-        ab.RemoveAbility(target.gameObject);
+        target.RemoveAmplifierAbilityReinforced(this, abilityId, 1);
     }
 
     internal void AddAmpTower(
