@@ -17,8 +17,15 @@ public class ScrollSnapToCenter : MonoBehaviour, IBeginDragHandler, IEndDragHand
     [SerializeField] private bool horizontal = true;
     [SerializeField] private float stopThreshold = 0.5f; // 너무 미세하게 떨면 0.5~2로
 
+    [SerializeField] private LobbyUI lobbyUI;
     private readonly List<RectTransform> items = new();
     private CancellationTokenSource cts;
+
+    private int choosedIndex = -1;
+    public int ChoosedIndex => choosedIndex;
+
+    // test
+    private int startIndex = 1;
 
     void Awake()
     {
@@ -26,7 +33,6 @@ public class ScrollSnapToCenter : MonoBehaviour, IBeginDragHandler, IEndDragHand
         if (!viewport) viewport = scrollRect.viewport;
         if (!content) content = scrollRect.content;
 
-        RebuildItems();
         cts = new CancellationTokenSource();
     }
 
@@ -35,6 +41,34 @@ public class ScrollSnapToCenter : MonoBehaviour, IBeginDragHandler, IEndDragHand
         items.Clear();
         for (int i = 0; i < content.childCount; i++)
             if (content.GetChild(i) is RectTransform rt) items.Add(rt);
+    }
+
+    private async void Start()
+    {
+        await UniTask.WaitUntil(() => lobbyUI.isInitialized);
+        RebuildItems();
+
+        await UniTask.Yield();
+        SettingAtIndex(startIndex);
+    }
+
+    private void SettingAtIndex(int index)
+    {
+        choosedIndex = index;
+        var nextRect = items[choosedIndex];
+
+        Vector3 vpCenterWorld = viewport.TransformPoint(viewport.rect.center);
+
+        Vector3 nearestCenterWorld = nextRect.TransformPoint(nextRect.rect.center);
+        Vector3 deltaWorld = vpCenterWorld - nearestCenterWorld;
+        Vector3 deltaLocal = viewport.InverseTransformVector(deltaWorld);
+
+        Vector2 target = content.anchoredPosition + new Vector2(
+            horizontal ? deltaLocal.x : 0f,
+            horizontal ? 0f : deltaLocal.y
+        );
+
+        content.anchoredPosition = target;
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -52,6 +86,8 @@ public class ScrollSnapToCenter : MonoBehaviour, IBeginDragHandler, IEndDragHand
         RectTransform nearest = null;
         float best = float.MaxValue;
 
+        int index = -1;
+        Debug.Log(items.Count);
         foreach (var it in items)
         {
             Vector3 itemCenterWorld = it.TransformPoint(it.rect.center);
@@ -63,8 +99,13 @@ public class ScrollSnapToCenter : MonoBehaviour, IBeginDragHandler, IEndDragHand
             {
                 best = d;
                 nearest = it;
+                index = items.IndexOf(it);
             }
         }
+
+        if (index == -1) return;
+
+        choosedIndex = index;
 
         if (nearest == null) return;
 
@@ -80,9 +121,59 @@ public class ScrollSnapToCenter : MonoBehaviour, IBeginDragHandler, IEndDragHand
         scrollRect.velocity = Vector2.zero;
 
         SnapTo(target, cts.Token).Forget();
+
+        Debug.Log("Snapped to index: " + choosedIndex);
     }
 
-    private async UniTaskVoid SnapTo(Vector2 target, CancellationToken token)
+    public async UniTask SnapLeftOne()
+    {
+        if (choosedIndex == 1)
+            return;
+
+        choosedIndex--;
+        var nextRect = items[choosedIndex];
+
+        Vector3 vpCenterWorld = viewport.TransformPoint(viewport.rect.center);
+
+        Vector3 nearestCenterWorld = nextRect.TransformPoint(nextRect.rect.center);
+        Vector3 deltaWorld = vpCenterWorld - nearestCenterWorld;
+        Vector3 deltaLocal = viewport.InverseTransformVector(deltaWorld);
+
+        Vector2 target = content.anchoredPosition + new Vector2(
+            horizontal ? deltaLocal.x : 0f,
+            horizontal ? 0f : deltaLocal.y
+        );
+
+        scrollRect.velocity = Vector2.zero;
+
+        await SnapTo(target, cts.Token);
+    }
+
+    public async UniTask SnapRightOne()
+    {
+        if (choosedIndex == items.Count - 2)
+            return;
+
+        choosedIndex++;
+        var nextRect = items[choosedIndex];
+
+        Vector3 vpCenterWorld = viewport.TransformPoint(viewport.rect.center);
+
+        Vector3 nearestCenterWorld = nextRect.TransformPoint(nextRect.rect.center);
+        Vector3 deltaWorld = vpCenterWorld - nearestCenterWorld;
+        Vector3 deltaLocal = viewport.InverseTransformVector(deltaWorld);
+
+        Vector2 target = content.anchoredPosition + new Vector2(
+            horizontal ? deltaLocal.x : 0f,
+            horizontal ? 0f : deltaLocal.y
+        );
+
+        scrollRect.velocity = Vector2.zero;
+
+        await SnapTo(target, cts.Token);
+    }
+
+    private async UniTask SnapTo(Vector2 target, CancellationToken token)
     {
         Vector2 start = content.anchoredPosition;
 
