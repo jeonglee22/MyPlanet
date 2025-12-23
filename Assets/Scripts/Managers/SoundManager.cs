@@ -159,6 +159,8 @@ public class SoundManager : MonoBehaviour
             ApplyVolumes();
         }
 
+        Cancel();
+
         isInitialized = true;
     }
 
