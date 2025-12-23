@@ -79,7 +79,9 @@ public class ChainUpgradeAbility : EffectAbility
         float chainDecay = Mathf.Pow(chainDamageMultiplier, chainLevel);
         projectileData.Attack = buffedData.Attack * chainDecay;
 
-        nextEnemy.OnDamage(CalculateTotalDamage(nextEnemy.Data.Defense));
+        var damage = CalculateTotalDamage(nextEnemy.Data.Defense);
+        nextEnemy.OnDamage(damage);
+        cachedProjectile.ActionEvent(damage);
         hitEnemies.Add(nextEnemy);
         ChainingDamage(nextEnemy, count - 1);
     }

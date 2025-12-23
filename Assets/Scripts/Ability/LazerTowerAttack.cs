@@ -110,6 +110,7 @@ public class LazertowerAttack : MonoBehaviour
 
                 var damage = CalculateTotalDamage(enemy.Data.Defense);
                 enemy.OnDamage(damage);
+                towerAttack.AdddamageDealt(damage);
 
                 if (enemy.IsDead)
                 {
