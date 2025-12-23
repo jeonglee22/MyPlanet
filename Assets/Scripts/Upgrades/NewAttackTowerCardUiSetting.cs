@@ -24,9 +24,10 @@ public class NewAttackTowerCardUiSetting : MonoBehaviour
     public void SettingNewTowerCard(int towerId, int ability)
     {
         var towerData = DataTableManager.AttackTowerTable.GetById(towerId);
-        var towerName = towerData.AttackTowerName;
         var towerExplainId = towerData.TowerText_ID;
-        var towerExplainText = DataTableManager.TowerExplainTable.Get(towerExplainId).TowerDescribe;
+        var towerExplainData = DataTableManager.TowerExplainTable.Get(towerExplainId);
+        var towerExplainText = towerExplainData.TowerDescribe;
+        var towerName = towerExplainData.TowerName;
 
         SetTowerName(towerName);
         SetTowerExplain(towerExplainText);

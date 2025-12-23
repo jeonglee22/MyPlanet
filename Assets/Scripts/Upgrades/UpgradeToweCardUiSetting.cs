@@ -18,7 +18,9 @@ public class UpgradeToweCardUiSetting : MonoBehaviour
     public void SettingAttackTowerUpgradeCard(int towerId, int towerLevel)
     {
         var towerData = DataTableManager.AttackTowerTable.GetById(towerId);
-        var towerName = towerData.AttackTowerName;
+        var towerExplainId = towerData.TowerText_ID;
+        var towerExplainData = DataTableManager.TowerExplainTable.Get(towerExplainId);
+        var towerName = towerExplainData.TowerName;
 
         SetTowerName(towerName);
 
