@@ -900,8 +900,6 @@ public class TowerAttack : MonoBehaviour
             byAbility[abilityId] = list;
         }
         list.Add(inst);
-        if (debugReinforcedAbility)
-            Debug.Log($"[AmpAbility][APPLY] tower={name}, amp={source.name}, abilityId={abilityId}, ampReinforce={sourceReinforceLevel}, amount={inst.UpgradeAmount}");
     }
     public void RemoveAmplifierAbilityReinforced(TowerAmplifier source, int abilityId, int count)
     {
@@ -1257,6 +1255,8 @@ public class TowerAttack : MonoBehaviour
 
         fireRateAbilitySources.Add(r);
         RecalculateFireRateFromAbility();
+        Debug.Log($"[AddFireRate] ratePercent={ratePercent}, r={r}, before_count={fireRateAbilitySources.Count}");
+
     }
 
     public void RemoveFireRateFromAbilitySource(float ratePercent)
@@ -1269,6 +1269,7 @@ public class TowerAttack : MonoBehaviour
             fireRateAbilitySources.RemoveAt(idx);
             RecalculateFireRateFromAbility();
         }
+        Debug.Log($"[RemoveFireRate] ratePercent={ratePercent}, r={r}, found_idx={idx}, before_count={fireRateAbilitySources.Count}");
     }
 
     private void RecalculateFireRateFromAbility()
@@ -1295,27 +1296,15 @@ public class TowerAttack : MonoBehaviour
         }
         appliedSelfAbilities.Clear();
 
-        Debug.Log(
-        $"[TowerAttack][ReapplySelfAbilities] " +
-        $"tower={name}, reinforce={ReinforceLevel}\n" +
-        $"  baseAbilityIds 개수={baseAbilityIds.Count}\n" +
-        $"  baseAbilityIds={string.Join(", ", baseAbilityIds)}"
-    );
-
         foreach (var abilityId in baseAbilityIds)
         {
             var ab = CreateSelfAbilityInstanceWithReinforce(abilityId);
             if (ab == null) continue;
-
-            Debug.Log(
-            $"[TowerAttack][ReapplySelfAbilities] " +
-            $"abilityId={abilityId}, ab.UpgradeAmount={ab.UpgradeAmount}"
-        );
-
             ab.ApplyAbility(gameObject);
             ab.Setting(gameObject);
             appliedSelfAbilities[abilityId] = ab;
         }
+        Debug.Log($"[Reapply] AFTER, fireRateAbilitySources.Count={fireRateAbilitySources.Count}");
     }
 
     //----------------------------------------------------
