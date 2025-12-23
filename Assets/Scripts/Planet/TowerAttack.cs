@@ -338,7 +338,7 @@ public class TowerAttack : MonoBehaviour
             }
         }
 
-        for (int i = 1; i <= upgradeLevel; i++)
+        for (int i = 1; i <= upgradeLevel-1; i++)
         {
             var specialEffectId = externalTowerUpgradeDataList[i - 1].SpecialEffect_ID;
             var amount = externalTowerUpgradeDataList[i - 1].SpecialEffectValue;
