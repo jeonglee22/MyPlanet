@@ -3949,6 +3949,7 @@ GameObject:
   - component: {fileID: 1377614360}
   - component: {fileID: 1377614362}
   - component: {fileID: 1377614361}
+  - component: {fileID: 1377614363}
   m_Layer: 0
   m_Name: InitLoader
   m_TagString: Untagged
@@ -4027,12 +4028,12 @@ MonoBehaviour:
   bossAppear: {fileID: 8300000, guid: b081aa7209ca48847bcea3175413d538, type: 3}
   enemyHit: {fileID: 0}
   levelUpSound: {fileID: 8300000, guid: b5a07748db80f7a41b11424d3cbf6042, type: 3}
-  quasarSelect: {fileID: 8300000, guid: 926e1563f91e53b4dab3fd82fbedd324, type: 3}
   refreshSound: {fileID: 8300000, guid: 0d1c557d0818d8b45a35547dcf059de9, type: 3}
-  deployOpen: {fileID: 8300000, guid: 2a5d1c64b4d81d946850bffd01784ca9, type: 3}
-  deployClose: {fileID: 8300000, guid: cda8aeb598f422b4a9a804c8d77bb7d8, type: 3}
   victorySound: {fileID: 8300000, guid: d1f772cc69e5e8f4ba6dbe065a0118f6, type: 3}
   defeatSound: {fileID: 8300000, guid: 3fc4bdc19c77a2943bf4502bc548141f, type: 3}
+  quasarSelect: {fileID: 8300000, guid: 926e1563f91e53b4dab3fd82fbedd324, type: 3}
+  deployOpen: {fileID: 8300000, guid: 2a5d1c64b4d81d946850bffd01784ca9, type: 3}
+  deployClose: {fileID: 8300000, guid: cda8aeb598f422b4a9a804c8d77bb7d8, type: 3}
   clickSound: {fileID: 8300000, guid: 931564e790cb0f5448621b5f7aeac83b, type: 3}
   loginBGM: {fileID: 8300000, guid: dbdd9a8fe2d9a6346ba236f53d5b298c, type: 3}
   lobbyBGM: {fileID: 8300000, guid: 137e1ba66d673fd439e989479acf0b33, type: 3}
@@ -4231,6 +4232,18 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &1377614363
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1377614356}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7baa01fb6ec150940b738df09972af34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1379927582
 GameObject:
   m_ObjectHideFlags: 0

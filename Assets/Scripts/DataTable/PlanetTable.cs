@@ -57,4 +57,9 @@ public class PlanetTable : DataTable
 
         return dictionary[key];
     }
+
+    public List<PlanetData> GetAll()
+    {
+        return new List<PlanetData>(dictionary.Values);
+    }
 }
