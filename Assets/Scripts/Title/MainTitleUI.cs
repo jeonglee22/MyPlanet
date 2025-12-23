@@ -113,7 +113,8 @@ public class MainTitleUI : MonoBehaviour
         await UniTask.WaitUntil(() => UserPlanetManager.Instance.IsInitialized &&
                                          UserAttackPowerManager.Instance.IsInitialized &&
                                          UserTowerManager.Instance.IsInitialized &&
-                                         UserTowerUpgradeManager.Instance.IsInitialized);
+                                         UserTowerUpgradeManager.Instance.IsInitialized &&
+                                         UserStageManager.Instance.IsInitialized);
 
         await UserPlanetManager.Instance.LoadUserPlanetAsync();
 
@@ -123,7 +124,9 @@ public class MainTitleUI : MonoBehaviour
 
         // await CurrencyManager.Instance.LoadCurrencyAsync();
 
-        await UserTowerManager.Instance.LoadUserTowerDataAsync();     
+        await UserTowerManager.Instance.LoadUserTowerDataAsync();  
+
+        await UserStageManager.Instance.LoadUserStageClearAsync();
     }
 
     private void OnLogInOutButtonClicked()

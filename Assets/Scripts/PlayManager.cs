@@ -58,7 +58,7 @@ public class PlayManager : MonoBehaviour
         GamePauseManager.Instance.Pause();
     }
 
-    private void GameClear()
+    private async void GameClear()
     {
         if (Variables.IsTestMode)
             return;
@@ -72,6 +72,16 @@ public class PlayManager : MonoBehaviour
         }
 
         SoundManager.Instance.PlayVictorySound();
+
+        var currentLastCelearedStage = UserStageManager.Instance.ClearedStageData.HighestClearedStage;
+        if (Variables.Stage == currentLastCelearedStage)
+        {
+            var result = await UserStageManager.Instance.SaveUserStageClearAsync(Variables.Stage + 1);
+            if (!result)
+            {
+                Debug.LogError("Failed to save stage clear data.");
+            }
+        }
 
         if (gameOverUI != null)
         {
