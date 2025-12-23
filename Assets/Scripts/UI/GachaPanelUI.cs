@@ -144,6 +144,7 @@ public class GachaPanelUI : MonoBehaviour
             OnGacha();
 
             ItemManager.Instance.SaveItemsAsync().Forget();
+            PlanetManager.Instance.SavePlanetsAsync().Forget();
 
             if(drawCount == 1)
             {

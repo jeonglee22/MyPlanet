@@ -288,4 +288,25 @@ public class PlanetManager : MonoBehaviour
     {
         return userPlanetsData?.planets;
     }
+
+    public void UnlockPlanet(int planetId)
+    {
+        string planetKey = planetId.ToString();
+        if(userPlanetsData?.planets != null && userPlanetsData.planets.TryGetValue(planetKey, out var planetInfo))
+        {
+            planetInfo.owned = true;
+            planetInfo.starLevel = 1;
+            MarkDirty();
+        }
+    }
+
+    public bool HasPlanet(int planetId)
+    {
+        string planetKey = planetId.ToString();
+        if(userPlanetsData?.planets != null && userPlanetsData.planets.TryGetValue(planetKey, out var planetInfo))
+        {
+            return planetInfo.owned;
+        }
+        return false;
+    }
 }

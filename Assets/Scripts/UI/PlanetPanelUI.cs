@@ -66,6 +66,8 @@ public class PlanetPanelUI : MonoBehaviour
     {
         choosedIndex = -1;
         planetInfoPanel.SetActive(false);
+
+        RefreshPlanetPanelUI();
     }
 
     public void OnBackBtnClicked()
@@ -155,5 +157,15 @@ public class PlanetPanelUI : MonoBehaviour
                 planetButtons[i].gameObject.SetActive(false);
             }
         }   
+    }
+
+    public void RefreshPlanetPanelUI()
+    {
+        if(PlanetManager.Instance == null || !PlanetManager.Instance.IsInitialized)
+        {
+            return;
+        }
+
+        InitializePlanetPanelUI();
     }
 }
