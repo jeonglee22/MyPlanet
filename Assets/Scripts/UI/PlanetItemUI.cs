@@ -11,17 +11,21 @@ public class PlanetItemUI : MonoBehaviour
     [SerializeField] private Slider pieceSlider;
     [SerializeField] private TextMeshProUGUI pieceText;
     [SerializeField] private Sprite changePieceImage;
+    [SerializeField] private Sprite defaultPieceImage;
     [SerializeField] private Button itemButton; 
     [SerializeField] private GameObject notOwnImage;
+    [SerializeField] private GameObject blackImage;
 
     private PlanetLvUpgradeData planetLvUpgradeData;
     private PlanetStarUpgradeData planetStarUpgradeData;
 
     public void Initialize(PlanetData planetData, UserPlanetInfo userPlanetInfo)
     {
+        planetIcon.sprite = LoadManager.GetLoadedGameTexture(planetData.PlanetIcon);
         if(planetData.Planet_ID == (int)PlanetType.BasePlanet)
         {
             notOwnImage.SetActive(false);
+            blackImage.SetActive(false);
 
             planetLevel.text = $"Lv. 0";
 
@@ -32,6 +36,8 @@ public class PlanetItemUI : MonoBehaviour
                 upgradeStar[i].SetActive(false);
             }
 
+            pieceSlider.fillRect.GetComponent<Image>().sprite = changePieceImage;
+
             return;
         }
 
@@ -41,6 +47,7 @@ public class PlanetItemUI : MonoBehaviour
         if(userPlanetInfo.owned == false)
         {
             notOwnImage.SetActive(true);
+            blackImage.SetActive(true);
 
             planetLevel.text = $"";
             planetStarUpgradeData = DataTableManager.PlanetStarUpgradeTable.GetCurrentLevelData(planetData.Planet_ID, userPlanetInfo.starLevel + 2);
@@ -50,6 +57,7 @@ public class PlanetItemUI : MonoBehaviour
         else
         {
             notOwnImage.SetActive(false);
+            blackImage.SetActive(false);
 
             int starLevel = userPlanetInfo.starLevel + 1 > PlanetManager.Instance.MaxStarLevel ? PlanetManager.Instance.MaxStarLevel : userPlanetInfo.starLevel + 1;
 
@@ -61,6 +69,8 @@ public class PlanetItemUI : MonoBehaviour
             {
                 upgradeStar[i].SetActive(i < userPlanetInfo.starLevel);
             }
+
+            itemButton.interactable = true;
         }
 
         UpdatePieceSlider(planetData);
@@ -74,6 +84,15 @@ public class PlanetItemUI : MonoBehaviour
         int currentPieces = ItemManager.Instance.GetItem(pieceId);
 
         int requiredPieces = planetStarUpgradeData?.UpgradeResource ?? 0;
+
+        if(currentPieces >= requiredPieces)
+        {
+            pieceSlider.fillRect.GetComponent<Image>().sprite = changePieceImage;
+        }
+        else
+        {
+            pieceSlider.fillRect.GetComponent<Image>().sprite = defaultPieceImage;
+        }
 
         pieceSlider.maxValue = requiredPieces;
         pieceSlider.value = currentPieces;

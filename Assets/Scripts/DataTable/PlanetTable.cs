@@ -23,6 +23,7 @@ public class PlanetData
     public float BossDrain { get; set; }
     public int PlanetText_ID { get; set; }
     public int PieceId { get; set; }
+    public string PlanetIcon { get; set; }
 
     public override string ToString()
     {
