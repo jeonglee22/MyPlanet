@@ -36,7 +36,7 @@ public class ScrollSnapToCenter : MonoBehaviour, IBeginDragHandler, IEndDragHand
         cts = new CancellationTokenSource();
     }
 
-    private void RebuildItems()
+    public void RebuildItems()
     {
         items.Clear();
         for (int i = 0; i < content.childCount; i++)

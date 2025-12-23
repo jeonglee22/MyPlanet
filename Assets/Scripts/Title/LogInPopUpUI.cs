@@ -95,6 +95,15 @@ public class LogInPopUpUI : MonoBehaviour
             return;
         }
 
+        var initUserStageData = await UserStageManager.Instance.InitUserStageClearAsync();
+        if (initUserStageData == false)
+        {
+            SetErrorMessage("Failed to initialize user stage data.");
+            InteractableButtons(true);
+            AuthManager.Instance.SignOut();
+            return;
+        }
+
         await UserAttackPowerManager.Instance.UpdatePlanetPower(UserPlanetManager.Instance.CurrentPlanet);
         await UserAttackPowerManager.Instance.UpdateTowerPower();
 

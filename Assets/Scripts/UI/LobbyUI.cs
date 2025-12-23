@@ -1,5 +1,7 @@
 using System;
+using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
+using Unity.Android.Gradle.Manifest;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -34,27 +36,16 @@ public class LobbyUI : MonoBehaviour
     private int selectedStageIndex = 0;
     private int stageIdBase = 50001;
 
+    // Debug Button
+    [SerializeField] private Button debugOpenWholeStagesBtn;
+    [SerializeField] private Button debugCloseAllStagesBtn;
+
     private void Start()
     {
         ResetBtn();
 
         stageContent = stageScrollRect.content;
-        var childs = stageContent.transform.childCount;
-        for (int i = childs - 1; i >= 0; i--)
-        {
-            Destroy(stageContent.GetChild(i).gameObject);
-        }
-
-        var stageCount = DataTableManager.StageTable.GetStageCount();
-        Instantiate(emptyObject, stageContent);
-        for (int i = 0; i < stageCount; i++)
-        {
-            var stagePanel = Instantiate(stagePanelObject, stageContent).GetComponent<StagePanelUI>();
-            int stageId = stageIdBase + i;
-            var stageData = DataTableManager.StageTable.Get(stageId);
-            stagePanel.Initialize(stageData, stageData.UnlockCondition == 0);
-        }
-        Instantiate(emptyObject, stageContent);
+        ResetStageLocked();
 
         isSettingPlanets = true;
 
@@ -67,6 +58,9 @@ public class LobbyUI : MonoBehaviour
 
         leftButton?.onClick.AddListener(() => OnLeftBtnClicked().Forget());
         rightButton?.onClick.AddListener(() => OnRightBtnClicked().Forget());
+
+        debugOpenWholeStagesBtn?.onClick.AddListener(() => OnOpenWholeStagesClicked().Forget());
+        debugCloseAllStagesBtn?.onClick.AddListener(() => OnCloseAllStagesClicked().Forget());
 
         AddBtnSound();
         
@@ -85,6 +79,59 @@ public class LobbyUI : MonoBehaviour
     private void OnDestroy()
     {
         ResetBtn();
+    }
+
+    private void SetStageLocked()
+    {
+        var stageCount = DataTableManager.StageTable.GetStageCount();
+        var stageClearData = UserStageManager.Instance.ClearedStageData;
+        for (int i = 0; i < stageCount; i++)
+        {
+            var stagePanel = Instantiate(stagePanelObject, stageContent).GetComponent<StagePanelUI>();
+            int stageId = stageIdBase + i;
+            var stageData = DataTableManager.StageTable.Get(stageId);
+            var isStageCleared = i < stageClearData.HighestClearedStage;
+            stagePanel.Initialize(stageData, isStageCleared);
+        }
+    }
+
+    public void ResetStageLocked()
+    {
+        var childs = stageContent.transform.childCount;
+        for (int i = childs - 1; i >= 0; i--)
+        {
+            Destroy(stageContent.GetChild(i).gameObject);
+        }
+
+        Instantiate(emptyObject, stageContent);
+        SetStageLocked();
+        Instantiate(emptyObject, stageContent);
+    }
+
+    public async UniTaskVoid OnOpenWholeStagesClicked()
+    {
+        var stageCount = DataTableManager.StageTable.GetStageCount();
+        
+        await UserStageManager.Instance.SaveUserStageClearAsync(stageCount);
+
+        ResetStageLocked();
+        
+        await UniTask.Yield();
+
+        snapToCenter.RebuildItems();
+    }
+
+    public async UniTaskVoid OnCloseAllStagesClicked()
+    {
+        var stageCount = 1;
+        
+        await UserStageManager.Instance.SaveUserStageClearAsync(stageCount);
+
+        ResetStageLocked();
+
+        await UniTask.Yield();
+
+        snapToCenter.RebuildItems();
     }
 
     private void AddBtnSound()
@@ -137,6 +184,13 @@ public class LobbyUI : MonoBehaviour
         }
 
         // SetInteractableBtns(false);
+
+        if (snapToCenter.ChoosedIndex > UserStageManager.Instance.ClearedStageData.HighestClearedStage)
+        {
+            Debug.LogWarning("잠금 해제되지 않은 스테이지입니다.");
+            // SetInteractableBtns(true);
+            return;
+        }
 
         Variables.Stage = snapToCenter.ChoosedIndex;
         await SceneControlManager.Instance.LoadScene(SceneName.BattleScene);
