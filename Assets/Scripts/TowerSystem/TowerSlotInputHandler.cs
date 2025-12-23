@@ -1,5 +1,8 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+// using Microsoft.Unity.VisualStudio.Editor;
+using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class TowerSlotInputHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler
 {
@@ -8,6 +11,8 @@ public class TowerSlotInputHandler : MonoBehaviour, IPointerDownHandler, IPointe
 
     [Header("Input Settings")]
     [SerializeField] private float longPressThreshold = 0.3f;
+    [SerializeField] private List<Image> upgradeStars;
+    [SerializeField] private GameObject upgradeStarPart;
 
     private bool isPointerDown = false;
     private bool isLongPressTriggered = false;
@@ -45,6 +50,7 @@ public class TowerSlotInputHandler : MonoBehaviour, IPointerDownHandler, IPointe
             installControl?.OnSlotLongPressEnd(slotIndex, eventData.position);
             installControl.LeftRotateRect.gameObject.SetActive(false);
             installControl.RightRotateRect.gameObject.SetActive(false);
+            upgradeStarPart.SetActive(true);
         }
 
         isPointerDown = false;
@@ -64,6 +70,7 @@ public class TowerSlotInputHandler : MonoBehaviour, IPointerDownHandler, IPointe
             installControl?.OnSlotLongPressStart(slotIndex, pointerDownPos);
             installControl.LeftRotateRect.gameObject.SetActive(true);
             installControl.RightRotateRect.gameObject.SetActive(true);
+            upgradeStarPart.SetActive(false);
         }
 
         // 롱프레스 중 드래그
