@@ -15,7 +15,7 @@ public class UpgradeToweCardUiSetting : MonoBehaviour
 
     private int nextLevel = 0;
 
-    public void SettingUpgradeCard(int towerId, int towerLevel)
+    public void SettingAttackTowerUpgradeCard(int towerId, int towerLevel)
     {
         var towerData = DataTableManager.AttackTowerTable.GetById(towerId);
         var towerName = towerData.AttackTowerName;
@@ -27,6 +27,37 @@ public class UpgradeToweCardUiSetting : MonoBehaviour
         if(attackTowerAsset!=null)
         {
             towerImage.sprite = LoadManager.GetLoadedGameTexture(attackTowerAssetName);
+        }
+        Debug.Log(towerName + "Upgrade Tower Level: " + towerLevel);
+        for(int i=0; i<upgradeStarImages.Length; i++)
+        {
+            if(i<towerLevel)
+            {
+                upgradeStarImages[i].gameObject.SetActive(true);
+            }
+            else
+            {
+                upgradeStarImages[i].gameObject.SetActive(false);
+            }
+        }
+
+        nextLevel = towerLevel;
+    }
+
+    public void SettingAmplifierTowerUpgradeCard(int towerId, int towerLevel)
+    {
+        var towerData = DataTableManager.BuffTowerTable.Get(towerId);
+        var towerNameId = towerData.TowerText_ID;
+        var towerNameData = DataTableManager.TowerExplainTable.Get(towerNameId);
+        var towerName = towerNameData.TowerName;
+
+        SetTowerName(towerName);
+
+        var amplifierTowerAssetName = towerData.BuffTowerAssetCut;
+        var amplifierTowerAsset = LoadManager.GetLoadedGameTexture(amplifierTowerAssetName);
+        if(amplifierTowerAsset!=null)
+        {
+            towerImage.sprite = LoadManager.GetLoadedGameTexture(amplifierTowerAssetName);
         }
         Debug.Log(towerName + "Upgrade Tower Level: " + towerLevel);
         for(int i=0; i<upgradeStarImages.Length; i++)

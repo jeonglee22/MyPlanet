@@ -6,6 +6,7 @@ public class PlayManager : MonoBehaviour
     [SerializeField] private WaveManager waveManager;
 
     [SerializeField] private GameObject gameOverUI;
+    [SerializeField] private BattleUI battleUI;
 
     private bool isTutorial = false;
 
@@ -51,6 +52,7 @@ public class PlayManager : MonoBehaviour
         {
             gameOverUI.GetComponent<GameResultUI>()?.SetResultText(false);
             gameOverUI.SetActive(true);
+            gameOverUI.GetComponent<GameResultUI>()?.SetGameResultText(false, Variables.Stage, battleUI.TimeText.text, battleUI.EnemyKiilCount);
         }
 
         GamePauseManager.Instance.Pause();
@@ -75,6 +77,7 @@ public class PlayManager : MonoBehaviour
         {
             gameOverUI.GetComponent<GameResultUI>()?.SetResultText(true);
             gameOverUI.SetActive(true);
+            gameOverUI.GetComponent<GameResultUI>()?.SetGameResultText(true, Variables.Stage, battleUI.TimeText.text, battleUI.EnemyKiilCount);
         }
 
         GamePauseManager.Instance.Pause();

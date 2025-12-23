@@ -19,9 +19,10 @@ public class NewAmplifierTowerCardUiSetting : MonoBehaviour
     {
         var amplifierTowerData = DataTableManager.BuffTowerTable.Get(towerId);
 
-        var towerName = amplifierTowerData.BuffTowerName;
+        // var towerName = amplifierTowerData.BuffTowerName;
         var towerExplainId = amplifierTowerData.TowerText_ID;
         var towerExplainText = DataTableManager.TowerExplainTable.Get(towerExplainId).TowerDescribe;
+        var towerName = DataTableManager.TowerExplainTable.Get(towerExplainId).TowerName;
 
         SetTowerName(towerName);
         SetTowerExplain(towerExplainText);

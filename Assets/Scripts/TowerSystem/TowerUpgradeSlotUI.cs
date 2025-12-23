@@ -1704,11 +1704,11 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         if (attackTower != null)
         {
-            towerUI.SettingUpgradeCard(attackTower.AttackTowerData.towerIdInt, attackTower.ReinforceLevel + 1);
+            towerUI.SettingAttackTowerUpgradeCard(attackTower.AttackTowerData.towerIdInt, attackTower.ReinforceLevel + 1);
         }
         else if (ampTower != null && ampTower.AmplifierTowerData != null)
         {
-            towerUI.SettingUpgradeCard(ampTower.AmplifierTowerData.BuffTowerId, ampTower.ReinforceLevel + 1);
+            towerUI.SettingAmplifierTowerUpgradeCard(ampTower.AmplifierTowerData.BuffTowerId, ampTower.ReinforceLevel + 1);
         }
     }
 

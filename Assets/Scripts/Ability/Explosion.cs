@@ -3,6 +3,7 @@ using UnityEngine;
 public class Explosion : MonoBehaviour
 {
     private float explosionRadius = 1f;
+    private Projectile projectile;
     private float initRadius = 0.01f;
     private SphereCollider explosionCollider;
 
@@ -24,10 +25,11 @@ public class Explosion : MonoBehaviour
         explosionParticles = GetComponentsInChildren<ParticleSystem>();
     }
 
-    public void SetInit(float initRadius, float explosionRadius, ProjectileData projectileData, float damageMultiplier = 0.1f)
+    public void SetInit(float initRadius, float explosionRadius, ProjectileData projectileData, Projectile projectile, float damageMultiplier = 0.1f)
     {
         this.initRadius = initRadius;
         this.explosionRadius = explosionRadius;
+        this.projectile = projectile;
         damage = projectileData.Attack;
         FixedPanetration = projectileData.FixedPenetration;
         RatePanetration = projectileData.RatePenetration;
@@ -64,7 +66,9 @@ public class Explosion : MonoBehaviour
         var enemy = other.gameObject.GetComponent<Enemy>();
         if (damagable != null && enemy != null)
         {
-            damagable.OnDamage(CalculateTotalDamage(enemy.Data.Defense));
+            var damage = CalculateTotalDamage(enemy.Data.Defense);
+            damagable.OnDamage(damage);
+            projectile.ActionEvent(damage);
         }
     }
 
