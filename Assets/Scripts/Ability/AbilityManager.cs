@@ -20,7 +20,7 @@ public class AbilityManager : MonoBehaviour
         await UniTask.WaitUntil(() => DataTableManager.IsInitialized);
 
         abilityDict = new Dictionary<int, IAbility>();
-        
+
         // abilityDict.Add(1, new AccelationUpgradeAbility());
         // abilityDict.Add(2, new SpeedUpgradeAbility());
         abilityDict.Add((int)AbilityId.AttackDamage, new AttackUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.AttackDamage).SpecialEffectValue));
@@ -40,75 +40,13 @@ public class AbilityManager : MonoBehaviour
         abilityDict.Add((int)AbilityId.Hitscan, new HitScanUpgradeAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Hitscan).SpecialEffectValue));
         abilityDict.Add((int)AbilityId.Accuracy, new AccuracyAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.Accuracy).SpecialEffectValue));
         abilityDict.Add((int)AbilityId.AttackSpeedOneTarget, new AttackSpeedOneTargetAbility(DataTableManager.RandomAbilityTable.Get((int)AbilityId.AttackSpeedOneTarget).SpecialEffectValue));
-        
-        var data200018 = DataTableManager.RandomAbilityTable.Get(200018);
-        if (data200018 != null)
-        {
-            abilityDict.Add(200018, new UnlockAbility200018(
-                data200018.SpecialEffectValue,
-                data200018.SpecialEffect2Value ?? 0f,
-                data200018.SpecialEffect3Value ?? 0f
-            ));
-        }
-
-        var data200019 = DataTableManager.RandomAbilityTable.Get(200019);
-        if (data200019 != null)
-        {
-            abilityDict.Add(200019, new UnlockAbility200019(data200019.SpecialEffectValue));
-        }
-
-        var data200020 = DataTableManager.RandomAbilityTable.Get(200020);
-        if (data200020 != null)
-        {
-            abilityDict.Add(200020, new UnlockAbility200020(
-                data200020.SpecialEffectValue,
-                data200020.SpecialEffect2Value ?? 0f
-            ));
-        }
-
-        var data200021 = DataTableManager.RandomAbilityTable.Get(200021);
-        if (data200021 != null)
-        {
-            Debug.Log($"[AbilityManager] 200021 data: Effect1={data200021.SpecialEffectValue}, Effect2={data200021.SpecialEffect2Value}");
-
-            abilityDict.Add(200021, new UnlockAbility200021(
-                data200021.SpecialEffectValue,
-                data200021.SpecialEffect2Value ?? 0f
-            ));
-        }
-
-        var data200022 = DataTableManager.RandomAbilityTable.Get(200022);
-        if (data200022 != null)
-        {
-            abilityDict.Add(200022, new UnlockAbility200022(
-                data200022.SpecialEffectValue,
-                data200022.SpecialEffect2Value ?? 0f
-            ));
-        }
-
-        var data200023 = DataTableManager.RandomAbilityTable.Get(200023);
-        if (data200023 != null)
-        {
-            abilityDict.Add(200023, new UnlockAbility200023(
-                data200023.SpecialEffectValue,
-                data200023.SpecialEffect2Value ?? 0f
-            ));
-        }
+        abilityDict.Add((int)AbilityId.AtkSpeedAtkHitSizeUnlock, new AtkSpeedAtkHitSizeUnlockAbility());
+        abilityDict.Add((int)AbilityId.AtkSpeedHighUnlock, new AtkSpeedHighUnlockAbility());
+        abilityDict.Add((int)AbilityId.AtkProjSpeedUnlock, new AtkProjSpeedUnlockAbility());
+        abilityDict.Add((int)AbilityId.AccuracyHomingUnlock, new AccuracyHomingUnlockAbility());
+        abilityDict.Add((int)AbilityId.ExplosionRangePierceUnlock, new ExplosionRangePierceUnlockAbility());
+        abilityDict.Add((int)AbilityId.HitSizeChainUnlock, new HitSizeChainUnlockAbility());
     }
-    private void RegisterCompositeAbility(int abilityId)
-    {
-        var data = DataTableManager.RandomAbilityTable.Get(abilityId);
-        if (data != null)
-        {
-            abilityDict.Add(abilityId, new CompositeRandomAbility(data));
-            Debug.Log($"[AbilityManager] Registered composite ability: {abilityId}");
-        }
-        else
-        {
-            Debug.LogError($"[AbilityManager] Failed to register ability {abilityId}: data not found");
-        }
-    }
-
     public static int GetRandomAbility()
     {
         var count = abilityDict.Count;
