@@ -80,6 +80,12 @@ public enum AbilityId
     Duration,
     Accuracy,
     AttackSpeedOneTarget,
+    UnlockAbility1 = 200018,
+    UnlockAbility2 = 200019,
+    UnlockAbility3 = 200020,
+    UnlockAbility4 = 200021,
+    UnlockAbility5 = 200022,
+    UnlockAbility6 = 200023,
 }
 
 public enum AttackTowerId

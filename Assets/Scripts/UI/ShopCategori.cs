@@ -14,6 +14,37 @@ public class ShopCategori : MonoBehaviour
 
     private GameObject buttonPrefab;
 
+    public void InitializePreview(string categoryName, GameObject buttonPrefab)
+    {
+        categoryText.text = categoryName;
+        this.buttonPrefab = buttonPrefab;
+
+        ClearButtons();
+
+        for (int i = 0; i < buttonsContainers.Length; i++)
+        {
+            if (buttonsContainers[i] == null) continue;
+
+            var obj = Instantiate(this.buttonPrefab, buttonsContainers[i]);
+            obj.transform.localScale = Vector3.one; 
+        }
+    }
+
+    private void ClearButtons()
+    {
+        if (buttonsContainers == null) return;
+
+        foreach (var container in buttonsContainers)
+        {
+            if (container == null) continue;
+
+            for (int i = container.childCount - 1; i >= 0; i--)
+            {
+                Destroy(container.GetChild(i).gameObject);
+            }
+        }
+    }
+
     public void Initialize(ShopCategory category, string categoryName, GameObject buttonPrefab, Action<(int, int, string)> onButtonClick)
     {
         categoryText.text = categoryName;

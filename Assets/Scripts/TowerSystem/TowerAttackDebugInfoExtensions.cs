@@ -296,6 +296,39 @@ public static class TowerAttackDebugInfoExtensions
         sb.AppendLine($"  최종 배율 (FINAL Mul):         ×{hitRadiusBuffMul:F3}");
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // 투사체 속도 (Projectile Speed)
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        sb.AppendLine();
+        sb.AppendLine("🚀 투사체 속도 (PROJECTILE SPEED)");
+
+        float baseSpeed = currentProjectileData != null ? currentProjectileData.ProjectileSpeed : 0f;
+        sb.AppendLine($"  기본 (Base):                  {baseSpeed:F2}");
+
+        // Reflection으로 가져오기
+        var projectileSpeedAbilityMul = GetField<float>(t, "projectileSpeedAbilityMul", 1f);
+        var projectileSpeedAbilitySources = GetField<List<float>>(t, "projectileSpeedAbilitySources");
+
+        if (!Mathf.Approximately(projectileSpeedAbilityMul, 1f))
+        {
+            float percent = (projectileSpeedAbilityMul - 1f) * 100f;
+            sb.AppendLine($"  자체 능력 배율 (Ability):      ×{projectileSpeedAbilityMul:F3}  ({FormatSigned(percent, 1)}%)");
+
+            if (projectileSpeedAbilitySources != null && projectileSpeedAbilitySources.Count > 0)
+            {
+                sb.AppendLine($"    • {projectileSpeedAbilitySources.Count}개 소스:");
+                for (int i = 0; i < projectileSpeedAbilitySources.Count; i++)
+                {
+                    float srcPercent = projectileSpeedAbilitySources[i] * 100f;
+                    sb.AppendLine($"      [{i + 1}] {FormatSigned(srcPercent, 1)}%");
+                }
+            }
+        }
+
+        float finalSpeed = baseSpeed * projectileSpeedAbilityMul;
+        sb.AppendLine($"  ─────────────────────────────────");
+        sb.AppendLine($"  최종 투사체 속도 (FINAL):      {finalSpeed:F2}");
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         // 어빌리티 (Abilities)
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         sb.AppendLine();

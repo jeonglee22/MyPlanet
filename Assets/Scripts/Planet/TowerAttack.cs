@@ -169,8 +169,10 @@ public class TowerAttack : MonoBehaviour
     }
     public int BaseProjectileCount => baseProjectileCount;
     public int FinalProjectileCount => CurrentProjectileCount;
+    //Projectile Speed---------------------------------------
+    private readonly List<float> projectileSpeedAbilitySources = new List<float>();
+    private float projectileSpeedAbilityMul = 1f;
     //-------------------------------------------------------
-
     private float damageBuffFromUpgrade = 0f;
 
     private int additionalDurationFromUpgrade = 0;
@@ -275,6 +277,10 @@ public class TowerAttack : MonoBehaviour
         fireRateAbilitySources.Clear();
         fireRateAbilityMul = 0f;
         fireRateBuffMul = 0f;
+
+        //projectile speed 
+        projectileSpeedAbilitySources.Clear();
+        projectileSpeedAbilityMul = 1f;
 
         //target count
         targetNumberFromAbility = 0;
@@ -1076,7 +1082,7 @@ public class TowerAttack : MonoBehaviour
         float oneMinus = (1f - baseRate01)* (1f - ability01)* (1f - amp01);
         float finalRate01 = 1f - oneMinus;
         addBuffProjectileData.RatePenetration =Mathf.Clamp(finalRate01 * 100f, 0f, 100f);
-
+        
         float amplifierBonus = damageBuffMul - 1f;  
         float abilityBonus = damageAbilityMul - 1f;
         float upgradeBonus = damageBuffFromUpgrade; 
@@ -1086,6 +1092,7 @@ public class TowerAttack : MonoBehaviour
 
         addBuffProjectileData.Attack = Mathf.Max(0f, rawAttack);
         addBuffProjectileData.ProjectileAddSpeed = currentProjectileData.ProjectileAddSpeed + accelerationBuffAdd;
+        addBuffProjectileData.ProjectileSpeed = currentProjectileData.ProjectileSpeed * projectileSpeedAbilityMul;
         addBuffProjectileData.AttackType = currentProjectileData.AttackType == newProjectileAttackType
             ? currentProjectileData.AttackType
             : newProjectileAttackType;
@@ -1254,6 +1261,37 @@ public class TowerAttack : MonoBehaviour
         fireRateAbilityMul = sum;
     }
     //----------------------------------------------------
+    //Projectile Speed------------------------------------
+    public void AddProjectileSpeedFromAbilitySource(float rate01)
+    {
+        float r = Mathf.Clamp(rate01, -0.99f, 10f); // rate01: 0.06f = +6%
+        if (Mathf.Approximately(r, 0f)) return;
+
+        projectileSpeedAbilitySources.Add(r);
+        RecalculateProjectileSpeedFromAbility();
+    }
+
+    public void RemoveProjectileSpeedFromAbilitySource(float rate01)
+    {
+        float r = Mathf.Clamp(rate01, -0.99f, 10f);
+
+        int idx = projectileSpeedAbilitySources.FindIndex(x => Mathf.Approximately(x, r));
+        if (idx >= 0)
+        {
+            projectileSpeedAbilitySources.RemoveAt(idx);
+            RecalculateProjectileSpeedFromAbility();
+        }
+    }
+
+    private void RecalculateProjectileSpeedFromAbility()
+    {
+        float mul = 1f;
+        foreach (var r in projectileSpeedAbilitySources)
+        {
+            mul *= (1f + r);
+        }
+        projectileSpeedAbilityMul = mul;
+    }
     //Reinforce ------------------------------------------
     private IAbility CreateSelfAbilityInstanceWithReinforce(int abilityId)
     {

@@ -13,8 +13,15 @@ public class StoreUI : MonoBehaviour
     [SerializeField] private Transform scrollViewContent;
     [SerializeField] private GameObject shopCategoryPrefab;
 
+    [SerializeField] private GameObject shopCategory6SlotsDailyPrefab;
+    [SerializeField] private GameObject shopCategory3SlotsPrefab;
+
     [SerializeField] private GameObject gachaButtonPrefab;
     [SerializeField] private GameObject itemButtonPrefab;
+
+    [SerializeField] private GameObject dailyMarketButtonPrefab;
+    [SerializeField] private GameObject cashDiaButtonPrefab;
+    [SerializeField] private GameObject packageButtonPrefab;
 
     [SerializeField] private GachaPanelUI gachaPanelUI;
 
@@ -26,6 +33,8 @@ public class StoreUI : MonoBehaviour
     [SerializeField] private Transform scrollContent;
     [SerializeField] private GameObject inventoryItemPrefab;
     private List<GameObject> instantiatedInventoryItems = new List<GameObject>();
+
+    [SerializeField] private bool previewOnly = true;
 
     private void Start()
     {
@@ -69,6 +78,15 @@ public class StoreUI : MonoBehaviour
             Destroy(child.gameObject);
         }
 
+        if (previewOnly) //dummy
+        {
+            CreateCategoryPreview(shopCategoryPrefab, CategoryName.Gacha, gachaButtonPrefab);                 // 4칸
+            CreateCategoryPreview(shopCategory6SlotsDailyPrefab, "일일 상점", dailyMarketButtonPrefab);      // 6칸
+            CreateCategoryPreview(shopCategory3SlotsPrefab, "유료 다이아 상점", cashDiaButtonPrefab);        // 3칸
+            CreateCategoryPreview(shopCategory3SlotsPrefab, "패키지 상점", packageButtonPrefab);             // 3칸
+            return;
+        }
+
         CreateCategory(ShopCategory.Gacha, CategoryName.Gacha, gachaButtonPrefab);
     }
 
@@ -80,7 +98,29 @@ public class StoreUI : MonoBehaviour
         categoryUI.Initialize(category, categoryName, buttonPrefab, OnGachaButtonClick);
 
     }
+    private void CreateCategoryPreview(GameObject categoryPrefab, string categoryName, GameObject buttonPrefab) //dummy
+    {
+        if (categoryPrefab == null)
+        {
+            Debug.LogError($"[StoreUI] categoryPrefab is null : {categoryName}");
+            return;
+        }
+        if (buttonPrefab == null)
+        {
+            Debug.LogError($"[StoreUI] buttonPrefab is null : {categoryName}");
+            return;
+        }
 
+        var categoryObj = Instantiate(categoryPrefab, scrollViewContent);
+        var categoryUI = categoryObj.GetComponent<ShopCategori>();
+        if (categoryUI == null)
+        {
+            Debug.LogError($"[StoreUI] ShopCategori component missing on prefab : {categoryPrefab.name}");
+            return;
+        }
+
+        categoryUI.InitializePreview(categoryName, buttonPrefab);
+    }
     private void OnGachaButtonClick((int needCurrencyValue, int drawGroup, string gachaName) info)
     {
         gachaPanelUI.Initialize(info.needCurrencyValue, info.drawGroup, info.gachaName);

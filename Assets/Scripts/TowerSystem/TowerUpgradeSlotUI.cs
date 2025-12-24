@@ -1658,6 +1658,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
     private void InstallNewAttackTower(int index, TowerDataSO towerData, int abilityId)
     {
+        Debug.Log($"[TowerUpgradeSlotUI] InstallNewAttackTower CALLED - index={index}, abilityId={abilityId}");
         DeleteAlreadyInstalledCard(index);
 
         var installedTower = Instantiate(newAttackTowerCardPrefab, upgradeUIs[index].transform);

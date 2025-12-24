@@ -23,6 +23,11 @@ public class NewAttackTowerCardUiSetting : MonoBehaviour
 
     public void SettingNewTowerCard(int towerId, int ability)
     {
+        while (contentRoot.childCount > 0)
+        {
+            DestroyImmediate(contentRoot.GetChild(0).gameObject);
+        }
+
         var towerData = DataTableManager.AttackTowerTable.GetById(towerId);
         var towerName = towerData.AttackTowerName;
         var towerExplainId = towerData.TowerText_ID;
@@ -58,7 +63,6 @@ public class NewAttackTowerCardUiSetting : MonoBehaviour
         // newTowerTextObject.GetComponent<NewBadgeAnimator>().SetVisible(true);
         
         var abilityData = DataTableManager.RandomAbilityTable.Get(ability);
-
         var specialEffectName = abilityData.RandomAbilityName;
         var specialEffectValue = abilityData.SpecialEffectValue;
         var randomAbilityObj1 = Instantiate(randomAbilityObject, contentRoot);
@@ -70,22 +74,19 @@ public class NewAttackTowerCardUiSetting : MonoBehaviour
         abilityTexts[0].text = specialEffectName;
         abilityTexts[1].text = specialEffectValue.ToString();
 
-        if (abilityData.SpecialEffect2_ID == 0)
-            return;
-        
+        if (!abilityData.SpecialEffect2_ID.HasValue || abilityData.SpecialEffect2_ID.Value == 0) return;
+
         var specialEffectName2 = abilityData.RandomAbility2Name;
         var specialEffectValue2 = abilityData.SpecialEffect2Value;
         var randomAbilityObj2 = Instantiate(randomAbilityObject, contentRoot);
         var abilityTexts2 = randomAbilityObj2.GetComponentsInChildren<TextMeshProUGUI>();
-        if (abilityTexts2.Length != 2)
-            return;
+        if (abilityTexts2.Length != 2) return;
 
         abilityTexts2[0].text = specialEffectName2;
         abilityTexts2[1].text = specialEffectValue2.ToString();
 
-        if (abilityData.SpecialEffect3_ID == 0)
-            return;
-        
+        if (!abilityData.SpecialEffect3_ID.HasValue || abilityData.SpecialEffect3_ID.Value == 0) return;
+
         var specialEffectName3 = abilityData.RandomAbility3Name;
         var specialEffectValue3 = abilityData.SpecialEffect3Value;
         var randomAbilityObj3 = Instantiate(randomAbilityObject, contentRoot);
