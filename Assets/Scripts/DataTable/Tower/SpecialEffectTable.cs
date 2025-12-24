@@ -11,6 +11,7 @@ public class SpecialEffectData
     public string SpecialEffectFile { get; set; }
     public float SpecialEffectAbility { get; set; }
     public string SpecialEffectIcon { get; set; }
+    public int SpecialEffectText_ID { get; set; }
 
     public override string ToString()
     {
