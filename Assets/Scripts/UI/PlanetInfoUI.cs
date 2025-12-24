@@ -66,10 +66,6 @@ public class PlanetInfoUI : MonoBehaviour
 
         planetIcon.sprite = LoadManager.GetLoadedGameTexture(planetData.PlanetIcon);
 
-        UpdatePieceSlider(planetData);
-
-        
-
         if(planetData.Planet_ID == (int)PlanetType.BasePlanet)
         {
             planetLevelText.text = $"Lv. 0";
@@ -102,6 +98,9 @@ public class PlanetInfoUI : MonoBehaviour
         {
             upgradeStars[i].SetActive(i < userPlanetInfo.starLevel);
         }
+
+        UpdatePieceSlider(planetData);
+        UpdateLevelUpButton();
 
     }
 
@@ -149,5 +148,19 @@ public class PlanetInfoUI : MonoBehaviour
         expRateText.text = $"{baseStats.expRate}%";
         drainText.text = $"{baseStats.drain}";
         healthRegenerationText.text = $"{baseStats.hpRegeneration}";
+    }
+
+    private void UpdateLevelUpButton()
+    {
+        if(UserData.Gold < planetLvUpgradeData.UpgradeResource)
+        {
+            levelUpBtn.interactable = false;
+            levelUpBtn.gameObject.GetComponent<Image>().color = defaultColor;
+        }
+        else
+        {
+            levelUpBtn.interactable = true;
+            levelUpBtn.gameObject.GetComponent<Image>().color = canUpgradeColor;
+        }
     }
 }

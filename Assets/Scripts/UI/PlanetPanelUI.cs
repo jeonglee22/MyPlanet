@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 public class PlanetPanelUI : MonoBehaviour
 {
+    [SerializeField] private TextMeshProUGUI titleText;
     [SerializeField] private GameObject lobbyPanel;
     [SerializeField] private GameObject planetInfoPanel;
 
@@ -76,6 +77,13 @@ public class PlanetPanelUI : MonoBehaviour
 
     public void OnBackBtnClicked()
     {
+        if(planetInfoPanel.activeSelf)
+        {
+            planetInfoPanel.SetActive(false);
+            titleText.text = "행성";
+            return;
+        }
+
         lobbyPanel.SetActive(true);
         gameObject.SetActive(false);
     }
@@ -90,6 +98,8 @@ public class PlanetPanelUI : MonoBehaviour
         SetPlanetName(DataTableManager.PlanetTable.Get(planetId).PlanetName);
         planetInfoPanel.GetComponent<PlanetInfoUI>().Initialize(DataTableManager.PlanetTable.Get(planetId),PlanetManager.Instance.GetPlanetInfo(planetId));
         planetInfoPanel.SetActive(true);
+
+        titleText.text = "행성 강화";
     }
 
     public void OnChoosePlanetBtnClicked()
