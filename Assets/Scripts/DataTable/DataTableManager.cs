@@ -52,6 +52,8 @@ public static class DataTableManager
             LoadTableAsync<TowerUpgradeAbilityUnlockTable>(DataTableIds.TowerUpgradeAbilityUnlock),
             LoadTableAsync<SkillTable>(DataTableIds.Skill),
             LoadTableAsync<StageTable>(DataTableIds.Stage),
+            LoadTableAsync<PlanetLvUpgradeTable>(DataTableIds.PlanetLvUpgrade),
+            LoadTableAsync<PlanetStarUpgradeTable>(DataTableIds.PlanetStarUpgrade),
             LoadTableAsync<LobbyStringTable>(DataTableIds.LobbyString),
         };
 
@@ -269,6 +271,22 @@ public static class DataTableManager
         get 
         {
             return Get<RandomAbilityReinforceUpgradeTable>(DataTableIds.RandomAbilityReinforceUpgrade);
+        }
+    }
+
+    public static PlanetLvUpgradeTable PlanetLvUpgradeTable
+    {
+        get
+        {
+            return Get<PlanetLvUpgradeTable>(DataTableIds.PlanetLvUpgrade);
+        }
+    }
+
+    public static PlanetStarUpgradeTable PlanetStarUpgradeTable
+    {
+        get
+        {
+            return Get<PlanetStarUpgradeTable>(DataTableIds.PlanetStarUpgrade);
         }
     }
 

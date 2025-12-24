@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -31,12 +33,13 @@ public class PlanetPanelUI : MonoBehaviour
         }
 
         backBtn.onClick.AddListener(OnBackBtnClicked);
-        choosePlanetBtn.onClick.AddListener(OnChoosePlanetBtnClicked);
+        choosePlanetBtn?.onClick.AddListener(OnChoosePlanetBtnClicked);
         saveYesBtn.onClick.AddListener(() => OnSaveYesBtnClicked().Forget());
         saveNoBtn.onClick.AddListener(OnSaveNoBtnClicked);
 
         AddBtnSound();
 
+        InitializePlanetPanelUI();
     }
 
     private void AddBtnSound()
@@ -63,6 +66,8 @@ public class PlanetPanelUI : MonoBehaviour
     {
         choosedIndex = -1;
         planetInfoPanel.SetActive(false);
+
+        RefreshPlanetPanelUI();
     }
 
     public void OnBackBtnClicked()
@@ -121,5 +126,46 @@ public class PlanetPanelUI : MonoBehaviour
     public void SetPlanetName(string planetName)
     {
         planetNameText.text = planetName;
+    }
+
+    public void InitializePlanetPanelUI()
+    {
+        var planetDatas = DataTableManager.PlanetTable.GetAll();
+        var allPlanetInfo = PlanetManager.Instance.GetAllPlanets();
+        
+        for(int i = 0; i < planetButtons.Length; i++)
+        {
+            if(i < planetDatas.Count)
+            {
+                var planetData = planetDatas[i];
+                string planetKey = planetData.Planet_ID.ToString();
+
+                if(allPlanetInfo.TryGetValue(planetKey, out var userPlanetInfo))
+                {
+                    planetButtons[i].gameObject.SetActive(true);
+
+                    PlanetItemUI planetItemUI = planetButtons[i].GetComponent<PlanetItemUI>();
+
+                    if(planetItemUI != null)
+                    {
+                        planetItemUI.Initialize(planetData, userPlanetInfo);
+                    }
+                }
+            }
+            else
+            {
+                planetButtons[i].gameObject.SetActive(false);
+            }
+        }   
+    }
+
+    public void RefreshPlanetPanelUI()
+    {
+        if(PlanetManager.Instance == null || !PlanetManager.Instance.IsInitialized)
+        {
+            return;
+        }
+
+        InitializePlanetPanelUI();
     }
 }
