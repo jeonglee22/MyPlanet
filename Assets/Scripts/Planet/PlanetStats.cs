@@ -4,24 +4,24 @@ using UnityEngine;
 [Serializable]
 public class PlanetStats
 {
-    public int hp;
-    public int defense;
-    public int shield;
-    public int expRate;
-    public int drain;
-    public int hpRegeneration;
+    public float hp;
+    public float defense;
+    public float shield;
+    public float expRate;
+    public float drain;
+    public float hpRegeneration;
 
     public PlanetStats()
     {
-        hp = 0;
-        defense = 0;
-        shield = 0;
-        expRate = 0;
-        drain = 0;
-        hpRegeneration = 0;
+        hp = 0f;
+        defense = 0f;
+        shield = 0f;
+        expRate = 0f;
+        drain = 0f;
+        hpRegeneration = 0f;
     }
 
-    public PlanetStats(int hp, int defense, int shield, int expRate, int drain, int hpRegeneration)
+    public PlanetStats(float hp, float defense, float shield, float expRate, float drain, float hpRegeneration)
     {
         this.hp = hp;
         this.defense = defense;
@@ -46,11 +46,19 @@ public class PlanetStats
 
     public void Clear()
     {
-        hp = 0;
-        defense = 0;
-        shield = 0;
-        expRate = 0;
-        drain = 0;
-        hpRegeneration = 0;
+        hp = 0f;
+        defense = 0f;
+        shield = 0f;
+        expRate = 0f;
+        drain = 0f;
+        hpRegeneration = 0f;
     }
+
+    public int HpInt => Mathf.RoundToInt(hp);
+    public int DefenseInt => Mathf.RoundToInt(defense);
+    public int ShieldInt => Mathf.RoundToInt(shield);
+    public int DrainInt => Mathf.RoundToInt(drain);
+    public int HpRegenerationInt => Mathf.RoundToInt(hpRegeneration);
+    public int ExpRateInt => Mathf.RoundToInt(expRate);
+
 }

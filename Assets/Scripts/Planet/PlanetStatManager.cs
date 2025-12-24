@@ -14,12 +14,12 @@ public class PlanetStatManager : MonoBehaviour
 
     public PlanetStats CurrentPlanetStats => currentPlanetStats;
 
-    public int HP => CurrentPlanetStats?.hp ?? 0;
-    public int Defense => CurrentPlanetStats?.defense ?? 0;
-    public int Shield => CurrentPlanetStats?.shield ?? 0;
-    public float ExpRate => CurrentPlanetStats?.expRate ?? 0f;
-    public int Drain => CurrentPlanetStats?.drain ?? 0;
-    public float HPRegeneration => CurrentPlanetStats?.hpRegeneration ?? 0f;
+    public int HP => CurrentPlanetStats?.HpInt ?? 0;
+    public int Defense => CurrentPlanetStats?.DefenseInt ?? 0;
+    public int Shield => CurrentPlanetStats?.ShieldInt ?? 0;
+    public int ExpRate => CurrentPlanetStats?.ExpRateInt ?? 0;
+    public int Drain => CurrentPlanetStats?.DrainInt ?? 0;
+    public int HPRegeneration => CurrentPlanetStats?.HpRegenerationInt ?? 0;
 
     private void Awake()
     {
@@ -104,8 +104,8 @@ public class PlanetStatManager : MonoBehaviour
 
         return new PlanetStats
         (
-            Mathf.RoundToInt(levelHp),
-            Mathf.RoundToInt(levelDefense),
+            Mathf.Round(levelHp),
+            Mathf.Round(levelDefense),
             0,
             0,
             0,
@@ -186,12 +186,12 @@ public class PlanetStatManager : MonoBehaviour
 
         return new PlanetStats
         (
-            Mathf.RoundToInt(tempHp),
-            Mathf.RoundToInt(tempDefense),
-            Mathf.RoundToInt(starShield),
-            Mathf.RoundToInt(starExpRate),
-            Mathf.RoundToInt(starDrain),
-            Mathf.RoundToInt(starHpRegeneration)
+            Mathf.Round(tempHp),
+            Mathf.Round(tempDefense),
+            Mathf.Round(starShield),
+            Mathf.Round(starExpRate),
+            Mathf.Round(starDrain),
+            Mathf.Round(starHpRegeneration)
         );
     }
 
@@ -204,12 +204,12 @@ public class PlanetStatManager : MonoBehaviour
         }
 
         return new PlanetStats(
-            Mathf.RoundToInt(planetData.PlanetHp),
-            Mathf.RoundToInt(planetData.PlanetArmor),
-            Mathf.RoundToInt(planetData.PlanetShield),
-            Mathf.RoundToInt(planetData.ExpScale),
-            Mathf.RoundToInt(planetData.Drain),
-            Mathf.RoundToInt(planetData.RecoveryHp)
+            planetData.PlanetHp,
+            planetData.PlanetArmor,
+            planetData.PlanetShield,
+            planetData.ExpScale,
+            planetData.Drain,
+            planetData.RecoveryHp
         );
     }
 }

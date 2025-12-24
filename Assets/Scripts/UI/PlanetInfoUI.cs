@@ -32,10 +32,25 @@ public class PlanetInfoUI : MonoBehaviour
 
     [SerializeField] private Button saveBtn;
 
+    [SerializeField] private Color defaultColor;
+    [SerializeField] private Color canUpgradeColor;
+
     private PlanetData currentPlanetData;
     private UserPlanetInfo currentUserPlanetInfo;
     private PlanetLvUpgradeData planetLvUpgradeData;
     private PlanetStarUpgradeData planetStarUpgradeData;
+
+    private void OnEnable()
+    {
+        homeBtn.gameObject.SetActive(true);
+        saveBtn.gameObject.SetActive(true);
+    }
+
+    private void OnDisable()
+    {
+        homeBtn.gameObject.SetActive(false);
+        saveBtn.gameObject.SetActive(false);
+    }
 
     public void Initialize(PlanetData planetData, UserPlanetInfo userPlanetInfo)
     {
@@ -43,7 +58,6 @@ public class PlanetInfoUI : MonoBehaviour
         currentUserPlanetInfo = userPlanetInfo;
         var planetTextData = DataTableManager.PlanetTextTable.Get(planetData.PlanetText_ID);
 
-        UpdatePieceSlider(planetData);
         UpdateFightingPower();
         UpdateStatsUI();
 
@@ -51,6 +65,10 @@ public class PlanetInfoUI : MonoBehaviour
         descText.text = planetTextData.PlanetDescribe;
 
         planetIcon.sprite = LoadManager.GetLoadedGameTexture(planetData.PlanetIcon);
+
+        UpdatePieceSlider(planetData);
+
+        
 
         if(planetData.Planet_ID == (int)PlanetType.BasePlanet)
         {
@@ -64,6 +82,9 @@ public class PlanetInfoUI : MonoBehaviour
             }
 
             pieceSlider.fillRect.GetComponent<Image>().sprite = changePieceImage;
+
+            levelUpBtn.interactable = false;
+            starUpgradeBtn.interactable = false;
 
             return;
         }
@@ -95,10 +116,14 @@ public class PlanetInfoUI : MonoBehaviour
         if(currentPieces >= requiredPieces)
         {
             pieceSlider.fillRect.GetComponent<Image>().sprite = changePieceImage;
+            starUpgradeBtn.gameObject.GetComponent<Image>().color = canUpgradeColor;
+            starUpgradeBtn.interactable = true;
         }
         else
         {
             pieceSlider.fillRect.GetComponent<Image>().sprite = defaultPieceImage;
+            starUpgradeBtn.gameObject.GetComponent<Image>().color = defaultColor;
+            starUpgradeBtn.interactable = false;
         }
 
         pieceSlider.maxValue = requiredPieces;
