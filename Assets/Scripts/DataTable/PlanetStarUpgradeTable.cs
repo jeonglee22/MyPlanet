@@ -57,4 +57,19 @@ public class PlanetStarUpgradeTable : DataTable
 
         return null;
     }
+
+    public List<PlanetStarUpgradeData> GetStackStarData(int planetId, int upToStarLevel)
+    {
+        List<PlanetStarUpgradeData> result = new List<PlanetStarUpgradeData>();
+
+        foreach (var data in dictionary.Values)
+        {
+            if (data.Planet_ID == planetId && data.PlanetStarUpgradeLevel <= upToStarLevel)
+            {
+                result.Add(data);
+            }
+        }
+
+        return result;
+    }
 }

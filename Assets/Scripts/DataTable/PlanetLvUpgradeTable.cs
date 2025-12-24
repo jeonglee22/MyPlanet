@@ -58,4 +58,19 @@ public class PlanetLvUpgradeTable : DataTable
 
         return null;
     }
+
+    public List<PlanetLvUpgradeData> GetStackLevelData(int planetId, int level)
+    {
+        List<PlanetLvUpgradeData> result = new List<PlanetLvUpgradeData>();
+
+        foreach (var data in dictionary.Values)
+        {
+            if (data.Planet_ID == planetId && data.PlanetLvUpgradeLevel <= level)
+            {
+                result.Add(data);
+            }
+        }
+
+        return result;
+    }
 }

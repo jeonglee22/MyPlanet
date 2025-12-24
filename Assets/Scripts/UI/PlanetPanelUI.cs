@@ -84,6 +84,7 @@ public class PlanetPanelUI : MonoBehaviour
         int planetId = 300000 + planetIndex + 1;
         // Update the planet name display
         SetPlanetName(DataTableManager.PlanetTable.Get(planetId).PlanetName);
+        planetInfoPanel.GetComponent<PlanetInfoUI>().Initialize(DataTableManager.PlanetTable.Get(planetId),PlanetManager.Instance.GetPlanetInfo(planetId));
         planetInfoPanel.SetActive(true);
     }
 
