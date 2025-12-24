@@ -11,17 +11,24 @@ public class TowerInfoPanelUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI towerNameText;
     [SerializeField] private TextMeshProUGUI towerDescriptionText;
 
-    [SerializeField] private TextMeshProUGUI attackText;
-    [SerializeField] private TextMeshProUGUI attackSpeedText;
-    [SerializeField] private TextMeshProUGUI ratioPenetrationText;
-    [SerializeField] private TextMeshProUGUI fixedPenetrationText;
-    [SerializeField] private TextMeshProUGUI accuracyRateText;
-    [SerializeField] private TextMeshProUGUI projectileCountText;
-    [SerializeField] private TextMeshProUGUI targetCountText;
-    [SerializeField] private TextMeshProUGUI concentrationModulusText;
-    [SerializeField] private TextMeshProUGUI MaintenanceTimeText;
-    [SerializeField] private GameObject extraNumberObj;
-    [SerializeField] private TextMeshProUGUI extraNumberText;
+    [SerializeField] private GameObject totalTowerPanel;
+
+    // [SerializeField] private TextMeshProUGUI attackText;
+    // [SerializeField] private TextMeshProUGUI attackSpeedText;
+    // [SerializeField] private TextMeshProUGUI ratioPenetrationText;
+    // [SerializeField] private TextMeshProUGUI fixedPenetrationText;
+    // [SerializeField] private TextMeshProUGUI accuracyRateText;
+    // [SerializeField] private TextMeshProUGUI projectileCountText;
+    // [SerializeField] private TextMeshProUGUI targetCountText;
+    // [SerializeField] private TextMeshProUGUI concentrationModulusText;
+    // [SerializeField] private TextMeshProUGUI MaintenanceTimeText;
+    // [SerializeField] private GameObject extraNumberObj;
+    // [SerializeField] private TextMeshProUGUI extraNumberText;
+
+    [SerializeField] private GameObject firstLevelUpgradeObj;
+    [SerializeField] private GameObject secondLevelUpgradeObj;
+    [SerializeField] private GameObject thirdLevelUpgradeObj;
+    [SerializeField] private GameObject lastLevelUpgradeObj;
 
     private void Awake()
     {
@@ -36,86 +43,86 @@ public class TowerInfoPanelUI : MonoBehaviour
 
     private void OnDisable()
     {
-        extraNumberObj?.SetActive(false);
+        // extraNumberObj?.SetActive(false);
     }
 
     public void Initialize(AttackTowerTableRow data)
     {
         var towerDescData = DataTableManager.TowerExplainTable.Get(data.TowerText_ID);
         var projectileData = DataTableManager.ProjectileTable.Get(data.Projectile_ID);
-        SpecialEffectData specialEffectData = null;
+        // SpecialEffectData specialEffectData = null;
 
         var towerUpgradeData = UserTowerUpgradeManager.Instance.CurrentTowerUpgradeData;
         var towerIndex = towerUpgradeData.towerIds.IndexOf(data.AttackTower_Id);
         var towerLevel = towerUpgradeData.upgradeLevels[towerIndex];
 
-        var additionalAttack = 0f;
-        var additionalAttackSpeed = 0f;
-        var additionalDuration = 0f;
-        var additionalProjectileNum = 0;
-        var additionalExplosionRange = 0f;
+        // var additionalAttack = 0f;
+        // var additionalAttackSpeed = 0f;
+        // var additionalDuration = 0f;
+        // var additionalProjectileNum = 0;
+        // var additionalExplosionRange = 0f;
 
-        var externalTowerUpgradeDataList = new List<TowerUpgradeData>();
-        for (int i = 1; i <= towerLevel; i++)
-        {
-            var externalTowerUpgradeDataId = DataTableManager.TowerUpgradeTable.GetIdByTowerIdAndUpgradeCount(data.AttackTower_Id, i);
-            if (externalTowerUpgradeDataId != -1)
-            {
-                var externalTowerUpgradeData = DataTableManager.TowerUpgradeTable.Get(externalTowerUpgradeDataId);
-                externalTowerUpgradeDataList.Add(externalTowerUpgradeData);
-            }
-        }
+        // var externalTowerUpgradeDataList = new List<TowerUpgradeData>();
+        // for (int i = 1; i <= towerLevel; i++)
+        // {
+        //     var externalTowerUpgradeDataId = DataTableManager.TowerUpgradeTable.GetIdByTowerIdAndUpgradeCount(data.AttackTower_Id, i);
+        //     if (externalTowerUpgradeDataId != -1)
+        //     {
+        //         var externalTowerUpgradeData = DataTableManager.TowerUpgradeTable.Get(externalTowerUpgradeDataId);
+        //         externalTowerUpgradeDataList.Add(externalTowerUpgradeData);
+        //     }
+        // }
 
-        towerLevel = Mathf.Min(towerLevel, 3);
-        for (int i = 1; i <= towerLevel; i++)
-        {
-            var specialEffectId = externalTowerUpgradeDataList[i - 1].SpecialEffect_ID;
-            var amount = externalTowerUpgradeDataList[i - 1].SpecialEffectValue;
-            switch (specialEffectId)
-            {
-                case (int)SpecialEffectId.AttackSpeed:
-                    additionalAttackSpeed += amount;
-                    break;
-                case (int)SpecialEffectId.Attack:
-                    additionalAttack += amount;
-                    break;
-                case (int)SpecialEffectId.Duration:
-                    additionalDuration += amount;
-                    break;
-                case (int)SpecialEffectId.ProjectileCount:
-                    additionalProjectileNum += (int)amount;
-                    break;
-                case (int)SpecialEffectId.Explosion:
-                    additionalExplosionRange += amount;
-                    break;
-                default:
-                    break;   
-            }
-        }
+        // towerLevel = Mathf.Min(towerLevel, 3);
+        // for (int i = 1; i <= towerLevel; i++)
+        // {
+        //     var specialEffectId = externalTowerUpgradeDataList[i - 1].SpecialEffect_ID;
+        //     var amount = externalTowerUpgradeDataList[i - 1].SpecialEffectValue;
+        //     switch (specialEffectId)
+        //     {
+        //         case (int)SpecialEffectId.AttackSpeed:
+        //             additionalAttackSpeed += amount;
+        //             break;
+        //         case (int)SpecialEffectId.Attack:
+        //             additionalAttack += amount;
+        //             break;
+        //         case (int)SpecialEffectId.Duration:
+        //             additionalDuration += amount;
+        //             break;
+        //         case (int)SpecialEffectId.ProjectileCount:
+        //             additionalProjectileNum += (int)amount;
+        //             break;
+        //         case (int)SpecialEffectId.Explosion:
+        //             additionalExplosionRange += amount;
+        //             break;
+        //         default:
+        //             break;   
+        //     }
+        // }
 
-        if(projectileData.ProjectileProperties1_ID == 0)
-        {
-            extraNumberObj.SetActive(false);
-        }
-        else
-        {
-            specialEffectData = DataTableManager.SpecialEffectTable.Get(projectileData.ProjectileProperties1_ID);
-            extraNumberObj.SetActive(true);
-            extraNumberText.text = $"{projectileData.ProjectileProperties1Value}";
-        }
+        // if(projectileData.ProjectileProperties1_ID == 0)
+        // {
+        //     extraNumberObj.SetActive(false);
+        // }
+        // else
+        // {
+        //     specialEffectData = DataTableManager.SpecialEffectTable.Get(projectileData.ProjectileProperties1_ID);
+        //     // extraNumberObj.SetActive(true);
+        //     // extraNumberText.text = $"{projectileData.ProjectileProperties1Value}";
+        // }
 
         towerNameText.text = towerDescData.TowerName;
         towerDescriptionText.text = towerDescData.TowerDescribe;
 
-        SetExplainText(attackText, projectileData.Attack, additionalAttack);
-        SetExplainText(attackSpeedText, data.AttackSpeed, additionalAttackSpeed);
-        SetExplainText(ratioPenetrationText, projectileData.RatePenetration, 0f, "%");
-        SetExplainText(fixedPenetrationText, projectileData.FixedPenetration, 0f);
-        SetExplainText(accuracyRateText, data.Accuracy, 0f, "%");
-        SetExplainText(projectileCountText, data.ProjectileNum, additionalProjectileNum);
-        SetExplainText(targetCountText, projectileData.TargetNum, 0f);
-        SetExplainText(concentrationModulusText, data.grouping, 0f, "%");
-        SetExplainText(MaintenanceTimeText, projectileData.RemainTime, additionalDuration, "초");
+        // SetExplainText(attackText, projectileData.Attack, additionalAttack);
+        // SetExplainText(attackSpeedText, data.AttackSpeed, additionalAttackSpeed);
+        // SetExplainText(ratioPenetrationText, projectileData.RatePenetration, 0f, "%");
+        // SetExplainText(fixedPenetrationText, projectileData.FixedPenetration, 0f);
+        // SetExplainText(accuracyRateText, data.Accuracy, 0f, "%");
+        // SetExplainText(projectileCountText, data.ProjectileNum, additionalProjectileNum);
+        // SetExplainText(targetCountText, projectileData.TargetNum, 0f);
+        // SetExplainText(concentrationModulusText, data.grouping, 0f, "%");
+        // SetExplainText(MaintenanceTimeText, projectileData.RemainTime, additionalDuration, "초");
 
         // attackText.text = $"{projectileData.Attack}";
         // attackSpeedText.text = $"{data.AttackSpeed}";
@@ -143,6 +150,35 @@ public class TowerInfoPanelUI : MonoBehaviour
     private void OnExitBtnClicked()
     {
         gameObject.SetActive(false);
+        if (totalTowerPanel != null)
+            totalTowerPanel?.SetActive(true);
     }
     
+    private void SetDisableUpgradeObject(GameObject go)
+    {
+        var images = go.GetComponentsInChildren<Image>();
+        foreach (var img in images)
+        {
+            img.color = Color.gray;
+        }
+        var texts = go.GetComponentsInChildren<TextMeshProUGUI>();
+        foreach (var text in texts)
+        {
+            text.color = Color.gray;
+        }
+    }
+
+    private void SetEnableUpgradeObject(GameObject go)
+    {
+        var images = go.GetComponentsInChildren<Image>();
+        foreach (var img in images)
+        {
+            img.color = Color.white;
+        }
+        var texts = go.GetComponentsInChildren<TextMeshProUGUI>();
+        foreach (var text in texts)
+        {
+            text.color = Color.white;
+        }
+    }
 }

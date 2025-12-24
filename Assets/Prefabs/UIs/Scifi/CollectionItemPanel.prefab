@@ -650,6 +650,8 @@ MonoBehaviour:
   weightUpBtn: {fileID: 1538833426213758370}
   weightDownBtn: {fileID: 3962183072989398495}
   infoBtn: {fileID: 6043879773309175092}
+  repeatInterval: 0.1
+  holdDelay: 0.5
 --- !u!1001 &393806995379142524
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1058,7 +1060,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1818704509274875759, guid: 17b4fbefe3d356c48bfdc6bbece00826, type: 3}
       propertyPath: m_fontSize
-      value: 10
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 1818704509274875759, guid: 17b4fbefe3d356c48bfdc6bbece00826, type: 3}
       propertyPath: m_hasFontAssetChanged
@@ -1067,6 +1069,10 @@ PrefabInstance:
     - target: {fileID: 2505360594969773908, guid: 17b4fbefe3d356c48bfdc6bbece00826, type: 3}
       propertyPath: m_Name
       value: whiteTextPanel
+      objectReference: {fileID: 0}
+    - target: {fileID: 5455919875062580940, guid: 17b4fbefe3d356c48bfdc6bbece00826, type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6094396422035644266, guid: 17b4fbefe3d356c48bfdc6bbece00826, type: 3}
       propertyPath: m_Pivot.x

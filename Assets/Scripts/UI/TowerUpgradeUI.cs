@@ -13,6 +13,9 @@ public class TowerUpgradeUI : MonoBehaviour
     [SerializeField] private Button backBtn;
     [SerializeField] private Button[] towerButtons;
 
+    [SerializeField] private GameObject towerUpgradePanel;
+    [SerializeField] private GameObject totalUpgradePanel;
+
     [SerializeField] private TextMeshProUGUI[] towerLevelTexts;
     [SerializeField] private GameObject[] upgradeEnabledObjects;
 
@@ -32,8 +35,7 @@ public class TowerUpgradeUI : MonoBehaviour
         for (int i = 0; i < towerButtons.Length; i++)
         {
             int index = i;
-            towerButtons[i].onClick.AddListener(() => OnTowerButtonClicked(index));
-            towerButtons[i].onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+            towerButtons[i].onClick.AddListener(() => OnTowerUpgradeUIClicked(index));
         }
     }
 
@@ -51,6 +53,14 @@ public class TowerUpgradeUI : MonoBehaviour
         // Update currency texts
         diamondText.text = (UserData.ChargedDia + UserData.FreeDia).ToString();
         goldText.text = UserData.Gold.ToString();
+    }
+
+    private void OnTowerUpgradeUIClicked(int index)
+    {
+        OnTowerButtonClicked(index);
+        SoundManager.Instance.PlayClickSound();
+        towerUpgradePanel.SetActive(true);
+        totalUpgradePanel.SetActive(false);
     }
 
     public int UpdateTowerUpgradeInfo(UserTowerUpgradeData currentUpgradeData)
@@ -116,6 +126,8 @@ public class TowerUpgradeUI : MonoBehaviour
         lobbyPanel.SetActive(true);
         gameObject.SetActive(false);
         towerInfoPanel.SetActive(false);
+        totalUpgradePanel.SetActive(true);
+        towerUpgradePanel.SetActive(false);
     }
 
     public void CheckUpgradeAvailability(int towerLevel, int index)
