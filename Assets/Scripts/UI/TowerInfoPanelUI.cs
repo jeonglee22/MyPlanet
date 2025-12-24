@@ -36,7 +36,7 @@ public class TowerInfoPanelUI : MonoBehaviour
 
     private void OnDisable()
     {
-        extraNumberObj.SetActive(false);
+        extraNumberObj?.SetActive(false);
     }
 
     public void Initialize(AttackTowerTableRow data)

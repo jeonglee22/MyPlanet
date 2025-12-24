@@ -19,6 +19,11 @@ public class PlanetData
     public int Drain { get; set; }
     public float ExpScale { get; set; }
     public float RecoveryHp { get; set; }
+    public float DrainChance { get; set; }
+    public float BossDrain { get; set; }
+    public int PlanetText_ID { get; set; }
+    public int PieceId { get; set; }
+    public string PlanetIcon { get; set; }
 
     public override string ToString()
     {
@@ -56,5 +61,10 @@ public class PlanetTable : DataTable
         }
 
         return dictionary[key];
+    }
+
+    public List<PlanetData> GetAll()
+    {
+        return new List<PlanetData>(dictionary.Values);
     }
 }

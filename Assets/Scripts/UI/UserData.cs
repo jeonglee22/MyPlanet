@@ -177,26 +177,27 @@ public static class UserDataMapper
 
     public static bool HasPlanet(int planetId)
     {
-        if(planetMapping.TryGetValue(planetId, out var mapping))
-        {
-            return mapping.getter();
-        }
-
-        return false;
+        return PlanetManager.Instance?.HasPlanet(planetId) ?? false;
     }
 
     public static void AddPlanet(int planetId)
     {
-        if(planetMapping.TryGetValue(planetId, out var mapping))
+        if(PlanetManager.Instance == null)
         {
-            if (mapping.getter())
+            return;
+        }
+
+        if (PlanetManager.Instance.HasPlanet(planetId))
+        {
+            var planetInfo = PlanetManager.Instance.GetPlanetInfo(planetId);
+            if(planetInfo != null)
             {
-                AddItem(mapping.pieceId, 20);
+                AddItem(planetInfo.pieceId, 20);
             }
-            else
-            {
-                mapping.setter(true);
-            }
+        }
+        else
+        {
+            PlanetManager.Instance.UnlockPlanet(planetId);
         }
     }
 

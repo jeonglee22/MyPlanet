@@ -163,6 +163,7 @@ Transform:
   - {fileID: 1095589907055335967}
   - {fileID: 3447458161946737703}
   - {fileID: 7281721690066054218}
+  - {fileID: 2036752763264908746}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &4526675612517391057
@@ -258,8 +259,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canvas: {fileID: 2499001061570755770}
   hpSlider: {fileID: 3642176486700133332}
-  damagePopupTextPrefab: {fileID: 0}
-  damagePopupSpawnPoint: {fileID: 0}
+  damagePopupTextPrefab: {fileID: 6847116968901548312, guid: 0b7c71188da340b4a9ff2aea243d0b31, type: 3}
+  damagePopupSpawnPoint: {fileID: 2036752763264908746}
 --- !u!114 &1745187833976295667
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -274,14 +275,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 100
   drops: []
-  bossAudioSource: {fileID: 0}
-  middleBossSpawnSfx: {fileID: 0}
-  lastBossSpawnSfx: {fileID: 0}
-  bossSpawnSfxVolume: 1
-  bossSpawnSfxGapSeconds: 0.15
-  sfxAudioSource: {fileID: 0}
-  simpleShotSfx: {fileID: 0}
-  simpleShotVolume: 1
   lineMaterial: {fileID: 0}
 --- !u!54 &758331780550529545
 Rigidbody:
@@ -331,6 +324,37 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &4103880695715710533
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2036752763264908746}
+  m_Layer: 6
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2036752763264908746
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4103880695715710533}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.11, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1779442582325868679}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &198740136851180209
 PrefabInstance:
   m_ObjectHideFlags: 0
