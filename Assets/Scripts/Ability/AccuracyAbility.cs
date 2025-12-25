@@ -11,11 +11,14 @@ public class AccuracyAbility : TowerAbility
     public override void ApplyAbility(GameObject gameObject)
     {
         base.ApplyAbility(gameObject);
-
         var tower = gameObject.GetComponent<TowerAttack>();
-        if(tower!=null)
+        if (tower != null)
         {
+            Debug.Log($"[AccuracyAbility] Applying {upgradeAmount} to {gameObject.name}, before={tower.AccuracyBuffAdd}");
+
             tower.AccuracyBuffAdd += upgradeAmount;
+
+            Debug.Log($"[AccuracyAbility] After apply, AccuracyBuffAdd={tower.AccuracyBuffAdd}");
         }
     }
 

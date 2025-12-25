@@ -169,8 +169,10 @@ public class TowerAttack : MonoBehaviour
     }
     public int BaseProjectileCount => baseProjectileCount;
     public int FinalProjectileCount => CurrentProjectileCount;
+    //Projectile Speed---------------------------------------
+    private readonly List<float> projectileSpeedAbilitySources = new List<float>();
+    private float projectileSpeedAbilityMul = 1f;
     //-------------------------------------------------------
-
     private float damageBuffFromUpgrade = 0f;
 
     private int additionalDurationFromUpgrade = 0;
@@ -284,6 +286,10 @@ public class TowerAttack : MonoBehaviour
         fireRateAbilityMul = 0f;
         fireRateBuffMul = 0f;
 
+        //projectile speed 
+        projectileSpeedAbilitySources.Clear();
+        projectileSpeedAbilityMul = 1f;
+
         //target count
         targetNumberFromAbility = 0;
         targetNumberFromAmplifier = 0;
@@ -320,7 +326,7 @@ public class TowerAttack : MonoBehaviour
 
     private void ApplyUpgradeEffects(int upgradeLevel)
     {
-
+        int effectiveUpgradeLevel = Mathf.Min(upgradeLevel, 3); //unlock
         var additionalAttack = 0f;
         var additionalAttackSpeed = 0f;
         var additionalDuration = 0f;
@@ -328,7 +334,7 @@ public class TowerAttack : MonoBehaviour
         var additionalExplosionRange = 0f;
 
         var externalTowerUpgradeDataList = new List<TowerUpgradeData>();
-        for (int i = 1; i <= upgradeLevel; i++)
+        for (int i = 1; i <= effectiveUpgradeLevel; i++)
         {
             var externalTowerUpgradeDataId = DataTableManager.TowerUpgradeTable.GetIdByTowerIdAndUpgradeCount(towerData.towerIdInt, i);
             if (externalTowerUpgradeDataId != -1)
@@ -338,8 +344,7 @@ public class TowerAttack : MonoBehaviour
             }
         }
 
-        upgradeLevel = Mathf.Min(3, upgradeLevel);
-        for (int i = 1; i <= upgradeLevel; i++)
+        for (int i = 1; i <= effectiveUpgradeLevel; i++)
         {
             var specialEffectId = externalTowerUpgradeDataList[i - 1].SpecialEffect_ID;
             var amount = externalTowerUpgradeDataList[i - 1].SpecialEffectValue;
@@ -1086,45 +1091,18 @@ public class TowerAttack : MonoBehaviour
         float amp01 = Mathf.Clamp01(percentPenetrationFromAmplifier);
         float oneMinus = (1f - baseRate01)* (1f - ability01)* (1f - amp01);
         float finalRate01 = 1f - oneMinus;
-        addBuffProjectileData.RatePenetration =
-            Mathf.Clamp(finalRate01 * 100f, 0f, 100f);
-        //-------------------------------------------
-        // --- DEBUG: damage pipeline snapshot (BEFORE) ---
-        if (debugBuffedProjectile)
-        {
-            float baseAtk = currentProjectileData != null ? currentProjectileData.Attack : -1f;
-            float mulAmp = damageBuffMul;                 // amplifier (you said none -> should be 1)
-            float mulAbility = damageAbilityMul;          // self ability sources
-            float mulUpgrade = 1f + damageBuffFromUpgrade; // external upgrade (e.g. +0.05 => 1.05)
+        addBuffProjectileData.RatePenetration =Mathf.Clamp(finalRate01 * 100f, 0f, 100f);
+        
+        float amplifierBonus = damageBuffMul - 1f;  
+        float abilityBonus = damageAbilityMul - 1f;
+        float upgradeBonus = damageBuffFromUpgrade; 
 
-            float predicted = (currentProjectileData != null)
-                ? baseAtk * mulAmp * mulAbility * mulUpgrade
-                : -1f;
-
-            Debug.Log(
-                $"[TowerAttack][BuffedProj][BEFORE] towerIdInt={(towerData != null ? towerData.towerIdInt : -1)} " +
-                $"reinforce={reinforceLevel} " +
-                $"baseAtk={baseAtk:0.###} " +
-                $"mulAmp(damageBuffMul)={mulAmp:0.###} " +
-                $"mulAbility(damageAbilityMul)={mulAbility:0.###} " +
-                $"mulUpgrade(1+damageBuffFromUpgrade)={mulUpgrade:0.###} (damageBuffFromUpgrade={damageBuffFromUpgrade:0.###}) " +
-                $"predictedFinalAtk={predicted:0.###}"
-            );
-        }
-
-        float rawAttack = currentProjectileData.Attack * damageBuffMul * damageAbilityMul * (1f + damageBuffFromUpgrade);
-        // --- DEBUG: damage pipeline snapshot (AFTER) ---
-        if (debugBuffedProjectile)
-        {
-            Debug.Log(
-                $"[TowerAttack][BuffedProj][AFTER] towerIdInt={(towerData != null ? towerData.towerIdInt : -1)} " +
-                $"buffedAtk={addBuffProjectileData.Attack:0.###} " +
-                $"curProjAtk={currentProjectileData.Attack:0.###}"
-            );
-        }
+        float totalDamageMultiplier = 1f + amplifierBonus + abilityBonus + upgradeBonus;
+        float rawAttack = currentProjectileData.Attack * totalDamageMultiplier;
 
         addBuffProjectileData.Attack = Mathf.Max(0f, rawAttack);
         addBuffProjectileData.ProjectileAddSpeed = currentProjectileData.ProjectileAddSpeed + accelerationBuffAdd;
+        addBuffProjectileData.ProjectileSpeed = currentProjectileData.ProjectileSpeed * projectileSpeedAbilityMul;
         addBuffProjectileData.AttackType = currentProjectileData.AttackType == newProjectileAttackType
             ? currentProjectileData.AttackType
             : newProjectileAttackType;
@@ -1293,6 +1271,37 @@ public class TowerAttack : MonoBehaviour
         fireRateAbilityMul = sum;
     }
     //----------------------------------------------------
+    //Projectile Speed------------------------------------
+    public void AddProjectileSpeedFromAbilitySource(float rate01)
+    {
+        float r = Mathf.Clamp(rate01, -0.99f, 10f); // rate01: 0.06f = +6%
+        if (Mathf.Approximately(r, 0f)) return;
+
+        projectileSpeedAbilitySources.Add(r);
+        RecalculateProjectileSpeedFromAbility();
+    }
+
+    public void RemoveProjectileSpeedFromAbilitySource(float rate01)
+    {
+        float r = Mathf.Clamp(rate01, -0.99f, 10f);
+
+        int idx = projectileSpeedAbilitySources.FindIndex(x => Mathf.Approximately(x, r));
+        if (idx >= 0)
+        {
+            projectileSpeedAbilitySources.RemoveAt(idx);
+            RecalculateProjectileSpeedFromAbility();
+        }
+    }
+
+    private void RecalculateProjectileSpeedFromAbility()
+    {
+        float mul = 1f;
+        foreach (var r in projectileSpeedAbilitySources)
+        {
+            mul *= (1f + r);
+        }
+        projectileSpeedAbilityMul = mul;
+    }
     //Reinforce ------------------------------------------
     private IAbility CreateSelfAbilityInstanceWithReinforce(int abilityId)
     {

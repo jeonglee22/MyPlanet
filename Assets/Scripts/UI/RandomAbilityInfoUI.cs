@@ -54,7 +54,7 @@ public class RandomAbilityInfoUI : MonoBehaviour
             abilityEffectOneText.SetActive(false);
         }
 
-        if(data.SpecialEffect2_ID == 0)
+        if(data.SpecialEffect2_ID == 0 || data.SpecialEffect2_ID == null)
         {
             abilityEffectTwoTMP.text = "없음";
         }
@@ -69,7 +69,7 @@ public class RandomAbilityInfoUI : MonoBehaviour
             abilityEffectTwoTMP.text = $"{specialEffect2TextData.Name} {data.SpecialEffect2Value.Value}{suffix} 증가";
         }
 
-        if(data.SpecialEffect3_ID == 0)
+        if(data.SpecialEffect3_ID == 0 || data.SpecialEffect3_ID == null)
         {
             abilityEffectThreeTMP.text = "없음";
         }

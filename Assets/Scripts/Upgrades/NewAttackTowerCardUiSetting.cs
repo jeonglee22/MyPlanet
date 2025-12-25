@@ -84,7 +84,6 @@ public class NewAttackTowerCardUiSetting : MonoBehaviour
         }
         
         var abilityData = DataTableManager.RandomAbilityTable.Get(ability);
-
         var specialEffectName = abilityData.RandomAbilityName;
         var specialEffectValue = abilityData.SpecialEffectValue;
         var randomAbilityObj1 = abilityPanels[startIndex];
@@ -109,17 +108,15 @@ public class NewAttackTowerCardUiSetting : MonoBehaviour
         abilityTexts[1].text = abilityData1.SpecialEffectValueType == 1 ? $"{specialEffectValue}%" : $"{specialEffectValue}";
         startIndex++;
 
-        if (abilityData.SpecialEffect2_ID == 0)
-            return;
-        
+        if (!abilityData.SpecialEffect2_ID.HasValue || abilityData.SpecialEffect2_ID.Value == 0) return;
+
         var specialEffectName2 = abilityData.RandomAbility2Name;
         var specialEffectValue2 = abilityData.SpecialEffect2Value;
         var randomAbilityObj2 = abilityPanels[startIndex];
 
         randomAbilityObj2.SetActive(true);
         var abilityTexts2 = randomAbilityObj2.GetComponentsInChildren<TextMeshProUGUI>();
-        if (abilityTexts2.Length != 2)
-            return;
+        if (abilityTexts2.Length != 2) return;
 
         var selfAbilityImage2 = randomAbilityObj1.GetComponentInChildren<Image>();
         if (selfAbilityImage2 == null)
@@ -135,9 +132,8 @@ public class NewAttackTowerCardUiSetting : MonoBehaviour
         abilityTexts2[1].text = abilityData2.SpecialEffectValueType == 1 ? $"{specialEffectValue2}%" : $"{specialEffectValue2}";
         startIndex++;
 
-        if (abilityData.SpecialEffect3_ID == 0)
-            return;
-        
+        if (!abilityData.SpecialEffect3_ID.HasValue || abilityData.SpecialEffect3_ID.Value == 0) return;
+
         var specialEffectName3 = abilityData.RandomAbility3Name;
         var specialEffectValue3 = abilityData.SpecialEffect3Value;
         var randomAbilityObj3 = abilityPanels[startIndex];
