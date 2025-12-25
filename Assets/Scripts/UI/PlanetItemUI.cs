@@ -36,6 +36,8 @@ public class PlanetItemUI : MonoBehaviour
             }
 
             pieceSlider.fillRect.GetComponent<Image>().sprite = changePieceImage;
+            pieceSlider.maxValue = 1;
+            pieceSlider.value = 1;
 
             return;
         }

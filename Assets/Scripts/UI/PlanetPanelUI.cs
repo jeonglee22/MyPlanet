@@ -27,6 +27,8 @@ public class PlanetPanelUI : MonoBehaviour
     [SerializeField] private GameObject starUpgradePanel;
     [SerializeField] private GameObject levelUpgradePanel;
 
+    [SerializeField] private GameObject selectPlanetIcons;
+
     private int choosedIndex = -1;
 
 
@@ -55,6 +57,7 @@ public class PlanetPanelUI : MonoBehaviour
         planetInfoPanel.SetActive(false);
         starUpgradePanel.SetActive(false);
         levelUpgradePanel.SetActive(false);
+        selectPlanetIcons.SetActive(false);
     }
 
     private void AddBtnSound()
@@ -94,6 +97,7 @@ public class PlanetPanelUI : MonoBehaviour
         {
             planetInfoPanel.SetActive(false);
             titleText.text = "행성";
+            selectPlanetIcons.SetActive(false);
             return;
         }
         else if(starUpgradePanel.activeSelf)
@@ -101,6 +105,7 @@ public class PlanetPanelUI : MonoBehaviour
             starUpgradePanel.SetActive(false);
             planetInfoPanel.SetActive(true);
             titleText.text = "행성 강화";
+            selectPlanetIcons.SetActive(true);
             return;
         }
         else if(levelUpgradePanel.activeSelf)
@@ -108,6 +113,7 @@ public class PlanetPanelUI : MonoBehaviour
             levelUpgradePanel.SetActive(false);
             planetInfoPanel.SetActive(true);
             titleText.text = "행성 강화";
+            selectPlanetIcons.SetActive(true);
             return;
         }
 
@@ -127,12 +133,15 @@ public class PlanetPanelUI : MonoBehaviour
         planetInfoPanel.SetActive(true);
 
         titleText.text = "행성 강화";
+
+        selectPlanetIcons.SetActive(true);
     }
 
     public void OnStarUpgradeButtonClicked()
     {
         starUpgradePanel.SetActive(true);
         planetInfoPanel.SetActive(false);
+        selectPlanetIcons.SetActive(false);
 
         int planetId = 300000 + choosedIndex;
         starUpgradePanel.GetComponent<PlanetStarUpgradePanelUI>().Initialize(DataTableManager.PlanetTable.Get(planetId),PlanetManager.Instance.GetPlanetInfo(planetId));
@@ -144,6 +153,7 @@ public class PlanetPanelUI : MonoBehaviour
     {
         levelUpgradePanel.SetActive(true);
         planetInfoPanel.SetActive(false);
+        selectPlanetIcons.SetActive(false);
 
         int planetId = 300000 + choosedIndex;
         levelUpgradePanel.GetComponent<PlanetLevelUpgradeUI>().Initialize(DataTableManager.PlanetTable.Get(planetId),PlanetManager.Instance.GetPlanetInfo(planetId));
