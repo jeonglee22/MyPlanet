@@ -39,6 +39,8 @@ public class GameResultUI : MonoBehaviour
     [SerializeField] private List<TextMeshProUGUI> rewardItemTexts;
     [SerializeField] private Planet planet;
 
+    private int currentStageId = 0;
+
     void Start()
     {
         WaveManager.Instance.Cancel();
@@ -76,6 +78,11 @@ public class GameResultUI : MonoBehaviour
         {
             enemyKillText.text = $"{enemyKillCount}";
         }
+
+        if (gameClear)
+        {
+            ProcessStageRewards().Forget();
+        }
     }
 
     public void SetRewardItems(List<(int itemId, int itemCount)> dropItems)
@@ -102,6 +109,8 @@ public class GameResultUI : MonoBehaviour
 
     public void OnRestartCliecked()
     {
+        WaveManager.Instance.SaveAccumulatedGold().Forget();
+
         UserTowerManager.Instance.UpdateUserTowerDataAsync(installControl).Forget();
 
         SceneControlManager.Instance.LoadScene(SceneControlManager.Instance.CurrentSceneName).Forget();
@@ -109,8 +118,34 @@ public class GameResultUI : MonoBehaviour
 
     public void OnReturnToTitleClicked()
     {
+        WaveManager.Instance.SaveAccumulatedGold().Forget();
+
         UserTowerManager.Instance.UpdateUserTowerDataAsync(installControl).Forget();
 
         SceneControlManager.Instance.LoadScene(SceneName.LobbyScene).Forget();
+    }
+
+    private async UniTask ProcessStageRewards()
+    {
+        await UniTask.WaitUntil(() => UserStageManager.Instance != null && UserPlanetManager.Instance.IsInitialized && UserStageManager.Instance.IsInitialized);
+        
+        var stageData = DataTableManager.StageTable.Get(currentStageId);
+        if(stageData == null)
+        {
+            return;
+        }
+
+        int highestCleared = UserStageManager.Instance.ClearedStageData.HighestClearedStage;
+        bool isFirstClear = Variables.Stage > highestCleared;
+
+        int rewardId = isFirstClear ? stageData.FirstReward_Id : stageData.Reward_Id;
+
+        var rewardData = DataTableManager.RewardTable.Get(rewardId);
+        if(rewardData == null)
+        {
+            return;
+        }
+
+        
     }
 }
