@@ -18,6 +18,7 @@ public static class TagName
     public static readonly string ChangedVisual = "ChangedVisual";
     public static readonly string ChangeVisual = "ChangeVisual";
     public static readonly string PatternProjectile = "PatternProjectile";
+    public static readonly string PlanetPanelUI = "PlanetPanelUI";
 }
 
 public static class ObjectName
