@@ -164,6 +164,14 @@ public class Planet : LivingEntity
         }
     }
 
+    private void ApplyPlanetStats()
+    {
+        if(PlanetStatManager.Instance == null || !PlanetStatManager.Instance.IsInitialized)
+        {
+            return;
+        }
+    }
+
     public void CalculatePlanetAttackPower()
     {
         var baseAttack = maxHealth * (100 + defense) * 0.01f;
