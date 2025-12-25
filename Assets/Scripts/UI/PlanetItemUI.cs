@@ -40,15 +40,13 @@ public class PlanetItemUI : MonoBehaviour
             return;
         }
 
-        int starLevel = userPlanetInfo.starLevel + 1;
-
         if(userPlanetInfo.owned == false)
         {
             notOwnImage.SetActive(true);
             blackImage.SetActive(true);
 
             planetLevel.text = $"";
-            planetStarUpgradeData = DataTableManager.PlanetStarUpgradeTable.GetCurrentLevelData(planetData.Planet_ID, starLevel);
+            planetStarUpgradeData = DataTableManager.PlanetStarUpgradeTable.GetCurrentLevelData(planetData.Planet_ID, 1);
 
             itemButton.interactable = false;
         }
@@ -57,14 +55,16 @@ public class PlanetItemUI : MonoBehaviour
             notOwnImage.SetActive(false);
             blackImage.SetActive(false);
 
-            if(starLevel > PlanetManager.Instance.MaxStarLevel)
+            int nextStarLevel = userPlanetInfo.starLevel + 1;
+
+            if(nextStarLevel > PlanetManager.Instance.MaxStarLevel)
             {
                 pieceText.text = $"MAX";
                 pieceSlider.fillRect.GetComponent<Image>().sprite = changePieceImage;
             }
             else
             {
-                planetStarUpgradeData = DataTableManager.PlanetStarUpgradeTable.GetCurrentLevelData(planetData.Planet_ID, starLevel);
+                planetStarUpgradeData = DataTableManager.PlanetStarUpgradeTable.GetCurrentLevelData(planetData.Planet_ID, userPlanetInfo.starLevel);
 
                 planetLevel.text = $"Lv. {userPlanetInfo.level}";
 

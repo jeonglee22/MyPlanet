@@ -309,4 +309,39 @@ public class PlanetManager : MonoBehaviour
         }
         return false;
     }
+
+    public void ClearPlanetData()
+    {
+        userPlanetsData = null;
+        isDirty = false;
+        isInitialized = false;
+        planetsRef = null;
+        activePlanetRef = null;
+    }
+
+    public async UniTask ReloadPlanetsForNewUser()
+    {
+        if(!AuthManager.Instance.IsSignedIn)
+        {
+            return;
+        }
+
+        InitializeReference();
+
+        var activePlanetSnapshot = await activePlanetRef.GetValueAsync().AsUniTask();
+        var planetsSnapshot = await planetsRef.GetValueAsync().AsUniTask();
+
+        if(activePlanetSnapshot.Exists && planetsSnapshot.Exists)
+        {
+            await LoadPlanetsAsync();
+        }
+        else
+        {
+            InitializePlanetsData();
+            isDirty = true;
+            await SavePlanetsAsync();
+        }
+
+        isInitialized = true;
+    }
 }
