@@ -286,6 +286,7 @@ public static class DataTableIds
     public static readonly string PlanetLvUpgrade = "PlanetLvUpgradeTable";
     public static readonly string PlanetStarUpgrade = "PlanetStarUpgradeTable";
     public static readonly string LobbyString = "LobbyString";
+    public static readonly string SpecialEffectText = "SpecialEffectTextTable";
     public static readonly string PlanetText = "PlanetTextTable";
 }
 
