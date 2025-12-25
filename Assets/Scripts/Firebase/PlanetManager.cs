@@ -61,7 +61,7 @@ public class PlanetManager : MonoBehaviour
         }
     }
 
-    private const int maxLevel = 50;
+    private int maxLevel = 50;
     private const int maxStarLevel = 5;
     public int MaxLevel => maxLevel;
     public int MaxStarLevel => maxStarLevel;

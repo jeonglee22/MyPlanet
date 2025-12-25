@@ -99,6 +99,9 @@ public class PlanetInfoUI : MonoBehaviour
         UpdatePieceSlider(planetData);
         UpdateLevelUpButton();
 
+        levelUpBtn.interactable = true;
+        starUpgradeBtn.interactable = true;
+
     }
 
     private void UpdatePieceSlider(PlanetData planetData)
