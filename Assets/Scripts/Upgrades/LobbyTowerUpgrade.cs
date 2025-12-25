@@ -12,8 +12,12 @@ public class LobbyTowerUpgrade : MonoBehaviour
     [SerializeField] private Button confirmButton;
     [SerializeField] private Button cancelButton;
     [SerializeField] private GameObject confirmPanel;
+    [SerializeField] private GameObject needMoreItemPanel;
     [SerializeField] private TowerUpgradeUI towerUpgradeUI;
     [SerializeField] private TowerInfoPanelUI towerInfoPanelUI;
+
+
+    [SerializeField] private Slider starDustSlider;
 
     private int towerId;
 
@@ -95,12 +99,18 @@ public class LobbyTowerUpgrade : MonoBehaviour
         if (UserData.Gold < upgradeGold)
         {
             Debug.Log("골드 부족");
+            needMoreItemPanel.SetActive(true);
+            var needMoreItemPanelUi = needMoreItemPanel.GetComponent<NeedMoreItemPanelUI>();
+            needMoreItemPanelUi.SetNeedMoreGoldPanel();
             return;
         }
 
         if (UserData.TowerEnhanceItem < upgradeStarDust)
         {
             Debug.Log("스타더스트 부족");
+            needMoreItemPanel.SetActive(true);
+            var needMoreItemPanelUi = needMoreItemPanel.GetComponent<NeedMoreItemPanelUI>();
+            needMoreItemPanelUi.SetNeedMoreTowerEnhanceItemPanel();
             return;
         }
 
@@ -125,9 +135,19 @@ public class LobbyTowerUpgrade : MonoBehaviour
         goldRequiredText.text = amount.ToString();
     }
 
+    public void SetGoldRequiredTextMaxLevel()
+    {
+        goldRequiredText.text = "MAX";
+    }
+
     public void SetStarDustText(int currentAmount, int requiredAmount)
     {
         starDustText.text = $"{currentAmount} / {requiredAmount}";
+    }
+
+    public void SetStarDustMaxLevelText()
+    {
+        starDustText.text = "MAX";
     }
 
     public void Initialize(int index)
@@ -144,8 +164,9 @@ public class LobbyTowerUpgrade : MonoBehaviour
 
         if (upgradeLevel >= 4)
         {
-            SetGoldRequiredText(0);
-            SetStarDustText(UserData.TowerEnhanceItem, 0);
+            SetGoldRequiredTextMaxLevel();
+            SetStarDustMaxLevelText();
+            starDustSlider.value = 1f;
             return;
         }
 
@@ -163,6 +184,12 @@ public class LobbyTowerUpgrade : MonoBehaviour
             upgradeStarDust = abilityUnlockData.MaterialCost;
             SetGoldRequiredText(upgradeGold);
             SetStarDustText(UserData.TowerEnhanceItem, upgradeStarDust);
+
+            var ratioLevel3 = (float)UserData.TowerEnhanceItem / upgradeStarDust;
+
+            starDustSlider.value = Mathf.Clamp01(ratioLevel3);
+            Debug.Log("슬라이더 값 설정: " + starDustSlider.value);
+            SetStarDustSliderValue(starDustSlider.value);
             return;
         }
 
@@ -177,5 +204,16 @@ public class LobbyTowerUpgrade : MonoBehaviour
 
         SetGoldRequiredText(upgradeGold);
         SetStarDustText(UserData.TowerEnhanceItem, upgradeStarDust);
+
+        var ratio = (float)UserData.TowerEnhanceItem / upgradeStarDust;
+
+        starDustSlider.value = Mathf.Clamp01(ratio);
+        Debug.Log("슬라이더 값 설정: " + starDustSlider.value);
+        SetStarDustSliderValue(starDustSlider.value);
+    }
+
+    public void SetStarDustSliderValue(float value)
+    {
+        starDustSlider.value = value;
     }
 }

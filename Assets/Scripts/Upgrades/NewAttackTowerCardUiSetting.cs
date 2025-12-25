@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,6 +16,9 @@ public class NewAttackTowerCardUiSetting : MonoBehaviour
 
     [SerializeField] private RectTransform contentRoot;
 
+    [SerializeField] private List<GameObject> abilityPanels;
+    [SerializeField] private List<GameObject> selfAbilityPanels;
+
     void OnEnable()
     {
         specialAbilityObjectBackground.SetActive(true);
@@ -23,6 +27,15 @@ public class NewAttackTowerCardUiSetting : MonoBehaviour
 
     public void SettingNewTowerCard(int towerId, int ability)
     {
+        foreach (var panel in selfAbilityPanels)
+        {
+            panel.SetActive(false);
+        }
+        foreach (var panel in abilityPanels)
+        {
+            panel.SetActive(false);
+        }
+
         var towerData = DataTableManager.AttackTowerTable.GetById(towerId);
         var towerExplainId = towerData.TowerText_ID;
         var towerExplainData = DataTableManager.TowerExplainTable.Get(towerExplainId);
@@ -43,59 +56,109 @@ public class NewAttackTowerCardUiSetting : MonoBehaviour
         var projectileData = DataTableManager.ProjectileTable.Get(projectileId);
         var projectileSpecialEffectId = projectileData.ProjectileProperties1_ID;
 
+        int startIndex = 0;
+
         if (projectileSpecialEffectId != 0)
         {
             var projectileAbilityData = GetRandomAbilityDataFromTowerId(towerId);
             var abilityName = projectileAbilityData.RandomAbilityName;
             var abilityValue = projectileData.ProjectileProperties1Value.ToString();
-            SetSpecialAbility(abilityName, abilityValue);
-        }
-        else
-        {
-            specialAbilityObjectBackground.SetActive(false);
-            specialAbilityText.gameObject.SetActive(false);
-        }
+            
+            var firstAbilityPanel = abilityPanels[0];
 
-        // newTowerTextObject.GetComponent<NewBadgeAnimator>().SetVisible(true);
+            selfAbilityPanels[0].SetActive(true);
+            firstAbilityPanel.SetActive(true);
+            var selfAbilityTexts = firstAbilityPanel.GetComponentsInChildren<TextMeshProUGUI>();
+            if (selfAbilityTexts.Length != 2)
+                return;
+            
+            var selfAbilityImage = firstAbilityPanel.GetComponentInChildren<Image>();
+            if (selfAbilityImage == null)
+                return;
+            
+            // selfAbilityImage.sprite = LoadManager.GetLoadedGameTexture(projectileAbilityData.RandomAbilityIcon);
+            selfAbilityImage.sprite = LoadManager.GetLoadedGameTexture("Att_icon");
+            selfAbilityTexts[0].text = abilityName;
+            selfAbilityTexts[1].text = abilityValue;
+            startIndex = 1;
+        }
         
         var abilityData = DataTableManager.RandomAbilityTable.Get(ability);
 
         var specialEffectName = abilityData.RandomAbilityName;
         var specialEffectValue = abilityData.SpecialEffectValue;
-        var randomAbilityObj1 = Instantiate(randomAbilityObject, contentRoot);
+        var randomAbilityObj1 = abilityPanels[startIndex];
+        
+        randomAbilityObj1.SetActive(true);
         var abilityTexts = randomAbilityObj1.GetComponentsInChildren<TextMeshProUGUI>();
         
         if (abilityTexts.Length != 2)
             return;
 
+        var selfAbilityImage1 = randomAbilityObj1.GetComponentInChildren<Image>();
+        if (selfAbilityImage1 == null)
+            return;
+
+        // selfAbilityImage1.sprite = LoadManager.GetLoadedGameTexture(abilityData.RandomAbilityIcon);
+        var abilityId1 = abilityData.SpecialEffect_ID;
+        var abilityData1 = DataTableManager.SpecialEffectTable.Get(abilityId1);
+        var abilityIcon1 = abilityData1.SpecialEffectIcon;
+        selfAbilityImage1.sprite = LoadManager.GetLoadedGameTexture(abilityIcon1);
+
         abilityTexts[0].text = specialEffectName;
-        abilityTexts[1].text = specialEffectValue.ToString();
+        abilityTexts[1].text = abilityData1.SpecialEffectType == 1 ? $"{specialEffectValue}%" : $"{specialEffectValue}";
+        startIndex++;
 
         if (abilityData.SpecialEffect2_ID == 0)
             return;
         
         var specialEffectName2 = abilityData.RandomAbility2Name;
         var specialEffectValue2 = abilityData.SpecialEffect2Value;
-        var randomAbilityObj2 = Instantiate(randomAbilityObject, contentRoot);
+        var randomAbilityObj2 = abilityPanels[startIndex];
+
+        randomAbilityObj2.SetActive(true);
         var abilityTexts2 = randomAbilityObj2.GetComponentsInChildren<TextMeshProUGUI>();
         if (abilityTexts2.Length != 2)
             return;
 
+        var selfAbilityImage2 = randomAbilityObj1.GetComponentInChildren<Image>();
+        if (selfAbilityImage2 == null)
+            return;
+
+        // selfAbilityImage2.sprite = LoadManager.GetLoadedGameTexture(abilityData.RandomAbilityIcon);
+        var abilityId2 = abilityData.SpecialEffect2_ID.Value;
+        var abilityData2 = DataTableManager.SpecialEffectTable.Get(abilityId2);
+        var abilityIcon2 = abilityData2.SpecialEffectIcon;
+        selfAbilityImage2.sprite = LoadManager.GetLoadedGameTexture(abilityIcon2);
+
         abilityTexts2[0].text = specialEffectName2;
-        abilityTexts2[1].text = specialEffectValue2.ToString();
+        abilityTexts2[1].text = abilityData2.SpecialEffectType == 1 ? $"{specialEffectValue2}%" : $"{specialEffectValue2}";
+        startIndex++;
 
         if (abilityData.SpecialEffect3_ID == 0)
             return;
         
         var specialEffectName3 = abilityData.RandomAbility3Name;
         var specialEffectValue3 = abilityData.SpecialEffect3Value;
-        var randomAbilityObj3 = Instantiate(randomAbilityObject, contentRoot);
+        var randomAbilityObj3 = abilityPanels[startIndex];
+
+        randomAbilityObj3.SetActive(true);
         var abilityTexts3 = randomAbilityObj3.GetComponentsInChildren<TextMeshProUGUI>();
         if (abilityTexts3.Length != 2)
             return;
 
+        var selfAbilityImage3 = randomAbilityObj1.GetComponentInChildren<Image>();
+        if (selfAbilityImage3 == null)
+            return;
+
+        // selfAbilityImage3.sprite = LoadManager.GetLoadedGameTexture(abilityData.RandomAbilityIcon);
+        var abilityId3 = abilityData.SpecialEffect3_ID.Value;
+        var abilityData3 = DataTableManager.SpecialEffectTable.Get(abilityId3);
+        var abilityIcon3 = abilityData3.SpecialEffectIcon;
+        selfAbilityImage3.sprite = LoadManager.GetLoadedGameTexture(abilityIcon3);
+
         abilityTexts3[0].text = specialEffectName3;
-        abilityTexts3[1].text = specialEffectValue3.ToString();
+        abilityTexts3[1].text = abilityData2.SpecialEffectType == 1 ? $"{specialEffectValue3}%" : $"{specialEffectValue3}";
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
