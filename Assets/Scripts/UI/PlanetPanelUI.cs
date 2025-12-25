@@ -46,6 +46,7 @@ public class PlanetPanelUI : MonoBehaviour
         saveNoBtn.onClick.AddListener(OnSaveNoBtnClicked);
         homeBtn.onClick.AddListener(OnHomeBtnClicked);
         starLevelUpBtn.onClick.AddListener(OnStarUpgradeButtonClicked);
+        levelUpBtn.onClick.AddListener(OnLevelUpgradeButtonClicked);
 
         AddBtnSound();
 
@@ -64,6 +65,7 @@ public class PlanetPanelUI : MonoBehaviour
         saveNoBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
         homeBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
         starLevelUpBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        levelUpBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
 
         for (int i = 0; i < planetButtons.Length; i++)
         {
@@ -136,6 +138,17 @@ public class PlanetPanelUI : MonoBehaviour
         starUpgradePanel.GetComponent<PlanetStarUpgradePanelUI>().Initialize(DataTableManager.PlanetTable.Get(planetId),PlanetManager.Instance.GetPlanetInfo(planetId));
 
         titleText.text = "행성 승급";
+    }
+
+    public void OnLevelUpgradeButtonClicked()
+    {
+        levelUpgradePanel.SetActive(true);
+        planetInfoPanel.SetActive(false);
+
+        int planetId = 300000 + choosedIndex;
+        levelUpgradePanel.GetComponent<PlanetLevelUpgradeUI>().Initialize(DataTableManager.PlanetTable.Get(planetId),PlanetManager.Instance.GetPlanetInfo(planetId));
+
+        titleText.text = "행성 레벨업";
     }
 
     public void OnChoosePlanetBtnClicked()
