@@ -1,5 +1,4 @@
 using Cysharp.Threading.Tasks;
-using Unity.Android.Gradle.Manifest;
 using UnityEngine;
 
 public class PlanetStatManager : MonoBehaviour
@@ -73,6 +72,11 @@ public class PlanetStatManager : MonoBehaviour
         }
 
         currentPlanetStats = CalculatePlanetStats(activePlanetId, planetInfo.level, planetInfo.starLevel);
+    }
+
+    public PlanetStats GetPlanetStatsPreview(int planetId, int level, int starLevel)
+    {
+        return CalculatePlanetStats(planetId, level, starLevel);
     }
 
     public PlanetStats CalculatePlanetStats(int planetId, int level, int starLevel)

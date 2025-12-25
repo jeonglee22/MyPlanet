@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -64,7 +63,7 @@ public class PlanetInfoUI : MonoBehaviour
         planetNameText.text = planetTextData.PlanetName;
         descText.text = planetTextData.PlanetDescribe;
 
-        planetIcon.sprite = LoadManager.GetLoadedGameTexture(planetData.PlanetIcon);
+        planetIcon.sprite = LoadManager.GetLoadedGameTexture(planetData.PlanetImage);
 
         if(planetData.Planet_ID == (int)PlanetType.BasePlanet)
         {
@@ -116,13 +115,11 @@ public class PlanetInfoUI : MonoBehaviour
         {
             pieceSlider.fillRect.GetComponent<Image>().sprite = changePieceImage;
             starUpgradeBtn.gameObject.GetComponent<Image>().color = canUpgradeColor;
-            starUpgradeBtn.interactable = true;
         }
         else
         {
             pieceSlider.fillRect.GetComponent<Image>().sprite = defaultPieceImage;
             starUpgradeBtn.gameObject.GetComponent<Image>().color = defaultColor;
-            starUpgradeBtn.interactable = false;
         }
 
         pieceSlider.maxValue = requiredPieces;
@@ -133,33 +130,42 @@ public class PlanetInfoUI : MonoBehaviour
 
     private void UpdateFightingPower()
     {
-        PlanetStats baseStats = PlanetStatManager.Instance.GetBasePlanetStats(currentPlanetData.Planet_ID);
-        var cal = (baseStats.hp * (100 + baseStats.defense) / 100f) + baseStats.shield + (baseStats.hpRegeneration * 420) + (baseStats.drain * 650);
-        fightingPowerText.text = $"{(int)cal}";
+        var currentStats = PlanetStatManager.Instance.GetPlanetStatsPreview(
+            currentPlanetData.Planet_ID, 
+            currentUserPlanetInfo.level, 
+            currentUserPlanetInfo.starLevel);
+
+        var cal = (currentStats.hp * (100 + currentStats.defense) / 100f) + 
+                  currentStats.shield + 
+                  (currentStats.hpRegeneration * 420) + 
+                  (currentStats.drain * 650);
+
+        fightingPowerText.text = $"{Mathf.RoundToInt(cal)}";
     }
 
     private void UpdateStatsUI()
     {
-        var baseStats = PlanetStatManager.Instance.GetBasePlanetStats(currentPlanetData.Planet_ID);
+        var currentStats = PlanetStatManager.Instance.GetPlanetStatsPreview(
+        currentPlanetData.Planet_ID, 
+        currentUserPlanetInfo.level, 
+        currentUserPlanetInfo.starLevel);
 
-        healthText.text = $"{baseStats.hp}";
-        defenseText.text = $"{baseStats.defense}";
-        shieldText.text = $"{baseStats.shield}";
-        expRateText.text = $"{baseStats.expRate}%";
-        drainText.text = $"{baseStats.drain}";
-        healthRegenerationText.text = $"{baseStats.hpRegeneration}";
+    healthText.text = $"{Mathf.RoundToInt(currentStats.hp)}";
+    defenseText.text = $"{Mathf.RoundToInt(currentStats.defense)}";
+    shieldText.text = $"{Mathf.RoundToInt(currentStats.shield)}";
+    expRateText.text = $"{Mathf.RoundToInt(currentStats.expRate)}%";
+    drainText.text = $"{Mathf.RoundToInt(currentStats.drain)}";
+    healthRegenerationText.text = $"{Mathf.RoundToInt(currentStats.hpRegeneration)}";
     }
 
     private void UpdateLevelUpButton()
     {
         if(UserData.Gold < planetLvUpgradeData.UpgradeResource)
         {
-            levelUpBtn.interactable = false;
             levelUpBtn.gameObject.GetComponent<Image>().color = defaultColor;
         }
         else
         {
-            levelUpBtn.interactable = true;
             levelUpBtn.gameObject.GetComponent<Image>().color = canUpgradeColor;
         }
     }
