@@ -17,7 +17,6 @@ public class CollectionPanel : MonoBehaviour
 
     [SerializeField] private Button towerPanelBtn;
     [SerializeField] private Button abilityPanelBtn;
-    [SerializeField] private Button planetPanelBtn;
 
     [SerializeField] private Image coreImg;
     [SerializeField] private TextMeshProUGUI coreText;
@@ -103,7 +102,6 @@ public class CollectionPanel : MonoBehaviour
 
             towerPanelBtn.interactable = false;
             abilityPanelBtn.interactable = false;
-            planetPanelBtn.interactable = false;
 
             saveBtn.interactable = false;
             backBtn.interactable = false;
@@ -114,6 +112,9 @@ public class CollectionPanel : MonoBehaviour
 
         lobbyPanel.SetActive(true);
         gameObject.SetActive(false);
+        InfoPanelClosed();
+        towerPanelObj.SetActive(true);
+        abilityPanelObj.SetActive(false);
     }
 
     public void OnTowerPanelBtn()
@@ -125,7 +126,6 @@ public class CollectionPanel : MonoBehaviour
 
             towerPanelBtn.interactable = false;
             abilityPanelBtn.interactable = false;
-            planetPanelBtn.interactable = false;
 
             saveBtn.interactable = false;
             backBtn.interactable = false;
@@ -147,7 +147,6 @@ public class CollectionPanel : MonoBehaviour
 
             towerPanelBtn.interactable = false;
             abilityPanelBtn.interactable = false;
-            planetPanelBtn.interactable = false;
 
             saveBtn.interactable = false;
             backBtn.interactable = false;
@@ -208,7 +207,6 @@ public class CollectionPanel : MonoBehaviour
 
         towerPanelBtn.interactable = true;
         abilityPanelBtn.interactable = true;
-        planetPanelBtn.interactable = true;
 
         saveBtn.interactable = true;
         backBtn.interactable = true;
@@ -240,7 +238,6 @@ public class CollectionPanel : MonoBehaviour
 
         towerPanelBtn.interactable = true;
         abilityPanelBtn.interactable = true;
-        planetPanelBtn.interactable = true;
 
         saveBtn.interactable = true;
         backBtn.interactable = true;
@@ -451,12 +448,14 @@ public class CollectionPanel : MonoBehaviour
             if(panel.IsAttackTower)
             {
                 towerInfoPanelObj.SetActive(true);
+                towerPanelObj.SetActive(false);
                 var towerInfoPanel = towerInfoPanelObj.GetComponent<TowerInfoPanelUI>();
-                towerInfoPanel.Initialize(panel.AttackTowerData);
+                towerInfoPanel.InitializeInfo(panel.AttackTowerData);
             }
             else if(panel.IsBuffTower)
             {
                 buffTowerInfoPanelObj.SetActive(true);
+                towerPanelObj.SetActive(false);
                 var buffTowerInfoPanel = buffTowerInfoPanelObj.GetComponent<BuffTowerInfoPanelUI>();
                 buffTowerInfoPanel.Initialize(panel.BuffTowerData);
             }
@@ -464,6 +463,7 @@ public class CollectionPanel : MonoBehaviour
         else
         {
             randomAbilityInfoPanelObj.SetActive(true);
+            abilityPanelObj.SetActive(false);
             var abilityInfoPanel = randomAbilityInfoPanelObj.GetComponent<RandomAbilityInfoUI>();
             abilityInfoPanel.Initialize(panel.AbilityData);
         }

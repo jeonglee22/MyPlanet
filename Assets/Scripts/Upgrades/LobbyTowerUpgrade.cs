@@ -80,7 +80,7 @@ public class LobbyTowerUpgrade : MonoBehaviour
     private async UniTask UpdateUIs(UserTowerUpgradeData currentUpgradeData)
     {
         Initialize(towerId);
-        towerInfoPanelUI.Initialize(DataTableManager.AttackTowerTable.GetById(towerId));
+        towerInfoPanelUI.InitializeUpgrade(DataTableManager.AttackTowerTable.GetById(towerId));
 
         var upgradeCountFull = towerUpgradeUI.UpdateTowerUpgradeInfo(currentUpgradeData);
         int totalUpgradePercentFull = Mathf.FloorToInt((float)upgradeCountFull / towerUpgradeUI.TotalUpgrade * 100);
