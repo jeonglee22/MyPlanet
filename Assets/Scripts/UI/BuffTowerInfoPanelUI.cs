@@ -16,6 +16,8 @@ public class BuffTowerInfoPanelUI : MonoBehaviour
     [SerializeField] private GameObject abilityTwoText;
     [SerializeField] private GameObject abilityThreeText;
 
+    [SerializeField] private GameObject basePanel;
+
     private TextMeshProUGUI abilityOneTMP;
     private TextMeshProUGUI abilityTwoTMP;
     private TextMeshProUGUI abilityThreeTMP;
@@ -42,7 +44,7 @@ public class BuffTowerInfoPanelUI : MonoBehaviour
         towerNameText.text = towerDescData.TowerName;
         towerDescriptionText.text = towerDescData.TowerDescribe;
 
-        slotText.text = $"{data.SlotNum}";
+        slotText.text = $"적용 칸 수 : {data.SlotNum}칸";
 
         var specialEffect = DataTableManager.SpecialEffectCombinationTable.Get(data.SpecialEffectCombination_ID);
         string upDownString = "증가";
@@ -84,5 +86,6 @@ public class BuffTowerInfoPanelUI : MonoBehaviour
     private void OnExitBtnClicked()
     {
         gameObject.SetActive(false);
+        basePanel.SetActive(true);
     }
 }

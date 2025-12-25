@@ -12,6 +12,8 @@ public class RandomAbilityInfoUI : MonoBehaviour
     [SerializeField] private GameObject abilityEffectTwoText;
     [SerializeField] private GameObject abilityEffectThreeText;
 
+    [SerializeField] private GameObject basePanel;
+
     private TextMeshProUGUI abilityEffectOneTMP;
     private TextMeshProUGUI abilityEffectTwoTMP;
     private TextMeshProUGUI abilityEffectThreeTMP;
@@ -64,5 +66,6 @@ public class RandomAbilityInfoUI : MonoBehaviour
     private void OnExitBtnClicked()
     {
         gameObject.SetActive(false);
+        basePanel.SetActive(true);
     }
 }

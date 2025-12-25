@@ -115,7 +115,7 @@ public class TowerUpgradeUI : MonoBehaviour
         };
 
         towerInfoPanel.SetActive(true);
-        towerInfoPanel.GetComponent<TowerInfoPanelUI>().Initialize(
+        towerInfoPanel.GetComponent<TowerInfoPanelUI>().InitializeUpgrade(
             DataTableManager.AttackTowerTable.GetById((int)attackTowerTableRowId));
 
         towerInfoPanel.GetComponent<LobbyTowerUpgrade>().Initialize((int)attackTowerTableRowId);

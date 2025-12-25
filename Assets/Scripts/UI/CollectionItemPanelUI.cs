@@ -74,6 +74,12 @@ public class CollectionItemPanelUI : MonoBehaviour
         UpdateWeightDisplay();
 
         infoBtn.onClick.AddListener(OnInfoBtnClicked);
+
+        var towerId = data.AttackTower_Id;
+        var towerData = DataTableManager.AttackTowerTable.GetById(towerId);
+        var towerIconName = towerData.AttackTowerAsset;
+        var iconSprite = LoadManager.GetLoadedGameTexture(towerIconName);
+        iconImg.sprite = iconSprite;
     }
 
     public void Initialize(BuffTowerData data, int dataCount, bool isTower)
@@ -91,6 +97,12 @@ public class CollectionItemPanelUI : MonoBehaviour
         UpdateWeightDisplay();
 
         infoBtn.onClick.AddListener(OnInfoBtnClicked);
+
+        var towerId = data.BuffTower_ID;
+        var towerData = DataTableManager.BuffTowerTable.Get(towerId);
+        var towerIconName = towerData.BuffTowerAsset;
+        var iconSprite = LoadManager.GetLoadedGameTexture(towerIconName);
+        iconImg.sprite = iconSprite;
     }
 
     public void Initialize(RandomAbilityData data, int dataCount, bool isTower)
@@ -107,6 +119,14 @@ public class CollectionItemPanelUI : MonoBehaviour
         UpdateWeightDisplay();
 
         infoBtn.onClick.AddListener(OnInfoBtnClicked);
+
+        var abilityId = data.RandomAbility_ID;
+        var abilityData = DataTableManager.RandomAbilityTable.Get(abilityId);
+        var specialEffectId = abilityData.SpecialEffect_ID;
+        var effectData = DataTableManager.SpecialEffectTable.Get(specialEffectId);
+        var abilityIconName = effectData.SpecialEffectIcon;
+        var iconSprite = LoadManager.GetLoadedGameTexture(abilityIconName);
+        iconImg.sprite = iconSprite;
     }
 
     public void UpdateWeightDisplay()
@@ -126,8 +146,8 @@ public class CollectionItemPanelUI : MonoBehaviour
 
         float probability = totalWeight > 0 ? (currentWeight / totalWeight) * 100f : 0f;
         
-        rateText.text = $"확률: {probability:F1}%";
-        weightText.text = $"가중치: {currentWeight}";
+        rateText.text = $"확률\n{probability:F1}%";
+        weightText.text = $"가중치\n{currentWeight}";
     }
 
     public void OnWeightUpBtn()
