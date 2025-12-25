@@ -16,6 +16,8 @@ public class BuffTowerInfoPanelUI : MonoBehaviour
     [SerializeField] private GameObject abilityTwoText;
     [SerializeField] private GameObject abilityThreeText;
 
+    [SerializeField] private GameObject basePanel;
+
     private TextMeshProUGUI abilityOneTMP;
     private TextMeshProUGUI abilityTwoTMP;
     private TextMeshProUGUI abilityThreeTMP;
@@ -42,7 +44,7 @@ public class BuffTowerInfoPanelUI : MonoBehaviour
         towerNameText.text = towerDescData.TowerName;
         towerDescriptionText.text = towerDescData.TowerDescribe;
 
-        slotText.text = $"{data.SlotNum}";
+        slotText.text = $"적용 칸 수 : {data.SlotNum}칸";
 
         var specialEffect = DataTableManager.SpecialEffectCombinationTable.Get(data.SpecialEffectCombination_ID);
         string upDownString = "증가";
@@ -50,8 +52,17 @@ public class BuffTowerInfoPanelUI : MonoBehaviour
         if(specialEffect.SpecialEffect1_ID != 0)
         {
             var specialEffectData = DataTableManager.SpecialEffectTable.Get(specialEffect.SpecialEffect1_ID);
+            var specialEffectTextId = specialEffectData.SpecialEffectText_ID;
+            var specialEffectTextData = DataTableManager.SpecialEffectTextTable.Get(specialEffectTextId);
+
+            var specialEffectName = specialEffectTextData.Name;
+
             upDownString = specialEffect.SpecialEffect1Value > 0 ? "증가" : "감소";
-            abilityOneTMP.text = $"{specialEffectData.SpecialEffectName} {specialEffect.SpecialEffect1Value} {upDownString}";
+
+            var isRate = specialEffectData.SpecialEffectValueType == 1;
+            var suffix = isRate ? "%" : "";
+
+            abilityOneTMP.text = $"{specialEffectName} {specialEffect.SpecialEffect1Value}{suffix} {upDownString}";
         }
         else
         {
@@ -61,28 +72,46 @@ public class BuffTowerInfoPanelUI : MonoBehaviour
         if(specialEffect.SpecialEffect2_ID != 0)
         {
             var specialEffectData = DataTableManager.SpecialEffectTable.Get(specialEffect.SpecialEffect2_ID);
+            var specialEffectTextId = specialEffectData.SpecialEffectText_ID;
+            var specialEffectTextData = DataTableManager.SpecialEffectTextTable.Get(specialEffectTextId);
+
+            var specialEffectName = specialEffectTextData.Name;
             upDownString = specialEffect.SpecialEffect2Value > 0 ? "증가" : "감소";
-            abilityTwoTMP.text = $"{specialEffectData.SpecialEffectName} {specialEffect.SpecialEffect2Value} {upDownString}";
+
+            
+            var isRate = specialEffectData.SpecialEffectValueType == 1;
+            var suffix = isRate ? "%" : "";
+
+            abilityTwoTMP.text = $"{specialEffectName} {specialEffect.SpecialEffect2Value}{suffix} {upDownString}";
         }
         else
         {
-            abilityTwoText.SetActive(false);
+            abilityTwoTMP.text = "없음";
         }
 
         if(specialEffect.SpecialEffect3_ID != 0)
         {
             var specialEffectData = DataTableManager.SpecialEffectTable.Get(specialEffect.SpecialEffect3_ID);
+            var specialEffectTextId = specialEffectData.SpecialEffectText_ID;
+            var specialEffectTextData = DataTableManager.SpecialEffectTextTable.Get(specialEffectTextId);
+
+            var specialEffectName = specialEffectTextData.Name;
             upDownString = specialEffect.SpecialEffect3Value > 0 ? "증가" : "감소";
-            abilityThreeTMP.text = $"{specialEffectData.SpecialEffectName} {specialEffect.SpecialEffect3Value} {upDownString}";
+            
+            var isRate = specialEffectData.SpecialEffectValueType == 1;
+            var suffix = isRate ? "%" : "";
+
+            abilityThreeTMP.text = $"{specialEffectName} {specialEffect.SpecialEffect3Value}{suffix} {upDownString}";
         }
         else
         {
-            abilityThreeText.SetActive(false);
+            abilityThreeTMP.text = "없음";
         }
     }
 
     private void OnExitBtnClicked()
     {
         gameObject.SetActive(false);
+        basePanel.SetActive(true);
     }
 }

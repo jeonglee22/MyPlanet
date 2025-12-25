@@ -10,6 +10,8 @@ public class SpecialEffectData
     public int SpecialEffectValueType { get; set; }
     public string SpecialEffectFile { get; set; }
     public float SpecialEffectAbility { get; set; }
+    public string SpecialEffectIcon { get; set; }
+    public int SpecialEffectText_ID { get; set; }
 
     public override string ToString()
     {
@@ -35,7 +37,7 @@ public class SpecialEffectTable : DataTable
         {
             if (!dictionary.TryAdd(item.SpecialEffect_ID, item))
             {
-                Debug.LogError($"[SpecialEffectTable] �ߺ� Ű: {item.SpecialEffect_ID}");
+                Debug.LogError($"[SpecialEffectTable] �ߺ� Ű: {item.SpecialEffect_ID}");
             }
         }
     }

@@ -55,6 +55,7 @@ public static class DataTableManager
             LoadTableAsync<PlanetLvUpgradeTable>(DataTableIds.PlanetLvUpgrade),
             LoadTableAsync<PlanetStarUpgradeTable>(DataTableIds.PlanetStarUpgrade),
             LoadTableAsync<LobbyStringTable>(DataTableIds.LobbyString),
+            LoadTableAsync<SpecialEffectTextTable>(DataTableIds.SpecialEffectText),
             LoadTableAsync<PlanetTextTable>(DataTableIds.PlanetText),
         };
 
@@ -296,6 +297,14 @@ public static class DataTableManager
         get
         {
             return Get<LobbyStringTable>(DataTableIds.LobbyString);
+        }
+    }
+
+    public static SpecialEffectTextTable SpecialEffectTextTable
+    {
+        get
+        {
+            return Get<SpecialEffectTextTable>(DataTableIds.SpecialEffectText);
         }
     }
 
