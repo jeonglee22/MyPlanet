@@ -57,6 +57,7 @@ public static class DataTableManager
             LoadTableAsync<LobbyStringTable>(DataTableIds.LobbyString),
             LoadTableAsync<SpecialEffectTextTable>(DataTableIds.SpecialEffectText),
             LoadTableAsync<PlanetTextTable>(DataTableIds.PlanetText),
+            LoadTableAsync<StageRewardTable>(DataTableIds.StageReward),
         };
 
         await UniTask.WhenAll(tasks);
@@ -313,6 +314,14 @@ public static class DataTableManager
         get
         {
             return Get<PlanetTextTable>(DataTableIds.PlanetText);
+        }
+    }
+
+    public static StageRewardTable StageRewardTable
+    {
+        get
+        {
+            return Get<StageRewardTable>(DataTableIds.StageReward);
         }
     }
 
