@@ -12,6 +12,7 @@ public class GameInitLoader : MonoBehaviour
         await loadManager.LoadGamePrefabAsync(AddressLabel.Prefab);
         await loadManager.LoadGamePrefabAsync(AddressLabel.EnemyLazer);
         await loadManager.LoadGameTextureAsync(AddressLabel.Texture);
+        await loadManager.LoadGameMeshAsync(AddressLabel.Mesh);
         await loadManager.LoadEnemyPrefabAsync();
         // await loadManager.LoadGamePrefabAsync(AddressLabel.PoolObject);
     }

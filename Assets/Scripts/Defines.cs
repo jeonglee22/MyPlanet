@@ -332,6 +332,7 @@ public static class AddressLabel
     public static readonly string Lazer = "Lazer";
     public static readonly string EnemyLazer = "EnemyLazer";
     public static readonly string Texture = "Texture";
+    public static readonly string Mesh = "Mesh";
 }
 
 public static class DatabaseRef
