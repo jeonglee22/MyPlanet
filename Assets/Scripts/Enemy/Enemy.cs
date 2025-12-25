@@ -173,7 +173,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
         DpsCalculator.AddDamage(damage);
 
-        planet.Health += damage * planet.PlanetData.Drain;
+        planet.Health += damage * planet.Drain;
 
         base.OnDamage(damage);
 
