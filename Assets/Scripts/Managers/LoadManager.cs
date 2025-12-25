@@ -11,6 +11,7 @@ public class LoadManager : MonoBehaviour
 
     private static Dictionary<string, GameObject> loadedGamePrefabs = new Dictionary<string, GameObject>();
     private static Dictionary<string, Sprite> loadedGameTextures = new Dictionary<string, Sprite>();
+    private static Dictionary<string, Mesh> loadedMeshes = new Dictionary<string, Mesh>();
 
     public async UniTask LoadGamePrefabAsync(string labelName)
     {
@@ -35,6 +36,25 @@ public class LoadManager : MonoBehaviour
             foreach (var sprite in spriteLoaded)
             {
                 loadedGameTextures.Add(sprite.name, sprite);
+            }
+        }
+        catch (System.Exception)
+        {
+        }
+    }
+
+    public async UniTask LoadGameMeshAsync(string labelName)
+    {
+        try
+        {
+            var prefabLoaded = await Addressables.LoadAssetsAsync<GameObject>(labelName).ToUniTask();
+            foreach (var prefab in prefabLoaded)
+            {
+                MeshFilter meshFilter = prefab.GetComponentInChildren<MeshFilter>();
+                if (meshFilter != null && meshFilter.sharedMesh != null)
+                {
+                    loadedMeshes.Add(prefab.name, meshFilter.sharedMesh);
+                }
             }
         }
         catch (System.Exception)
@@ -145,5 +165,40 @@ public class LoadManager : MonoBehaviour
         {
             await UniTask.WhenAll(loadTasks);
         }
+    }
+
+    public async UniTask<Mesh> LoadMeshFromPrefabAsync(string addressKey)
+    {
+        if (loadedMeshes.TryGetValue(addressKey, out Mesh mesh))
+        {
+            return mesh;
+        }
+
+        try
+        {
+            GameObject prefab = await Addressables.LoadAssetAsync<GameObject>(addressKey).ToUniTask();
+            
+            MeshFilter meshFilter = prefab.GetComponentInChildren<MeshFilter>();
+            if (meshFilter != null && meshFilter.sharedMesh != null)
+            {
+                loadedMeshes.Add(addressKey, meshFilter.sharedMesh);
+                return meshFilter.sharedMesh;
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Failed to load mesh from {addressKey}: {e}");
+        }
+
+        return null;
+    }
+
+    public static Mesh GetLoadedMesh(string addressKey)
+    {
+        if (loadedMeshes.TryGetValue(addressKey, out Mesh mesh))
+        {
+            return mesh;
+        }
+        return null;
     }
 }

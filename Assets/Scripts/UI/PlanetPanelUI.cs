@@ -27,6 +27,8 @@ public class PlanetPanelUI : MonoBehaviour
     [SerializeField] private GameObject starUpgradePanel;
     [SerializeField] private GameObject levelUpgradePanel;
 
+    [SerializeField] private GameObject selectPlanetIcons;
+
     private int choosedIndex = -1;
 
 
@@ -46,6 +48,7 @@ public class PlanetPanelUI : MonoBehaviour
         saveNoBtn.onClick.AddListener(OnSaveNoBtnClicked);
         homeBtn.onClick.AddListener(OnHomeBtnClicked);
         starLevelUpBtn.onClick.AddListener(OnStarUpgradeButtonClicked);
+        levelUpBtn.onClick.AddListener(OnLevelUpgradeButtonClicked);
 
         AddBtnSound();
 
@@ -54,6 +57,7 @@ public class PlanetPanelUI : MonoBehaviour
         planetInfoPanel.SetActive(false);
         starUpgradePanel.SetActive(false);
         levelUpgradePanel.SetActive(false);
+        selectPlanetIcons.SetActive(false);
     }
 
     private void AddBtnSound()
@@ -64,6 +68,7 @@ public class PlanetPanelUI : MonoBehaviour
         saveNoBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
         homeBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
         starLevelUpBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        levelUpBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
 
         for (int i = 0; i < planetButtons.Length; i++)
         {
@@ -92,6 +97,7 @@ public class PlanetPanelUI : MonoBehaviour
         {
             planetInfoPanel.SetActive(false);
             titleText.text = "행성";
+            selectPlanetIcons.SetActive(false);
             return;
         }
         else if(starUpgradePanel.activeSelf)
@@ -99,6 +105,7 @@ public class PlanetPanelUI : MonoBehaviour
             starUpgradePanel.SetActive(false);
             planetInfoPanel.SetActive(true);
             titleText.text = "행성 강화";
+            selectPlanetIcons.SetActive(true);
             return;
         }
         else if(levelUpgradePanel.activeSelf)
@@ -106,6 +113,7 @@ public class PlanetPanelUI : MonoBehaviour
             levelUpgradePanel.SetActive(false);
             planetInfoPanel.SetActive(true);
             titleText.text = "행성 강화";
+            selectPlanetIcons.SetActive(true);
             return;
         }
 
@@ -125,17 +133,32 @@ public class PlanetPanelUI : MonoBehaviour
         planetInfoPanel.SetActive(true);
 
         titleText.text = "행성 강화";
+
+        selectPlanetIcons.SetActive(true);
     }
 
     public void OnStarUpgradeButtonClicked()
     {
         starUpgradePanel.SetActive(true);
         planetInfoPanel.SetActive(false);
+        selectPlanetIcons.SetActive(false);
 
         int planetId = 300000 + choosedIndex;
         starUpgradePanel.GetComponent<PlanetStarUpgradePanelUI>().Initialize(DataTableManager.PlanetTable.Get(planetId),PlanetManager.Instance.GetPlanetInfo(planetId));
 
         titleText.text = "행성 승급";
+    }
+
+    public void OnLevelUpgradeButtonClicked()
+    {
+        levelUpgradePanel.SetActive(true);
+        planetInfoPanel.SetActive(false);
+        selectPlanetIcons.SetActive(false);
+
+        int planetId = 300000 + choosedIndex;
+        levelUpgradePanel.GetComponent<PlanetLevelUpgradeUI>().Initialize(DataTableManager.PlanetTable.Get(planetId),PlanetManager.Instance.GetPlanetInfo(planetId));
+
+        titleText.text = "행성 레벨업";
     }
 
     public void OnChoosePlanetBtnClicked()

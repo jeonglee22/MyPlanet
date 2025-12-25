@@ -52,6 +52,7 @@ public class Planet : LivingEntity
         }
     }
     private float drain;
+    public float Drain => drain;
     private float expScale;
     private float recoveryHp;
 
@@ -127,21 +128,8 @@ public class Planet : LivingEntity
 
     private void Start()
     {
-        var planetData = DataTableManager.PlanetTable.Get(Variables.planetId);
-        if (planetData == null)
-            return;
-
-        maxHealth = planetData.PlanetHp;
-        Health = maxHealth;
-        this.planetData = planetData;
-        defense = planetData.PlanetArmor;
-        shield = planetData.PlanetShield;
-        initShield = planetData.PlanetShield;
-        drain = planetData.Drain;
-        expScale = planetData.ExpScale == 0f ? 1f : planetData.ExpScale;
-        recoveryHp = planetData.RecoveryHp;
-
-        CalculatePlanetAttackPower();
+        ApplyPlanetVisual();
+        ApplyPlanetStats();
     }
 
     protected override void OnEnable()
@@ -161,6 +149,56 @@ public class Planet : LivingEntity
         {
             Health += recoveryHp * Time.deltaTime;
             recoveryTimer = 0f;
+        }
+    }
+
+    private void ApplyPlanetStats()
+    {
+        if(PlanetStatManager.Instance == null || !PlanetStatManager.Instance.IsInitialized)
+        {
+            return;
+        }
+
+        var currentStats = PlanetStatManager.Instance.CurrentPlanetStats;
+
+        if(currentStats == null)
+        {
+            return;
+        }
+
+        var planetData = DataTableManager.PlanetTable.Get(PlanetManager.Instance.ActivePlanetId);
+        if(planetData == null)
+        {
+            return;
+        }
+
+        maxHealth = currentStats.hp;
+        Health = maxHealth;
+        defense = currentStats.defense;
+        shield = currentStats.shield;
+        initShield = currentStats.shield;
+        drain = currentStats.drain;
+        expScale = currentStats.expRate == 0f ? 1f : currentStats.expRate;
+        recoveryHp = currentStats.hpRegeneration;
+
+        CalculatePlanetAttackPower();
+    }
+
+    private void ApplyPlanetVisual()
+    {
+        if(planetData == null)
+        {
+            planetData = DataTableManager.PlanetTable.Get(PlanetManager.Instance.ActivePlanetId);
+        }
+
+        Mesh mesh = LoadManager.GetLoadedMesh(planetData.Planet_ID.ToString());
+        if(mesh != null)
+        {
+            MeshFilter meshFilter = GetComponent<MeshFilter>();
+            if(meshFilter != null)
+            {
+                meshFilter.mesh = mesh;
+            }
         }
     }
 

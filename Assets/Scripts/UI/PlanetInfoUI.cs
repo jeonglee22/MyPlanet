@@ -34,6 +34,8 @@ public class PlanetInfoUI : MonoBehaviour
     [SerializeField] private Color defaultColor;
     [SerializeField] private Color canUpgradeColor;
 
+    [SerializeField] private List<GameObject> unSelectIcon;
+
     private PlanetData currentPlanetData;
     private UserPlanetInfo currentUserPlanetInfo;
     private PlanetLvUpgradeData planetLvUpgradeData;
@@ -53,6 +55,12 @@ public class PlanetInfoUI : MonoBehaviour
 
     public void Initialize(PlanetData planetData, UserPlanetInfo userPlanetInfo)
     {
+        int selectIdx = planetData.Planet_ID - 300001;
+        for(int i = 0; i < unSelectIcon.Count; i++)
+        {
+            unSelectIcon[i].SetActive(i != selectIdx);
+        }
+
         currentPlanetData = planetData;
         currentUserPlanetInfo = userPlanetInfo;
         var planetTextData = DataTableManager.PlanetTextTable.Get(planetData.PlanetText_ID);
@@ -80,6 +88,8 @@ public class PlanetInfoUI : MonoBehaviour
 
             levelUpBtn.interactable = false;
             starUpgradeBtn.interactable = false;
+            pieceSlider.maxValue = 1;
+            pieceSlider.value = 1;
 
             return;
         }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,11 +16,22 @@ public class PlanetItemUI : MonoBehaviour
     [SerializeField] private Button itemButton; 
     [SerializeField] private GameObject notOwnImage;
     [SerializeField] private GameObject blackImage;
+    [SerializeField] private Button lockOpenButton;
 
     private PlanetStarUpgradeData planetStarUpgradeData;
+    private PlanetData currentPlanetData;
+    private UserPlanetInfo currentUserPlanetInfo;
+
+    private void Start()
+    {
+        lockOpenButton.onClick.AddListener(() => OnLockOpenBtnClicked().Forget());
+    }
 
     public void Initialize(PlanetData planetData, UserPlanetInfo userPlanetInfo)
     {
+        currentPlanetData = planetData;
+        currentUserPlanetInfo = userPlanetInfo;
+
         planetIcon.sprite = LoadManager.GetLoadedGameTexture(planetData.PlanetImage);
         if(planetData.Planet_ID == (int)PlanetType.BasePlanet)
         {
@@ -36,6 +48,10 @@ public class PlanetItemUI : MonoBehaviour
             }
 
             pieceSlider.fillRect.GetComponent<Image>().sprite = changePieceImage;
+            pieceSlider.maxValue = 1;
+            pieceSlider.value = 1;
+
+            lockOpenButton.gameObject.SetActive(false);
 
             return;
         }
@@ -49,6 +65,8 @@ public class PlanetItemUI : MonoBehaviour
             planetStarUpgradeData = DataTableManager.PlanetStarUpgradeTable.GetCurrentLevelData(planetData.Planet_ID, 1);
 
             itemButton.interactable = false;
+
+            UpdateLockOpenButton();
         }
         else
         {
@@ -75,6 +93,8 @@ public class PlanetItemUI : MonoBehaviour
             }
 
             itemButton.interactable = true;
+
+            lockOpenButton.gameObject.SetActive(false);
         }
 
         UpdatePieceSlider(planetData);
@@ -102,5 +122,58 @@ public class PlanetItemUI : MonoBehaviour
         pieceSlider.value = currentPieces;
 
         pieceText.text = $"{currentPieces} / {requiredPieces}";
+    }
+
+    private async UniTaskVoid OnLockOpenBtnClicked()
+    {
+        if (currentUserPlanetInfo.owned)
+        {
+            return;
+        }
+
+        int pieceId = currentPlanetData.PieceId;
+        int currentPieces = ItemManager.Instance.GetItem(pieceId);
+        int requiredPieces = planetStarUpgradeData.UpgradeResource;
+
+        if(currentPieces < requiredPieces)
+        {
+            Debug.Log("[PlanetItemUI] 행성 조각이 부족합니다.");
+            return;
+        }
+
+        ItemManager.Instance.AddItem(pieceId, -requiredPieces);
+        await ItemManager.Instance.SaveItemsAsync();
+
+        PlanetManager.Instance.UnlockPlanet(currentPlanetData.Planet_ID);
+        await PlanetManager.Instance.SavePlanetsAsync();
+
+        var planetPanelUI = GameObject.FindGameObjectWithTag(TagName.PlanetPanelUI).GetComponent<PlanetPanelUI>();
+        planetPanelUI.RefreshPlanetPanelUI();
+    }
+
+    public void RefreshUI()
+    {
+        if(currentPlanetData != null && currentUserPlanetInfo != null)
+        {
+            Initialize(currentPlanetData, currentUserPlanetInfo);
+        }
+    }
+
+    private void UpdateLockOpenButton()
+    {
+        int pieceId = currentPlanetData.PieceId;
+
+        int currentPieces = ItemManager.Instance.GetItem(pieceId);
+
+        int requiredPieces = planetStarUpgradeData.UpgradeResource;
+
+        if(currentPieces >= requiredPieces)
+        {
+            lockOpenButton.gameObject.SetActive(true);
+        }
+        else
+        {
+            lockOpenButton.gameObject.SetActive(false);
+        }
     }
 }
