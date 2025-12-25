@@ -158,7 +158,7 @@ public class NewAttackTowerCardUiSetting : MonoBehaviour
         selfAbilityImage3.sprite = LoadManager.GetLoadedGameTexture(abilityIcon3);
 
         abilityTexts3[0].text = specialEffectName3;
-        abilityTexts3[1].text = abilityData2.SpecialEffectType == 1 ? $"{specialEffectValue3}%" : $"{specialEffectValue3}";
+        abilityTexts3[1].text = abilityData3.SpecialEffectType == 1 ? $"{specialEffectValue3}%" : $"{specialEffectValue3}";
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
