@@ -1,9 +1,16 @@
+using UnityEngine;
+
 public class AtkSpeedHighUnlockAbility : UnlockMultiEffectAbilityBase
 {
     public AtkSpeedHighUnlockAbility() : base(200019) { }
 
-    public override IAbility Copy()
+    protected override UnlockMultiEffectAbilityBase CreateNewInstance()
     {
         return new AtkSpeedHighUnlockAbility();
+    }
+
+    public override IAbility Copy()
+    {
+        return CopyInternal();
     }
 }

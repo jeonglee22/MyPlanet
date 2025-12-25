@@ -1,6 +1,5 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-
 
 public abstract class UnlockMultiEffectAbilityBase : IAbility, IReinforceSumApplicable
 {
@@ -47,6 +46,7 @@ public abstract class UnlockMultiEffectAbilityBase : IAbility, IReinforceSumAppl
         subByEffectId[effectId] = a;
         effectOrder.Add(effectId);
     }
+
     protected virtual IAbility CreateAbilityByEffect(int effectId, float tableValue)
     {
         switch (effectId)
@@ -110,6 +110,27 @@ public abstract class UnlockMultiEffectAbilityBase : IAbility, IReinforceSumAppl
 
         return addTable * ((sub.AbilityType == AbilityApplyType.Rate) ? 0.01f : 1f);
     }
+    protected UnlockMultiEffectAbilityBase CopyInternal()
+    {
+        var newInstance = CreateNewInstance();
+
+        newInstance.subByEffectId.Clear();
+        newInstance.effectOrder.Clear();
+
+        foreach (var effectId in effectOrder)
+        {
+            if (subByEffectId.TryGetValue(effectId, out var originalSub) && originalSub != null)
+            {
+                var copiedSub = originalSub.Copy();
+                newInstance.subByEffectId[effectId] = copiedSub;
+                newInstance.effectOrder.Add(effectId);
+            }
+        }
+
+        return newInstance;
+    }
+
+    protected abstract UnlockMultiEffectAbilityBase CreateNewInstance();
 
     public void ApplyAbility(GameObject gameObject)
     {

@@ -1,9 +1,16 @@
+using UnityEngine;
+
 public class ExplosionRangePierceUnlockAbility : UnlockMultiEffectAbilityBase
 {
     public ExplosionRangePierceUnlockAbility() : base(200022) { }
 
-    public override IAbility Copy()
+    protected override UnlockMultiEffectAbilityBase CreateNewInstance()
     {
         return new ExplosionRangePierceUnlockAbility();
+    }
+
+    public override IAbility Copy()
+    {
+        return CopyInternal();
     }
 }

@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -17,10 +17,10 @@ public class TowerReinforceManager : MonoBehaviour
         }
     }
 
-    [Header("¿ä°İ Å¸¿ö °ø°İ·Â ¹èÀ² °è¼ö")]
+    [Header("ìš”ê²© íƒ€ì›Œ ê³µê²©ë ¥ ë°°ìœ¨ ê³„ìˆ˜")]
     [SerializeField] private float attackReinforceScale = 1f;
 
-    [Header("ÁõÆø Å¸¿ö °­È­ ¹èÀ²(ÀüÃ¼) °è¼ö")]
+    [Header("ì¦í­ íƒ€ì›Œ ê°•í™” ë°°ìœ¨(ì „ì²´) ê³„ìˆ˜")]
     [SerializeField] private float buffReinforceScale = 1f;
 
     private Dictionary<int, List<TowerReinforceUpgradeRow>> attackGroups =
