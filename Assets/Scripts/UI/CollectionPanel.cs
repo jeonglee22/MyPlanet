@@ -463,7 +463,7 @@ public class CollectionPanel : MonoBehaviour
         else
         {
             randomAbilityInfoPanelObj.SetActive(true);
-            towerPanelObj.SetActive(false);
+            abilityPanelObj.SetActive(false);
             var abilityInfoPanel = randomAbilityInfoPanelObj.GetComponent<RandomAbilityInfoUI>();
             abilityInfoPanel.Initialize(panel.AbilityData);
         }

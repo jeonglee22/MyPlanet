@@ -341,7 +341,7 @@ public class TowerInfoPanelUI : MonoBehaviour
     {
         if (additionalValue > 0)
         {
-            textComponent.text = $"{baseValue} (+{additionalValue}{additionalSuffix}){suffix}";
+            textComponent.text = $"{baseValue}\n(+{additionalValue}{additionalSuffix}){suffix}";
         }
         else
         {
