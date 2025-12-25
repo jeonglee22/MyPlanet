@@ -70,4 +70,9 @@ public class StageTable : DataTable
     {
         return dictionary.Count;
     }
+
+    public StageData GetByIndex(int index)
+    {
+        return dictionary.Values.FirstOrDefault(stage => stage.StageIndex == index);
+    }
 }
