@@ -27,8 +27,8 @@ public static class TowerAttackDebugInfoExtensions
         float damageBuffFromUpgrade = GetField<float>(t, "damageBuffFromUpgrade", 0f);
         var damageAbilitySources = GetField<List<float>>(t, "damageAbilitySources");
 
-        float fireRateBuffMul = t.fireRateBuffMul;       // public field
-        float fireRateAbilityMul = t.fireRateAbilityMul; // public field
+        float fireRateBuffMul = t.fireRateBuffMul;
+        float fireRateAbilityMul = t.fireRateAbilityMul;
         float towerUpgradeFireRateMul = GetField<float>(t, "towerUpgradeFireRateMul", 0f);
         var fireRateAbilitySources = GetField<List<float>>(t, "fireRateAbilitySources");
 
@@ -61,7 +61,7 @@ public static class TowerAttackDebugInfoExtensions
         var amplifierAbilityIds = GetField<Dictionary<TowerAmplifier, List<int>>>(t, "amplifierAbilityIds");
         var ownedAbilityIds = GetField<List<int>>(t, "ownedAbilityIds");
 
-        var abilities = t.Abilities; // merged ability list (public property)
+        var abilities = t.Abilities;
 
         // 타워 기본 정보
         sb.AppendLine($"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
@@ -72,9 +72,7 @@ public static class TowerAttackDebugInfoExtensions
         sb.AppendLine($"강화 레벨: {reinforceLevel}");
         sb.AppendLine($"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // 공격력 (Damage)
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // 공격력
         sb.AppendLine();
         sb.AppendLine("🔥 공격력 (DAMAGE)");
 
@@ -88,7 +86,6 @@ public static class TowerAttackDebugInfoExtensions
         }
         sb.AppendLine($"  최종 공격력 (FINAL):           {reinforcedAtk:F2}");
 
-        // 증폭타워 배율
         if (!Mathf.Approximately(damageBuffMul, 1f))
         {
             float percent = (damageBuffMul - 1f) * 100f;
@@ -104,7 +101,6 @@ public static class TowerAttackDebugInfoExtensions
             }
         }
 
-        // 자체 능력 배율
         if (!Mathf.Approximately(damageAbilityMul, 1f))
         {
             float percent = (damageAbilityMul - 1f) * 100f;
@@ -120,21 +116,17 @@ public static class TowerAttackDebugInfoExtensions
             }
         }
 
-        // 외부 업그레이드
         if (!Mathf.Approximately(damageBuffFromUpgrade, 0f))
         {
             float percent = damageBuffFromUpgrade * 100f;
             sb.AppendLine($"  외부 업그레이드 (Upgrade):     +{percent:F1}%");
         }
 
-        // 최종값
-        float finalDamage = baseAtk * damageBuffMul * damageAbilityMul * (1f + damageBuffFromUpgrade);
+        float finalDamage = reinforcedAtk * damageBuffMul * damageAbilityMul * (1f + damageBuffFromUpgrade);
         sb.AppendLine($"  ─────────────────────────────────");
         sb.AppendLine($"  최종 공격력 (FINAL):           {finalDamage:F2}");
 
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // 공격 속도 (Fire Rate)
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // 공격 속도
         sb.AppendLine();
         sb.AppendLine("⚡ 공격 속도 (FIRE RATE)");
 
@@ -171,9 +163,7 @@ public static class TowerAttackDebugInfoExtensions
         sb.AppendLine($"  ─────────────────────────────────");
         sb.AppendLine($"  최종 공격속도 (FINAL):         {t.CurrentFireRate:F2} /s");
 
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // 투사체 개수 (Projectile Count)
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // 투사체 개수
         sb.AppendLine();
         sb.AppendLine("🎯 투사체 개수 (PROJECTILE COUNT)");
         sb.AppendLine($"  기본 (Base):                  {baseProjectileCount}");
@@ -190,9 +180,7 @@ public static class TowerAttackDebugInfoExtensions
         sb.AppendLine($"  ─────────────────────────────────");
         sb.AppendLine($"  최종 투사체 개수 (FINAL):      {t.CurrentProjectileCount}");
 
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // 명중률 (Accuracy)
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // 명중률
         sb.AppendLine();
         sb.AppendLine("🎲 명중률 (ACCURACY)");
 
@@ -208,13 +196,10 @@ public static class TowerAttackDebugInfoExtensions
         sb.AppendLine($"  ─────────────────────────────────");
         sb.AppendLine($"  최종 명중률 (FINAL):           {t.FinalHitRate:F1}%");
 
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // 관통 (Penetration)
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // 관통
         sb.AppendLine();
         sb.AppendLine("🔓 관통 (PENETRATION)");
 
-        // 퍼센트 관통
         sb.AppendLine("  [퍼센트 관통 (Percent)]");
         float basePercent = currentProjectileData != null ? currentProjectileData.RatePenetration : 0f;
         sb.AppendLine($"    기본 (Base):                {basePercent:F1}%");
@@ -225,7 +210,7 @@ public static class TowerAttackDebugInfoExtensions
         if (!Mathf.Approximately(percentPenetrationFromAbility, 0f))
         {
             sb.AppendLine($"    자체 능력 (Ability):         {percentPenetrationFromAbility * 100f:F1}%");
-            if (percentPenAbilitySources != null && percentPenAbilitySources.Count > 0)
+            if (percentPenAbilitySources != null)
             {
                 sb.AppendLine($"      • {percentPenAbilitySources.Count}개 소스:");
                 for (int i = 0; i < percentPenAbilitySources.Count; i++)
@@ -236,7 +221,6 @@ public static class TowerAttackDebugInfoExtensions
             }
         }
 
-        // 고정 관통
         sb.AppendLine("  [고정 관통 (Fixed)]");
         float baseFixed = currentProjectileData != null ? currentProjectileData.FixedPenetration : 0f;
         sb.AppendLine($"    기본 (Base):                {baseFixed:F1}");
@@ -247,9 +231,7 @@ public static class TowerAttackDebugInfoExtensions
         if (!Mathf.Approximately(fixedPenetrationBuffAdd, 0f))
             sb.AppendLine($"    자체 능력 (Ability):         +{fixedPenetrationBuffAdd:F1}");
 
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // 타겟 개수 (Target Count)
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // 타겟 개수
         sb.AppendLine();
         sb.AppendLine("👥 타겟 개수 (TARGET COUNT)");
 
@@ -268,9 +250,7 @@ public static class TowerAttackDebugInfoExtensions
             sb.AppendLine($"  추가 타겟 (Extra):             +{totalExtraTargets}");
         }
 
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // 히트 반경 (Hit Radius)
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // 히트 반경
         sb.AppendLine();
         sb.AppendLine("📏 히트 반경 (HIT RADIUS)");
 
@@ -296,9 +276,37 @@ public static class TowerAttackDebugInfoExtensions
         sb.AppendLine($"  ─────────────────────────────────");
         sb.AppendLine($"  최종 배율 (FINAL Mul):         ×{hitRadiusBuffMul:F3}");
 
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // 어빌리티 (Abilities)
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // 투사체 속도
+        sb.AppendLine();
+        sb.AppendLine("🚀 투사체 속도 (PROJECTILE SPEED)");
+
+        float baseSpeed = currentProjectileData != null ? currentProjectileData.ProjectileSpeed : 0f;
+        sb.AppendLine($"  기본 (Base):                  {baseSpeed:F2}");
+
+        var projectileSpeedAbilityMul = GetField<float>(t, "projectileSpeedAbilityMul", 1f);
+        var projectileSpeedAbilitySources = GetField<List<float>>(t, "projectileSpeedAbilitySources");
+
+        if (!Mathf.Approximately(projectileSpeedAbilityMul, 1f))
+        {
+            float percent = (projectileSpeedAbilityMul - 1f) * 100f;
+            sb.AppendLine($"  자체 능력 배율 (Ability):      ×{projectileSpeedAbilityMul:F3}  ({FormatSigned(percent, 1)}%)");
+
+            if (projectileSpeedAbilitySources != null && projectileSpeedAbilitySources.Count > 0)
+            {
+                sb.AppendLine($"    • {projectileSpeedAbilitySources.Count}개 소스:");
+                for (int i = 0; i < projectileSpeedAbilitySources.Count; i++)
+                {
+                    float srcPercent = projectileSpeedAbilitySources[i] * 100f;
+                    sb.AppendLine($"      [{i + 1}] {FormatSigned(srcPercent, 1)}%");
+                }
+            }
+        }
+
+        float finalSpeed = baseSpeed * projectileSpeedAbilityMul;
+        sb.AppendLine($"  ─────────────────────────────────");
+        sb.AppendLine($"  최종 투사체 속도 (FINAL):      {finalSpeed:F2}");
+
+        // ✅ 어빌리티 상세 정보
         sb.AppendLine();
         sb.AppendLine("✨ 어빌리티 (ABILITIES)");
 
@@ -309,7 +317,17 @@ public static class TowerAttackDebugInfoExtensions
             {
                 var abilityData = DataTableManager.RandomAbilityTable?.Get(abilityId);
                 string abilityName = abilityData != null ? abilityData.RandomAbilityName : $"ID:{abilityId}";
-                sb.AppendLine($"    • {abilityName} (ID: {abilityId})");
+
+                // ✅ Unlock Ability 상세 정보 추가
+                if (IsUnlockAbility(abilityId) && abilityData != null)
+                {
+                    sb.AppendLine($"    • {abilityName} (ID: {abilityId}) [Unlock Ability]");
+                    AppendUnlockAbilityDetails(sb, abilityData, reinforceLevel);
+                }
+                else
+                {
+                    sb.AppendLine($"    • {abilityName} (ID: {abilityId})");
+                }
             }
         }
 
@@ -353,7 +371,6 @@ public static class TowerAttackDebugInfoExtensions
         sb.AppendLine();
         sb.AppendLine("타입 1 능력 배율 (TYPE 1 ABILITY MULTIPLIERS)");
 
-        // 투사체 수
         if (abilities != null && abilities.Contains(200011))
         {
             float mul = GetAbilityDamageMultiplierLike(t, 200011);
@@ -361,7 +378,6 @@ public static class TowerAttackDebugInfoExtensions
             sb.AppendLine($"    각 투사체 데미지 = 기본 × {mul:F2}");
         }
 
-        // 타겟 수
         if (abilities != null && abilities.Contains(200012))
         {
             float mul = GetAbilityDamageMultiplierLike(t, 200012);
@@ -369,7 +385,6 @@ public static class TowerAttackDebugInfoExtensions
             sb.AppendLine($"    각 타겟 데미지 = 기본 × {mul:F2}");
         }
 
-        // 관통
         if (abilities != null && abilities.Contains(200009))
         {
             float mul = GetAbilityDamageMultiplierLike(t, 200009);
@@ -377,7 +392,6 @@ public static class TowerAttackDebugInfoExtensions
             sb.AppendLine($"    2번째 타겟부터 데미지 = 기본 × {mul:F2}");
         }
 
-        // 폭발
         if (abilities != null && abilities.Contains(200008))
         {
             float mul = GetAbilityDamageMultiplierLike(t, 200008);
@@ -385,7 +399,6 @@ public static class TowerAttackDebugInfoExtensions
             sb.AppendLine($"    폭발 데미지 = 기본 × {mul:F2}");
         }
 
-        // 연쇄
         if (abilities != null && abilities.Contains(200007))
         {
             float mul = GetAbilityDamageMultiplierLike(t, 200007);
@@ -395,7 +408,6 @@ public static class TowerAttackDebugInfoExtensions
             sb.AppendLine($"    3번째 연쇄 = 기본 × {(mul * mul * mul):F2}");
         }
 
-        // 분열
         if (abilities != null && abilities.Contains(200010))
         {
             float mul = GetAbilityDamageMultiplierLike(t, 200010);
@@ -407,9 +419,83 @@ public static class TowerAttackDebugInfoExtensions
         return sb.ToString();
     }
 
+    // ✅ Unlock Ability 판별
+    private static bool IsUnlockAbility(int abilityId)
+    {
+        return abilityId >= 200018 && abilityId <= 200023;
+    }
+
+    // ✅ Unlock Ability 상세 정보 출력
+    private static void AppendUnlockAbilityDetails(StringBuilder sb, RandomAbilityData data, int reinforceLevel)
+    {
+        sb.AppendLine($"      → 복합 효과 (강화 Lv.{reinforceLevel}):");
+
+        if (TowerReinforceManager.Instance == null)
+        {
+            sb.AppendLine($"        [TowerReinforceManager not available]");
+            return;
+        }
+
+        // ✅ TowerReinforceManager를 사용하여 강화합 계산
+        var sum = TowerReinforceManager.Instance.GetRandomAbilityReinforceSumForAbility(data.RandomAbility_ID, reinforceLevel);
+
+        // Effect 1
+        if (data.SpecialEffect_ID != 0)
+        {
+            var effectName = data.RandomAbilityName;
+            var baseValue = data.SpecialEffectValue;
+            var addValue = sum.GetAdd(data.SpecialEffect_ID);
+            var finalValue = baseValue + addValue;
+
+            if (reinforceLevel > 0)
+            {
+                sb.AppendLine($"        [1] {effectName}: {baseValue:F1} → {finalValue:F1} (+{addValue:F1})");
+            }
+            else
+            {
+                sb.AppendLine($"        [1] {effectName}: {finalValue:F1}");
+            }
+        }
+
+        // Effect 2
+        if (data.SpecialEffect2_ID.HasValue && data.SpecialEffect2_ID.Value != 0)
+        {
+            var effectName = data.RandomAbility2Name;
+            var baseValue = data.SpecialEffect2Value ?? 0f;
+            var addValue = sum.GetAdd(data.SpecialEffect2_ID.Value);
+            var finalValue = baseValue + addValue;
+
+            if (reinforceLevel > 0)
+            {
+                sb.AppendLine($"        [2] {effectName}: {baseValue:F1} → {finalValue:F1} (+{addValue:F1})");
+            }
+            else
+            {
+                sb.AppendLine($"        [2] {effectName}: {finalValue:F1}");
+            }
+        }
+
+        // Effect 3
+        if (data.SpecialEffect3_ID.HasValue && data.SpecialEffect3_ID.Value != 0)
+        {
+            var effectName = data.RandomAbility3Name;
+            var baseValue = data.SpecialEffect3Value ?? 0f;
+            var addValue = sum.GetAdd(data.SpecialEffect3_ID.Value);
+            var finalValue = baseValue + addValue;
+
+            if (reinforceLevel > 0)
+            {
+                sb.AppendLine($"        [3] {effectName}: {baseValue:F1} → {finalValue:F1} (+{addValue:F1})");
+            }
+            else
+            {
+                sb.AppendLine($"        [3] {effectName}: {finalValue:F1}");
+            }
+        }
+    }
+
     private static float GetAbilityDamageMultiplierLike(TowerAttack t, int abilityId)
     {
-        // TowerAttack.GetAbilityDamageMultiplier() 로직을 외부에서 재현
         if (t == null) return 1f;
 
         var abilities = t.Abilities;
@@ -437,7 +523,6 @@ public static class TowerAttackDebugInfoExtensions
 
     private static string FormatSigned(float value, int decimals)
     {
-        // +0.0 / -0.0 / 0.0 형태
         string fmt = decimals <= 0 ? "+0;-0;0" : "+0." + new string('0', decimals) + ";-0." + new string('0', decimals) + ";0." + new string('0', decimals);
         return value.ToString(fmt);
     }
@@ -473,7 +558,6 @@ public static class TowerAttackDebugInfoExtensions
     }
 
 #else
-    // 릴리즈/스토어 빌드에서는 비활성화
     public static string GetDebugInfo(this TowerAttack t) => string.Empty;
 #endif
 }

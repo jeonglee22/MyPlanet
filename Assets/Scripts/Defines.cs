@@ -81,6 +81,12 @@ public enum AbilityId
     Duration,
     Accuracy,
     AttackSpeedOneTarget,
+    AtkSpeedAtkHitSizeUnlock = 200018,
+    AtkSpeedHighUnlock = 200019,
+    AtkProjSpeedUnlock = 200020,
+    AccuracyHomingUnlock = 200021,
+    ExplosionRangePierceUnlock = 200022,
+    HitSizeChainUnlock = 200023,
 }
 
 public enum AttackTowerId

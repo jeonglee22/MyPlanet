@@ -46,7 +46,7 @@ public class NewAmplifierTowerCardUiSetting : MonoBehaviour
         // installPointText.text = $"왼쪽 : {string.Join(",", leftPoints)}\n오른쪽 : {string.Join(",", rightPoints)}";
         
         var abilityData = DataTableManager.RandomAbilityTable.Get(ability);
-
+        Debug.Log($"[Card] ability={ability}, Effect2_ID={abilityData.SpecialEffect2_ID}, Effect3_ID={abilityData.SpecialEffect3_ID}");
         var specialEffectCombination_ID = amplifierTowerData.SpecialEffectCombination_ID;
         var specialEffectCombinationData = DataTableManager.SpecialEffectCombinationTable.Get(specialEffectCombination_ID);
 
