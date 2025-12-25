@@ -106,7 +106,7 @@ public class NewAttackTowerCardUiSetting : MonoBehaviour
         selfAbilityImage1.sprite = LoadManager.GetLoadedGameTexture(abilityIcon1);
 
         abilityTexts[0].text = specialEffectName;
-        abilityTexts[1].text = abilityData1.SpecialEffectType == 1 ? $"{specialEffectValue}%" : $"{specialEffectValue}";
+        abilityTexts[1].text = abilityData1.SpecialEffectValueType == 1 ? $"{specialEffectValue}%" : $"{specialEffectValue}";
         startIndex++;
 
         if (abilityData.SpecialEffect2_ID == 0)
@@ -132,7 +132,7 @@ public class NewAttackTowerCardUiSetting : MonoBehaviour
         selfAbilityImage2.sprite = LoadManager.GetLoadedGameTexture(abilityIcon2);
 
         abilityTexts2[0].text = specialEffectName2;
-        abilityTexts2[1].text = abilityData2.SpecialEffectType == 1 ? $"{specialEffectValue2}%" : $"{specialEffectValue2}";
+        abilityTexts2[1].text = abilityData2.SpecialEffectValueType == 1 ? $"{specialEffectValue2}%" : $"{specialEffectValue2}";
         startIndex++;
 
         if (abilityData.SpecialEffect3_ID == 0)
@@ -158,7 +158,7 @@ public class NewAttackTowerCardUiSetting : MonoBehaviour
         selfAbilityImage3.sprite = LoadManager.GetLoadedGameTexture(abilityIcon3);
 
         abilityTexts3[0].text = specialEffectName3;
-        abilityTexts3[1].text = abilityData2.SpecialEffectType == 1 ? $"{specialEffectValue3}%" : $"{specialEffectValue3}";
+        abilityTexts3[1].text = abilityData3.SpecialEffectValueType == 1 ? $"{specialEffectValue3}%" : $"{specialEffectValue3}";
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created

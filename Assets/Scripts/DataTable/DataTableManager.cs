@@ -56,6 +56,7 @@ public static class DataTableManager
             LoadTableAsync<PlanetStarUpgradeTable>(DataTableIds.PlanetStarUpgrade),
             LoadTableAsync<LobbyStringTable>(DataTableIds.LobbyString),
             LoadTableAsync<SpecialEffectTextTable>(DataTableIds.SpecialEffectText),
+            LoadTableAsync<PlanetTextTable>(DataTableIds.PlanetText),
         };
 
         await UniTask.WhenAll(tasks);
@@ -304,6 +305,14 @@ public static class DataTableManager
         get
         {
             return Get<SpecialEffectTextTable>(DataTableIds.SpecialEffectText);
+        }
+    }
+
+    public static PlanetTextTable PlanetTextTable
+    {
+        get
+        {
+            return Get<PlanetTextTable>(DataTableIds.PlanetText);
         }
     }
 

@@ -189,11 +189,20 @@ public class SoundManager : MonoBehaviour
 
     public async UniTask LoadSettingsAsync()
     {
+        Debug.Log($"[SoundManager] LoadSettings - IsSignedIn: {AuthManager.Instance.IsSignedIn}");
+        Debug.Log($"[SoundManager] LoadSettings - UserId: {AuthManager.Instance.UserId}");
+
         if(!AuthManager.Instance.IsSignedIn)
         {
             ApplyVolumes();
             return;
         }
+
+        InitializeReference();
+
+        string userId = AuthManager.Instance.UserId;
+        string path = $"userdata/{userId}/settings";
+        Debug.Log($"[SoundManager] Attempting to access: {path}");
 
         try
         {
@@ -207,6 +216,7 @@ public class SoundManager : MonoBehaviour
             }
             else
             {
+
                 await SaveSettingsAsync();
             }
         }

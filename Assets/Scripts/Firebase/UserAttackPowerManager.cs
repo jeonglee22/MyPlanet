@@ -235,13 +235,12 @@ public class UserAttackPowerManager : MonoBehaviour
     {
         await UniTask.WaitUntil(() => DataTableManager.IsInitialized);
         await UniTask.WaitUntil(() => UserPlanetManager.Instance.IsInitialized);
+        await UniTask.WaitUntil(() => PlanetStatManager.Instance.IsInitialized);
 
-        var planetData = DataTableManager.PlanetTable.Get(planetId);
-        // var planetUpgradeData = DataTableManager.PlanetUpgradeTable.Get(planetUpgrade);
-        // var planetLevelData = DataTableManager.PlanetLevelTable.Get(planetLevel);
+        var planetData = PlanetStatManager.Instance.CalculatePlanetStats(planetId, planetLevel, planetUpgrade);
 
-        var baseAttack = planetData.PlanetHp * (100 + planetData.PlanetArmor) * 0.01f;
-        PlanetPower = baseAttack + planetData.PlanetShield + planetData.RecoveryHp * 420f + planetData.Drain * 550f;
+        var baseAttack = planetData.hp * (100 + planetData.defense) * 0.01f;
+        PlanetPower = baseAttack + planetData.shield + planetData.hpRegeneration * 420f + planetData.drain * 550f;
     }
 
     private async UniTask CalculateTowerPower()
