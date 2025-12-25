@@ -15,6 +15,9 @@ public class NewAmplifierTowerCardUiSetting : MonoBehaviour
     [SerializeField] private TextMeshProUGUI[] abilityTexts;
     [SerializeField] private TextMeshProUGUI[] abilityValueTexts;
 
+    [SerializeField] private TextMeshProUGUI leftAbilitySlotText;
+    [SerializeField] private TextMeshProUGUI rightAbilitySlotText;
+
     public void SettingNewTowerCard(int towerId, int ability, List<int> leftPoints, List<int> rightPoints)
     {
         var amplifierTowerData = DataTableManager.BuffTowerTable.Get(towerId);
@@ -37,7 +40,10 @@ public class NewAmplifierTowerCardUiSetting : MonoBehaviour
         leftPoints.Sort();
         rightPoints.Sort();
 
-        installPointText.text = $"왼쪽 : {string.Join(",", leftPoints)}\n오른쪽 : {string.Join(",", rightPoints)}";
+        leftAbilitySlotText.text = $"{string.Join(",", leftPoints)}";
+        rightAbilitySlotText.text = $"{string.Join(",", rightPoints)}";
+
+        // installPointText.text = $"왼쪽 : {string.Join(",", leftPoints)}\n오른쪽 : {string.Join(",", rightPoints)}";
         
         var abilityData = DataTableManager.RandomAbilityTable.Get(ability);
 
