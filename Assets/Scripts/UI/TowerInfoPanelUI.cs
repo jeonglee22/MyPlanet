@@ -25,6 +25,8 @@ public class TowerInfoPanelUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI concentrationModulusText;
     [SerializeField] private TextMeshProUGUI MaintenanceTimeText;
     [SerializeField] private GameObject extraNumberObj;
+    [SerializeField] private Image extraNumberImg;
+    [SerializeField] private TextMeshProUGUI extraNameText;
     [SerializeField] private TextMeshProUGUI extraNumberText;
 
     [SerializeField] private List<GameObject> upgradeObjects;
@@ -158,6 +160,14 @@ public class TowerInfoPanelUI : MonoBehaviour
         else
         {
             extraNumberObj.SetActive(true);
+            var effectData = DataTableManager.SpecialEffectTable.Get(projectileData.ProjectileProperties1_ID);
+            var effectTextDataId = effectData.SpecialEffectText_ID;
+            var effectTextData = DataTableManager.SpecialEffectTextTable.Get(effectTextDataId);
+            var effectName = effectTextData.Name;
+            var effectIcon = LoadManager.GetLoadedGameTexture(effectData.SpecialEffectIcon);
+            
+            extraNumberImg.sprite = effectIcon;
+            extraNameText.text = effectName;
             extraNumberText.text = $"{projectileData.ProjectileProperties1Value}";
         }
 
