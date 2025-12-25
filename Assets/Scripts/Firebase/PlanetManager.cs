@@ -61,7 +61,7 @@ public class PlanetManager : MonoBehaviour
         }
     }
 
-    private const int maxLevel = 50;
+    private int maxLevel = 50;
     private const int maxStarLevel = 5;
     public int MaxLevel => maxLevel;
     public int MaxStarLevel => maxStarLevel;
@@ -308,5 +308,40 @@ public class PlanetManager : MonoBehaviour
             return planetInfo.owned;
         }
         return false;
+    }
+
+    public void ClearPlanetData()
+    {
+        userPlanetsData = null;
+        isDirty = false;
+        isInitialized = false;
+        planetsRef = null;
+        activePlanetRef = null;
+    }
+
+    public async UniTask ReloadPlanetsForNewUser()
+    {
+        if(!AuthManager.Instance.IsSignedIn)
+        {
+            return;
+        }
+
+        InitializeReference();
+
+        var activePlanetSnapshot = await activePlanetRef.GetValueAsync().AsUniTask();
+        var planetsSnapshot = await planetsRef.GetValueAsync().AsUniTask();
+
+        if(activePlanetSnapshot.Exists && planetsSnapshot.Exists)
+        {
+            await LoadPlanetsAsync();
+        }
+        else
+        {
+            InitializePlanetsData();
+            isDirty = true;
+            await SavePlanetsAsync();
+        }
+
+        isInitialized = true;
     }
 }

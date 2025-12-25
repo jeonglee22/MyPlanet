@@ -90,6 +90,8 @@ public class AuthManager : MonoBehaviour
             currentUser = authResult.User;
             this.nickName = nickName;
 
+            await PlanetManager.Instance.ReloadPlanetsForNewUser();
+
             return true;
         }
         catch (Exception ex)
@@ -107,6 +109,8 @@ public class AuthManager : MonoBehaviour
             currentUser = authResult.User;
             this.nickName = nickName;
 
+            await PlanetManager.Instance.ReloadPlanetsForNewUser();
+
             return true;
         }
         catch (Exception ex)
@@ -122,6 +126,15 @@ public class AuthManager : MonoBehaviour
         {
             var authResult = await auth.SignInWithEmailAndPasswordAsync(email, password).AsUniTask();
             currentUser = authResult.User;
+
+            var userRef = FirebaseDatabase.DefaultInstance.GetReference(DatabaseRef.UserPlanets);
+            var dataSnapshot = await userRef.Child(UserId).GetValueAsync().AsUniTask();
+            if (dataSnapshot.Exists)
+            {
+                nickName = dataSnapshot.Child("nickName").Value.ToString();
+            }
+
+            await PlanetManager.Instance.ReloadPlanetsForNewUser();
 
             return true;
         }
@@ -145,6 +158,7 @@ public class AuthManager : MonoBehaviour
             UserAttackPowerManager.Instance.TowerPower = 0f;
             UserAttackPowerManager.Instance.SimilarAttackPowerUserId = string.Empty;
 
+            PlanetManager.Instance?.ClearPlanetData();
         }
     }
 }

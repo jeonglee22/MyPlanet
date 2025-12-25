@@ -239,6 +239,20 @@ public enum Currency
     ChargedDia = 711202,
 }
 
+public enum PlanetAbilityType
+{
+    None = 0,
+    Health,
+    Defense,
+    HealthPercentage,
+    DefensePercentage,
+    Shield,
+    Drain,
+    RegenerationHP,
+    ExperienceRate,
+
+}
+
 public static class DataTableIds
 {
     public static readonly string Item = "ItemTable";
@@ -273,6 +287,7 @@ public static class DataTableIds
     public static readonly string PlanetStarUpgrade = "PlanetStarUpgradeTable";
     public static readonly string LobbyString = "LobbyString";
     public static readonly string SpecialEffectText = "SpecialEffectTextTable";
+    public static readonly string PlanetText = "PlanetTextTable";
 }
 
 public static class Variables

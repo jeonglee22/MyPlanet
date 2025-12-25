@@ -16,12 +16,11 @@ public class PlanetItemUI : MonoBehaviour
     [SerializeField] private GameObject notOwnImage;
     [SerializeField] private GameObject blackImage;
 
-    private PlanetLvUpgradeData planetLvUpgradeData;
     private PlanetStarUpgradeData planetStarUpgradeData;
 
     public void Initialize(PlanetData planetData, UserPlanetInfo userPlanetInfo)
     {
-        planetIcon.sprite = LoadManager.GetLoadedGameTexture(planetData.PlanetIcon);
+        planetIcon.sprite = LoadManager.GetLoadedGameTexture(planetData.PlanetImage);
         if(planetData.Planet_ID == (int)PlanetType.BasePlanet)
         {
             notOwnImage.SetActive(false);
@@ -41,16 +40,13 @@ public class PlanetItemUI : MonoBehaviour
             return;
         }
 
-        int level = userPlanetInfo.level + 1 > PlanetManager.Instance.MaxLevel ? PlanetManager.Instance.MaxLevel : userPlanetInfo.level + 1;
-        planetLvUpgradeData = DataTableManager.PlanetLvUpgradeTable.GetCurrentLevelData(planetData.Planet_ID, level);
-
         if(userPlanetInfo.owned == false)
         {
             notOwnImage.SetActive(true);
             blackImage.SetActive(true);
 
             planetLevel.text = $"";
-            planetStarUpgradeData = DataTableManager.PlanetStarUpgradeTable.GetCurrentLevelData(planetData.Planet_ID, userPlanetInfo.starLevel + 2);
+            planetStarUpgradeData = DataTableManager.PlanetStarUpgradeTable.GetCurrentLevelData(planetData.Planet_ID, 1);
 
             itemButton.interactable = false;
         }
@@ -59,15 +55,23 @@ public class PlanetItemUI : MonoBehaviour
             notOwnImage.SetActive(false);
             blackImage.SetActive(false);
 
-            int starLevel = userPlanetInfo.starLevel + 1 > PlanetManager.Instance.MaxStarLevel ? PlanetManager.Instance.MaxStarLevel : userPlanetInfo.starLevel + 1;
+            int nextStarLevel = userPlanetInfo.starLevel + 1;
 
-            planetStarUpgradeData = DataTableManager.PlanetStarUpgradeTable.GetCurrentLevelData(planetData.Planet_ID, starLevel);
-
-            planetLevel.text = $"Lv. {userPlanetInfo.level}";
-
-            for (int i = 0; i < upgradeStar.Count; i++)
+            if(nextStarLevel > PlanetManager.Instance.MaxStarLevel)
             {
-                upgradeStar[i].SetActive(i < userPlanetInfo.starLevel);
+                pieceText.text = $"MAX";
+                pieceSlider.fillRect.GetComponent<Image>().sprite = changePieceImage;
+            }
+            else
+            {
+                planetStarUpgradeData = DataTableManager.PlanetStarUpgradeTable.GetCurrentLevelData(planetData.Planet_ID, userPlanetInfo.starLevel);
+
+                planetLevel.text = $"Lv. {userPlanetInfo.level}";
+
+                for (int i = 0; i < upgradeStar.Count; i++)
+                {
+                    upgradeStar[i].SetActive(i < userPlanetInfo.starLevel);
+                }
             }
 
             itemButton.interactable = true;
