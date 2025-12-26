@@ -19,9 +19,18 @@ public class EnemySpawner : MonoBehaviour
     private int spawnPointIndex = -1;
     private List<Enemy> spawnedEnemies = new List<Enemy>();
 
+    private BattleUI battleUI;
+
     private void Start()
     {
         player = GameObject.FindGameObjectWithTag(TagName.Planet).transform;
+
+        if (Variables.IsTestMode)
+        {
+            return;
+        }
+
+        battleUI = GameObject.FindGameObjectWithTag(TagName.BattleUI).GetComponent<BattleUI>();
     }
 
     public void SetSpawnPointIndex(int index)
@@ -57,6 +66,12 @@ public class EnemySpawner : MonoBehaviour
 
         enemy.Spawner = this;
         enemy.Initialize(currentTableData, enemyId, objectPoolManager, scaleData, spawnPointIndex);
+        if (battleUI != null)
+        {
+            enemy.OnDeathEvent -= battleUI.AddEnemyKillCountText;
+            enemy.OnDeathEvent += battleUI.AddEnemyKillCountText;
+        }
+        
         return enemy;
     }
 

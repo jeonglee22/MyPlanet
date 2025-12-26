@@ -160,6 +160,7 @@ Transform:
   m_Children:
   - {fileID: 2896048488812636261}
   - {fileID: 7281721690066054218}
+  - {fileID: 8364099375660356700}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &4526675612517391057
@@ -279,6 +280,14 @@ MonoBehaviour:
   drops:
   - {fileID: 7868635946703768277, guid: ee7d656b900243d409db3ae78ca6a484, type: 3}
   - {fileID: 31110662301590275, guid: 9582314d14910f246a67c46ddb49ca20, type: 3}
+  bossAudioSource: {fileID: 0}
+  middleBossSpawnSfx: {fileID: 8300000, guid: b081aa7209ca48847bcea3175413d538, type: 3}
+  lastBossSpawnSfx: {fileID: 8300000, guid: b081aa7209ca48847bcea3175413d538, type: 3}
+  bossSpawnSfxVolume: 1
+  bossSpawnSfxGapSeconds: 0.15
+  sfxAudioSource: {fileID: 0}
+  simpleShotSfx: {fileID: 0}
+  simpleShotVolume: 1
 --- !u!114 &-609195503171963458
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -319,6 +328,39 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canvas: {fileID: 2499001061570755770}
   hpSlider: {fileID: 3642176486700133332}
+  damagePopupTextPrefab: {fileID: 6847116968901548312, guid: 0b7c71188da340b4a9ff2aea243d0b31, type: 3}
+  damagePopupSpawnPoint: {fileID: 8364099375660356700}
+--- !u!1 &4602734364896534367
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8364099375660356700}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8364099375660356700
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4602734364896534367}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.35, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1779442582325868679}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &2249620267824120772
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -354,6 +396,10 @@ PrefabInstance:
     - target: {fileID: 702077302815554574, guid: 4b2f8155bce81424e925c01131e3dc49, type: 3}
       propertyPath: m_Color.r
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 702077302815554574, guid: 4b2f8155bce81424e925c01131e3dc49, type: 3}
+      propertyPath: m_RaycastTarget
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1491346876150034832, guid: 4b2f8155bce81424e925c01131e3dc49, type: 3}
       propertyPath: m_AnchorMax.x

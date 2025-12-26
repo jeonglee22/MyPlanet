@@ -36,9 +36,30 @@ public class PatternManager : MonoBehaviour
         patternDict.Add((int)PatternIds.NereidReflectShield, () => new ReflectShieldPattern());
         patternDict.Add((int)PatternIds.NeptuneChaseDiaSummon, () => new LateralHommingSummonPattern());
         patternDict.Add((int)PatternIds.NeptuneBigDiaSummon, () => new LateralDownSummonPattern());
+        patternDict.Add((int)PatternIds.NeptuneFrontDiaSummon, () => new LateralDownSummonPattern());
         patternDict.Add((int)PatternIds.EliteDiaReflectShield, () => new ReflectShieldPattern());
         patternDict.Add((int)PatternIds.EliteBigDiaReflectShield, () => new ReflectShieldPattern());
-
+        patternDict.Add((int)PatternIds.FireChildHitChangeSpeedChase, () => new HitSpeedBoostPattern());
+        patternDict.Add((int)PatternIds.FireEyeShootFire, () => new SimpleShotPattern());
+        patternDict.Add((int)PatternIds.BigFireEyeSummonFireChild, () => new SimpleSummonPattern());
+        patternDict.Add((int)PatternIds.BigFireEyeSummonFireEye, () => new SimpleSummonPattern());
+        patternDict.Add((int)PatternIds.BigFireEyeShootBigFire, () => new SimpleShotPattern());
+        patternDict.Add((int)PatternIds.BigFireEyeFirePillar, () => new FirePillarLazerPattern());
+        patternDict.Add((int)PatternIds.SunSummonFireChild, () => new SimpleSummonPattern());
+        patternDict.Add((int)PatternIds.SunShootFire, () => new SimpleShotPattern());
+        patternDict.Add((int)PatternIds.SunParabolicShot, () => new ParabolicShotPattern());
+        patternDict.Add((int)PatternIds.UFOLazer, () => new TrapeZoidLazerPattern());
+        patternDict.Add((int)PatternIds.GalaxyStarShot, () => new SimpleShotPattern());
+        patternDict.Add((int)PatternIds.SpaceWarmLazer, () => new SkillBasedLazerPattern());
+        patternDict.Add((int)PatternIds.SpaceWarmGravityShot, () => new SimpleShotPattern());
+        patternDict.Add((int)PatternIds.BlackHolePhotonEnergy, () => new SimpleShotPattern());
+        patternDict.Add((int)PatternIds.BlackHoleMiniBlackHoleSummon, () => new SimpleShotPattern());
+        patternDict.Add((int)PatternIds.BlackHoleLazer, () => new SkillBasedLazerPattern());
+        patternDict.Add((int)PatternIds.BlackHoleExplosionSummon, () => new SimpleSummonPattern());
+        patternDict.Add((int)PatternIds.WhiteHoleSpaceWarmSummon, () => new SimpleSummonPattern());
+        patternDict.Add((int)PatternIds.WhiteHoleShoot, () => new SimpleShotPattern());
+        patternDict.Add((int)PatternIds.ExplosionEnemy, () => new ExplosionPattern());
+        patternDict.Add((int)PatternIds.ConstellationShoot, () => new SimpleShotPattern());
     }
 
     public IPattern GetPattern(int patternId)

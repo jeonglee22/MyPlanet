@@ -17,7 +17,6 @@ public class CollectionPanel : MonoBehaviour
 
     [SerializeField] private Button towerPanelBtn;
     [SerializeField] private Button abilityPanelBtn;
-    [SerializeField] private Button planetPanelBtn;
 
     [SerializeField] private Image coreImg;
     [SerializeField] private TextMeshProUGUI coreText;
@@ -55,6 +54,8 @@ public class CollectionPanel : MonoBehaviour
         saveYesBtn.onClick.AddListener(OnConfirmYesBtnClicked);
         saveNoBtn.onClick.AddListener(OnConfirmNoBtnClicked);
 
+        AddBtnSound();
+
         Initialize().Forget();
         towerPanelObj.SetActive(true);
         abilityPanelObj.SetActive(false);
@@ -72,14 +73,24 @@ public class CollectionPanel : MonoBehaviour
         InfoPanelClosed();
     }
 
+    private void AddBtnSound()
+    {
+        backBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        towerPanelBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        abilityPanelBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        saveBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        saveYesBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        saveNoBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+    }
+
     private void ResetBtn()
     {
-        backBtn.onClick.RemoveListener(OnBackBtn);
-        towerPanelBtn.onClick.RemoveListener(OnTowerPanelBtn);
-        abilityPanelBtn.onClick.RemoveListener(OnAbilityPanelBtn);
-        saveBtn.onClick.RemoveListener(OnSaveBtnClicked);
-        saveYesBtn.onClick.RemoveListener(OnConfirmYesBtnClicked);
-        saveNoBtn.onClick.RemoveListener(OnConfirmNoBtnClicked);
+        backBtn.onClick.RemoveAllListeners();
+        towerPanelBtn.onClick.RemoveAllListeners();
+        abilityPanelBtn.onClick.RemoveAllListeners();
+        saveBtn.onClick.RemoveAllListeners();
+        saveYesBtn.onClick.RemoveAllListeners();
+        saveNoBtn.onClick.RemoveAllListeners();
     }
 
     public void OnBackBtn()
@@ -91,7 +102,6 @@ public class CollectionPanel : MonoBehaviour
 
             towerPanelBtn.interactable = false;
             abilityPanelBtn.interactable = false;
-            planetPanelBtn.interactable = false;
 
             saveBtn.interactable = false;
             backBtn.interactable = false;
@@ -102,6 +112,9 @@ public class CollectionPanel : MonoBehaviour
 
         lobbyPanel.SetActive(true);
         gameObject.SetActive(false);
+        InfoPanelClosed();
+        towerPanelObj.SetActive(true);
+        abilityPanelObj.SetActive(false);
     }
 
     public void OnTowerPanelBtn()
@@ -113,7 +126,6 @@ public class CollectionPanel : MonoBehaviour
 
             towerPanelBtn.interactable = false;
             abilityPanelBtn.interactable = false;
-            planetPanelBtn.interactable = false;
 
             saveBtn.interactable = false;
             backBtn.interactable = false;
@@ -135,7 +147,6 @@ public class CollectionPanel : MonoBehaviour
 
             towerPanelBtn.interactable = false;
             abilityPanelBtn.interactable = false;
-            planetPanelBtn.interactable = false;
 
             saveBtn.interactable = false;
             backBtn.interactable = false;
@@ -182,22 +193,11 @@ public class CollectionPanel : MonoBehaviour
     {
         InfoPanelClosed();
 
-        if(!CollectionManager.Instance.HasUnsavedChanges())
-        {
-            return;
-        }
+        CollectionManager.Instance.SaveCollectionAsync().Forget();
 
-        isFromBackButton = false;
-        OnPendingPanelSwitch = null;
-
-        towerPanelBtn.interactable = false;
-        abilityPanelBtn.interactable = false;
-        planetPanelBtn.interactable = false;
-
-        saveBtn.interactable = false;
-        backBtn.interactable = false;
-
-        saveConfirmPanel.SetActive(true);
+        UpdateCoreText();
+        RefreshAllWeights();
+        SortPanelsWeight();
     }
 
     private void OnConfirmYesBtnClicked()
@@ -207,7 +207,6 @@ public class CollectionPanel : MonoBehaviour
 
         towerPanelBtn.interactable = true;
         abilityPanelBtn.interactable = true;
-        planetPanelBtn.interactable = true;
 
         saveBtn.interactable = true;
         backBtn.interactable = true;
@@ -239,7 +238,6 @@ public class CollectionPanel : MonoBehaviour
 
         towerPanelBtn.interactable = true;
         abilityPanelBtn.interactable = true;
-        planetPanelBtn.interactable = true;
 
         saveBtn.interactable = true;
         backBtn.interactable = true;
@@ -450,12 +448,14 @@ public class CollectionPanel : MonoBehaviour
             if(panel.IsAttackTower)
             {
                 towerInfoPanelObj.SetActive(true);
+                towerPanelObj.SetActive(false);
                 var towerInfoPanel = towerInfoPanelObj.GetComponent<TowerInfoPanelUI>();
-                towerInfoPanel.Initialize(panel.AttackTowerData);
+                towerInfoPanel.InitializeInfo(panel.AttackTowerData);
             }
             else if(panel.IsBuffTower)
             {
                 buffTowerInfoPanelObj.SetActive(true);
+                towerPanelObj.SetActive(false);
                 var buffTowerInfoPanel = buffTowerInfoPanelObj.GetComponent<BuffTowerInfoPanelUI>();
                 buffTowerInfoPanel.Initialize(panel.BuffTowerData);
             }
@@ -463,6 +463,7 @@ public class CollectionPanel : MonoBehaviour
         else
         {
             randomAbilityInfoPanelObj.SetActive(true);
+            abilityPanelObj.SetActive(false);
             var abilityInfoPanel = randomAbilityInfoPanelObj.GetComponent<RandomAbilityInfoUI>();
             abilityInfoPanel.Initialize(panel.AbilityData);
         }
@@ -507,7 +508,25 @@ public class CollectionPanel : MonoBehaviour
             float aWeight = CollectionManager.Instance.GetWeight(aId);
             float bWeight = CollectionManager.Instance.GetWeight(bId);
 
-            return bWeight.CompareTo(aWeight);
+            int weightComparison = bWeight.CompareTo(aWeight);
+            if(weightComparison != 0)
+            {
+                return weightComparison;
+            }
+
+            int aType = a.IsAttackTower ? 0 : 1;
+            int bType = b.IsAttackTower ? 0 : 1;
+
+            int typeComparison = aType.CompareTo(bType);
+            if(typeComparison != 0)
+            {
+                return typeComparison;
+            }
+
+            int aOrder = a.IsAttackTower ? a.AttackTowerData.Order : a.BuffTowerData.Order;
+            int bOrder = b.IsAttackTower ? b.AttackTowerData.Order : b.BuffTowerData.Order;
+
+            return aOrder.CompareTo(bOrder);
         });
 
         var rows = new List<Transform>();

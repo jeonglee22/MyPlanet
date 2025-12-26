@@ -56,6 +56,10 @@ public abstract class SpecialPattern : IPattern
                 }
 
                 return false;
+            case ExecutionTrigger.OnHit:
+                return owner.HasHit && !isExecuteOneTime;
+            case ExecutionTrigger.OnOrbitReached:
+                return owner.HasReachedOrbit && !isExecuteOneTime;
         }
 
         return false;

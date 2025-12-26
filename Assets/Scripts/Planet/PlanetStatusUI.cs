@@ -14,6 +14,8 @@ public class PlanetStatusUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI levelText;
     [SerializeField] private TowerInstallControl towerInstallControl;
 
+    private int barriorPlanet = 300004;
+
     private bool isTutorial = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -53,12 +55,12 @@ public class PlanetStatusUI : MonoBehaviour
     {
         HpValueChanged(planet.Health);
         ExpValueChange(planet.CurrentExp);
-        if (barriorSlider != null)
-        {    
-            if (planet.InitShield <= 0f)
-                barriorSlider.value = 0f;
-            else
-                barriorSlider.value = 1f;
+        if(barriorSlider!=null)
+        {
+            if (Variables.planetId == barriorPlanet)
+            barriorSlider.value = 1f;
+        else
+            barriorSlider.value = 0f;
         }
         ChangeLevelText();
     }

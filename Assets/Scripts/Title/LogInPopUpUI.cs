@@ -29,6 +29,9 @@ public class LogInPopUpUI : MonoBehaviour
         signUpButton.onClick.AddListener(() => OnSignInButtonClicked());
         closeButton.onClick.AddListener(() => canvasManager.SwitchToTargetPopUp(MainTitleCanvasManager.PopupName.None));
 
+        signUpButton.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        closeButton.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+
         SetErrorMessage(string.Empty);
 
         InteractableButtons(true);
@@ -83,7 +86,26 @@ public class LogInPopUpUI : MonoBehaviour
             return;
         }
 
+        var initUpgradeTowerData = await UserTowerUpgradeManager.Instance.InitUserTowerUpgradeAsync();
+        if (initUpgradeTowerData == false)
+        {
+            SetErrorMessage("Failed to initialize tower upgrade data.");
+            InteractableButtons(true);
+            AuthManager.Instance.SignOut();
+            return;
+        }
+
+        var initUserStageData = await UserStageManager.Instance.InitUserStageClearAsync();
+        if (initUserStageData == false)
+        {
+            SetErrorMessage("Failed to initialize user stage data.");
+            InteractableButtons(true);
+            AuthManager.Instance.SignOut();
+            return;
+        }
+
         await UserAttackPowerManager.Instance.UpdatePlanetPower(UserPlanetManager.Instance.CurrentPlanet);
+        await UserAttackPowerManager.Instance.UpdateTowerPower();
 
         canvasManager.SwitchToTargetPopUp(MainTitleCanvasManager.PopupName.None);
         infoPopUpUI.SetNickNameText(AuthManager.Instance.UserNickName);

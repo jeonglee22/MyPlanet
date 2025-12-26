@@ -12,6 +12,15 @@ public class ChaseMovement : IMovement
     {
         isPatternLine = false;
         enemyType = owner.EnemyType;
+
+        if(enemyType <= 2)
+        {
+            isPatternLine = true;
+        }
+        else
+        {
+            isPatternLine = false;
+        }
     }
 
     public Vector3 GetFinalDirection(Vector3 baseDirection, Transform ownerTransform, Transform target)

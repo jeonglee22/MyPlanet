@@ -47,20 +47,23 @@ public class DescendAndStopMovement : IMovement
             }
             else
             {
-                colliderRadius = 0.5f;
+                colliderRadius = 1.5f;
             }
         }
 
         var currentPosition = ownerTransform.position;
         var distanceToTarget = Vector3.Distance(currentPosition, targetPosition);
 
-        if(distanceToTarget <= colliderRadius)
+        if(distanceToTarget <= colliderRadius * 0.5f)
         {
             isArrived = true;
             return Vector3.zero;
         }
 
-        return (targetPosition - currentPosition).normalized;
+        Vector3 direction = (targetPosition - currentPosition).normalized;
+        ownerTransform.LookAt(ownerTransform.position + direction);
+
+        return direction;
     }
 
     public void OnPatternLine()

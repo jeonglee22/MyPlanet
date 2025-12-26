@@ -140,7 +140,7 @@ public class EnemyStatTester : MonoBehaviour
             Exp = exp,
             MoveType = moveTypeIds[moveTypeId],
             EnemyType = enemyType,
-            PatternList = patternIds[patternId],
+            PatternGroup = patternIds[patternId],
         };
 
         return enemyData;
@@ -166,7 +166,7 @@ public class EnemyStatTester : MonoBehaviour
         enemyType = enemyData.EnemyType;
         currentEnemyTypeId = enemyTypeId;
 
-        patternId = Array.IndexOf(patternIds, enemyData.PatternList);
+        patternId = Array.IndexOf(patternIds, enemyData.PatternGroup);
         moveTypeId = Array.IndexOf(moveTypeIds, enemyData.MoveType);
 
         choosedEnemyData = enemyData;
@@ -196,7 +196,7 @@ public class EnemyStatTester : MonoBehaviour
         choosedEnemyData.UniqueRatePenetration = ratePenetration;
         choosedEnemyData.FixedPenetration = fixedPenetration;
         choosedEnemyData.Exp = exp;
-        choosedEnemyData.PatternList = patternIds[patternId];
+        choosedEnemyData.PatternGroup = patternIds[patternId];
         choosedEnemyData.MoveType = moveTypeIds[moveTypeId];
         choosedEnemyData.Shield = barrior;
         choosedEnemyData.EnemyType = enemyType;

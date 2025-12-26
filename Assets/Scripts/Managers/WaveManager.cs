@@ -48,9 +48,16 @@ public class WaveManager : MonoBehaviour
     public bool IsLastBoss => isLastBoss;
     public bool IsMiddleBoss => isMiddleBoss;
 
+    private int accumulateGold = 0;
+    public int AccumulateGold => accumulateGold;
+
     public event Action WaveChange;
     public event Action LastBossSpawned;
     public event Action MiddleBossDefeated;
+    public event Action OnGoldAccumulated;
+
+    [SerializeField] private BattleUI battleUI;
+    [SerializeField] private BossAppearEffect bossAppearEffect;
 
     private bool isTutorial = false;
 
@@ -64,10 +71,11 @@ public class WaveManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-
+        BattleRandomAbilityUnlockPatcher.ResetForNewBattle();
         Cancel();
         ResetWave();
         Variables.Reset();
+        accumulateGold = 0;
     }
 
     private void Start()
@@ -77,6 +85,11 @@ public class WaveManager : MonoBehaviour
 
     private void OnDestroy()
     {
+        if(accumulateGold > 0)
+        {
+            SaveAccumulatedGold().Forget();
+        }
+
         Cancel();
         Variables.Reset();
     }
@@ -111,6 +124,11 @@ public class WaveManager : MonoBehaviour
         foreach(int enemyId in enemyIds)
         {
             SpawnManager.Instance.PrepareEnemyPools(enemyId);
+        }
+
+        if (waveData.RepeatCount == 0 && waveData.SpawnTerm == 0f)
+        {
+            bossAppearEffect.gameObject.SetActive(true);
         }
 
         Debug.Log($"Preloaded assets for Wave ID: {waveData.Wave_Id}");
@@ -279,6 +297,15 @@ public class WaveManager : MonoBehaviour
         }
 
         isWaveInProgress = false;
+
+        var clearedWave = waveDatas[currentWaveIndex];
+        if(clearedWave.WaveRewardGold > 0)
+        {
+            accumulateGold += clearedWave.WaveRewardGold;
+            OnGoldAccumulated?.Invoke();
+            battleUI.AddCoinGainText(clearedWave.WaveRewardGold);
+        }
+
         currentWaveIndex++;
 
         if(IsWaveGroupTimeExpired())
@@ -291,6 +318,12 @@ public class WaveManager : MonoBehaviour
 
         if(currentWaveIndex < waveDatas.Count && !isBossBattle)
         {
+            // var currentWave = waveDatas[currentWaveIndex];
+            // var waveReward = currentWave.WaveReward;
+            // if (waveReward > 0)
+            // {
+            //     battleUI.AddCoinGainText(waveReward);   
+            // }
             await StartNextWave(cts);
         }
     }
@@ -376,5 +409,23 @@ public class WaveManager : MonoBehaviour
     private void SetIsTutorial(bool isTutorialMode)
     {
         isTutorial = isTutorialMode;
+    }
+
+    public async UniTask SaveAccumulatedGold()
+    {
+        if(accumulateGold <= 0)
+        {
+            return;
+        }
+
+        await UniTask.WaitUntil(() => CurrencyManager.Instance != null && CurrencyManager.Instance.IsInitialized);
+
+        int currentGold = CurrencyManager.Instance.CachedGold;
+        int newGold = currentGold + accumulateGold;
+
+        CurrencyManager.Instance.SetGold(newGold);
+        await CurrencyManager.Instance.SaveCurrencyAsync();
+
+        accumulateGold = 0;
     }
 }

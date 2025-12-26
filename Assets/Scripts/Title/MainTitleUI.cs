@@ -66,6 +66,8 @@ public class MainTitleUI : MonoBehaviour
         finishLoading = true;
 
         // gameStartButton.interactable = false;
+
+        SoundManager.Instance.PlayLoginBGM();
     }
 
     private void OpenExitPanel()
@@ -108,13 +110,23 @@ public class MainTitleUI : MonoBehaviour
     {
         SetExplainText("Updating user data...");
 
+        await UniTask.WaitUntil(() => UserPlanetManager.Instance.IsInitialized &&
+                                         UserAttackPowerManager.Instance.IsInitialized &&
+                                         UserTowerManager.Instance.IsInitialized &&
+                                         UserTowerUpgradeManager.Instance.IsInitialized &&
+                                         UserStageManager.Instance.IsInitialized);
+
         await UserPlanetManager.Instance.LoadUserPlanetAsync();
+
+        await UserTowerUpgradeManager.Instance.LoadUserTowerUpgradeAsync();
 
         await UserAttackPowerManager.Instance.LoadUserAttackPowerAsync();
 
         // await CurrencyManager.Instance.LoadCurrencyAsync();
 
-        await UserTowerManager.Instance.LoadUserTowerDataAsync();
+        await UserTowerManager.Instance.LoadUserTowerDataAsync();  
+
+        await UserStageManager.Instance.LoadUserStageClearAsync();
     }
 
     private void OnLogInOutButtonClicked()

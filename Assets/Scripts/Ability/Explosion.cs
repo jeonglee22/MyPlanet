@@ -3,6 +3,7 @@ using UnityEngine;
 public class Explosion : MonoBehaviour
 {
     private float explosionRadius = 1f;
+    private Projectile projectile;
     private float initRadius = 0.01f;
     private SphereCollider explosionCollider;
 
@@ -12,9 +13,11 @@ public class Explosion : MonoBehaviour
     private float FixedPanetration = 0f;
     private float RatePanetration = 0f;
     private float damage = 0f;
+    private float explosionDamageMultiplier = 0.1f;
 
     private ParticleSystem[] explosionParticles;
 
+    private bool sfxPlayed = false;
 
     void Awake()
     {
@@ -22,10 +25,11 @@ public class Explosion : MonoBehaviour
         explosionParticles = GetComponentsInChildren<ParticleSystem>();
     }
 
-    public void SetInit(float initRadius, float explosionRadius, ProjectileData projectileData)
+    public void SetInit(float initRadius, float explosionRadius, ProjectileData projectileData, Projectile projectile, float damageMultiplier = 0.1f)
     {
         this.initRadius = initRadius;
         this.explosionRadius = explosionRadius;
+        this.projectile = projectile;
         damage = projectileData.Attack;
         FixedPanetration = projectileData.FixedPenetration;
         RatePanetration = projectileData.RatePenetration;
@@ -37,7 +41,7 @@ public class Explosion : MonoBehaviour
         {
             particle.Play();
         }
-
+        PlayExplosionSfxOnce();
         if (explosionRadius < initRadius)
         {
             Destroy(gameObject);
@@ -62,7 +66,9 @@ public class Explosion : MonoBehaviour
         var enemy = other.gameObject.GetComponent<Enemy>();
         if (damagable != null && enemy != null)
         {
-            damagable.OnDamage(CalculateTotalDamage(enemy.Data.Defense));
+            var damage = CalculateTotalDamage(enemy.Data.Defense);
+            damagable.OnDamage(damage);
+            projectile.ActionEvent(damage);
         }
     }
 
@@ -75,8 +81,15 @@ public class Explosion : MonoBehaviour
         {
             totalEnemyDef = 0;
         }
-        var totalDamage = damage * 0.7f * 100f / (100f + totalEnemyDef);
-        
+        var totalDamage = damage * explosionDamageMultiplier * 100f / (100f + totalEnemyDef);
         return totalDamage;
+    }
+
+    private void PlayExplosionSfxOnce()
+    {
+        if (sfxPlayed) return;
+        sfxPlayed = true;
+
+        SoundManager.Instance.PlayExplosionEffect(gameObject.transform.position);
     }
 }

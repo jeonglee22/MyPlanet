@@ -38,6 +38,8 @@ public class GachaPanelUI : MonoBehaviour
 
     public event Action OnGachaCompleted;
 
+    public event Action OnGachaPanelClosed;
+
     public void Initialize(int needCurrencyValue, int drawGroup, string gachaName)
     {
         this.drawGroup = drawGroup;
@@ -56,6 +58,19 @@ public class GachaPanelUI : MonoBehaviour
         confirmNoBtn.onClick.AddListener(OnConfirmNoBtnClicked);
         exitRewardOnceBtn.onClick.AddListener(OnGachaBackBtnClicked);
         exitRewardTenBtn.onClick.AddListener(OnGachaBackBtnClicked);
+
+        AddBtnSound();
+    }
+
+    private void AddBtnSound()
+    {
+        backBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        buyOnceBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        buyTenBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        confirmYesBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        confirmNoBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        exitRewardOnceBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        exitRewardTenBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
     }
 
     private void ResetBtn()
@@ -91,6 +106,8 @@ public class GachaPanelUI : MonoBehaviour
 
     private void OnBackBtnClicked()
     {
+        OnGachaPanelClosed?.Invoke();
+
         gachaConfirmUI.SetActive(false);
         noCurrencyText.SetActive(false);
         gameObject.SetActive(false);
@@ -102,6 +119,15 @@ public class GachaPanelUI : MonoBehaviour
         gachaTenPanelUI.SetActive(false);
 
         rewardResults.Clear();
+
+        if(instantiatedRewardTenObjects.Count != 0)
+        {
+            foreach(var obj in instantiatedRewardTenObjects)
+            {
+                Destroy(obj);
+            }
+            instantiatedRewardTenObjects.Clear();
+        }
     }
 
     private void OnGachaClicked(int drawCount)
@@ -118,6 +144,7 @@ public class GachaPanelUI : MonoBehaviour
             OnGacha();
 
             ItemManager.Instance.SaveItemsAsync().Forget();
+            PlanetManager.Instance.SavePlanetsAsync().Forget();
 
             if(drawCount == 1)
             {

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -48,6 +47,17 @@ public static class DataTableManager
             LoadTableAsync<ItemTable>(DataTableIds.Item),
             LoadTableAsync<PlanetTable>(DataTableIds.planet),
             LoadTableAsync<RandomAbilityTextTable>(DataTableIds.RandomAbilityText),
+            LoadTableAsync<RandomAbilityReinforceUpgradeTable>(DataTableIds.RandomAbilityReinforceUpgrade),
+            LoadTableAsync<TowerUpgradeTable>(DataTableIds.TowerUpgrade),
+            LoadTableAsync<TowerUpgradeAbilityUnlockTable>(DataTableIds.TowerUpgradeAbilityUnlock),
+            LoadTableAsync<SkillTable>(DataTableIds.Skill),
+            LoadTableAsync<StageTable>(DataTableIds.Stage),
+            LoadTableAsync<PlanetLvUpgradeTable>(DataTableIds.PlanetLvUpgrade),
+            LoadTableAsync<PlanetStarUpgradeTable>(DataTableIds.PlanetStarUpgrade),
+            LoadTableAsync<LobbyStringTable>(DataTableIds.LobbyString),
+            LoadTableAsync<SpecialEffectTextTable>(DataTableIds.SpecialEffectText),
+            LoadTableAsync<PlanetTextTable>(DataTableIds.PlanetText),
+            LoadTableAsync<StageRewardTable>(DataTableIds.StageReward),
         };
 
         await UniTask.WhenAll(tasks);
@@ -224,6 +234,94 @@ public static class DataTableManager
         get
         {
             return Get<RandomAbilityTextTable>(DataTableIds.RandomAbilityText);
+        }
+    }
+
+    public static TowerUpgradeTable TowerUpgradeTable
+    {
+        get
+        {
+            return Get<TowerUpgradeTable>(DataTableIds.TowerUpgrade);
+        }
+    }
+
+    public static TowerUpgradeAbilityUnlockTable TowerUpgradeAbilityUnlockTable
+    {
+        get
+        {
+            return Get<TowerUpgradeAbilityUnlockTable>(DataTableIds.TowerUpgradeAbilityUnlock);
+        }
+    }
+    
+    public static SkillTable SkillTable
+    {
+        get
+        {
+            return Get<SkillTable>(DataTableIds.Skill);
+        }
+    }
+
+    public static StageTable StageTable
+    {
+        get
+        {
+            return Get<StageTable>(DataTableIds.Stage);
+        }
+    }
+
+    public static RandomAbilityReinforceUpgradeTable RandomAbilityReinforceUpgradeTable 
+    {
+        get 
+        {
+            return Get<RandomAbilityReinforceUpgradeTable>(DataTableIds.RandomAbilityReinforceUpgrade);
+        }
+    }
+
+    public static PlanetLvUpgradeTable PlanetLvUpgradeTable
+    {
+        get
+        {
+            return Get<PlanetLvUpgradeTable>(DataTableIds.PlanetLvUpgrade);
+        }
+    }
+
+    public static PlanetStarUpgradeTable PlanetStarUpgradeTable
+    {
+        get
+        {
+            return Get<PlanetStarUpgradeTable>(DataTableIds.PlanetStarUpgrade);
+        }
+    }
+
+    public static LobbyStringTable LobbyStringTable
+    {
+        get
+        {
+            return Get<LobbyStringTable>(DataTableIds.LobbyString);
+        }
+    }
+
+    public static SpecialEffectTextTable SpecialEffectTextTable
+    {
+        get
+        {
+            return Get<SpecialEffectTextTable>(DataTableIds.SpecialEffectText);
+        }
+    }
+
+    public static PlanetTextTable PlanetTextTable
+    {
+        get
+        {
+            return Get<PlanetTextTable>(DataTableIds.PlanetText);
+        }
+    }
+
+    public static StageRewardTable StageRewardTable
+    {
+        get
+        {
+            return Get<StageRewardTable>(DataTableIds.StageReward);
         }
     }
 

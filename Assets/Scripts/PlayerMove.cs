@@ -62,7 +62,7 @@ public class PlayerMove : MonoBehaviour
 
     private void AutoRotate()
     {
-        transform.Rotate(new Vector3(0f, 0f, selfRotateSpeed * Time.deltaTime), Space.World);
+        transform.Rotate(new Vector3(0f, selfRotateSpeed * Time.deltaTime, 0f), Space.World);
     }
 
     private void AutoMove()

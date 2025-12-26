@@ -26,6 +26,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     public float atk => attack;
 
     public float def => defense;
+    public float MoveSpeed => moveSpeed;
     private float attack;
     private float defense;
     private float moveSpeed;
@@ -69,6 +70,10 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     public bool IsReflectShieldActive { get; set; } = false;
 
     public GameObject ReflectShieldObject { get; set; }
+
+    public bool HasHit { get; set; } = false;
+    private bool hasReachedOrbit = false;
+    public bool HasReachedOrbit { get => hasReachedOrbit; set => hasReachedOrbit = value; }
 
     private void Start()
     {
@@ -118,6 +123,9 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         ChildEnemy.Clear();
 
         StopLifeTime();
+
+        HasHit = false;
+
     }
 
     protected void OnDestroy()
@@ -165,9 +173,16 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
         DpsCalculator.AddDamage(damage);
 
-        planet.Health += damage * planet.PlanetData.Drain;
+        planet.Health += damage * planet.Drain;
 
         base.OnDamage(damage);
+
+        HasHit = true;
+    }
+
+    private void LateUpdate()
+    {
+        HasHit = false;
     }
 
     public override void Die()
@@ -309,14 +324,14 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         }
     }
 
-    public void OnLifeTimeOver()
+    public virtual void OnLifeTimeOver()
     {
         OnLifeTimeOverEvent?.Invoke();
         transform.localScale = originalScale;
         objectPoolManager?.Return(enemyId, this);
     }
 
-    public void Initialize(EnemyTableData enemyData, int enemyId, ObjectPoolManager<int, Enemy> poolManager, ScaleData scaleData, int spawnPointIndex)
+    public virtual void Initialize(EnemyTableData enemyData, int enemyId, ObjectPoolManager<int, Enemy> poolManager, ScaleData scaleData, int spawnPointIndex)
     {
         this.enemyId = enemyId;
 
@@ -347,6 +362,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         isTargetable = true;
 
         ReflectShieldObject = GetComponentInChildren<ReflectShield>(true)?.gameObject;
+
+        hasReachedOrbit = false;
 
         BossAppearance(enemyData.EnemyType);
 
@@ -385,6 +402,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
         ReflectShieldObject = GetComponentInChildren<ReflectShield>(true)?.gameObject;
 
+        hasReachedOrbit = false;
+
         AddMovementComponent(moveType, -1);
 
         if(patternExecutor == null)
@@ -411,7 +430,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         lifeTimeCts = new CancellationTokenSource();
     }
 
-    private async UniTaskVoid LifeTimeTask(CancellationToken token)
+    protected virtual async UniTaskVoid LifeTimeTask(CancellationToken token)
     {
         try
         {
@@ -438,6 +457,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         {
             return;
         }
+
+        SoundManager.Instance.PlayBossAppear(transform.position);
 
         var radius = gameObject.GetComponent<SphereCollider>().radius * transform.localScale.x;
         transform.position = Spawner.transform.position + new Vector3(0f, radius, 0f);
@@ -525,5 +546,10 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     private void SetIsTutorial(bool isTutorialMode)
     {
         isTutorial = isTutorialMode;
+    }
+
+    public virtual List<Vector3> GetShootPositions()
+    {
+        return new List<Vector3> { transform.position };
     }
 }

@@ -73,6 +73,7 @@ public class SplitUpgradeAbility : EffectAbility
         {
             eachAngles[i] = -splitAngle / 2 + splitAngle / (splitLines - 1) * i;
         }
+        float splitMul = GetSplitDamageMultiplier();
 
         foreach (var angle in eachAngles)
         {
@@ -87,9 +88,13 @@ public class SplitUpgradeAbility : EffectAbility
                 baseData,
                 direction,
                 true,
-                ProjectilePoolManager.Instance.ProjectilePool
+                ProjectilePoolManager.Instance.ProjectilePool,
+                null,
+                this.projectile.towerReinforceLevel,
+                this.projectile.towerAbilities
             );
-            
+            newProjectiles.damageMultiplier = splitMul;
+
             lazer.SetLazer(target, angle, null, newProjectiles, towerAttack, projectile.projectileData.RemainTime, true, this.lazer);
 
             newProjectiles.gameObject.SetActive(false);
@@ -149,8 +154,15 @@ public class SplitUpgradeAbility : EffectAbility
             baseData,
             newDirection,
             true,
-            ProjectilePoolManager.Instance.ProjectilePool
+            ProjectilePoolManager.Instance.ProjectilePool,
+            null,
+            this.projectile.towerReinforceLevel,
+            this.projectile.towerAbilities
             );
+
+        float splitMul = GetSplitDamageMultiplier();
+        newProjectiles.damageMultiplier = splitMul;
+        newProjectiles.damageEvent += towerAttack.AdddamageDealt;
 
         var abilities = towerAttack?.Abilities;
 
@@ -180,5 +192,33 @@ public class SplitUpgradeAbility : EffectAbility
     public override IAbility Copy()
     {
         return new SplitUpgradeAbility(upgradeAmount);
+    }
+
+    private float GetSplitDamageMultiplier()
+    {
+        const int SPLIT_ABILITY_ID = 200010;
+
+        if (this.projectile == null)
+            return 0.2f;  
+
+        if (this.projectile.towerAbilities == null ||
+            !this.projectile.towerAbilities.Contains(SPLIT_ABILITY_ID))
+            return 0.2f;
+
+        if (!DataTableManager.IsInitialized)
+            return 0.2f;
+
+        var ra = DataTableManager.RandomAbilityTable?.Get(SPLIT_ABILITY_ID);
+        if (ra == null || ra.RandomAbilityType != 1)
+            return 0.2f;
+
+        if (TowerReinforceManager.Instance == null)
+            return 0.2f;
+
+        return TowerReinforceManager.Instance
+            .GetFinalSuperValueForAbility(
+                SPLIT_ABILITY_ID,
+                this.projectile.towerReinforceLevel
+            );
     }
 }

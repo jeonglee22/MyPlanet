@@ -21,6 +21,8 @@ public class PowerUpItemControlUI : MonoBehaviour
     [SerializeField] private GameObject chooseTowerPanel;
     [SerializeField] private GameObject upgradeChooseUis;
 
+    [SerializeField] private Button selectTowerButton;
+
     private List<int> numlist;
     [SerializeField] private TextMeshProUGUI[] uiTexts;
     private List<int> abilities;
@@ -44,11 +46,19 @@ public class PowerUpItemControlUI : MonoBehaviour
 
     private bool isTutorial = false;
 
+    private bool isTowerChoosingState = false;
+    public bool IsTowerChoosingState
+    {
+        get { return isTowerChoosingState; }
+        set { isTowerChoosingState = value; }
+    }
+
     private void Start()
     {
         towerCountUpgradeButton.onClick.AddListener(OnMaxTowerCountUpgradeClicked);
         newAbilityUpgradeButton.onClick.AddListener(OnNewAbilityUpgradeClicked);
         itemUseButton.onClick.AddListener(OnItemUseClicked);
+        // selectTowerButton.onClick.AddListener(OnUpgradeTowerClicked);
 
         for (int i = 0; i < upgradeUis.Length; i++)
         {
@@ -61,6 +71,23 @@ public class PowerUpItemControlUI : MonoBehaviour
 
         OnQuaserChanged();
         Variables.OnQuasarChanged += OnQuaserChanged;
+        Variables.OnQuasarChanged += SetDeactiveQuasarUiGameObjects;
+
+        AddButtonSound();
+    }
+
+    private void AddButtonSound()
+    {
+        towerCountUpgradeButton.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        newAbilityUpgradeButton.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        itemUseButton.onClick.AddListener(() => SoundManager.Instance.PlayQuasarSelect());
+
+        for (int i = 0; i < upgradeUis.Length; i++)
+        {
+            int index = i;
+            var button = upgradeUis[index].GetComponent<Button>();
+            button.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        }
     }
 
     private async UniTaskVoid OnEnable()
@@ -77,31 +104,62 @@ public class PowerUpItemControlUI : MonoBehaviour
     private void OnDestroy()
     {
         Variables.OnQuasarChanged -= OnQuaserChanged;
+        Variables.OnQuasarChanged -= SetDeactiveQuasarUiGameObjects;
+    }
+
+    public void OnUpgradeTowerClicked()
+    {
+        if (!SettingAbilities(choosedTowerIndex))
+            return;
+
+        towerInfoUI.gameObject.SetActive(false);
+        chooseTowerPanel.SetActive(false);
+        upgradeChooseUis.SetActive(true);
+        installControl.ClearAllSlotHighlights();
+
+        for (int i = 0; i < uiTexts.Length; i++)
+        {
+            SetUpCard(i);
+        }
     }
 
     private void OnNewAbilityCardClicked(int index)
     {
-        if(choosedTowerIndex == -1)
-            return;
-        
-        var ability = AbilityManager.GetAbility(abilities[index]);
+        if (choosedTowerIndex == -1)return;
 
+        int pickedAbilityId = abilities[index];
         var towerAttack = installControl.GetAttackTower(choosedTowerIndex);
         var amplifierTower = installControl.GetAmplifierTower(choosedTowerIndex);
-        
+
         if (towerAttack == null && amplifierTower == null) return;
+        if (towerAttack != null)
+        {
+            int attackTowerId = towerAttack.AttackTowerData.towerIdInt;
+
+            if (IsExclusiveUnlockAbility(attackTowerId, pickedAbilityId))
+            {
+                if (!IsTowerUpgradeLevelAtLeast4(attackTowerId)) return;
+                if (ExclusiveAbilityRunTracker.IsTaken(pickedAbilityId)) return;
+            }
+        }
+
+        var ability = AbilityManager.GetAbility(pickedAbilityId);
 
         if (towerAttack != null)
         {
             ability?.ApplyAbility(towerAttack.gameObject);
             ability?.Setting(towerAttack.gameObject);
-            towerAttack.AddBaseAbility(abilities[index]);
+            towerAttack.AddBaseAbility(pickedAbilityId);
+
+            int attackTowerId = towerAttack.AttackTowerData.towerIdInt;
+            if (IsExclusiveUnlockAbility(attackTowerId, pickedAbilityId))
+                ExclusiveAbilityRunTracker.MarkTaken(pickedAbilityId);
         }
         else if (amplifierTower != null)
         {
             ability?.ApplyAbility(amplifierTower.gameObject);
             ability?.Setting(amplifierTower.gameObject);
-            amplifierTower.AddAbility(abilities[index]);
+            amplifierTower.AddAbility(pickedAbilityId);
         }
 
         upgradeChooseUis.SetActive(false);
@@ -112,6 +170,20 @@ public class PowerUpItemControlUI : MonoBehaviour
 
         Variables.Quasar--;
         SetActiveItemUseButton(false);
+
+        ResumeGame();
+    }
+
+
+    private void ResumeGame()
+    {
+        if (towerInfoUI != null && towerUpgradeSlotUI != null)
+        {
+            towerInfoUI.gameObject.SetActive(false);
+            towerUpgradeSlotUI.gameObject.SetActive(false);
+        }
+        GamePauseManager.Instance.Resume();
+        isTowerChoosingState = false;
     }
 
     private void SetTowerOpenInfoTouch()
@@ -132,17 +204,7 @@ public class PowerUpItemControlUI : MonoBehaviour
 
     private void OnTowerSelectClicked(int index)
     {
-        if (!SettingAbilities(index))
-            return;
-
         choosedTowerIndex = index;
-        chooseTowerPanel.SetActive(false);
-        upgradeChooseUis.SetActive(true);
-
-        for (int i = 0; i < uiTexts.Length; i++)
-        {
-            SetUpCard(i);
-        }
     }
 
     private bool SettingAbilities(int towerIndex)
@@ -154,10 +216,17 @@ public class PowerUpItemControlUI : MonoBehaviour
 
         var towerAbilities = new List<int>();
         var abilityGroupId = -1;
+
+        int attackTowerId = -1;
+        int exclusiveId = -1;
+
         if (towerAttack != null)
         {
             towerAbilities = towerAttack.Abilities;
             abilityGroupId = towerAttack.AttackTowerData.randomAbilityGroupId;
+
+            attackTowerId = towerAttack.AttackTowerData.towerIdInt;
+            exclusiveId = GetExclusiveUnlockAbilityId(attackTowerId);
         }
         else if (amplifierTower != null)
         {
@@ -165,20 +234,28 @@ public class PowerUpItemControlUI : MonoBehaviour
             abilityGroupId = amplifierTower.AmplifierTowerData.RandomAbilityGroupId;
         }
 
+        int safe = 0;
         while (abilities.Count < 3)
-            {
-                int ability = DataTableManager.RandomAbilityGroupTable.GetRandomAbilityInGroup(abilityGroupId);
-                if (!(towerAbilities.Contains(ability) && DataTableManager.RandomAbilityTable.Get(ability).DuplicateType == 1))
-                {
-                    if (abilities.Contains(ability))
-                        continue;
-                    
-                    abilities.Add(ability);
-                }
-            }
+        {
+            safe++;
+            if (safe > 200) break; 
 
-        Debug.Log("SettingAbilities Success");
-        return true;
+            int ability = DataTableManager.RandomAbilityGroupTable.GetRandomAbilityInGroup(abilityGroupId);
+            if (ability <= 0) continue;
+
+            if (abilities.Contains(ability)) continue;
+
+            if (towerAttack != null && exclusiveId > 0 && ability == exclusiveId)
+            {
+                if (!IsTowerUpgradeLevelAtLeast4(attackTowerId))continue;
+                if (ExclusiveAbilityRunTracker.IsTaken(ability))continue;
+                if (towerAbilities.Contains(ability))continue;
+            }
+            var ra = DataTableManager.RandomAbilityTable.Get(ability);
+            if (ra != null && towerAbilities.Contains(ability) && ra.DuplicateType == 1)continue;
+            abilities.Add(ability);
+        }
+        return abilities.Count > 0;
     }
 
     private void OnMaxTowerCountUpgradeClicked()
@@ -189,6 +266,9 @@ public class PowerUpItemControlUI : MonoBehaviour
 
         Variables.Quasar--;
         SetActiveItemUseButton(false);
+        isTowerChoosingState = false;
+
+        ResumeGame();
     }
 
     public void SetActiveItemUseButton(bool isActive)
@@ -207,16 +287,21 @@ public class PowerUpItemControlUI : MonoBehaviour
 
     public void CheckQuasarForReactivation()
     {
-        SetActiveItemUseButton(true);
+        if (Variables.Quasar == 0)
+            SetActiveItemUseButton(false);
+        else
+            SetActiveItemUseButton(true);
     }
 
-    public void SetDeactiveQuasarUiGameObjects()
+    private void SetDeactiveQuasarUiGameObjects()
     {
         itemChoosePanel.SetActive(false);
         towerCountUpgradeButton.gameObject.SetActive(false);
         newAbilityUpgradeButton.gameObject.SetActive(false);
         chooseTowerPanel.SetActive(false);
         upgradeChooseUis.SetActive(false);
+        towerInfoUI.gameObject.SetActive(false);
+        isTowerChoosingState = false;
     }
 
     private void OnItemUseClicked()
@@ -234,6 +319,7 @@ public class PowerUpItemControlUI : MonoBehaviour
             itemChoosePanel.SetActive(true);
             towerUpgradeSlotUI.IsNotUpgradeOpen = true;
             towerUpgradeSlotUI.gameObject.SetActive(true);
+            towerUpgradeSlotUI.IsQuasarItemUsed = true;
             towerCountUpgradeButton.gameObject.SetActive(true);
             newAbilityUpgradeButton.gameObject.SetActive(true);
             abilities = new List<int>();
@@ -241,7 +327,7 @@ public class PowerUpItemControlUI : MonoBehaviour
         }
         else
         {
-            SetDeactiveQuasarUiGameObjects();
+            // SetDeactiveQuasarUiGameObjects();
             SetTowerOpenInfoTouch();
         }
     }
@@ -270,6 +356,13 @@ public class PowerUpItemControlUI : MonoBehaviour
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(() => OnTowerSelectClicked(index));
         }
+
+        towerInfoUI.SetTitleText(GameStrings.TowerUpgradePopupTitle);
+        towerInfoUI.SetCheckText(GameStrings.Choose);
+        towerInfoUI.SetActiveCancelButton(true);
+        towerInfoUI.SetConfirmButtonFunction(OnUpgradeTowerClicked);
+
+        isTowerChoosingState = true;
     }
 
     private void SetTowerInstallText()
@@ -284,12 +377,27 @@ public class PowerUpItemControlUI : MonoBehaviour
         numlist = null;
 
         Variables.OnQuasarChanged -= CheckQuasarForReactivation;
+
+        SoundManager.Instance.PlayDeployClose();
     }
 
     private void SetUpCard(int i)
     {
-        var ability = AbilityManager.GetAbility(abilities[i]);
-        uiTexts[i].text = $"new\n{ability}";
+        // var ability = AbilityManager.GetAbility(abilities[i]);
+        // var abilityTextId = DataTableManager.RandomAbilityTable.Get(abilities[i]).RandomAbilityText_ID;
+        // var abilityExplainTextData = DataTableManager.RandomAbilityTextTable.Get(abilityTextId);
+        // var abilityExplain = abilityExplainTextData?.RandomAbilityDescribe ?? string.Empty;
+        // uiTexts[i].text = abilityExplain;
+
+        var abilityId = abilities[i];
+        var abilityData = DataTableManager.RandomAbilityTable.Get(abilityId);
+        var abilityAmount = abilityData.SpecialEffectValue;
+        var abilityName = abilityData.RandomAbilityName;
+        if (abilityId == (int)AbilityId.Hitscan)
+            uiTexts[i].text = $"{abilityName}\n활성화";
+        else
+            uiTexts[i].text = $"{abilityName}\n+{abilityAmount}";
+
         return;
     }
 
@@ -300,6 +408,48 @@ public class PowerUpItemControlUI : MonoBehaviour
 
     private void OnQuaserChanged()
     {
-        quasarText.text = $"퀘이사 X{Variables.Quasar}";
+        quasarText.text = $"퀘이사\nX{Variables.Quasar}";
+    }
+
+    //unlock
+    private int GetTowerUpgradeLevel(int attackTowerId)
+    {
+        var mgr = UserTowerUpgradeManager.Instance;
+        if (mgr == null || mgr.CurrentTowerUpgradeData == null) return 0;
+
+        var data = mgr.CurrentTowerUpgradeData;
+        if (data.towerIds == null || data.upgradeLevels == null) return 0;
+
+        int idx = data.towerIds.IndexOf(attackTowerId);
+        if (idx < 0 || idx >= data.upgradeLevels.Count) return 0;
+
+        return data.upgradeLevels[idx];
+    }
+
+    private bool IsTowerUpgradeLevelAtLeast4(int attackTowerId)
+    {
+        return GetTowerUpgradeLevel(attackTowerId) >= 4;
+    }
+
+    private int GetExclusiveUnlockAbilityId(int attackTowerId)
+    {
+        if (!DataTableManager.IsInitialized) return -1;
+
+        var table = DataTableManager.TowerUpgradeAbilityUnlockTable;
+        if (table == null) return -1;
+
+        int rowId = table.GetDataId(attackTowerId);
+        if (rowId <= 0) return -1;
+
+        var row = table.Get(rowId);
+        if (row == null) return -1;
+
+        return row.RandomAbility_ID;
+    }
+
+    private bool IsExclusiveUnlockAbility(int attackTowerId, int abilityId)
+    {
+        int exclusiveId = GetExclusiveUnlockAbilityId(attackTowerId);
+        return exclusiveId > 0 && abilityId == exclusiveId;
     }
 }

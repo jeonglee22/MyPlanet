@@ -11,12 +11,11 @@ public class MeteorRingSummonPattern : SummonPattern
 
     protected override void Summon()
     {
-        Collider ownerCollider = owner.GetComponent<Collider>();
+        SphereCollider ownerCollider = owner.GetComponent<SphereCollider>();
         float radius = 0f;
         if(ownerCollider != null)
         {
-            var extents = ownerCollider.bounds.extents;
-            radius = Mathf.Max(extents.x, extents.y, extents.z);
+            radius = ownerCollider.radius * owner.ScaleData.PrefabScale;
         }
 
         owner.Spawner.SpawnEnemiesInCircle(summonData.Enemy_Id, summonData.EnemyQuantity_1, radius, owner.ScaleData, false, owner.transform.position);

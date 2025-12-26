@@ -24,6 +24,16 @@ public class EnemyMovement : MonoBehaviour
     private float debuffTime;
     public float DebuffTime { get => debuffTime; set => debuffTime = value; }
 
+    private Transform centerStone;
+    private float orbitXAxisLimit = 1.4f;
+    private float orbitYAxisLimit = 1.2f;
+    private bool hasReachedOribt = false;
+
+    private void Start()
+    {
+        centerStone = GameObject.FindGameObjectWithTag(TagName.CenterStone).transform;
+    }
+
     void OnEnable()
     {
         if(target == null)
@@ -36,6 +46,7 @@ public class EnemyMovement : MonoBehaviour
         isDebuff = false;
         isDirectionSet = false;
         debuffTime = 0f;
+        hasReachedOribt = false;
     }
 
     protected virtual void Update()
@@ -57,6 +68,8 @@ public class EnemyMovement : MonoBehaviour
         float speedMultiplier = currentMovement.GetSpeedMultiplier();
 
         transform.position += finalDirection * moveSpeed * speedMultiplier * Time.deltaTime;
+
+        CheckOrbitReached();
     }
 
     private void Debuff(float time)
@@ -137,6 +150,36 @@ public class EnemyMovement : MonoBehaviour
         {
             moveDirection = Vector3.zero;
             isDirectionSet = false;
+
+            if(owner is ConstellationEnemy constellationEnemy)
+            {
+                constellationEnemy.DisableCollider();
+            }
         }
+    }
+
+    private void CheckOrbitReached()
+    {
+        if (hasReachedOribt)
+        {
+            return;
+        }
+
+        Vector3 relativePos = transform.position - centerStone.position;
+
+        float normalizedX = relativePos.x / orbitXAxisLimit;
+        float normalizedY = relativePos.y / orbitYAxisLimit;
+        float ellipseValue = (normalizedX * normalizedX) + (normalizedY * normalizedY);
+
+        if(ellipseValue <= 1f)
+        {
+            hasReachedOribt = true;
+            OnOrbitReached();
+        }
+    }
+
+    public void OnOrbitReached()
+    {
+        owner.HasReachedOrbit = true;
     }
 }

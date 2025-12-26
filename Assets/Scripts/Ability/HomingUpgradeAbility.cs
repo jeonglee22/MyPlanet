@@ -2,8 +2,6 @@ using UnityEngine;
 
 public class HomingUpgradeAbility : TowerAbility
 {
-    private int initAttackType;
-
     public HomingUpgradeAbility(float amount)
     {
         upgradeAmount = amount;
@@ -17,8 +15,6 @@ public class HomingUpgradeAbility : TowerAbility
         var towerAttack = gameObject.GetComponent<TowerAttack>();
         if (towerAttack != null)
         {
-            initAttackType = (int)towerAttack.BaseProjectileData.AttackType;
-            // Debug.Log("Before Ability" + initAttackType);
             towerAttack.NewProjectileAttackType = (int) ProjectileType.Homing;
         }
     }
@@ -26,12 +22,18 @@ public class HomingUpgradeAbility : TowerAbility
     public override void RemoveAbility(GameObject gameObject)
     {
         base.RemoveAbility(gameObject);
-
         var towerAttack = gameObject.GetComponent<TowerAttack>();
         if (towerAttack != null)
         {
-            towerAttack.NewProjectileAttackType = initAttackType;
-            // Debug.Log("Init Homing" + initAttackType);
+            var currentData = towerAttack.BaseProjectileData;
+            if (currentData != null)
+            {
+                towerAttack.NewProjectileAttackType = (int)currentData.AttackType;
+            }
+            else
+            {
+                towerAttack.NewProjectileAttackType = (int)ProjectileType.Normal;
+            }
         }
     }
 

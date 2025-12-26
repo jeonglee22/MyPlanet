@@ -38,23 +38,11 @@ public class TwoPhaseDownMovement : IMovement
         isDirectionCalculated = false;
         traveledDistance = 0f;
 
-        if(enemyType <= 1)
-        {
-            isPatternLine = true;
-        }
-        else
-        {
-            isPatternLine = false;
-        }
+        waitTime = 0f;
     }
 
     public Vector3 GetFinalDirection(Vector3 baseDirection, Transform ownerTransform, Transform target)
     {
-        if (!isPatternLine)
-        {
-            return baseDirection;
-        }
-
         if(currentPhase == MovementPhase.Horizontal)
         {
             if (!isDirectionCalculated)
@@ -68,7 +56,12 @@ public class TwoPhaseDownMovement : IMovement
             traveledDistance += movedThisFrame;
             lastPosition = ownerTransform.position;
 
-            if(traveledDistance >= phaseTransitionDistance)
+            Rect screenBounds = SpawnManager.Instance.ScreenBounds;
+            float radius = owner.GetComponent<SphereCollider>()?.radius ?? 0.5f;
+
+            bool hitBoundary = ownerTransform.position.x >= screenBounds.xMax - radius || ownerTransform.position.x <= screenBounds.xMin + radius;
+
+            if(traveledDistance >= phaseTransitionDistance || hitBoundary)
             {
                 currentPhase = MovementPhase.Wait;
                 isDirectionCalculated = false;
@@ -89,11 +82,11 @@ public class TwoPhaseDownMovement : IMovement
             return Vector3.zero;
         }
 
-        if(!isDirectionCalculated && target != null)
+        if(!isDirectionCalculated)
         {
             currentMoveDirection = Vector3.down;
-            ownerTransform.LookAt(ownerTransform.position + currentMoveDirection);
             isDirectionCalculated = true;
+            ownerTransform.LookAt(ownerTransform.position + currentMoveDirection);
         }
 
         return currentMoveDirection;
@@ -101,11 +94,7 @@ public class TwoPhaseDownMovement : IMovement
 
     public void OnPatternLine()
     {
-        if(enemyType <= 1)
-        {
-            return;
-        }
-        isPatternLine = true;
+        
     }
 
     public bool IsCompleted() => isDirectionSet;
@@ -118,11 +107,11 @@ public class TwoPhaseDownMovement : IMovement
 
         if(ownerTransform.position.x > parent.position.x)
         {
-            currentMoveDirection = new Vector3(1, -1, 0).normalized;
+            currentMoveDirection = new Vector3(1, -2, 0).normalized;
         }
         else
         {
-            currentMoveDirection = new Vector3(-1, -1, 0).normalized;
+            currentMoveDirection = new Vector3(-1, -2, 0).normalized;
         }
 
         ownerTransform.LookAt(ownerTransform.position + currentMoveDirection);

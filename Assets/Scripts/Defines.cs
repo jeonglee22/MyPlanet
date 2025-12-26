@@ -15,6 +15,10 @@ public static class TagName
     public static readonly string MainCanvas = "MainCanvas";
     public static readonly string Boss = "Boss";
     public static readonly string BattleUI = "BattleUI";
+    public static readonly string ChangedVisual = "ChangedVisual";
+    public static readonly string ChangeVisual = "ChangeVisual";
+    public static readonly string PatternProjectile = "PatternProjectile";
+    public static readonly string PlanetPanelUI = "PlanetPanelUI";
     public static readonly string TowerAttackTester = "TowerAttackTester";
     public static readonly string EnemyStatTester = "EnemyStatTester";
 }
@@ -79,6 +83,12 @@ public enum AbilityId
     Duration,
     Accuracy,
     AttackSpeedOneTarget,
+    AtkSpeedAtkHitSizeUnlock = 200018,
+    AtkSpeedHighUnlock = 200019,
+    AtkProjSpeedUnlock = 200020,
+    AccuracyHomingUnlock = 200021,
+    ExplosionRangePierceUnlock = 200022,
+    HitSizeChainUnlock = 200023,
 }
 
 public enum AttackTowerId
@@ -111,6 +121,8 @@ public enum ExecutionTrigger
     Immediate,
     OnHealthPercentage,
     ChildrenAlive,
+    OnHit,
+    OnOrbitReached,
 }
 
 public enum MoveType
@@ -118,12 +130,12 @@ public enum MoveType
     StraightDown,
     Homing,
     Chase,
-    FollowParent,
-    DescendAndStopMovement = 10,
+    TwoPhaseHomingMovement = 4,
+    TwoPhaseDownMovement = 9,
+    DescendAndStopMovement,
     Revolution = 11,
     Side,
-    TwoPhaseHomingMovement,
-    TwoPhaseDownMovement,
+    FollowParent,
 }
 
 public enum PatternIds
@@ -149,6 +161,28 @@ public enum PatternIds
     NeptuneFrontDiaSummon,
     EliteDiaReflectShield,
     EliteBigDiaReflectShield,
+    UFOLazer,
+    GalaxyStarShot,
+    SpaceWarmLazer,
+    SpaceWarmGravityShot,
+    FireChildHitChangeSpeedChase,
+    FireEyeShootFire,
+    BigFireEyeSummonFireChild,
+    BigFireEyeSummonFireEye,
+    BigFireEyeShootBigFire,
+    BigFireEyeFirePillar,
+    SunSummonFireChild,
+    SunShootFire,
+    empty,
+    SunParabolicShot,
+    BlackHolePhotonEnergy,
+    BlackHoleMiniBlackHoleSummon,
+    BlackHoleLazer,
+    BlackHoleExplosionSummon,
+    WhiteHoleSpaceWarmSummon,
+    WhiteHoleShoot,
+    ConstellationShoot,
+    ExplosionEnemy,
 }
 
 public enum TutorialPoint
@@ -187,7 +221,8 @@ public enum CurrencyType
 
 public enum PlanetType
 {
-    HealthPlanet = 0,
+    BasePlanet = 300001,
+    HealthPlanet,
     DefensePlanet,
     ShieldPlanet,
     BloodAbsorbPlanet,
@@ -211,6 +246,20 @@ public enum Currency
     Gold = 711101,
     FreeDia = 711201,
     ChargedDia = 711202,
+}
+
+public enum PlanetAbilityType
+{
+    None = 0,
+    Health,
+    Defense,
+    HealthPercentage,
+    DefensePercentage,
+    Shield,
+    Drain,
+    RegenerationHP,
+    ExperienceRate,
+
 }
 
 public static class DataTableIds
@@ -238,6 +287,17 @@ public static class DataTableIds
     public static readonly string Reward = "RewardTable";
     public static readonly string planet = "PlanetTable";
     public static readonly string RandomAbilityText = "RandomAbilityTextTable";
+    public static readonly string RandomAbilityReinforceUpgrade = "RandomAbilityReinforceUpgradeTable";
+    public static readonly string TowerUpgrade = "TowerUpgradeTable";
+    public static readonly string TowerUpgradeAbilityUnlock = "TowerUpgradeAbilityUnlockTable";
+    public static readonly string Skill = "SkillTable";
+    public static readonly string Stage = "StageTable";
+    public static readonly string PlanetLvUpgrade = "PlanetLvUpgradeTable";
+    public static readonly string PlanetStarUpgrade = "PlanetStarUpgradeTable";
+    public static readonly string LobbyString = "LobbyString";
+    public static readonly string SpecialEffectText = "SpecialEffectTextTable";
+    public static readonly string PlanetText = "PlanetTextTable";
+    public static readonly string StageReward = "StageRewardTable";
 }
 
 public static class Variables
@@ -270,7 +330,6 @@ public static class Variables
         Quasar = 1;
         LastBossEnemy = null;
         MiddleBossEnemy = null;
-        planetId = 300001;
     }
 
     public static bool IsTestMode {get; set;} = false;
@@ -283,6 +342,8 @@ public static class AddressLabel
     public static readonly string PatternProjectile = "PatternProjectile";
     public static readonly string Lazer = "Lazer";
     public static readonly string EnemyLazer = "EnemyLazer";
+    public static readonly string Texture = "Texture";
+    public static readonly string Mesh = "Mesh";
 }
 
 public static class DatabaseRef
@@ -291,6 +352,8 @@ public static class DatabaseRef
     public static readonly string UserPlanets = "userplanets";
     public static readonly string UserTowers = "usertowers";
     public static readonly string UserAttackPowers = "userattackpowers";
+    public static readonly string UserTowerUpgrades = "usertowerupgrades";
+    public static readonly string UserStageData = "userstageclear";
 }
 
 public static class PrintedAbility
@@ -304,4 +367,48 @@ public static class PrintedAbility
         200013, // 히트스캔
         200014  // 유도
     };
+}
+
+public enum SpecialEffectId
+{
+    AttackSpeed = 1011001,
+    ProjectileCount,
+    TargetCount,
+    Accuracy,
+    Pierce = 1101001,
+    Chain,
+    Explosion,
+    Homing,
+    Split,
+    FloorAttack,
+    Attack = 1102001,
+    ProjectileSpeed,
+    Acceleration,
+    HitSize,
+    RatePenetration,
+    FixedPenetration,
+    Slow = 1104001,
+    Grouping = 1105001,
+    Duration = 1106001,
+
+}
+
+public class GameStrings
+{
+    public static readonly string TowerSetting = "배치";
+    public static readonly string TowerUpgrade = "증강";
+    public static readonly string TowerDelete = "제거";
+    public static readonly string QuasarItemUsed = "퀘이사";
+    public static readonly string QuasarItemSkipTitle = "퀘이사 미선택";
+    public static readonly string QuasarItemSkipped = "퀘이사 아이템을 사용하지 않고\n스킵하시겠습니까?";
+    public static readonly string QuasarItemDeleted = "(스킵하면 퀘이사 아이템이 사라집니다.)";
+    public static readonly string TowerUpgradeSkipTitle = "증강 미선택";
+    public static readonly string TowerUpgradeSkipped = "타워 증강을 하지 않고\n스킵하시겠습니까?";
+    public static readonly string TowerUpgradeDeleted = "(스킵하면 타워 증강이 사라집니다.)";
+    public static readonly string DeleteTowerConfirm = "를\n정말 제거하시겠습니까?";
+
+    public static readonly string TowerSettingPopupTitle = "타워 정보";
+    public static readonly string TowerUpgradePopupTitle = "타워 선택";
+    public static readonly string Confirm = "확인";
+    public static readonly string Choose = "선택";
 }

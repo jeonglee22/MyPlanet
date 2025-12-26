@@ -15,6 +15,8 @@ public class BuffTowerData
     public int TowerWeight { get; set; }
     public int Order { get; set; }
     public int TowerText_ID { get; set; }
+    public string BuffTowerAsset { get; set; }
+    public string BuffTowerAssetCut { get; set; }
 
     public override string ToString()
     {

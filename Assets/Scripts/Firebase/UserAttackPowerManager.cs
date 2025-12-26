@@ -27,6 +27,8 @@ public class UserAttackPowerManager : MonoBehaviour
     public float PlanetPower { get; set; } = 0f;
     public float TowerPower { get; set; } = 0f;
 
+    private const int TowerCount = 6;
+
     private void Awake()
     {
         if (instance == null)
@@ -67,6 +69,7 @@ public class UserAttackPowerManager : MonoBehaviour
             var json = dataSnapshot.GetRawJsonValue();
             currentAttackPower = UserAttackPowerData.FromJson(json);
             await UpdatePlanetPower(UserPlanetManager.Instance.CurrentPlanet);
+            await UpdateTowerPower();
 
             return true;
         }
@@ -221,9 +224,9 @@ public class UserAttackPowerManager : MonoBehaviour
         SaveUserAttackPowerAsync((int)(PlanetPower + TowerPower)).Forget();
     }
 
-    public async void UpdateTowerPower(int towerPower)
+    public async UniTask UpdateTowerPower()
     {
-        TowerPower = towerPower;
+        await CalculateTowerPower();
 
         SaveUserAttackPowerAsync((int)(PlanetPower + TowerPower)).Forget();
     }
@@ -231,12 +234,54 @@ public class UserAttackPowerManager : MonoBehaviour
     private async UniTask CalculatePlanetPower(int planetId, int planetLevel, int planetUpgrade)
     {
         await UniTask.WaitUntil(() => DataTableManager.IsInitialized);
+        await UniTask.WaitUntil(() => UserPlanetManager.Instance.IsInitialized);
+        await UniTask.WaitUntil(() => PlanetStatManager.Instance.IsInitialized);
 
-        var planetData = DataTableManager.PlanetTable.Get(planetId);
-        // var planetUpgradeData = DataTableManager.PlanetUpgradeTable.Get(planetUpgrade);
-        // var planetLevelData = DataTableManager.PlanetLevelTable.Get(planetLevel);
+        var planetData = PlanetStatManager.Instance.CalculatePlanetStats(planetId, planetLevel, planetUpgrade);
 
-        var baseAttack = planetData.PlanetHp * (100 + planetData.PlanetArmor) * 0.01f;
-        PlanetPower = baseAttack + planetData.PlanetShield + planetData.RecoveryHp * 420f + planetData.Drain * 100f;
+        var baseAttack = planetData.hp * (100 + planetData.defense) * 0.01f;
+        PlanetPower = baseAttack + planetData.shield + planetData.hpRegeneration * 420f + planetData.drain * 550f;
+    }
+
+    private async UniTask CalculateTowerPower()
+    {
+        await UniTask.WaitUntil(() => DataTableManager.IsInitialized);
+        await UniTask.WaitUntil(() => UserTowerUpgradeManager.Instance.IsInitialized);
+
+        TowerPower = 0f;
+        for (int i = 0; i < TowerCount; i++)
+        {
+            var towerId = i switch
+            {
+                0 => AttackTowerId.basicGun,
+                1 => AttackTowerId.Gattling,
+                2 => AttackTowerId.Missile,
+                3 => AttackTowerId.ShootGun,
+                4 => AttackTowerId.Sniper,
+                5 => AttackTowerId.Lazer,
+                _ => throw new System.ArgumentOutOfRangeException(nameof(i), "Invalid tower index")
+            };
+
+            var towerUpgradeData = UserTowerUpgradeManager.Instance.CurrentTowerUpgradeData;
+            Debug.Log(towerUpgradeData);
+            if (towerUpgradeData == null)
+                continue;
+
+            var towerIndex = towerUpgradeData.towerIds.IndexOf((int)towerId);
+            if (towerIndex == -1)
+                continue;
+            Debug.Log(towerIndex);
+            var attackTowerLevel = towerUpgradeData.upgradeLevels[towerIndex];
+
+            TowerPower += attackTowerLevel switch
+            {
+                0 => 0f,
+                1 => 5f,
+                2 => 5f + 7.5f,
+                3 => 5f + 7.5f + 10f,
+                4 => 5f + 7.5f + 10f + 80f,
+                _ => -1f,
+            };
+        }
     }
 }
