@@ -26,6 +26,9 @@ public class GameStopUI : MonoBehaviour
 
     [SerializeField] private Planet planet;
 
+    [SerializeField] private GameObject settingPanelUI;
+    private SettingPanel settingPanel;
+
     public object OnConfirmYe { get; private set; }
 
 
@@ -42,6 +45,13 @@ public class GameStopUI : MonoBehaviour
         confirmNoButton.onClick.AddListener(OnConfirmNoClicked);
 
         AddBtnSound();
+
+        settingPanel = settingPanelUI.GetComponent<SettingPanel>();
+        if(settingPanel != null)
+        {
+            settingPanel.gameObject.SetActive(false);
+            settingPanel.Initialize();
+        }
     }
 
     private void AddBtnSound()
@@ -90,6 +100,8 @@ public class GameStopUI : MonoBehaviour
 
     private void OnOpenSettingClicked()
     {
+        settingPanel.LoadCurrentSettings();
+        settingPanelUI.SetActive(true);
     }
 
     private void OnGoToHomeClicked()
