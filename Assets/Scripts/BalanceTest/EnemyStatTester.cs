@@ -169,6 +169,10 @@ public class EnemyStatTester : MonoBehaviour
         patternId = Array.IndexOf(patternIds, enemyData.PatternGroup);
         moveTypeId = Array.IndexOf(moveTypeIds, enemyData.MoveType);
 
+        Debug.Log("PatternId : " + patternId + ", MoveTypeId : " + moveTypeId);
+        Debug.Log("PatternGroup : " + enemyData.PatternGroup + ", MoveType : " + enemyData.MoveType);
+        
+
         choosedEnemyData = enemyData;
     }
 
