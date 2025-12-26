@@ -304,6 +304,14 @@ public class PlanetPanelUI : MonoBehaviour
             PlanetStatManager.Instance.UpdateCurrentPlanetStats();
         }
 
+        RefreshPlanetPanelUI();
+
+        if (planetInfoPanel.activeSelf)
+        {
+            var planetData = DataTableManager.PlanetTable.Get(planetId);
+            planetInfoPanel.GetComponent<PlanetInfoUI>().Initialize(planetData, userPlanetInfo);
+        }
+
         planetInstallSuccessPanel.SetActive(true);
 
         AutoClosePanel().Forget();
@@ -345,5 +353,13 @@ public class PlanetPanelUI : MonoBehaviour
         {
             Debug.LogError($"SaveInstallDataAsync failed: {e.Message}");
         }
+    }
+
+    public void SetChoosedIndex(int planetIndex)
+    {
+        choosedIndex = planetIndex;
+
+        int planetId = 300000 + planetIndex + 1;
+        SetPlanetName(DataTableManager.PlanetTable.Get(planetId).PlanetName);
     }
 }

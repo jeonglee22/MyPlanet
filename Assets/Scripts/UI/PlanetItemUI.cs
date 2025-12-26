@@ -18,6 +18,7 @@ public class PlanetItemUI : MonoBehaviour
     [SerializeField] private GameObject notOwnImage;
     [SerializeField] private GameObject blackImage;
     [SerializeField] private Button lockOpenButton;
+    [SerializeField] private GameObject outLineImage;
 
     private PlanetStarUpgradeData planetStarUpgradeData;
     private PlanetData currentPlanetData;
@@ -30,6 +31,15 @@ public class PlanetItemUI : MonoBehaviour
 
     public void Initialize(PlanetData planetData, UserPlanetInfo userPlanetInfo)
     {
+        if(PlanetManager.Instance.ActivePlanetId == planetData.Planet_ID)
+        {
+            outLineImage.SetActive(true);
+        }
+        else
+        {
+            outLineImage.SetActive(false);
+        }
+
         currentPlanetData = planetData;
         currentUserPlanetInfo = userPlanetInfo;
 
