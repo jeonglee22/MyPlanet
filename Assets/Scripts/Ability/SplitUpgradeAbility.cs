@@ -42,12 +42,11 @@ public class SplitUpgradeAbility : EffectAbility
         var enemy = gameObject.GetComponent<Enemy>();
         if (enemy != null && isSetup && this.projectile.splitCount > 0)
         {
-            Debug.Log($"[SplitAbility] Enemy Hit - splitCount={this.projectile.splitCount}, isSetup={isSetup}, projectile={this.projectile.GetInstanceID()}");
             if (isLazerSplit)
             {
                 if (isSetupLazer)
                     return;
-                
+
                 MakeLazerSplit(this.projectile.splitCount, this.lazer.TailTransform);
                 isSetupLazer = true;
                 return;
@@ -56,12 +55,6 @@ public class SplitUpgradeAbility : EffectAbility
             MakeSplit(-offsetAngle);
             isSetup = false;
             this.projectile.splitCount = 0;
-            Debug.Log($"[SplitAbility] Split Complete - projectile={this.projectile.GetInstanceID()}");
-        }
-        else if (enemy != null)
-        {
-            // 디버그 추가
-            Debug.Log($"[SplitAbility] Enemy Hit BUT NOT SPLITTING - isSetup={isSetup}, splitCount={this.projectile?.splitCount ?? -999}, hasProjectile={this.projectile != null}");
         }
     }
 
@@ -139,7 +132,6 @@ public class SplitUpgradeAbility : EffectAbility
             this.projectile = projectile;
             this.projectile.splitCount = (int)upgradeAmount;
             isSetup = true;
-            Debug.Log($"[SplitAbility] SetProjectile - upgradeAmount={upgradeAmount}, splitCount={this.projectile.splitCount}, projectile={projectile.GetInstanceID()}");
         }
     }
 
@@ -166,7 +158,7 @@ public class SplitUpgradeAbility : EffectAbility
         float splitMul = GetSplitDamageMultiplier();
         newProjectiles.damageMultiplier = splitMul;
         newProjectiles.damageEvent += towerAttack.AdddamageDealt;
-
+        newProjectiles.explosionRadius = this.projectile.explosionRadius;
         var abilities = towerAttack?.Abilities;
 
         foreach (var abilityId in abilities)
@@ -174,7 +166,6 @@ public class SplitUpgradeAbility : EffectAbility
             if(abilityId == (int)AbilityId.Split)
             {
                 var remainingSplits = this.projectile.splitCount - 1;
-                Debug.Log($"[SplitAbility] MakeSplit - Creating child ability with remainingSplits={remainingSplits}, parent projectile={this.projectile.GetInstanceID()}, new projectile={newProjectiles.GetInstanceID()}");
                 var splitAbility = new SplitUpgradeAbility(remainingSplits);
                 splitAbility.Setting(towerAttack.gameObject);
                 splitAbility.ApplyAbility(newProjectiles.gameObject);
@@ -182,15 +173,11 @@ public class SplitUpgradeAbility : EffectAbility
                 newProjectiles.abilityRelease += splitAbility.RemoveAbility;
                 continue;
             }
-
             var ability = AbilityManager.GetAbility(abilityId);
-
             ability.ApplyAbility(newProjectiles.gameObject);
             newProjectiles.abilityAction += ability.ApplyAbility;
             newProjectiles.abilityRelease += ability.RemoveAbility;
         }
-
-        //Debug.Log(newProjectiles.projectileData.AttackType);
         newProjectiles.currentPierceCount = 1;
     }
 

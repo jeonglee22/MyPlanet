@@ -25,7 +25,6 @@ public class ExplosionAbility : EffectAbility
         var enemy = gameObject.GetComponent<Enemy>();
         if(enemy != null)
         {
-            //Debug.Log("Explosion Ability Triggered");
             var obj = LoadManager.GetLoadedGamePrefab(ObjectName.Explosion);
             obj.transform.position = enemy.transform.position;
             var explosion = obj.GetComponent<Explosion>();
