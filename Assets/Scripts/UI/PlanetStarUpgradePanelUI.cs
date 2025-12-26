@@ -37,6 +37,7 @@ public class PlanetStarUpgradePanelUI : MonoBehaviour
     private void Start()
     {
         upgradeButton.onClick.AddListener(() => OnUpgradeButtonClicked().Forget());
+        upgradeButton.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
     }
 
     public void Initialize(PlanetData planetData, UserPlanetInfo userPlanetInfo)

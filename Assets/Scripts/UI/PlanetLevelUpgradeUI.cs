@@ -32,6 +32,7 @@ public class PlanetLevelUpgradeUI : MonoBehaviour
     private void Start()
     {
         levelUpButton.onClick.AddListener(() => OnLevelUpButtonClicked().Forget());
+        levelUpButton.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
     }
 
     public void Initialize(PlanetData planetData, UserPlanetInfo userPlanetInfo)
