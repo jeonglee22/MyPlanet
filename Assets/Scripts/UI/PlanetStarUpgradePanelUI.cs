@@ -47,7 +47,7 @@ public class PlanetStarUpgradePanelUI : MonoBehaviour
 
         upgradeDataList = DataTableManager.PlanetStarUpgradeTable.GetAllDataByPlanetId(planetData.Planet_ID);
 
-        currentPlanetStarUpgradeData = DataTableManager.PlanetStarUpgradeTable.GetCurrentLevelData(planetData.Planet_ID, userPlanetInfo.starLevel);
+        currentPlanetStarUpgradeData = DataTableManager.PlanetStarUpgradeTable.GetCurrentLevelData(planetData.Planet_ID, userPlanetInfo.starLevel + 1);
         
         int nextStarLevel = userPlanetInfo.starLevel + 1;
         if(nextStarLevel <= PlanetManager.Instance.MaxStarLevel)

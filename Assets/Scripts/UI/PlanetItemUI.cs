@@ -82,7 +82,7 @@ public class PlanetItemUI : MonoBehaviour
             }
             else
             {
-                planetStarUpgradeData = DataTableManager.PlanetStarUpgradeTable.GetCurrentLevelData(planetData.Planet_ID, userPlanetInfo.starLevel);
+                planetStarUpgradeData = DataTableManager.PlanetStarUpgradeTable.GetCurrentLevelData(planetData.Planet_ID, nextStarLevel);
 
                 planetLevel.text = $"Lv. {userPlanetInfo.level}";
 
