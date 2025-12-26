@@ -1,7 +1,10 @@
+using System;
 using System.Collections.Generic;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class PlanetStarUpgradePanelUI : MonoBehaviour
@@ -34,10 +37,13 @@ public class PlanetStarUpgradePanelUI : MonoBehaviour
     private PlanetData currentPlanetData;
     private UserPlanetInfo currentUserPlanetInfo;
 
+    private CancellationTokenSource holdCts;
+    private float repeatInterval = 0.1f;
+    private float holdDelay = 0.5f;
+
     private void Start()
     {
-        upgradeButton.onClick.AddListener(() => OnUpgradeButtonClicked().Forget());
-        upgradeButton.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        AddEventTrigger(upgradeButton.gameObject);
     }
 
     public void Initialize(PlanetData planetData, UserPlanetInfo userPlanetInfo)
@@ -61,6 +67,13 @@ public class PlanetStarUpgradePanelUI : MonoBehaviour
 
         UpdateAllUI();
 
+    }
+
+    private void Cancel()
+    {
+        holdCts?.Cancel();
+        holdCts?.Dispose();
+        holdCts = new CancellationTokenSource();
     }
 
     private void UpdateAllUI()
@@ -236,10 +249,7 @@ public class PlanetStarUpgradePanelUI : MonoBehaviour
         }
 
         ItemManager.Instance.AddItem(pieceId, -requiredPieces);
-        await ItemManager.Instance.SaveItemsAsync();
-
         PlanetManager.Instance.StarUpPlanet(currentPlanetData.Planet_ID);
-        await PlanetManager.Instance.SavePlanetsAsync();
 
         currentPlanetStarUpgradeData = DataTableManager.PlanetStarUpgradeTable.GetCurrentLevelData(currentPlanetData.Planet_ID, currentUserPlanetInfo.starLevel);
 
@@ -262,6 +272,77 @@ public class PlanetStarUpgradePanelUI : MonoBehaviour
 
         planetPanelUI.RefreshPlanetPanelUI();
         planetInfoUI.Initialize(currentPlanetData, currentUserPlanetInfo);
+
+        SaveDataAsync().Forget();
+    }
+
+    private async UniTaskVoid SaveDataAsync()
+    {
+        try
+        {
+            await ItemManager.Instance.SaveItemsAsync();
+            await PlanetManager.Instance.SavePlanetsAsync();
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"PlanetStarUpgradePanelUI SaveDataAsync failed: {e.Message}");
+        }
+    }
+
+    private void AddEventTrigger(GameObject target)
+    {
+        EventTrigger trigger = target.GetComponent<EventTrigger>();
+        if(trigger == null)
+        {
+            trigger = target.AddComponent<EventTrigger>();
+        }
+
+        EventTrigger.Entry pointerDown = new EventTrigger.Entry();
+        pointerDown.eventID = EventTriggerType.PointerDown;
+        pointerDown.callback.AddListener((data) => { OnPointerDownButton(); });
+        trigger.triggers.Add(pointerDown);
+
+        EventTrigger.Entry pointerUp = new EventTrigger.Entry();
+        pointerUp.eventID = EventTriggerType.PointerUp;
+        pointerUp.callback.AddListener((data) => { OnPointerUpButton(); });
+        trigger.triggers.Add(pointerUp);
+
+        EventTrigger.Entry pointerExit = new EventTrigger.Entry();
+        pointerExit.eventID = EventTriggerType.PointerExit;
+        pointerExit.callback.AddListener((data) => { OnPointerUpButton(); });
+        trigger.triggers.Add(pointerExit);
+    }
+
+    private void OnPointerDownButton()
+    {
+        Cancel();
+
+        SoundManager.Instance.PlayClickSound();
+        OnUpgradeButtonClicked().Forget();
+        HoldButtonAsync(holdCts.Token).Forget();
+    }
+
+    private void OnPointerUpButton()
+    {
+        Cancel();
+    }
+
+    private async UniTaskVoid HoldButtonAsync(CancellationToken token)
+    {
+        try
+        {
+            await UniTask.Delay(System.TimeSpan.FromSeconds(holdDelay), cancellationToken: token);
+
+            while (true)
+            {
+                OnUpgradeButtonClicked().Forget();
+                await UniTask.Delay(System.TimeSpan.FromSeconds(repeatInterval), cancellationToken: token);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // 취소 시 예외 무시
+        }
     }
 
 }
