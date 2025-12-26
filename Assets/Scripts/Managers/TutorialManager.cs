@@ -34,6 +34,8 @@ public class TutorialManager : MonoBehaviour
     private Dictionary<int, List<TutorialTextData>> tutorialData = new Dictionary<int, List<TutorialTextData>>();
     private Dictionary<int, bool> completedSteps = new Dictionary<int, bool>();
 
+    private bool isCompletingStep = false;
+
     private void Awake()
     {
         if(instance != null)
@@ -170,6 +172,12 @@ public class TutorialManager : MonoBehaviour
 
     private void OnStepCompleted()
     {
+        if(isCompletingStep)
+        {
+            return;
+        }
+        isCompletingStep = true;
+
         GamePauseManager.Instance.Resume();
 
         completedSteps.Add(currentStep, true);
@@ -178,6 +186,8 @@ public class TutorialManager : MonoBehaviour
         currentTexts.Clear();
 
         tutorialPanel?.SetActive(false);
+
+        isCompletingStep = false;
     }
 
     private void ApplyTextPoint(TutorialPoint pointType)

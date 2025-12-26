@@ -17,13 +17,14 @@ public class TutorialUI : PopUpUI
         if(panelBtn == null)
         {
             panelBtn = GetComponent<Button>();
+            
+            panelBtn.onClick.AddListener(() =>
+            {
+                gameObject.SetActive(false);
+                TutorialManager.Instance.OnTextUIDisabled();
+                SoundManager.Instance.PlayClickSound();
+            });
         }
-        panelBtn.onClick.AddListener(() =>
-        {
-            gameObject.SetActive(false);
-            TutorialManager.Instance.OnTextUIDisabled();
-            SoundManager.Instance.PlayClickSound();
-        });
     }
 
     protected override void Update()
