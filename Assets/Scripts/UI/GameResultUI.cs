@@ -42,6 +42,11 @@ public class GameResultUI : MonoBehaviour
     private StageData currentStageData;
     private bool isGameClear = false;
 
+    [SerializeField] private TextMeshProUGUI goldText;
+    [SerializeField] private TextMeshProUGUI item1Text;
+    [SerializeField] private TextMeshProUGUI item2Text;
+    [SerializeField] private TextMeshProUGUI item3Text;
+
     void Start()
     {
         WaveManager.Instance.Cancel();
@@ -83,12 +88,7 @@ public class GameResultUI : MonoBehaviour
             enemyKillText.text = $"{enemyKillCount}";
         }
 
-        ProcessWaveGold().Forget();
-
-        if (gameClear)
-        {
-            ProcessStageRewards().Forget();
-        }
+        ProcessRewards().Forget();
     }
 
     public void SetRewardItems(List<(int itemId, int itemCount)> dropItems)
@@ -127,37 +127,51 @@ public class GameResultUI : MonoBehaviour
         SceneControlManager.Instance.LoadScene(SceneName.LobbyScene).Forget();
     }
 
-    private async UniTask ProcessStageRewards()
+    private async UniTask ProcessRewards()
     {
-        await UniTask.WaitUntil(() => UserStageManager.Instance != null && UserPlanetManager.Instance.IsInitialized && UserStageManager.Instance.IsInitialized);
-        
-        if(currentStageData == null)
-        {
-            return;
-        }
+        await UniTask.WaitUntil(() => CurrencyManager.Instance != null && CurrencyManager.Instance.IsInitialized);
+        await UniTask.WaitUntil(() => UserStageManager.Instance != null && UserStageManager.Instance.IsInitialized);
+        await UniTask.WaitUntil(() => ItemManager.Instance != null && ItemManager.Instance.IsInitialized);
 
         int highestCleared = UserStageManager.Instance.ClearedStageData.HighestClearedStage;
-        bool isFirstClear = Variables.Stage > highestCleared;
+        bool isFirstClear = Variables.Stage >= highestCleared;
+        Debug.Log($"[GameResult] 최고 클리어: {highestCleared}, 현재 스테이지: {Variables.Stage}, 최초 클리어: {isFirstClear}");
 
-        int rewardId = isFirstClear ? currentStageData.FirstReward_Id : currentStageData.Reward_Id;
-
-        var rewardData = DataTableManager.StageRewardTable.Get(rewardId);
-        if(rewardData == null)
+        int waveGold = WaveManager.Instance.AccumulateGold;
+        Debug.Log($"[GameResult] 웨이브 누적 골드: {waveGold}");
+        if(waveGold > 0)
         {
-            return;
+            UserData.Gold += waveGold;
+            Debug.Log($"[GameResult] 웨이브 골드 추가 후: {UserData.Gold}");
         }
 
-        PrecessRewards(rewardData);
+        if(isGameClear && currentStageData != null)
+        {
+            int rewardId = isFirstClear ? currentStageData.FirstReward_Id : currentStageData.Reward_Id;
+            Debug.Log($"[GameResult] 보상 ID: {rewardId}");
 
+            var rewardData = DataTableManager.StageRewardTable.Get(rewardId);
+            if(rewardData != null)
+            {
+                Debug.Log($"[GameResult] 보상 데이터 찾음 - Target1: {rewardData.Target_Id_1}, Qty1: {rewardData.RewardQty_1}");
+                Debug.Log($"[GameResult] 보상 데이터 - Target2: {rewardData.Target_Id_2}, Qty2: {rewardData.RewardQty_2}");
+                Debug.Log($"[GameResult] 보상 데이터 - Target3: {rewardData.Target_Id_3}, Qty3: {rewardData.RewardQty_3}");
+
+                ProcessStageRewardData(rewardData);
+                Debug.Log($"[GameResult] 스테이지 보상 추가 후 골드: {UserData.Gold}");
+            }
+        }
+
+        Debug.Log($"[GameResult] Firebase 저장 전 최종 골드: {UserData.Gold}");
         await SaveAllDataToFirebase();
 
-        if (isFirstClear)
+        if (isGameClear && isFirstClear)
         {
-            await UserStageManager.Instance.SaveUserStageClearAsync(Variables.Stage);
+            await UserStageManager.Instance.SaveUserStageClearAsync(Variables.Stage + 1);
         }
     }
 
-    private void PrecessRewards(StageRewardData rewardData)
+    private void ProcessStageRewardData(StageRewardData rewardData)
     {
         if(rewardData.Target_Id_1 != 0 && rewardData.RewardQty_1 > 0)
         {
@@ -177,34 +191,25 @@ public class GameResultUI : MonoBehaviour
 
     private void AddRewardByTargetId(int targetId, int quantity)
     {
-        if(targetId >= 300000 && targetId < 400000) // 행성
-        {
-            UserDataMapper.AddPlanet(targetId);
-            Debug.Log($"[GameResult] 행성 보상: ID={targetId}");
-        }
-        else if(targetId == 711101) // 골드
+        if(targetId == 711101)
         {
             UserData.Gold += quantity;
             Debug.Log($"[GameResult] 골드 보상: +{quantity}");
         }
-        else if(targetId == 711201) // 무료 다이아
+        else if(targetId == 711201)
         {
             UserData.FreeDia += quantity;
             Debug.Log($"[GameResult] 무료 다이아 보상: +{quantity}");
         }
-        else if(targetId == 711202) // 유료 다이아
+        else if(targetId == 711202)
         {
             UserData.ChargedDia += quantity;
             Debug.Log($"[GameResult] 유료 다이아 보상: +{quantity}");
         }
-        else if(targetId >= 710000 && targetId < 711000) // 아이템
+        else
         {
             UserDataMapper.AddItem(targetId, quantity);
             Debug.Log($"[GameResult] 아이템 보상: ID={targetId}, Qty={quantity}");
-        }
-        else
-        {
-            Debug.LogWarning($"[GameResult] 알 수 없는 보상 ID: {targetId}");
         }
     }
 
@@ -216,16 +221,5 @@ public class GameResultUI : MonoBehaviour
         await ItemManager.Instance.SaveItemsAsync();
 
         await PlanetManager.Instance.SavePlanetsAsync();
-    }
-
-    private async UniTask ProcessWaveGold()
-    {
-        await UniTask.WaitUntil(() => CurrencyManager.Instance != null && CurrencyManager.Instance.IsInitialized);
-
-        int waveGold = WaveManager.Instance.AccumulateGold;
-        if(waveGold > 0)
-        {
-            UserData.Gold += waveGold;
-        }
     }
 }
