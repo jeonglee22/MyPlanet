@@ -73,16 +73,6 @@ public class PlayManager : MonoBehaviour
 
         SoundManager.Instance.PlayVictorySound();
 
-        var currentLastCelearedStage = UserStageManager.Instance.ClearedStageData.HighestClearedStage;
-        if (Variables.Stage == currentLastCelearedStage)
-        {
-            var result = await UserStageManager.Instance.SaveUserStageClearAsync(Variables.Stage + 1);
-            if (!result)
-            {
-                Debug.LogError("Failed to save stage clear data.");
-            }
-        }
-
         if (gameOverUI != null)
         {
             gameOverUI.GetComponent<GameResultUI>()?.SetResultText(true);
