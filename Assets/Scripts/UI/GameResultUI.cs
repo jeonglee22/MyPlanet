@@ -135,34 +135,25 @@ public class GameResultUI : MonoBehaviour
 
         int highestCleared = UserStageManager.Instance.ClearedStageData.HighestClearedStage;
         bool isFirstClear = Variables.Stage >= highestCleared;
-        Debug.Log($"[GameResult] 최고 클리어: {highestCleared}, 현재 스테이지: {Variables.Stage}, 최초 클리어: {isFirstClear}");
 
         int waveGold = WaveManager.Instance.AccumulateGold;
-        Debug.Log($"[GameResult] 웨이브 누적 골드: {waveGold}");
         if(waveGold > 0)
         {
             UserData.Gold += waveGold;
-            Debug.Log($"[GameResult] 웨이브 골드 추가 후: {UserData.Gold}");
+            goldText.text = $"+{waveGold}";
         }
 
         if(isGameClear && currentStageData != null)
         {
             int rewardId = isFirstClear ? currentStageData.FirstReward_Id : currentStageData.Reward_Id;
-            Debug.Log($"[GameResult] 보상 ID: {rewardId}");
 
             var rewardData = DataTableManager.StageRewardTable.Get(rewardId);
             if(rewardData != null)
             {
-                Debug.Log($"[GameResult] 보상 데이터 찾음 - Target1: {rewardData.Target_Id_1}, Qty1: {rewardData.RewardQty_1}");
-                Debug.Log($"[GameResult] 보상 데이터 - Target2: {rewardData.Target_Id_2}, Qty2: {rewardData.RewardQty_2}");
-                Debug.Log($"[GameResult] 보상 데이터 - Target3: {rewardData.Target_Id_3}, Qty3: {rewardData.RewardQty_3}");
-
                 ProcessStageRewardData(rewardData);
-                Debug.Log($"[GameResult] 스테이지 보상 추가 후 골드: {UserData.Gold}");
             }
         }
 
-        Debug.Log($"[GameResult] Firebase 저장 전 최종 골드: {UserData.Gold}");
         await SaveAllDataToFirebase();
 
         if (isGameClear && isFirstClear)
@@ -176,16 +167,19 @@ public class GameResultUI : MonoBehaviour
         if(rewardData.Target_Id_1 != 0 && rewardData.RewardQty_1 > 0)
         {
             AddRewardByTargetId(rewardData.Target_Id_1, rewardData.RewardQty_1);
+            item1Text.text = $"+{rewardData.RewardQty_1}";
         }
 
         if(rewardData.Target_Id_2 != 0 && rewardData.RewardQty_2 > 0)
         {
             AddRewardByTargetId(rewardData.Target_Id_2, rewardData.RewardQty_2);
+            item2Text.text = $"+{rewardData.RewardQty_2}";
         }
 
         if(rewardData.Target_Id_3 != 0 && rewardData.RewardQty_3 > 0)
         {
             AddRewardByTargetId(rewardData.Target_Id_3, rewardData.RewardQty_3);
+            item3Text.text = $"+{rewardData.RewardQty_3}";
         }
     }
 
@@ -194,22 +188,18 @@ public class GameResultUI : MonoBehaviour
         if(targetId == 711101)
         {
             UserData.Gold += quantity;
-            Debug.Log($"[GameResult] 골드 보상: +{quantity}");
         }
         else if(targetId == 711201)
         {
             UserData.FreeDia += quantity;
-            Debug.Log($"[GameResult] 무료 다이아 보상: +{quantity}");
         }
         else if(targetId == 711202)
         {
             UserData.ChargedDia += quantity;
-            Debug.Log($"[GameResult] 유료 다이아 보상: +{quantity}");
         }
         else
         {
             UserDataMapper.AddItem(targetId, quantity);
-            Debug.Log($"[GameResult] 아이템 보상: ID={targetId}, Qty={quantity}");
         }
     }
 
