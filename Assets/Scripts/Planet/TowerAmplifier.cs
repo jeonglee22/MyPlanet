@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 
@@ -137,8 +138,9 @@ public class TowerAmplifier : MonoBehaviour
             foreach (var abilityId in abilities)
                 ApplyRandomAbilityToTarget(target, abilityId);
         }
-
+        
         OnBuffTargetsChanged?.Invoke();
+        Debug.Log($"[Amplifier] My abilities: {string.Join(", ", abilities)}");
     }
 
     private void ApplyRandomAbilityToTarget(TowerAttack target, int abilityId)
@@ -167,6 +169,7 @@ public class TowerAmplifier : MonoBehaviour
 
         info.TotalAmountApplied = newTotal;
         dict[abilityId] = info;
+        Debug.Log($"[Amplifier] ApplyRandomAbilityToTarget - abilityId={abilityId}, target abilities will have Split count: ?");
     }
 
     public void RemoveBuff(TowerAttack target) //single target (destory target tower)
@@ -365,6 +368,7 @@ public class TowerAmplifier : MonoBehaviour
             targetFlagsBySlot[t] = AmpTargetFlags.BaseBuff | AmpTargetFlags.RandomAbility;
 
         OnBuffTargetsChanged?.Invoke();
+        Debug.Log($"[Amplifier] My abilities: {string.Join(", ", abilities)}");
     }
     public void ApplyBuffForNewTower(int slotIndex, TowerAttack newTower)
     {
@@ -529,8 +533,13 @@ public class TowerAmplifier : MonoBehaviour
 
     public void AddAbilityAndApplyToCurrentTargets(int abilityId)
     {
-        if (abilityId <= 0) return;
+        if (abilityId <= 0) return; 
         if (abilities == null) return;
+
+        if (!DataTableManager.IsInitialized) return;
+        var abilityData = DataTableManager.RandomAbilityTable?.Get(abilityId);
+        if (abilityData == null) return;
+        if (abilityData.DuplicateType == 1 && abilities.Contains(abilityId)) return;
 
         abilities.Add(abilityId);
 
@@ -546,6 +555,7 @@ public class TowerAmplifier : MonoBehaviour
             ApplyRandomAbilityToTarget(target, abilityId);
         }
         OnBuffTargetsChanged?.Invoke();
+        Debug.Log($"[Amplifier] abilities count: {abilities.Count}, Split count: {abilities.Count(x => x == (int)AbilityId.Split)}");
     }
 public string GetDebugInfo()
 {
