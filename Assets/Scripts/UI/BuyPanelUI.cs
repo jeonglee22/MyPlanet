@@ -54,25 +54,54 @@ public class BuyPanelUI : MonoBehaviour
             return;
         }
 
-        var itemData = DataTableManager.ItemTable.Get(itemId);
+        if (itemId == (int)Currency.ChargedDia)
+        {
+            var chargedCurrencyData = DataTableManager.CurrencyTable.Get((int)Currency.ChargedDia);
+            buyItemImage.sprite = LoadManager.GetLoadedGameTexture(chargedCurrencyData.CurrencyIconText);
+            this.itemCount = itemCount;
+            needCurrencyValue = needValue;
+            currencyText.text = needCurrencyValue.ToString();
+            itemNameText.text = DataTableManager.ItemStringTable.GetString(chargedCurrencyData.CurrencyName);
+            itemCountText.text = $"x {itemCount}";
 
-        var currencyData = DataTableManager.CurrencyTable.Get((int)Currency.Gold);
-        buyItemImage.sprite = LoadManager.GetLoadedGameTexture(itemData.ItemIconText);
+            needItemId = (int)Currency.Gold;
+            var goldData = DataTableManager.CurrencyTable.Get((int)Currency.Gold);
+            needCurrencyImage.sprite = LoadManager.GetLoadedGameTexture(goldData.CurrencyIconText);
+        }
+        else
+        {
+            var itemData = DataTableManager.ItemTable.Get(itemId);
 
-        needCurrencyImage.sprite = LoadManager.GetLoadedGameTexture(currencyData.CurrencyIconText);
-        this.itemCount = itemCount;
-        needCurrencyValue = needValue;
-        currencyText.text = needCurrencyValue.ToString();
-        itemNameText.text = DataTableManager.ItemStringTable.GetString(itemData.ItemName);
+            var currencyData = DataTableManager.CurrencyTable.Get((int)Currency.Gold);
+            buyItemImage.sprite = LoadManager.GetLoadedGameTexture(itemData.ItemIconText);
 
-        itemCountText.text = $"x {itemCount}";
+            needCurrencyImage.sprite = LoadManager.GetLoadedGameTexture(currencyData.CurrencyIconText);
+            this.itemCount = itemCount;
+            needCurrencyValue = needValue;
+            currencyText.text = needCurrencyValue.ToString();
+            itemNameText.text = DataTableManager.ItemStringTable.GetString(itemData.ItemName);
+
+            itemCountText.text = $"x {itemCount}";
+
+            needItemId = currencyData.Currency_Id;
+        }
 
         failBuyText.gameObject.SetActive(false);
 
         buyItemId = itemId;
-        needItemId = currencyData.Currency_Id;
 
-        buyBtn.onClick.AddListener(() => OnBuyBtnClicked().Forget());
+        if (itemId == (int)Currency.ChargedDia)
+        {
+            buyBtn.onClick.AddListener(() => OnChargeDiaBtnClicked().Forget());
+        }
+        else if (itemId == (int)ItemIds.PackageShopItem)
+        {
+            buyBtn.onClick.AddListener(() => OnBuyBtnClicked().Forget());
+        }
+        else
+        {
+            buyBtn.onClick.AddListener(() => OnBuyBtnClicked().Forget());
+        }
 
         this.buyItemPanel = buyItemPanel;
     }
@@ -92,6 +121,40 @@ public class BuyPanelUI : MonoBehaviour
         gameObject.SetActive(false);
         var dailyButton = buyItemPanel.GetComponent<DailyButton>();
         dailyButton.LockedItem();
+    }
+
+    private async UniTaskVoid OnChargeDiaBtnClicked()
+    {
+        if (cts != null)
+        {
+            cts.Cancel();
+            cts.Dispose();
+            cts = new CancellationTokenSource();
+        }
+
+        var userGoldCurrency = UserData.Gold;
+        if (userGoldCurrency <= needCurrencyValue)
+        {
+            failBuyText.gameObject.SetActive(true);
+            await UniTask.Delay(TimeSpan.FromSeconds(1), cancellationToken: cts.Token);
+            failBuyText.gameObject.SetActive(false);
+            return;
+        }
+        else
+        {
+            buyBtn.interactable = false;
+
+            UserData.Gold -= needCurrencyValue;
+            UserData.ChargedDia += itemCount;
+
+            await ItemManager.Instance.SaveItemsAsync();
+
+            OnBuyCompleted?.Invoke();
+
+            buyBtn.interactable = true;
+
+            gameObject.SetActive(false);
+        }
     }
 
     private void AddBtnSound()

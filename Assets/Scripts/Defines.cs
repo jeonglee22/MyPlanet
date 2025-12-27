@@ -256,6 +256,7 @@ public enum ItemIds
 {
     TowerUpgradeItem = 710201,
     PlanetUpgradeItem = 710202,
+    PackageShopItem = 9999,
 }
 
 public enum PlanetAbilityType

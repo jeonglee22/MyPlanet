@@ -69,9 +69,9 @@ public class ShopCategori : MonoBehaviour
         for(int i = 0; i < buttonsContainers.Length; i++)
         {
             int index = i;
-            var dailyBtnObj = Instantiate(buttonPrefab, buttonsContainers[index]);
-            // var dailyButton = dailyBtnObj.GetComponent<DailyButton>();
-            // dailyButton.Initialize(index, onButtonClick);
+            var chargedDiaBtnObj = Instantiate(buttonPrefab, buttonsContainers[index]);
+            var chargeDiaButton = chargedDiaBtnObj.GetComponent<ChargeDiaButton>();
+            chargeDiaButton.Initialize(index, onButtonClick);
         }
     }
 
