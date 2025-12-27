@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks.CompilerServices;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,6 +11,7 @@ public class LogInPopUpUI : MonoBehaviour
     [SerializeField] private MainTitleCanvasManager canvasManager;
 
     [SerializeField] private Button signUpButton;
+    [SerializeField] private Button googleLogInButton;
     [SerializeField] private Button closeButton;
     [SerializeField] private Text errorMessageText;
     [SerializeField] private InfoPopUpUI infoPopUpUI;
@@ -40,6 +42,7 @@ public class LogInPopUpUI : MonoBehaviour
     private void InteractableButtons(bool interactable)
     {
         signUpButton.interactable = interactable;
+        googleLogInButton.interactable = interactable;
         closeButton.interactable = interactable;
     }
 
