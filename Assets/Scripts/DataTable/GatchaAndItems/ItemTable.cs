@@ -13,6 +13,7 @@ public class ItemData
     public string ItemNameText { get; set; }
     public string ItemDescription { get; set; }
     public string ItemDescriptionText { get; set; }
+    public string ItemIconText { get; set; }
 
     public override string ToString()
     {

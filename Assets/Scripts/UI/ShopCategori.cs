@@ -1,9 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Timeline;
 using UnityEngine.UI;
 
 public class ShopCategori : MonoBehaviour
@@ -31,9 +28,37 @@ public class ShopCategori : MonoBehaviour
             case ShopCategory.Gacha:
                 SetUpGachaData(onButtonClick);
                 break;
+            case ShopCategory.DailyShop:
+                SetUpDailyShopData(onButtonClick);
+                break;
+            case ShopCategory.ChargeDiaShop:
+                SetUpChargeDiaShopData(onButtonClick);
+                break;
+            case ShopCategory.PackageShop:
+                SetUpPackageShopData(onButtonClick);
+                break;
             case ShopCategory.Others:
                 break;
         }
+    }
+
+    private void SetUpDailyShopData(Action<(int, int, string)> onButtonClick)
+    {
+        for(int i = 0; i < buttonsContainers.Length; i++)
+        {
+            int index = i;
+            var dailyBtnObj = Instantiate(buttonPrefab, buttonsContainers[index]);
+            var dailyButton = dailyBtnObj.GetComponent<DailyButton>();
+            dailyButton.Initialize(index, onButtonClick);
+        }
+    }
+
+    private void SetUpChargeDiaShopData(Action<(int, int, string)> onButtonClick)
+    {
+    }
+
+    private void SetUpPackageShopData(Action<(int, int, string)> onButtonClick)
+    {
     }
 
     // private void SetUpGridLayout(ShopCategory category)
@@ -63,4 +88,6 @@ public class ShopCategori : MonoBehaviour
             gachaBtn.Initialize(gachaList[i].Item1, gachaList[i].Item2, gachaList[i].Item3, onButtonClick);
         }
     }
+
+
 }

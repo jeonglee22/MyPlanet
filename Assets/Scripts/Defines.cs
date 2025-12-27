@@ -59,6 +59,9 @@ public static class SceneName
 public static class CategoryName
 {
     public static readonly string Gacha = "가챠";
+    public static readonly string DailyShop = "일일 상점";
+    public static readonly string ChargeDiaShop = "유료 다이아 상점";
+    public static readonly string PackageShop = "패키지 상점";
     public static readonly string Others = "다른 아이템 분류";
 }
 
@@ -198,6 +201,9 @@ public enum TutorialPoint
 public enum ShopCategory
 {
     Gacha,
+    DailyShop,
+    ChargeDiaShop,
+    PackageShop,
     Others,
 }
 
@@ -244,6 +250,12 @@ public enum Currency
     Gold = 711101,
     FreeDia = 711201,
     ChargedDia = 711202,
+}
+
+public enum ItemIds
+{
+    TowerUpgradeItem = 710201,
+    PlanetUpgradeItem = 710202,
 }
 
 public enum PlanetAbilityType
@@ -296,6 +308,8 @@ public static class DataTableIds
     public static readonly string SpecialEffectText = "SpecialEffectTextTable";
     public static readonly string PlanetText = "PlanetTextTable";
     public static readonly string StageReward = "StageRewardTable";
+    public static readonly string DailyReroll = "DailyRerollTable";
+    public static readonly string ItemString = "ItemStringTable";
 }
 
 public static class Variables

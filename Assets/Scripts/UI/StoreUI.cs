@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using TMPro;
@@ -11,9 +12,15 @@ public class StoreUI : MonoBehaviour
     [SerializeField] private Button backBtn;
     
     [SerializeField] private Transform scrollViewContent;
-    [SerializeField] private GameObject shopCategoryPrefab;
+    [SerializeField] private GameObject shopCategory;
+    [SerializeField] private GameObject dailyCategory;
+    [SerializeField] private GameObject chargeDiaCategory;
+    [SerializeField] private GameObject packageCategory;
 
     [SerializeField] private GameObject gachaButtonPrefab;
+    [SerializeField] private GameObject dailyButtonPrefab;
+    [SerializeField] private GameObject chargeDiaButtonPrefab;
+    [SerializeField] private GameObject packageButtonPrefab;
     [SerializeField] private GameObject itemButtonPrefab;
 
     [SerializeField] private GachaPanelUI gachaPanelUI;
@@ -26,6 +33,8 @@ public class StoreUI : MonoBehaviour
     [SerializeField] private Transform scrollContent;
     [SerializeField] private GameObject inventoryItemPrefab;
     private List<GameObject> instantiatedInventoryItems = new List<GameObject>();
+
+    [SerializeField] private TextMeshProUGUI dailyRefreshTimeText;
 
     private void Start()
     {
@@ -62,23 +71,47 @@ public class StoreUI : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    private void InitializeShop()
+    private void FixedUpdate()
     {
-        foreach(Transform child in scrollViewContent)
-        {
-            Destroy(child.gameObject);
-        }
-
-        CreateCategory(ShopCategory.Gacha, CategoryName.Gacha, gachaButtonPrefab);
+        
     }
 
-    private void CreateCategory(ShopCategory category, string categoryName, GameObject buttonPrefab)
+    private void InitializeShop()
     {
-        var categoryObj = Instantiate(shopCategoryPrefab, scrollViewContent);
-        var categoryUI = categoryObj.GetComponent<ShopCategori>();
+        // foreach(Transform child in scrollViewContent)
+        // {
+        //     Destroy(child.gameObject);
+        // }
 
-        categoryUI.Initialize(category, categoryName, buttonPrefab, OnGachaButtonClick);
+        CreateCategory(shopCategory, ShopCategory.Gacha, CategoryName.Gacha, gachaButtonPrefab, OnGachaButtonClick);
+        CreateCategory(dailyCategory, ShopCategory.DailyShop, CategoryName.DailyShop, dailyButtonPrefab, OnDailyButtonClick);
+        CreateCategory(chargeDiaCategory, ShopCategory.ChargeDiaShop, CategoryName.ChargeDiaShop, chargeDiaButtonPrefab, OnChargeDiaButtonClick);
+        CreateCategory(packageCategory, ShopCategory.PackageShop, CategoryName.PackageShop, packageButtonPrefab, OnPackageButtonClick);
+    }
 
+    private void OnPackageButtonClick((int needCurrencyValue, int drawGroup, string gachaName) info)
+    {
+        gachaPanelUI.Initialize(info.needCurrencyValue, info.drawGroup, info.gachaName);
+        gachaPanelUI.gameObject.SetActive(true);
+    }
+
+    private void OnChargeDiaButtonClick((int needCurrencyValue, int drawGroup, string gachaName) info)
+    {
+        gachaPanelUI.Initialize(info.needCurrencyValue, info.drawGroup, info.gachaName);
+        gachaPanelUI.gameObject.SetActive(true);
+    }
+
+    private void OnDailyButtonClick((int needCurrencyValue, int drawGroup, string gachaName) info)
+    {
+        gachaPanelUI.Initialize(info.needCurrencyValue, info.drawGroup, info.gachaName);
+        gachaPanelUI.gameObject.SetActive(true);
+    }
+
+    private void CreateCategory(GameObject Panel, ShopCategory category, string categoryName, GameObject buttonPrefab, Action<(int, int, string)> onButtonClick = null)
+    {
+        var categoryUI = Panel.GetComponent<ShopCategori>();
+
+        categoryUI.Initialize(category, categoryName, buttonPrefab, onButtonClick);
     }
 
     private void OnGachaButtonClick((int needCurrencyValue, int drawGroup, string gachaName) info)
