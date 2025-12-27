@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -659,14 +660,14 @@ public class TowerAttack : MonoBehaviour
     private void SettingProjectile(Projectile projectile, ProjectileData buffedData, ProjectileData baseData, Vector3 direction, float attackType, ITargetable target)
     {
         projectile.Initialize(
-                    buffedData,
-                    baseData,
-                    direction,
-                    true,
-                    projectilePoolManager.ProjectilePool,
-                    planet,
-                    this.ReinforceLevel,
-                    this.Abilities
+            buffedData,
+            baseData,
+            direction,
+            true,
+            projectilePoolManager.ProjectilePool,
+            planet,
+            this.ReinforceLevel,
+            this.Abilities
         );
 
         if (attackType == (int)ProjectileType.Homing)
@@ -677,8 +678,8 @@ public class TowerAttack : MonoBehaviour
         int shotCount = CurrentProjectileCount;
         if (shotCount > 1)
         {
-            float projectileCountMul = GetAbilityDamageMultiplier(200011); 
-            if (projectileCountMul < 1f) 
+            float projectileCountMul = GetAbilityDamageMultiplier(200011);
+            if (projectileCountMul < 1f)
             {
                 projectile.damageMultiplier *= projectileCountMul;
             }
@@ -706,17 +707,44 @@ public class TowerAttack : MonoBehaviour
             return;
         }
 
+        Dictionary<int, int> abilityCountMap = new Dictionary<int, int>();
         foreach (var abilityId in Abilities)
         {
-            var ability = AbilityManager.GetAbility(abilityId);
-            if (ability == null) continue;
+            if (!abilityCountMap.ContainsKey(abilityId))
+                abilityCountMap[abilityId] = 0;
+            abilityCountMap[abilityId]++;
+        }
 
-            if (abilityId == (int)AbilityId.Explosion)
+        HashSet<int> processedAbilities = new HashSet<int>();
+
+        foreach (var abilityId in Abilities)
+        {
+            if (processedAbilities.Contains(abilityId))
+                continue;
+
+            processedAbilities.Add(abilityId);
+
+            int count = abilityCountMap[abilityId];
+            IAbility ability = null;
+
+            if (abilityId == (int)AbilityId.Split)
+            {
+                ability = new SplitUpgradeAbility(count);
+            }
+            else if (abilityId == (int)AbilityId.Explosion)
             {
                 var explosionValue = DataTableManager.RandomAbilityTable.Get(abilityId).SpecialEffectValue;
                 var totalExplosionRange = additionalExplosionRangeFromUpgrade + explosionValue;
                 projectile.explosionRadius = totalExplosionRange;
+                ability = AbilityManager.GetAbility(abilityId);
             }
+            else
+            {
+                ability = AbilityManager.GetAbility(abilityId);
+            }
+
+            if (ability == null) continue;
+
             ability.ApplyAbility(projectile.gameObject);
             projectile.abilityAction += ability.ApplyAbility;
             projectile.abilityRelease += ability.RemoveAbility;
@@ -724,7 +752,7 @@ public class TowerAttack : MonoBehaviour
         }
     }
 
-    private void ApplyGroupOffset(ref Vector3 direction, bool isInner, float grouping)
+        private void ApplyGroupOffset(ref Vector3 direction, bool isInner, float grouping)
     {
         if (grouping <= 0f) return;
 
@@ -782,11 +810,13 @@ public class TowerAttack : MonoBehaviour
     }
     public void AddBaseAbility(int abilityId)
     {
-        if (!baseAbilityIds.Contains(abilityId))
-        {
-            baseAbilityIds.Add(abilityId);
-            abilitiesDirty = true;
-        }
+        if (!DataTableManager.IsInitialized) return;
+        var abilityData = DataTableManager.RandomAbilityTable?.Get(abilityId);
+        if (abilityData == null) return;
+        if (abilityData.DuplicateType == 1 && baseAbilityIds.Contains(abilityId)) return;
+
+        baseAbilityIds.Add(abilityId);
+        abilitiesDirty = true;
     }
 
     public void AddAmplifierAbility(TowerAmplifier source, int abilityId)
@@ -852,12 +882,6 @@ public class TowerAttack : MonoBehaviour
     }
 
     //from card
-    public void AddOwnedAbility(int abilityId)
-    {
-        if (abilityId <= 0) return;
-        ownedAbilityIds.Add(abilityId);
-        ApplyOwnedAbilityInstance(abilityId);
-    }
     public void RemoveOwnedAbility(int abilityId)
     {
         if (abilityId <= 0) return;

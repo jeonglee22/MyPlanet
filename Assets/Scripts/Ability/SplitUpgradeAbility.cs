@@ -40,19 +40,17 @@ public class SplitUpgradeAbility : EffectAbility
             this.lazer = lazer;
         }
         var enemy = gameObject.GetComponent<Enemy>();
-        if (enemy != null && isSetup && upgradeAmount > 0 && this.projectile.splitCount > 0)
+        if (enemy != null && isSetup && this.projectile.splitCount > 0)
         {
             if (isLazerSplit)
             {
                 if (isSetupLazer)
                     return;
-                
+
                 MakeLazerSplit(this.projectile.splitCount, this.lazer.TailTransform);
                 isSetupLazer = true;
                 return;
             }
-
-            upgradeAmount--;
             MakeSplit(offsetAngle);
             MakeSplit(-offsetAngle);
             isSetup = false;
@@ -160,29 +158,26 @@ public class SplitUpgradeAbility : EffectAbility
         float splitMul = GetSplitDamageMultiplier();
         newProjectiles.damageMultiplier = splitMul;
         newProjectiles.damageEvent += towerAttack.AdddamageDealt;
-
+        newProjectiles.explosionRadius = this.projectile.explosionRadius;
         var abilities = towerAttack?.Abilities;
 
         foreach (var abilityId in abilities)
         {
             if(abilityId == (int)AbilityId.Split)
             {
-                var splitAbility = Copy();
-                splitAbility.ApplyAbility(newProjectiles.gameObject);
+                var remainingSplits = this.projectile.splitCount - 1;
+                var splitAbility = new SplitUpgradeAbility(remainingSplits);
                 splitAbility.Setting(towerAttack.gameObject);
+                splitAbility.ApplyAbility(newProjectiles.gameObject);
                 newProjectiles.abilityAction += splitAbility.ApplyAbility;
                 newProjectiles.abilityRelease += splitAbility.RemoveAbility;
                 continue;
             }
-
             var ability = AbilityManager.GetAbility(abilityId);
-
             ability.ApplyAbility(newProjectiles.gameObject);
             newProjectiles.abilityAction += ability.ApplyAbility;
             newProjectiles.abilityRelease += ability.RemoveAbility;
         }
-
-        //Debug.Log(newProjectiles.projectileData.AttackType);
         newProjectiles.currentPierceCount = 1;
     }
 
