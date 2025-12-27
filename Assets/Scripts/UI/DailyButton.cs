@@ -14,18 +14,20 @@ public class DailyButton : MonoBehaviour
     [SerializeField] private Image requiredCurrencyIcon;
 
     private string itemName;
-    private int drawGroup;
+    private int buyitemId;
+    private int needItemId;
     private int needCurrencyValue;
+    private int itemCount;
 
-    public event Action<(int, int, string)> OnGachaButtonClicked;
+    public event Action<(int, int, int, GameObject)> OnGachaButtonClicked;
 
-    public void Initialize(int index, Action<(int, int, string)> onClickCallback)
+    public void Initialize(int index, Action<(int, int, int, GameObject)> onClickCallback)
     {
         if (index < 0)
             return;
 
         var image = LoadManager.GetLoadedGameTexture("StarDust_icon");
-        var itemCount = 1;
+        itemCount = 1;
         var currencyGoldData = DataTableManager.CurrencyTable.Get((int)Currency.Gold);
 
         switch (index)
@@ -39,6 +41,10 @@ public class DailyButton : MonoBehaviour
                 requiredCurrencyIcon.transform.parent.gameObject.SetActive(false);
                 itemName = freeDiaName;
                 needCurrencyValue = 0;
+                itemCount = 15;
+
+                buyitemId = freeDiaId;
+                needItemId = 0;
                 break;
             case 1:
                 var towerUpgradeId = (int)ItemIds.TowerUpgradeItem;
@@ -50,6 +56,9 @@ public class DailyButton : MonoBehaviour
                 requiredCurrencyIcon.sprite = LoadManager.GetLoadedGameTexture(currencyGoldData.CurrencyIconText);
                 needCurrencyValue = 40000;
                 itemCount = 10;
+
+                buyitemId = towerUpgradeId;
+                needItemId = (int)Currency.Gold;
                 break;
             case 2:
                 var planetUpgradeId = (int)ItemIds.PlanetUpgradeItem;
@@ -61,6 +70,9 @@ public class DailyButton : MonoBehaviour
                 requiredCurrencyIcon.sprite = LoadManager.GetLoadedGameTexture(currencyGoldData.CurrencyIconText);
                 needCurrencyValue = 45000;
                 itemCount = 10;
+
+                buyitemId = planetUpgradeId;
+                needItemId = (int)Currency.Gold;
                 break;
             default:
                 var randomRewardData = DataTableManager.DailyRerollTable.GetRandomData();
@@ -71,8 +83,12 @@ public class DailyButton : MonoBehaviour
 
                 itemName = rewardName;
                 requiredCurrencyIcon.sprite = LoadManager.GetLoadedGameTexture(currencyData.CurrencyIconText);
-                needCurrencyValue = randomRewardData.NeedCurrencyValue;
+                
                 itemCount = DataTableManager.DailyRerollTable.GetRandomCountInId(randomRewardData.DailyReroll_Id);
+                needCurrencyValue = randomRewardData.NeedCurrencyValue * itemCount;
+
+                buyitemId = rewardItemData.Target_Id;
+                needItemId = currencyData.Currency_Id;
                 break;
         }
 
@@ -108,6 +124,11 @@ public class DailyButton : MonoBehaviour
 
     private void OnButtonClick()
     {
-        OnGachaButtonClicked?.Invoke((needCurrencyValue, drawGroup, itemName));
+        OnGachaButtonClicked?.Invoke((itemCount, buyitemId, needCurrencyValue, this.gameObject));
+    }
+
+    public void LockedItem()
+    {
+        soldOutOverlay.SetActive(true);
     }
 }

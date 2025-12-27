@@ -1,0 +1,149 @@
+using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class BuyPanelUI : MonoBehaviour
+{
+    [SerializeField] private Button backBtn;
+    [SerializeField] private Button buyBtn;
+    [SerializeField] private TextMeshProUGUI currencyText;
+    [SerializeField] private TextMeshProUGUI itemNameText;
+    [SerializeField] private TextMeshProUGUI itemCountText;
+    [SerializeField] private Image needCurrencyImage;
+    [SerializeField] private Image buyItemImage;
+    [SerializeField] private TextMeshProUGUI failBuyText;
+
+    private int needItemId;
+    private int buyItemId;
+
+    private int needCurrencyValue;
+    private int itemCount;
+
+    private GameObject buyItemPanel;
+    private CancellationTokenSource cts = new CancellationTokenSource();
+
+    public event Action OnBuyCompleted;
+
+
+    public void Initialize(int itemCount, int itemId, int needValue, GameObject buyItemPanel)
+    {
+        ResetBtn();
+        backBtn.onClick.AddListener(OnBackBtnClicked);
+        AddBtnSound();
+
+        if (needValue <= 0)
+        {
+            var gemIconId = (int)Currency.FreeDia;
+            var gemData = DataTableManager.CurrencyTable.Get(gemIconId);
+            buyItemImage.sprite = LoadManager.GetLoadedGameTexture(gemData.CurrencyIconText);
+            this.itemCount = itemCount;
+            needCurrencyValue = 0;
+            currencyText.text = "무료";
+            itemNameText.text = DataTableManager.ItemStringTable.GetString(gemData.CurrencyName);
+            itemCountText.text = $"x {itemCount}";
+
+            buyItemId = gemIconId;
+            this.buyItemPanel = buyItemPanel;
+
+            failBuyText.gameObject.SetActive(false);
+            buyBtn.onClick.AddListener(() => OnFreeBuyBtnClicked().Forget());
+
+            return;
+        }
+
+        var itemData = DataTableManager.ItemTable.Get(itemId);
+
+        var currencyData = DataTableManager.CurrencyTable.Get((int)Currency.Gold);
+        buyItemImage.sprite = LoadManager.GetLoadedGameTexture(itemData.ItemIconText);
+
+        needCurrencyImage.sprite = LoadManager.GetLoadedGameTexture(currencyData.CurrencyIconText);
+        this.itemCount = itemCount;
+        needCurrencyValue = needValue;
+        currencyText.text = needCurrencyValue.ToString();
+        itemNameText.text = DataTableManager.ItemStringTable.GetString(itemData.ItemName);
+
+        itemCountText.text = $"x {itemCount}";
+
+        failBuyText.gameObject.SetActive(false);
+
+        buyItemId = itemId;
+        needItemId = currencyData.Currency_Id;
+
+        buyBtn.onClick.AddListener(() => OnBuyBtnClicked().Forget());
+
+        this.buyItemPanel = buyItemPanel;
+    }
+
+    private async UniTaskVoid OnFreeBuyBtnClicked()
+    {
+        buyBtn.interactable = false;
+
+        UserData.FreeDia += itemCount;
+
+        await CurrencyManager.Instance.SaveCurrencyAsync();
+
+        OnBuyCompleted?.Invoke();
+
+        buyBtn.interactable = true;
+
+        gameObject.SetActive(false);
+        var dailyButton = buyItemPanel.GetComponent<DailyButton>();
+        dailyButton.LockedItem();
+    }
+
+    private void AddBtnSound()
+    {
+        backBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        buyBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+    }
+
+    private void ResetBtn()
+    {
+        backBtn.onClick.RemoveAllListeners();
+        buyBtn.onClick.RemoveAllListeners();
+    }
+
+    private void OnBackBtnClicked()
+    {
+        gameObject.SetActive(false);
+    }
+
+    private async UniTaskVoid OnBuyBtnClicked()
+    {
+        if (cts != null)
+        {
+            cts.Cancel();
+            cts.Dispose();
+            cts = new CancellationTokenSource();
+        }
+
+        var userGoldCurrency = UserData.Gold;
+        if (userGoldCurrency <= needCurrencyValue)
+        {
+            failBuyText.gameObject.SetActive(true);
+            await UniTask.Delay(TimeSpan.FromSeconds(1), cancellationToken: cts.Token);
+            failBuyText.gameObject.SetActive(false);
+            return;
+        }
+        else
+        {
+            UserData.Gold -= needCurrencyValue;
+            ItemManager.Instance.AddItem(buyItemId, itemCount);
+
+            buyBtn.interactable = false;
+
+            await ItemManager.Instance.SaveItemsAsync();
+
+            OnBuyCompleted?.Invoke();
+
+            buyBtn.interactable = true;
+
+            gameObject.SetActive(false);
+            var dailyButton = buyItemPanel.GetComponent<DailyButton>();
+            dailyButton.LockedItem();
+        }
+    }
+}

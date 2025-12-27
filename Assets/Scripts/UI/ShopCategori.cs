@@ -28,6 +28,17 @@ public class ShopCategori : MonoBehaviour
             case ShopCategory.Gacha:
                 SetUpGachaData(onButtonClick);
                 break;
+            default:
+                break;
+        }
+    }
+    public void Initialize(ShopCategory category, string categoryName, GameObject buttonPrefab, Action<(int, int, int, GameObject)> onButtonClick)
+    {
+        categoryText.text = categoryName;
+        this.buttonPrefab = buttonPrefab;
+
+        switch(category)
+        {
             case ShopCategory.DailyShop:
                 SetUpDailyShopData(onButtonClick);
                 break;
@@ -37,12 +48,12 @@ public class ShopCategori : MonoBehaviour
             case ShopCategory.PackageShop:
                 SetUpPackageShopData(onButtonClick);
                 break;
-            case ShopCategory.Others:
+            default:
                 break;
         }
     }
 
-    private void SetUpDailyShopData(Action<(int, int, string)> onButtonClick)
+    private void SetUpDailyShopData(Action<(int, int, int, GameObject)> onButtonClick)
     {
         for(int i = 0; i < buttonsContainers.Length; i++)
         {
@@ -53,12 +64,26 @@ public class ShopCategori : MonoBehaviour
         }
     }
 
-    private void SetUpChargeDiaShopData(Action<(int, int, string)> onButtonClick)
+    private void SetUpChargeDiaShopData(Action<(int, int, int, GameObject)> onButtonClick)
     {
+        for(int i = 0; i < buttonsContainers.Length; i++)
+        {
+            int index = i;
+            var dailyBtnObj = Instantiate(buttonPrefab, buttonsContainers[index]);
+            // var dailyButton = dailyBtnObj.GetComponent<DailyButton>();
+            // dailyButton.Initialize(index, onButtonClick);
+        }
     }
 
-    private void SetUpPackageShopData(Action<(int, int, string)> onButtonClick)
+    private void SetUpPackageShopData(Action<(int, int, int, GameObject)> onButtonClick)
     {
+        for(int i = 0; i < buttonsContainers.Length; i++)
+        {
+            int index = i;
+            var dailyBtnObj = Instantiate(buttonPrefab, buttonsContainers[index]);
+            // var dailyButton = dailyBtnObj.GetComponent<DailyButton>();
+            // dailyButton.Initialize(index, onButtonClick);
+        }
     }
 
     // private void SetUpGridLayout(ShopCategory category)

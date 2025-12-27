@@ -24,9 +24,11 @@ public class StoreUI : MonoBehaviour
     [SerializeField] private GameObject itemButtonPrefab;
 
     [SerializeField] private GachaPanelUI gachaPanelUI;
+    [SerializeField] private BuyPanelUI buyPanelUI;
 
     [SerializeField] private TextMeshProUGUI goldText;
-    [SerializeField] private TextMeshProUGUI diaText;
+    [SerializeField] private TextMeshProUGUI freeDiaText;
+    [SerializeField] private TextMeshProUGUI chargedDiaText;
 
     [SerializeField] private Button inventoryBtn;
     [SerializeField] private GameObject inventory;
@@ -35,6 +37,7 @@ public class StoreUI : MonoBehaviour
     private List<GameObject> instantiatedInventoryItems = new List<GameObject>();
 
     [SerializeField] private TextMeshProUGUI dailyRefreshTimeText;
+    [SerializeField] private Button refreshDailyBtn;
 
     private void Start()
     {
@@ -44,6 +47,7 @@ public class StoreUI : MonoBehaviour
 
         UpdateCurrencyUI();
         gachaPanelUI.OnGachaCompleted += UpdateCurrencyUI;
+        buyPanelUI.OnBuyCompleted += UpdateCurrencyUI;
 
         inventory.SetActive(false);
         inventoryBtn.onClick.AddListener(OnInventoryBtnClicked);
@@ -56,6 +60,7 @@ public class StoreUI : MonoBehaviour
     private void OnDestroy()
     {
         gachaPanelUI.OnGachaCompleted -= UpdateCurrencyUI;
+        buyPanelUI.OnBuyCompleted -= UpdateCurrencyUI;
         backBtn.onClick.RemoveListener(OnBackBtnClicked);
         inventoryBtn.onClick.RemoveListener(OnInventoryBtnClicked);
 
@@ -89,25 +94,32 @@ public class StoreUI : MonoBehaviour
         CreateCategory(packageCategory, ShopCategory.PackageShop, CategoryName.PackageShop, packageButtonPrefab, OnPackageButtonClick);
     }
 
-    private void OnPackageButtonClick((int needCurrencyValue, int drawGroup, string gachaName) info)
+    private void OnPackageButtonClick((int needCurrencyValue, int itemId, int needId, GameObject buyButton) info)
     {
-        gachaPanelUI.Initialize(info.needCurrencyValue, info.drawGroup, info.gachaName);
-        gachaPanelUI.gameObject.SetActive(true);
+        buyPanelUI.Initialize(info.needCurrencyValue, info.itemId, info.needId, info.buyButton);
+        buyPanelUI.gameObject.SetActive(true);
     }
 
-    private void OnChargeDiaButtonClick((int needCurrencyValue, int drawGroup, string gachaName) info)
+    private void OnChargeDiaButtonClick((int needCurrencyValue, int itemId, int needId, GameObject buyButton) info)
     {
-        gachaPanelUI.Initialize(info.needCurrencyValue, info.drawGroup, info.gachaName);
-        gachaPanelUI.gameObject.SetActive(true);
+        buyPanelUI.Initialize(info.needCurrencyValue, info.itemId, info.needId, info.buyButton);
+        buyPanelUI.gameObject.SetActive(true);
     }
 
-    private void OnDailyButtonClick((int needCurrencyValue, int drawGroup, string gachaName) info)
+    private void OnDailyButtonClick((int needCurrencyValue, int itemId, int needId, GameObject buyButton) info)
     {
-        gachaPanelUI.Initialize(info.needCurrencyValue, info.drawGroup, info.gachaName);
-        gachaPanelUI.gameObject.SetActive(true);
+        buyPanelUI.Initialize(info.needCurrencyValue, info.itemId, info.needId, info.buyButton);
+        buyPanelUI.gameObject.SetActive(true);
     }
 
     private void CreateCategory(GameObject Panel, ShopCategory category, string categoryName, GameObject buttonPrefab, Action<(int, int, string)> onButtonClick = null)
+    {
+        var categoryUI = Panel.GetComponent<ShopCategori>();
+
+        categoryUI.Initialize(category, categoryName, buttonPrefab, onButtonClick);
+    }
+
+    private void CreateCategory(GameObject Panel, ShopCategory category, string categoryName, GameObject buttonPrefab, Action<(int, int, int, GameObject)> onButtonClick = null)
     {
         var categoryUI = Panel.GetComponent<ShopCategori>();
 
@@ -126,7 +138,8 @@ public class StoreUI : MonoBehaviour
     private void UpdateCurrencyUI()
     {
         goldText.text = UserData.Gold.ToString();
-        diaText.text = $"무료 {UserData.FreeDia} / 유료 {UserData.ChargedDia}";
+        freeDiaText.text = $"무료 {UserData.FreeDia}";
+        chargedDiaText.text = $"유료 {UserData.ChargedDia}";
     }
 
     private void InitializeInventory()

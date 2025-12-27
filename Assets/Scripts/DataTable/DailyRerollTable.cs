@@ -60,6 +60,19 @@ public class DailyRerollTable : DataTable
         return dictionary[key];
     }
 
+    public DailyRerollData GetFromRewardId(int rewardId)
+    {
+        foreach (var data in dictionary.Values)
+        {
+            if (data.Reward_Id == rewardId)
+            {
+                return data;
+            }
+        }
+
+        return null;
+    }
+
     public DailyRerollData GetRandomData()
     {
         if (dictionary.Count == 0)

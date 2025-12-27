@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using TMPro;
+using UnityEditor.Search;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,6 +13,7 @@ public class GachaPanelUI : MonoBehaviour
     private int drawCount = 0;
     private int needCurrencyValue = 0;
 
+    [SerializeField] private GameObject gachaPanel;
     [SerializeField] private Button backBtn;
     [SerializeField] private TextMeshProUGUI gachaNameText;
     [SerializeField] private Button buyOnceBtn;
@@ -95,13 +97,16 @@ public class GachaPanelUI : MonoBehaviour
             Destroy(obj);
         }
         instantiatedRewardTenObjects.Clear();
+
+        gachaPanel.SetActive(true);
     }
 
     private void OnConfirm(string gachaName, int drawCount)
     {
-        confirmGachaText.text = $"{gachaName}를 x{drawCount}회 돌리시겠습니까?";
+        confirmGachaText.text = $"{gachaName}를 x{drawCount}회\n돌리시겠습니까?";
         noCurrencyText.SetActive(false);
         gachaConfirmUI.SetActive(true);
+        gachaPanel.SetActive(false);
     }
 
     private void OnBackBtnClicked()
@@ -110,6 +115,7 @@ public class GachaPanelUI : MonoBehaviour
 
         gachaConfirmUI.SetActive(false);
         noCurrencyText.SetActive(false);
+        gachaPanel.SetActive(true);
         gameObject.SetActive(false);
     }
 
@@ -117,6 +123,7 @@ public class GachaPanelUI : MonoBehaviour
     {
         gachaOncePanelUI.SetActive(false);
         gachaTenPanelUI.SetActive(false);
+        gachaPanel.SetActive(true);
 
         rewardResults.Clear();
 
@@ -209,6 +216,7 @@ public class GachaPanelUI : MonoBehaviour
     {
         gachaConfirmUI.SetActive(false);
         noCurrencyText.SetActive(false);
+        gachaPanel.SetActive(true);
     }
 
     private bool TryPay()
