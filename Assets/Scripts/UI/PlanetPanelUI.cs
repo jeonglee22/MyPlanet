@@ -359,7 +359,7 @@ public class PlanetPanelUI : MonoBehaviour
     {
         choosedIndex = planetIndex;
 
-        int planetId = 300000 + planetIndex + 1;
+        int planetId = 300000 + planetIndex;
         SetPlanetName(DataTableManager.PlanetTable.Get(planetId).PlanetName);
     }
 }
