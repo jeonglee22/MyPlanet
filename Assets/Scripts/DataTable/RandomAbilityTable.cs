@@ -84,7 +84,16 @@ public class RandomAbilityTable : DataTable
 
     public List<RandomAbilityData> GetAllAbilityDatas()
     {
-        return new List<RandomAbilityData>(dictionary.Values);
+        var allAbilities = new List<RandomAbilityData>();
+        foreach (var ability in dictionary.Values)
+        {
+            if (ability.RandomAbility_ID == 200016 || ability.RandomAbility_ID == 200017)
+                continue;
+
+            allAbilities.Add(ability);
+        }
+
+        return allAbilities;
     }
 
     private static int[] ParseBracketIntArray(string raw)
