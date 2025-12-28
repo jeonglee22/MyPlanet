@@ -26,11 +26,14 @@ public class UserPlanetManager : MonoBehaviour
         {
             instance = this;
         }
-        FirebaseDatabase.DefaultInstance.SetPersistenceEnabled(false);
     }
 
     private async UniTaskVoid Start()
     {
+        await FireBaseInitializer.Instance.WaitInitialization();
+
+        FirebaseDatabase.DefaultInstance.SetPersistenceEnabled(false);
+
         await UniTask.WaitUntil(() => AuthManager.Instance.IsInitialized);
 
         userPlanetRef = FirebaseDatabase.DefaultInstance.GetReference(DatabaseRef.UserPlanets);

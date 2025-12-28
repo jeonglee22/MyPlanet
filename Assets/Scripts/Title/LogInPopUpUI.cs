@@ -24,6 +24,7 @@ public class LogInPopUpUI : MonoBehaviour
         InteractableButtons(false);
 
         await UniTask.WaitUntil(() => canvasManager.IsInitialized);
+        await UniTask.WaitUntil(() => UserPlanetManager.Instance != null && UserPlanetManager.Instance.IsInitialized);
 
         nickNameInputField.onValueChanged.AddListener(OnNickNameValueChanged);
 
