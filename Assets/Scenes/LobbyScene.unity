@@ -35139,6 +35139,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lobbyPanel: {fileID: 2047714235900478712}
+  dailyShopResetTimer: {fileID: 6934299209014255986}
   backBtn: {fileID: 1233537881}
   scrollViewContent: {fileID: 5647618593861104793}
   shopCategory: {fileID: 1418749047}
@@ -50995,8 +50996,8 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 942283618}
-  - {fileID: 618881961}
   - {fileID: 104119596}
+  - {fileID: 618881961}
   m_Father: {fileID: 6433362391297688561}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -52601,6 +52602,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6525854570146950569}
   - component: {fileID: 2237675546575599215}
+  - component: {fileID: 6934299209014255986}
   m_Layer: 5
   m_Name: GachaMainPanel
   m_TagString: Untagged
@@ -52608,6 +52610,22 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
+--- !u!114 &6934299209014255986
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6934299209014255985}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55a6b25f6e88bf745ad130666edaa8a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  remainText: {fileID: 1147510738}
+  useLocalTimeForTest: 1
+  resetTimeZoneId: Asia/Seoul
+  dayKeyPref: DAILY_SHOP_DAYKEY
 --- !u!1 &6939966944228609386
 GameObject:
   m_ObjectHideFlags: 0

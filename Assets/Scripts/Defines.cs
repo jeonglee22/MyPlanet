@@ -369,6 +369,7 @@ public static class DatabaseRef
     public static readonly string UserAttackPowers = "userattackpowers";
     public static readonly string UserTowerUpgrades = "usertowerupgrades";
     public static readonly string UserStageData = "userstageclear";
+    public static readonly string UserShopItemData = "usershopitems";
 }
 
 public static class PrintedAbility

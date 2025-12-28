@@ -189,6 +189,10 @@ public class PackagePanelUI : MonoBehaviour
             var packageItemButton = buyItemPanel.GetComponent<PackageItemButton>();
             packageItemButton.LockedItem();
 
+            var currentShopData = UserShopItemManager.Instance.BuyedShopItemData;
+            currentShopData.packageShop = true;
+            await UserShopItemManager.Instance.SaveUserShopItemDataAsync(currentShopData);
+
             if (popupParent.childCount > 0)
                 Destroy(popupParent.GetChild(0).gameObject);
             var popup = Instantiate(popupPrefab, popupParent);

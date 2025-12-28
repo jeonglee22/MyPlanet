@@ -119,11 +119,16 @@ public class BuyPanelUI : MonoBehaviour
 
         OnBuyCompleted?.Invoke();
 
-        buyBtn.interactable = true;
-
-        gameObject.SetActive(false);
         var dailyButton = buyItemPanel.GetComponent<DailyButton>();
         dailyButton.LockedItem();
+        var currentShopData = UserShopItemManager.Instance.BuyedShopItemData;
+        currentShopData.dailyShop[dailyButton.ButtonIndex] = true;
+
+        await UserShopItemManager.Instance.SaveUserShopItemDataAsync(currentShopData);
+
+        buyBtn.interactable = true;
+
+        gameObject.SetActive(false);        
 
         if (popupParent.childCount > 0)
                 Destroy(popupParent.GetChild(0).gameObject);
@@ -224,6 +229,11 @@ public class BuyPanelUI : MonoBehaviour
             gameObject.SetActive(false);
             var dailyButton = buyItemPanel.GetComponent<DailyButton>();
             dailyButton.LockedItem();
+
+            var currentShopData = UserShopItemManager.Instance.BuyedShopItemData;
+            currentShopData.dailyShop[dailyButton.ButtonIndex] = true;
+            currentShopData.buyedItems[dailyButton.ButtonIndex] = new BuyItemData(buyItemId, itemCount);
+            await UserShopItemManager.Instance.SaveUserShopItemDataAsync(currentShopData);
 
             if (popupParent.childCount > 0)
                 Destroy(popupParent.GetChild(0).gameObject);

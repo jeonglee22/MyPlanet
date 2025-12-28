@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -67,20 +68,28 @@ public class ShopCategori : MonoBehaviour
             int index = i;
             var dailyBtnObj = buttonsContainers[index].GetChild(0).gameObject;
             var dailyButton = dailyBtnObj.GetComponent<DailyButton>();
-            dailyButton.RefreshObj(onButtonClick, beforeItems, currentItems);
+
+            var currentShopData = UserShopItemManager.Instance.BuyedShopItemData;
+            currentShopData.dailyShop[dailyButton.ButtonIndex] = false;
+            UserShopItemManager.Instance.SaveUserShopItemDataAsync(currentShopData).Forget();
+
+            dailyButton.RefreshObj(index, onButtonClick, beforeItems, currentItems);
             currentItems.Add(dailyButton.RandomRewardId);
         }
     }
 
     private void SetUpDailyShopData(Action<(int, int, int, GameObject)> onButtonClick)
     {
+        var currentShopData = UserShopItemManager.Instance.BuyedShopItemData;
+        var boughtItems = currentShopData.dailyShop;
+
         var dailyItemKeys = new List<int>();
         for(int i = 0; i < buttonsContainers.Length; i++)
         {
             int index = i;
             var dailyBtnObj = Instantiate(buttonPrefab, buttonsContainers[index]);
             var dailyButton = dailyBtnObj.GetComponent<DailyButton>();
-            dailyButton.Initialize(index, onButtonClick, dailyItemKeys);
+            dailyButton.Initialize(index, onButtonClick, dailyItemKeys, boughtItems[index]);
             
             if (index > 2)
                 dailyItemKeys.Add(dailyButton.RandomRewardId);

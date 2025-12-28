@@ -8,6 +8,7 @@ using UnityEngine.UI;
 public class StoreUI : MonoBehaviour
 {
     [SerializeField] private GameObject lobbyPanel;
+    [SerializeField] private DailyShopResetTimer dailyShopResetTimer;
 
     [SerializeField] private Button backBtn;
     
@@ -66,8 +67,17 @@ public class StoreUI : MonoBehaviour
         InitializeInventory();
 
         gachaPanelUI.OnGachaPanelClosed += OnInventoryBtnActive;
+        dailyShopResetTimer.OnDailyReset += RefreshShop;
 
         dailyRefreshButton.onClick.AddListener(() => OnDailyRefreshButtonClicked().Forget());
+
+        var userShopData = UserShopItemManager.Instance.BuyedShopItemData;
+        if (userShopData.isUsedReroll)
+        {
+            isFirstRefresh = false;
+            dailyRefreshCost = 100;
+            dailyRefreshCostText.text = "100";
+        }
     }
 
     private void OnDestroy()
@@ -79,6 +89,7 @@ public class StoreUI : MonoBehaviour
         inventoryBtn.onClick.RemoveListener(OnInventoryBtnClicked);
 
         gachaPanelUI.OnGachaPanelClosed -= OnInventoryBtnActive;
+        dailyShopResetTimer.OnDailyReset -= RefreshShop;
     }
 
     private void OnBackBtnClicked()
@@ -95,6 +106,11 @@ public class StoreUI : MonoBehaviour
         
     }
 
+    private void RefreshShop()
+    {
+        Debug.Log("Daily Shop Reset Triggered");
+        // OnDailyRefreshButtonClicked().Forget();
+    }
     
     private async UniTaskVoid OnDailyRefreshButtonClicked()
     {
@@ -128,6 +144,9 @@ public class StoreUI : MonoBehaviour
             isFirstRefresh = false;
             dailyRefreshCost = 100;
             dailyRefreshCostText.text = "100";
+            var currentShopData = UserShopItemManager.Instance.BuyedShopItemData;
+            currentShopData.isUsedReroll = true;
+            await UserShopItemManager.Instance.SaveUserShopItemDataAsync(currentShopData);
         }
 
         CreateCategory(dailyCategory, ShopCategory.DailyShopRefresh, CategoryName.DailyShop, dailyButtonPrefab, OnDailyButtonClick);

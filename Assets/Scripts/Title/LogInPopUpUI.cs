@@ -104,6 +104,15 @@ public class LogInPopUpUI : MonoBehaviour
             return;
         }
 
+        var initUserShopItemData = await UserShopItemManager.Instance.InitUserStageClearAsync();
+        if (initUserShopItemData == false)
+        {
+            SetErrorMessage("Failed to initialize user shop item data.");
+            InteractableButtons(true);
+            AuthManager.Instance.SignOut();
+            return;
+        }
+
         await UserAttackPowerManager.Instance.UpdatePlanetPower(UserPlanetManager.Instance.CurrentPlanet);
         await UserAttackPowerManager.Instance.UpdateTowerPower();
 
