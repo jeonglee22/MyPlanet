@@ -67,7 +67,7 @@ public class StoreUI : MonoBehaviour
         InitializeInventory();
 
         gachaPanelUI.OnGachaPanelClosed += OnInventoryBtnActive;
-        dailyShopResetTimer.OnDailyReset += RefreshShop;
+        dailyShopResetTimer.OnDailyReset += () => RefreshShop().Forget();
 
         dailyRefreshButton.onClick.AddListener(() => OnDailyRefreshButtonClicked().Forget());
 
@@ -89,7 +89,7 @@ public class StoreUI : MonoBehaviour
         inventoryBtn.onClick.RemoveListener(OnInventoryBtnClicked);
 
         gachaPanelUI.OnGachaPanelClosed -= OnInventoryBtnActive;
-        dailyShopResetTimer.OnDailyReset -= RefreshShop;
+        dailyShopResetTimer.OnDailyReset -= () => RefreshShop().Forget();
     }
 
     private void OnBackBtnClicked()
@@ -106,7 +106,7 @@ public class StoreUI : MonoBehaviour
         
     }
 
-    private void RefreshShop()
+    private async UniTaskVoid RefreshShop()
     {
         Debug.Log("Daily Shop Reset Triggered");
 
@@ -121,9 +121,14 @@ public class StoreUI : MonoBehaviour
         {
             userShopData.dailyShop.Add(false);
         }
-        UserShopItemManager.Instance.SaveUserShopItemDataAsync(userShopData).Forget();
+        userShopData.buyedItems = new List<BuyItemData>();
+        for (int i = 0; i < 6; i++)
+        {
+            userShopData.buyedItems.Add(new BuyItemData());
+        }
+        await UserShopItemManager.Instance.SaveUserShopItemDataAsync(userShopData);
 
-        OnDailyRefreshButtonClicked().Forget();
+        CreateCategory(dailyCategory, ShopCategory.DailyShop, CategoryName.DailyShop, dailyButtonPrefab, OnDailyButtonClick);
 
         UpdateCurrencyUI();
     }

@@ -87,7 +87,11 @@ public class ShopCategori : MonoBehaviour
         for(int i = 0; i < buttonsContainers.Length; i++)
         {
             int index = i;
-            var dailyBtnObj = Instantiate(buttonPrefab, buttonsContainers[index]);
+            GameObject dailyBtnObj;
+            if (buttonsContainers[index].childCount > 0)
+                dailyBtnObj = buttonsContainers[index].GetChild(0).gameObject;
+            else
+                dailyBtnObj = Instantiate(buttonPrefab, buttonsContainers[index]);
             var dailyButton = dailyBtnObj.GetComponent<DailyButton>();
             dailyButton.Initialize(index, onButtonClick, dailyItemKeys, boughtItems[index]);
             
