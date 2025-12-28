@@ -104,7 +104,7 @@ public class LogInPopUpUI : MonoBehaviour
             return;
         }
 
-        var initUserShopItemData = await UserShopItemManager.Instance.InitUserStageClearAsync();
+        var initUserShopItemData = await UserShopItemManager.Instance.InitUserShopItemDataAsync();
         if (initUserShopItemData == false)
         {
             SetErrorMessage("Failed to initialize user shop item data.");

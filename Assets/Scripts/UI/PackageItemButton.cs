@@ -33,6 +33,9 @@ public class PackageItemButton : MonoBehaviour
         var currencyGoldData = DataTableManager.CurrencyTable.Get((int)Currency.Gold);
         var currencyChargedDiaData = DataTableManager.CurrencyTable.Get((int)Currency.ChargedDia);
 
+        var userShopData = UserShopItemManager.Instance.BuyedShopItemData;
+        var isBought = userShopData.packageShop;
+
         switch (index)
         {
             case (int)PackageType.StarterPack:
@@ -57,7 +60,10 @@ public class PackageItemButton : MonoBehaviour
         button.onClick.RemoveAllListeners();
         button.onClick.AddListener(OnButtonClick);
 
-        soldOutOverlay.SetActive(false);
+        if (isBought)
+            soldOutOverlay.SetActive(true);
+        else
+            soldOutOverlay.SetActive(false);
     }
 
     private void SetPanel(string name, Sprite image, int price)

@@ -12,6 +12,9 @@ public class UserShopItemData
 
     public bool isUsedReroll;
 
+    public string lastResetDayKey;
+    public long todaySeed;
+
     public UserShopItemData()
     {
         dailyShop = new List<bool>();
@@ -26,6 +29,8 @@ public class UserShopItemData
             buyedItems.Add(new BuyItemData());
         }
         isUsedReroll = false;
+        lastResetDayKey = "";
+        todaySeed = 0;
     }
 
     public UserShopItemData(List<bool> dailyShop, bool packageShop, List<BuyItemData> buyedItems, bool isUsedReroll = false)

@@ -129,7 +129,7 @@ public class MainTitleUI : MonoBehaviour
 
         await UserStageManager.Instance.LoadUserStageClearAsync();
 
-        await UserShopItemManager.Instance.LoadUserStageClearAsync();
+        await UserShopItemManager.Instance.LoadUserShopItemDataAsync();
     }
 
     private void OnLogInOutButtonClicked()
