@@ -27,7 +27,6 @@ public class BuyPanelUI : MonoBehaviour
 
     public event Action OnBuyCompleted;
 
-
     public void Initialize(int itemCount, int itemId, int needValue, GameObject buyItemPanel)
     {
         ResetBtn();
@@ -41,9 +40,10 @@ public class BuyPanelUI : MonoBehaviour
             buyItemImage.sprite = LoadManager.GetLoadedGameTexture(gemData.CurrencyIconText);
             this.itemCount = itemCount;
             needCurrencyValue = 0;
+            needCurrencyImage.transform.parent.gameObject.SetActive(false);
             currencyText.text = "무료";
             itemNameText.text = DataTableManager.ItemStringTable.GetString(gemData.CurrencyName);
-            itemCountText.text = $"x {itemCount}";
+            itemCountText.text = $"x {itemCount:N0}";
 
             buyItemId = gemIconId;
             this.buyItemPanel = buyItemPanel;
@@ -60,9 +60,9 @@ public class BuyPanelUI : MonoBehaviour
             buyItemImage.sprite = LoadManager.GetLoadedGameTexture(chargedCurrencyData.CurrencyIconText);
             this.itemCount = itemCount;
             needCurrencyValue = needValue;
-            currencyText.text = needCurrencyValue.ToString();
+            currencyText.text = needCurrencyValue.ToString("N0");
             itemNameText.text = DataTableManager.ItemStringTable.GetString(chargedCurrencyData.CurrencyName);
-            itemCountText.text = $"x {itemCount}";
+            itemCountText.text = $"x {itemCount:N0}";
 
             needItemId = (int)Currency.Gold;
             var goldData = DataTableManager.CurrencyTable.Get((int)Currency.Gold);
@@ -78,10 +78,10 @@ public class BuyPanelUI : MonoBehaviour
             needCurrencyImage.sprite = LoadManager.GetLoadedGameTexture(currencyData.CurrencyIconText);
             this.itemCount = itemCount;
             needCurrencyValue = needValue;
-            currencyText.text = needCurrencyValue.ToString();
+            currencyText.text = needCurrencyValue.ToString("N0");
             itemNameText.text = DataTableManager.ItemStringTable.GetString(itemData.ItemName);
 
-            itemCountText.text = $"x {itemCount}";
+            itemCountText.text = $"x {itemCount:N0}";
 
             needItemId = currencyData.Currency_Id;
         }
@@ -148,6 +148,7 @@ public class BuyPanelUI : MonoBehaviour
             UserData.ChargedDia += itemCount;
 
             await ItemManager.Instance.SaveItemsAsync();
+            await CurrencyManager.Instance.SaveCurrencyAsync();
 
             OnBuyCompleted?.Invoke();
 
@@ -199,6 +200,7 @@ public class BuyPanelUI : MonoBehaviour
             buyBtn.interactable = false;
 
             await ItemManager.Instance.SaveItemsAsync();
+            await CurrencyManager.Instance.SaveCurrencyAsync();
 
             OnBuyCompleted?.Invoke();
 

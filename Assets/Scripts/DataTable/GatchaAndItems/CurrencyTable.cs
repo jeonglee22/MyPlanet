@@ -56,7 +56,9 @@ public class CurrencyTable : DataTable
     {
         if (!dictionary.ContainsKey(key))
         {
+#if UNITY_EDITOR
             Debug.LogError($"키 없음: {key}");
+#endif
             return null;
         }
 

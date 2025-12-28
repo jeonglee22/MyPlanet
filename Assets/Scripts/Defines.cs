@@ -425,3 +425,31 @@ public class GameStrings
     public static readonly string Confirm = "확인";
     public static readonly string Choose = "선택";
 }
+
+public enum PackageType
+    {
+        StarterPack,
+
+        Count,
+    }
+
+public class PackageItems
+{
+    public static readonly Dictionary<int, string> PackageName = new Dictionary<int, string>
+    {
+        { (int)PackageType.StarterPack, "스타터 패키지" },
+    };
+
+    public static readonly Dictionary<int, (int itemId, int count)> NewPlayerPackage1 = new Dictionary<int, (int, int)>
+    {
+        { 0, ((int)Currency.ChargedDia, 1000) },
+        { 1, ((int)Currency.Gold, 50000) },
+        { 2, ((int)ItemIds.TowerUpgradeItem, 10) },
+        { 3, ((int)ItemIds.PlanetUpgradeItem, 10) },
+    };
+
+    public static readonly Dictionary<int, Dictionary<int, (int, int)>> PackageItemDict = new Dictionary<int, Dictionary<int, (int, int)>>
+    {
+        { (int)PackageType.StarterPack, NewPlayerPackage1 },
+    };
+}

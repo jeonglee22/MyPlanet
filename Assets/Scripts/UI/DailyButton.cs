@@ -94,11 +94,6 @@ public class DailyButton : MonoBehaviour
 
         SetPanel(itemName, image, needCurrencyValue, itemCount);
 
-        // nameText.text = needCurrencyValue.ToString();
-        // numberText.text = "x1"; // Example, set the number of items
-        // priceText.text = needCurrencyValue.ToString();
-        // iconImage.sprite = null; // Set appropriate sprite based on index or data
-
         OnGachaButtonClicked += onClickCallback;
 
         button.onClick.RemoveAllListeners();
@@ -117,9 +112,9 @@ public class DailyButton : MonoBehaviour
         }
         else
         {
-            priceText.text = price.ToString();
+            priceText.text = price.ToString("N0");
         }
-        numberText.text = $"x{number}";
+        numberText.text = $"x{number:N0}";
     }
 
     private void OnButtonClick()

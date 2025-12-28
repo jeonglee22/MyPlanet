@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using TMPro;
+using Unity.Android.Gradle.Manifest;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -25,6 +26,7 @@ public class StoreUI : MonoBehaviour
 
     [SerializeField] private GachaPanelUI gachaPanelUI;
     [SerializeField] private BuyPanelUI buyPanelUI;
+    [SerializeField] private PackagePanelUI packagePanelUI;
 
     [SerializeField] private TextMeshProUGUI goldText;
     [SerializeField] private TextMeshProUGUI freeDiaText;
@@ -48,6 +50,7 @@ public class StoreUI : MonoBehaviour
         UpdateCurrencyUI();
         gachaPanelUI.OnGachaCompleted += UpdateCurrencyUI;
         buyPanelUI.OnBuyCompleted += UpdateCurrencyUI;
+        packagePanelUI.OnBuyCompleted += UpdateCurrencyUI;
 
         inventory.SetActive(false);
         inventoryBtn.onClick.AddListener(OnInventoryBtnClicked);
@@ -61,6 +64,7 @@ public class StoreUI : MonoBehaviour
     {
         gachaPanelUI.OnGachaCompleted -= UpdateCurrencyUI;
         buyPanelUI.OnBuyCompleted -= UpdateCurrencyUI;
+        packagePanelUI.OnBuyCompleted -= UpdateCurrencyUI;
         backBtn.onClick.RemoveListener(OnBackBtnClicked);
         inventoryBtn.onClick.RemoveListener(OnInventoryBtnClicked);
 
@@ -96,8 +100,8 @@ public class StoreUI : MonoBehaviour
 
     private void OnPackageButtonClick((int needCurrencyValue, int itemId, int needId, GameObject buyButton) info)
     {
-        buyPanelUI.Initialize(info.needCurrencyValue, info.itemId, info.needId, info.buyButton);
-        buyPanelUI.gameObject.SetActive(true);
+        packagePanelUI.Initialize(info.needCurrencyValue, info.itemId, info.needId, info.buyButton);
+        packagePanelUI.gameObject.SetActive(true);
     }
 
     private void OnChargeDiaButtonClick((int needCurrencyValue, int itemId, int needId, GameObject buyButton) info)
