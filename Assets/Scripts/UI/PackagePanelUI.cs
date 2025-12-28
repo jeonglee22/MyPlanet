@@ -19,6 +19,9 @@ public class PackagePanelUI : MonoBehaviour
     [SerializeField] private GameObject[] itemSlots;
     [SerializeField] private GameObject[] itemLines;
 
+    [SerializeField] private RectTransform popupParent;
+    [SerializeField] private GameObject popupPrefab;
+
     private int needItemId;
     private int buyItemId;
 
@@ -185,6 +188,12 @@ public class PackagePanelUI : MonoBehaviour
             gameObject.SetActive(false);
             var packageItemButton = buyItemPanel.GetComponent<PackageItemButton>();
             packageItemButton.LockedItem();
+
+            if (popupParent.childCount > 0)
+                Destroy(popupParent.GetChild(0).gameObject);
+            var popup = Instantiate(popupPrefab, popupParent);
+            var popupUI = popup.GetComponent<PopUpAndDestroyPanel>();
+            popupUI.SetMessage("구매 완료!");
         }
     }
 }

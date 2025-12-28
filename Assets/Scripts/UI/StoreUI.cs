@@ -41,6 +41,9 @@ public class StoreUI : MonoBehaviour
     [SerializeField] private Button dailyRefreshButton;
     [SerializeField] private TextMeshProUGUI dailyRefreshCostText;
 
+    [SerializeField] private RectTransform popupParent;
+    [SerializeField] private GameObject popupPrefab;
+
     private bool isFirstRefresh = true;
     private int dailyRefreshCost = 50;
 
@@ -99,6 +102,11 @@ public class StoreUI : MonoBehaviour
         var userFreeDia = UserData.FreeDia;
         if (dailyRefreshCost > userFreeDia)
         {
+            if (popupParent.childCount > 0)
+                Destroy(popupParent.GetChild(0).gameObject);
+            var popup = Instantiate(popupPrefab, popupParent);
+            var popupUI = popup.GetComponent<PopUpAndDestroyPanel>();
+            popupUI.SetMessage("무료 다이아가 부족합니다.");
             dailyRefreshButton.interactable = true;
             return;
         }

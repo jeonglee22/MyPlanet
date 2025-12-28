@@ -16,6 +16,9 @@ public class BuyPanelUI : MonoBehaviour
     [SerializeField] private Image buyItemImage;
     [SerializeField] private TextMeshProUGUI failBuyText;
 
+    [SerializeField] private RectTransform popupParent;
+    [SerializeField] private GameObject popupPrefab;
+
     private int needItemId;
     private int buyItemId;
 
@@ -121,6 +124,12 @@ public class BuyPanelUI : MonoBehaviour
         gameObject.SetActive(false);
         var dailyButton = buyItemPanel.GetComponent<DailyButton>();
         dailyButton.LockedItem();
+
+        if (popupParent.childCount > 0)
+                Destroy(popupParent.GetChild(0).gameObject);
+        var popup = Instantiate(popupPrefab, popupParent);
+        var popupUI = popup.GetComponent<PopUpAndDestroyPanel>();
+        popupUI.SetMessage("구매 완료!");
     }
 
     private async UniTaskVoid OnChargeDiaBtnClicked()
@@ -155,6 +164,12 @@ public class BuyPanelUI : MonoBehaviour
             buyBtn.interactable = true;
 
             gameObject.SetActive(false);
+
+            if (popupParent.childCount > 0)
+                Destroy(popupParent.GetChild(0).gameObject);
+            var popup = Instantiate(popupPrefab, popupParent);
+            var popupUI = popup.GetComponent<PopUpAndDestroyPanel>();
+            popupUI.SetMessage("구매 완료!");
         }
     }
 
@@ -209,6 +224,12 @@ public class BuyPanelUI : MonoBehaviour
             gameObject.SetActive(false);
             var dailyButton = buyItemPanel.GetComponent<DailyButton>();
             dailyButton.LockedItem();
+
+            if (popupParent.childCount > 0)
+                Destroy(popupParent.GetChild(0).gameObject);
+            var popup = Instantiate(popupPrefab, popupParent);
+            var popupUI = popup.GetComponent<PopUpAndDestroyPanel>();
+            popupUI.SetMessage("구매 완료!");
         }
     }
 }
