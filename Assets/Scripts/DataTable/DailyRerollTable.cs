@@ -85,6 +85,26 @@ public class DailyRerollTable : DataTable
         return dictionary[randomKey];
     }
 
+    public DailyRerollData GetRandomDataExceptKeys(List<int> excludeKeys)
+    {
+        var availableData = new List<DailyRerollData>();
+        foreach (var data in dictionary.Values)
+        {
+            if (!excludeKeys.Contains(data.DailyReroll_Id))
+            {
+                availableData.Add(data);
+            }
+        }
+
+        if (availableData.Count == 0)
+        {
+            return null;
+        }
+
+        var randomIndex = Random.Range(0, availableData.Count);
+        return availableData[randomIndex];
+    }
+
     public int GetRandomCountInId(int key)
     {
         var data = Get(key);

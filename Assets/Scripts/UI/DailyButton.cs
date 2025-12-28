@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,13 +16,16 @@ public class DailyButton : MonoBehaviour
 
     private string itemName;
     private int buyitemId;
+    public int BuyItemId => buyitemId;
+    private int randomRewardId;
+    public int RandomRewardId => randomRewardId;
     private int needItemId;
     private int needCurrencyValue;
     private int itemCount;
 
     public event Action<(int, int, int, GameObject)> OnGachaButtonClicked;
 
-    public void Initialize(int index, Action<(int, int, int, GameObject)> onClickCallback)
+    public void Initialize(int index, Action<(int, int, int, GameObject)> onClickCallback, List<int> existingItemKeys)
     {
         if (index < 0)
             return;
@@ -75,7 +79,7 @@ public class DailyButton : MonoBehaviour
                 needItemId = (int)Currency.Gold;
                 break;
             default:
-                var randomRewardData = DataTableManager.DailyRerollTable.GetRandomData();
+                var randomRewardData = DataTableManager.DailyRerollTable.GetRandomDataExceptKeys(existingItemKeys);
                 var rewardItemData = DataTableManager.RewardTable.Get(randomRewardData.Reward_Id);
                 var rewardName = DataTableManager.ItemStringTable.GetString(rewardItemData.RewardName);
                 var currencyGroup = randomRewardData.CurrencyGroup;
@@ -89,6 +93,7 @@ public class DailyButton : MonoBehaviour
 
                 buyitemId = rewardItemData.Target_Id;
                 needItemId = currencyData.Currency_Id;
+                randomRewardId = randomRewardData.DailyReroll_Id;
                 break;
         }
 
@@ -125,5 +130,48 @@ public class DailyButton : MonoBehaviour
     public void LockedItem()
     {
         soldOutOverlay.SetActive(true);
+    }
+
+    public void RefreshObj(Action<(int, int, int, GameObject)> onButtonClick, List<Transform> dailyItemParents, List<int> existingItemKeys)
+    {
+        var dailyItemKeys = new List<int>();
+        foreach (var parent in dailyItemParents)
+        {
+            var dailyButton = parent.GetComponentInChildren<DailyButton>();
+            if (dailyButton != null)
+            {
+                dailyItemKeys.Add(dailyButton.RandomRewardId);
+            }
+        }
+
+        var totalExceptKeys = new List<int>(dailyItemKeys);
+        totalExceptKeys.AddRange(existingItemKeys);
+
+        var image = LoadManager.GetLoadedGameTexture("StarDust_icon");
+        var randomRewardData = DataTableManager.DailyRerollTable.GetRandomDataExceptKeys(totalExceptKeys);
+        var rewardItemData = DataTableManager.RewardTable.Get(randomRewardData.Reward_Id);
+        var rewardName = DataTableManager.ItemStringTable.GetString(rewardItemData.RewardName);
+        var currencyGroup = randomRewardData.CurrencyGroup;
+        var currencyData = DataTableManager.CurrencyTable.GetByGroup(currencyGroup);
+
+        itemName = rewardName;
+        requiredCurrencyIcon.sprite = LoadManager.GetLoadedGameTexture(currencyData.CurrencyIconText);
+        
+        itemCount = DataTableManager.DailyRerollTable.GetRandomCountInId(randomRewardData.DailyReroll_Id);
+        needCurrencyValue = randomRewardData.NeedCurrencyValue * itemCount;
+
+        buyitemId = rewardItemData.Target_Id;
+        needItemId = currencyData.Currency_Id;
+        randomRewardId = randomRewardData.DailyReroll_Id;
+
+        SetPanel(itemName, image, needCurrencyValue, itemCount);
+
+        OnGachaButtonClicked -= onButtonClick;
+        OnGachaButtonClicked += onButtonClick;
+
+        button.onClick.RemoveAllListeners();
+        button.onClick.AddListener(OnButtonClick);
+
+        soldOutOverlay.SetActive(false);
     }
 }

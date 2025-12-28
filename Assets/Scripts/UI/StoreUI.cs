@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using TMPro;
-using Unity.Android.Gradle.Manifest;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -39,10 +38,16 @@ public class StoreUI : MonoBehaviour
     private List<GameObject> instantiatedInventoryItems = new List<GameObject>();
 
     [SerializeField] private TextMeshProUGUI dailyRefreshTimeText;
-    [SerializeField] private Button refreshDailyBtn;
+    [SerializeField] private Button dailyRefreshButton;
+    [SerializeField] private TextMeshProUGUI dailyRefreshCostText;
 
-    private void Start()
+    private bool isFirstRefresh = true;
+    private int dailyRefreshCost = 50;
+
+    private async UniTaskVoid Start()
     {
+        await UniTask.WaitUntil(() => CurrencyManager.Instance.IsInitialized && ItemManager.Instance.IsInitialized);
+
         backBtn.onClick.AddListener(OnBackBtnClicked);
         gachaPanelUI.gameObject.SetActive(false);
         InitializeShop();
@@ -58,6 +63,8 @@ public class StoreUI : MonoBehaviour
         InitializeInventory();
 
         gachaPanelUI.OnGachaPanelClosed += OnInventoryBtnActive;
+
+        dailyRefreshButton.onClick.AddListener(() => OnDailyRefreshButtonClicked().Forget());
     }
 
     private void OnDestroy()
@@ -83,6 +90,40 @@ public class StoreUI : MonoBehaviour
     private void FixedUpdate()
     {
         
+    }
+
+    
+    private async UniTaskVoid OnDailyRefreshButtonClicked()
+    {
+        dailyRefreshButton.interactable = false;
+        var userFreeDia = UserData.FreeDia;
+        if (dailyRefreshCost > userFreeDia)
+        {
+            dailyRefreshButton.interactable = true;
+            return;
+        }
+
+        UserData.FreeDia -= dailyRefreshCost;
+        
+        var result = await CurrencyManager.Instance.SaveCurrencyAsync();
+        if (!result.success)
+        {
+            UserData.FreeDia += dailyRefreshCost;
+            dailyRefreshButton.interactable = true;
+            return;
+        }
+
+        UpdateCurrencyUI();
+
+        if (isFirstRefresh)
+        {
+            isFirstRefresh = false;
+            dailyRefreshCost = 100;
+            dailyRefreshCostText.text = "100";
+        }
+
+        CreateCategory(dailyCategory, ShopCategory.DailyShopRefresh, CategoryName.DailyShop, dailyButtonPrefab, OnDailyButtonClick);
+        dailyRefreshButton.interactable = true;
     }
 
     private void InitializeShop()

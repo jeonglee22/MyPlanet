@@ -205,6 +205,8 @@ public enum ShopCategory
     ChargeDiaShop,
     PackageShop,
     Others,
+
+    DailyShopRefresh = 100,
 }
 
 public enum RewardType

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -48,19 +49,41 @@ public class ShopCategori : MonoBehaviour
             case ShopCategory.PackageShop:
                 SetUpPackageShopData(onButtonClick);
                 break;
+            case ShopCategory.DailyShopRefresh:
+                RefreshDailyShopData(onButtonClick);
+                break;
             default:
                 break;
         }
     }
 
+    private void RefreshDailyShopData(Action<(int, int, int, GameObject)> onButtonClick)
+    {
+        var currentItems = new List<int>();
+        var beforeItems = new List<Transform> {buttonsContainers[3], buttonsContainers[4], buttonsContainers[5]};
+        beforeItems.Remove(beforeItems[UnityEngine.Random.Range(0, beforeItems.Count)]);
+        for(int i = 3; i < buttonsContainers.Length; i++)
+        {
+            int index = i;
+            var dailyBtnObj = buttonsContainers[index].GetChild(0).gameObject;
+            var dailyButton = dailyBtnObj.GetComponent<DailyButton>();
+            dailyButton.RefreshObj(onButtonClick, beforeItems, currentItems);
+            currentItems.Add(dailyButton.RandomRewardId);
+        }
+    }
+
     private void SetUpDailyShopData(Action<(int, int, int, GameObject)> onButtonClick)
     {
+        var dailyItemKeys = new List<int>();
         for(int i = 0; i < buttonsContainers.Length; i++)
         {
             int index = i;
             var dailyBtnObj = Instantiate(buttonPrefab, buttonsContainers[index]);
             var dailyButton = dailyBtnObj.GetComponent<DailyButton>();
-            dailyButton.Initialize(index, onButtonClick);
+            dailyButton.Initialize(index, onButtonClick, dailyItemKeys);
+            
+            if (index > 2)
+                dailyItemKeys.Add(dailyButton.RandomRewardId);
         }
     }
 
