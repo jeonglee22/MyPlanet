@@ -145,38 +145,6 @@ public class AuthManager : MonoBehaviour
         }
     }
 
-    public async UniTask<bool> SignInWithGoogleAsync(string googleIdToken, string googleAccessToken)
-    {
-        try
-        {
-            var credential = GoogleAuthProvider.GetCredential(googleIdToken, googleAccessToken);
-
-            var authResult = await auth.SignInAndRetrieveDataWithCredentialAsync(credential).AsUniTask();
-            currentUser = authResult.User;
-
-            var userRef = FirebaseDatabase.DefaultInstance.GetReference(DatabaseRef.UserPlanets);
-            var dataSnapshot = await userRef.Child(UserId).GetValueAsync().AsUniTask();
-
-            if(dataSnapshot.Exists && dataSnapshot.Child("nickName").Exists)
-            {
-                nickName = dataSnapshot.Child("nickName").Value.ToString();
-            }
-            else
-            {
-                nickName = currentUser.DisplayName ?? "Player";
-            }
-
-            await PlanetManager.Instance.ReloadPlanetsForNewUser();
-
-            return true;
-        }
-        catch (Exception ex)
-        {
-            Debug.Log($"Signed in with Google Error: {ex.Message}");
-            return false;
-        }
-    }
-
     public void SignOut()
     {
         if(auth != null && currentUser != null)
