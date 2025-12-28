@@ -109,7 +109,23 @@ public class StoreUI : MonoBehaviour
     private void RefreshShop()
     {
         Debug.Log("Daily Shop Reset Triggered");
-        // OnDailyRefreshButtonClicked().Forget();
+
+        isFirstRefresh = true;
+        dailyRefreshCost = 50;
+        dailyRefreshCostText.text = "50";
+
+        var userShopData = UserShopItemManager.Instance.BuyedShopItemData;
+        userShopData.isUsedReroll = false;
+        userShopData.dailyShop = new List<bool>();
+        for (int i = 0; i < 6; i++)
+        {
+            userShopData.dailyShop.Add(false);
+        }
+        UserShopItemManager.Instance.SaveUserShopItemDataAsync(userShopData).Forget();
+
+        OnDailyRefreshButtonClicked().Forget();
+
+        UpdateCurrencyUI();
     }
     
     private async UniTaskVoid OnDailyRefreshButtonClicked()
