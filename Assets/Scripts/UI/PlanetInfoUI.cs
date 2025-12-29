@@ -199,12 +199,12 @@ public class PlanetInfoUI : MonoBehaviour
         currentUserPlanetInfo.level, 
         currentUserPlanetInfo.starLevel);
 
-    healthText.text = $"{Mathf.RoundToInt(currentStats.hp)}";
-    defenseText.text = $"{Mathf.RoundToInt(currentStats.defense)}";
-    shieldText.text = $"{Mathf.RoundToInt(currentStats.shield)}";
-    expRateText.text = $"{Mathf.RoundToInt(currentStats.expRate)}%";
-    drainText.text = $"{Mathf.RoundToInt(currentStats.drain)}";
-    healthRegenerationText.text = $"{Mathf.RoundToInt(currentStats.hpRegeneration)}";
+        healthText.text = $"{currentStats.hp:F1}";
+        defenseText.text = $"{currentStats.defense:F1}";
+        shieldText.text = $"{currentStats.shield:F1}";
+        expRateText.text = $"{currentStats.expRate:F1}";
+        drainText.text = $"{currentStats.drain:F1}";
+        healthRegenerationText.text = $"{currentStats.hpRegeneration:F1}";
     }
 
     private void UpdateLevelUpButton()

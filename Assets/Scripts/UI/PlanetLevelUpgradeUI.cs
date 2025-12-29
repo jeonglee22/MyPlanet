@@ -106,8 +106,8 @@ public class PlanetLevelUpgradeUI : MonoBehaviour
 
         if(currentUserPlanetInfo.level >= maxLevel)
         {
-            healthText.text = $"{Mathf.RoundToInt(currentStats.hp)}";
-            defenseText.text = $"{Mathf.RoundToInt(currentStats.defense)}";
+            healthText.text = $"{currentStats.hp:F1}";
+            defenseText.text = $"{currentStats.defense:F1}";
         }
         else
         {
@@ -116,11 +116,11 @@ public class PlanetLevelUpgradeUI : MonoBehaviour
                 currentUserPlanetInfo.level + 1, 
                 currentUserPlanetInfo.starLevel);
 
-            int hpDiff = Mathf.RoundToInt(nextStats.hp - currentStats.hp);
-            int defenseDiff = Mathf.RoundToInt(nextStats.defense - currentStats.defense);
+            float hpDiff = nextStats.hp - currentStats.hp;
+            float defenseDiff = nextStats.defense - currentStats.defense;
 
-            healthText.text = $"{Mathf.RoundToInt(currentStats.hp)} → {Mathf.RoundToInt(nextStats.hp)} " + $"<color=green>(+{hpDiff})</color>";
-            defenseText.text = $"{Mathf.RoundToInt(currentStats.defense)} → {Mathf.RoundToInt(nextStats.defense)} " + $"<color=green>(+{defenseDiff})</color>";
+            healthText.text = $"{currentStats.hp:F1} → {nextStats.hp:F1} " + $"<color=green>(+{hpDiff})</color>";
+            defenseText.text = $"{currentStats.defense:F1} → {nextStats.defense:F1} " + $"<color=green>(+{defenseDiff})</color>";
         }
     }
 
@@ -136,7 +136,7 @@ public class PlanetLevelUpgradeUI : MonoBehaviour
                   (currentStats.hpRegeneration * 420) + 
                   (currentStats.drain * 650);
 
-        attackPowerText.text = $"{Mathf.RoundToInt(cal)}";
+        attackPowerText.text = $"{cal}";
     }
 
     private void UpdateItemCount()
