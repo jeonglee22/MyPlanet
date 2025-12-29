@@ -210,7 +210,19 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             ui.SetActive(false);
         SetActiveRefreshButtons(false);
 
-        GamePauseManager.Instance.Resume();
+        if(isTutorial && Variables.Stage == 1)
+        {
+            TutorialManager.Instance.ShowTutorialStep(1);
+        }
+        if(isTutorial && Variables.Stage == 2)
+        {
+            TutorialManager.Instance.ShowTutorialStep(6);
+        }
+        else
+        {
+            GamePauseManager.Instance.Resume();
+        }
+
         numlist = null;
         choosedIndex = -1;
         isStartTouch = false;
@@ -224,15 +236,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             tutorialPistolInstalled = false;
             tutorialAmp1Installed = false;
             tutorialAmp2Installed = false;
-        }
-
-        if(isTutorial && Variables.Stage == 1)
-        {
-            TutorialManager.Instance.ShowTutorialStep(1);
-        }
-        if(isTutorial && Variables.Stage == 2)
-        {
-            TutorialManager.Instance.ShowTutorialStep(6);
         }
 
         gameResumeButton.interactable = true;

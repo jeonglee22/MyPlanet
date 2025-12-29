@@ -163,7 +163,7 @@ public enum PatternIds
     EliteDiaReflectShield,
     EliteBigDiaReflectShield,
     UFOLazer,
-    GalaxyStarShot,
+    OortStarShot,
     SpaceWarmLazer,
     SpaceWarmGravityShot,
     FireChildHitChangeSpeedChase,
@@ -182,7 +182,7 @@ public enum PatternIds
     BlackHoleExplosionSummon,
     WhiteHoleSpaceWarmSummon,
     WhiteHoleShoot,
-    ConstellationShoot,
+    OortShoot,
     ExplosionEnemy,
 }
 

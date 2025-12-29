@@ -159,7 +159,7 @@ public class PlanetStarUpgradePanelUI : MonoBehaviour
                   (currentStats.hpRegeneration * 420) + 
                   (currentStats.drain * 650);
 
-        fightingPowerText.text = $"{Mathf.RoundToInt(cal)}";
+        fightingPowerText.text = $"{cal}";
     }
 
     private string GetAbilityTypeName(PlanetAbilityType abilityType)
@@ -195,10 +195,11 @@ public class PlanetStarUpgradePanelUI : MonoBehaviour
         {
             case PlanetAbilityType.HealthPercentage:
             case PlanetAbilityType.DefensePercentage:
+                return $"{FormatStat(value)}%";
             case PlanetAbilityType.ExperienceRate:
-                return $"+{value}%";
+                return $"+{FormatStat(value)}";
             default:
-                return $"+{Mathf.Round(value)}";
+                return $"+{FormatStat(value)}";
         }
     }
 
@@ -345,4 +346,8 @@ public class PlanetStarUpgradePanelUI : MonoBehaviour
         }
     }
 
+    private string FormatStat(float value)
+    {
+        return value % 1 == 0 ? $"{value:F0}" : $"{value:F1}";
+    }
 }
