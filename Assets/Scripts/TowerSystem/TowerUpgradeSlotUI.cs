@@ -6,6 +6,7 @@ using NUnit.Framework;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
@@ -247,17 +248,51 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
     private void Update()
     {
+        // 👇 조건 체크 전에 로그 먼저 출력
+        bool hasInput = Input.touchCount > 0 || (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame);
+        if (hasInput)
+        {
+            Debug.Log($"[Update] Input detected! touchCount={Input.touchCount}, " +
+                      $"BackBtn={planetTowerUI.IsBackBtnClicked}, " +
+                      $"towerInfo={towerInfoUI != null && towerInfoUI.gameObject.activeSelf}, " +
+                      $"blocked={UIBlockPanelControl.IsBlockedPanel}, " +
+                      $"confirm={planetTowerUI.ISConfirmPanelActive}");
+        }
+
         if (planetTowerUI.IsBackBtnClicked)
         {
+            if (hasInput) Debug.Log("[Update] IsBackBtnClicked - return");
+            return;
+        }
+        if (towerInfoUI != null && towerInfoUI.gameObject.activeSelf)
+        {
+            if (hasInput) Debug.Log("[Update] towerInfoUI active - return");
+            return;
+        }
+        if (UIBlockPanelControl.IsBlockedPanel)
+        {
+            if (hasInput) Debug.Log("[Update] IsBlockedPanel - return");
+            return;
+        }
+        if (planetTowerUI.ISConfirmPanelActive)
+        {
+            if (hasInput) Debug.Log("[Update] ISConfirmPanelActive - return");
             return;
         }
 
-        if (towerInfoUI != null && towerInfoUI.gameObject.activeSelf) return;
-        if (UIBlockPanelControl.IsBlockedPanel) return;
-        if (planetTowerUI.ISConfirmPanelActive) return;
-
         OnTouchStateCheck();
         OnTouchMakeDrageImage();
+
+        // 터치 입력 디버그
+        if (TouchManager.Instance != null && TouchManager.Instance.IsTouching)
+        {
+            var touchPhase = TouchManager.Instance.TouchPhase;
+            if (touchPhase == InputActionPhase.Started)
+            {
+                Debug.Log($"[Touch] Started at: {TouchManager.Instance.TouchPos}");
+                DebugUIRaycast(TouchManager.Instance.TouchPos);
+            }
+        }
     }
 
     private void SetActiveRefreshButtons(bool active)
@@ -310,16 +345,17 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
             if (goldCardPrefab != null && upgradeUIs[upgradeUIs.Length - 1] != null)
             {
-                var goldCard = Instantiate(goldCardPrefab, upgradeUIs[upgradeUIs.Length - 1].transform);
-                var goldBtn = goldCard.GetComponent<Button>();
-                if (goldBtn == null)
+                var parent = upgradeUIs[upgradeUIs.Length - 1].transform;
+                for (int i = parent.childCount - 1; i >= 0; i--)
                 {
-                    goldBtn = goldCard.AddComponent<Button>();
+                    var child = parent.GetChild(i);
+                    Debug.Log($"[GoldCard] Destroying child: {child.name}");
+                    Destroy(child.gameObject);
                 }
+                var goldCard = Instantiate(goldCardPrefab, parent);
+                BindGoldCardClick(goldCard);
 
-                goldBtn.onClick.RemoveAllListeners();
-                goldBtn.onClick.AddListener(() => OnClickGoldCard());
-                goldBtn.interactable = true;
+                Debug.Log($"[GoldCard] Created at position: {goldCard.transform.position}");
             }
             return;
         }
@@ -569,17 +605,9 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             if (goldCardPrefab != null && upgradeUIs[upgradeUIs.Length - 1] != null)
             {
                 var goldCard = Instantiate(goldCardPrefab, upgradeUIs[upgradeUIs.Length - 1].transform);
-                var goldBtn = goldCard.GetComponent<Button>();
-                if (goldBtn == null)
-                {
-                    goldBtn = goldCard.AddComponent<Button>();
-                }
-
-                goldBtn.onClick.RemoveAllListeners();
-                goldBtn.onClick.AddListener(() => OnClickGoldCard());
-                goldBtn.interactable = true;
+                BindGoldCardClick(goldCard);
+                goldCard.AddComponent<GoldCardClickProbe>();
             }
-
             return;
         }
 
@@ -671,17 +699,10 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 int level = installControl.GetSlotReinforceLevel(i);
                 bool isMax = installControl.IsSlotMaxLevel(i);
 
-                if (!isMax)
-                {
-                    return false; 
-                }
+                if (!isMax) return false;
             }
         }
-
         bool result = hasAnyTower;
-        Debug.Log($"[GOLD] Final Result: {result} (hasAnyTower={hasAnyTower})");
-
-        // 최대 개수 설치 + 모든 타워 MaxLevel
         return result;
     }
 
@@ -841,7 +862,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         TowerDataSO towerData = tutorialPistolTower;
         if (towerData == null)
         {
-            Debug.LogWarning("[Tutorial] tutorialPistolTower 가 비어있어서 기본 공격타워 로직 사용");
             SetUpNewAttackCard(i, slotNumber, isInitial, previousKey);
             return;
         }
@@ -1001,7 +1021,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             return;
         }
 
-        // usedAmplifierTowerTypesThisRoll에 추가 (isInitial 관계없이)
         usedAmplifierTowerTypesThisRoll.Add(ampData);
 
         int ampAbilityId = -1;
@@ -1147,14 +1166,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             if (goldCardPrefab != null && upgradeUIs[index] != null)
             {
                 var goldCard = Instantiate(goldCardPrefab, upgradeUIs[index].transform);
-                var goldBtn = goldCard.GetComponent<Button>();
-                if (goldBtn == null)
-                {
-                    goldBtn = goldCard.AddComponent<Button>();
-                }
-                goldBtn.onClick.RemoveAllListeners();
-                goldBtn.onClick.AddListener(() => OnClickGoldCard());
-                goldBtn.interactable = true;
+                BindGoldCardClick(goldCard);
             }
             return;
         }
@@ -1404,23 +1416,13 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         if (outlineImage.activeSelf == true)
         {
             outlineImage.SetActive(false);
-            // upgradeUIs[index].GetComponentInChildren<Image>().color = Color.white;
             installControl.IsReadyInstall = false;
             return;
         }
-        // {
-        //     installControl.IsReadyInstall = false;
-        //     // upgradeUIs[index].GetComponentInChildren<Image>().color = Color.white;
-        //     return;
-        // }
-
-        // choosedColor = towerColor;
         outlineObjects[index].SetActive(true);
         outlineObjects[(index + 1) % 3].SetActive(false);
         outlineObjects[(index + 2) % 3].SetActive(false);
-        // upgradeUIs[index].GetComponentInChildren<Image>().color = choosedColor;
-        // upgradeUIs[(index + 1) % 3].GetComponentInChildren<Image>().color = Color.white;
-        // upgradeUIs[(index + 2) % 3].GetComponentInChildren<Image>().color = Color.white;
+
         installControl.IsReadyInstall = true;
         installControl.ChoosedData = choices[index];
 
@@ -1445,11 +1447,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         if (installControl.IsUsedSlot(numlist[index]))
         {
-            Debug.Log(
-    $"[Card][UpgradeClick] cardIndex={index}, targetSlot={numlist[index]}, " +
-    $"choiceType={choices[index].InstallType}, ability={choices[index].ability}"
-);
-
             installControl.UpgradeTower(numlist[index]);
             if (towerInfoUI != null)
                 towerInfoUI.gameObject.SetActive(false);
@@ -1464,10 +1461,8 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         for (int i = 0; i < upgradeUIs.Length; i++)
         {
-            // Null 체크 추가
             if (upgradeUIs[i] == null) continue;
 
-            // outlineObjects도 Null 체크
             if (outlineObjects != null && i < outlineObjects.Length && outlineObjects[i] != null)
             {
                 outlineObjects[i].SetActive(false);
@@ -1484,7 +1479,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
     private void InstallNewAttackTower(int index, TowerDataSO towerData, int abilityId)
     {
-        Debug.Log($"[TowerUpgradeSlotUI] InstallNewAttackTower CALLED - index={index}, abilityId={abilityId}");
         DeleteAlreadyInstalledCard(index);
 
         var installedTower = Instantiate(newAttackTowerCardPrefab, upgradeUIs[index].transform);
@@ -1533,8 +1527,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     {
         var touchPos = TouchManager.Instance.TouchPos;
 
-        if (!TouchManager.Instance.IsTouching || towerImageIsDraging)
-            return;
+        if (!TouchManager.Instance.IsTouching || towerImageIsDraging) return;
 
         if (!isStartTouch)
         {
@@ -1548,6 +1541,24 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 {
                     isTouchOnUpgradeCard = true;
                     firstTouchIndex = i;
+
+                    // 골드카드인지 확인
+                    bool GoldCard = (i == upgradeUIs.Length - 1) &&
+                                      (numlist != null && i < numlist.Count && numlist[i] == -1) &&
+                                      (choices != null && i < choices.Length &&
+                                       choices[i].AttackTowerData == null &&
+                                       choices[i].AmplifierTowerData == null);
+
+                    if (GoldCard)
+                    {
+                        Debug.Log("[GoldCard] Touch detected on gold card!");
+
+                        // 👇 추가: 터치 종료 시 클릭으로 처리하기 위해 플래그 설정
+                        // isStartTouch를 false로 하지 말고 그대로 두기
+                        // return 하지 않고 계속 진행
+                        break; // 👈 return 대신 break 사용
+                    }
+
                     break;
                 }
             }
@@ -1555,6 +1566,13 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             if (!isTouchOnUpgradeCard) return;
         }
 
+        bool isCurrentGoldCard = (firstTouchIndex == upgradeUIs.Length - 1) &&
+                                  (numlist != null && firstTouchIndex < numlist.Count && numlist[firstTouchIndex] == -1) &&
+                                  (choices != null && firstTouchIndex < choices.Length &&
+                                   choices[firstTouchIndex].AttackTowerData == null &&
+                                   choices[firstTouchIndex].AmplifierTowerData == null);
+
+        if (isCurrentGoldCard) return;
         if (Vector2.Distance(initTouchPos, touchPos) < 5f || !isNewTouch) return;
 
         choosedIndex = -1;
@@ -1576,7 +1594,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                            choices[choosedIndex].AttackTowerData == null &&
                            choices[choosedIndex].AmplifierTowerData == null);
 
-        if (isGoldCard && ShouldShowGoldCard()) return;
+        if (isGoldCard) return;
 
         int targetSlot = (numlist != null && choosedIndex < numlist.Count) ? numlist[choosedIndex] : -1;
 
@@ -1633,18 +1651,24 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
     private void BlockUpgradeSlotTouch(bool v)
     {
+        Debug.Log($"[BlockUpgradeSlotTouch] called with v={v}");
+
         for (int i = 0; i < refreshButtons.Length; i++)
         {
             if (usedRefreshButton[i])
                 continue;
-            
+
             refreshButtons[i].interactable = !v;
         }
+
         for (int i = 0; i < upgradeUIs.Length; i++)
         {
             var button = upgradeUIs[i].GetComponentInChildren<Button>();
             if (button != null)
+            {
                 button.interactable = !v;
+                Debug.Log($"[BlockUpgradeSlotTouch] upgradeUI[{i}] button.interactable={button.interactable}");
+            }
         }
     }
 
@@ -1654,6 +1678,35 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         if (currentPhase == InputActionPhase.Canceled)
         {
+            // 👇 추가: 골드카드 클릭 처리
+            if (isStartTouch && firstTouchIndex >= 0)
+            {
+                bool isGoldCard = (firstTouchIndex == upgradeUIs.Length - 1) &&
+                                  (numlist != null && firstTouchIndex < numlist.Count && numlist[firstTouchIndex] == -1) &&
+                                  (choices != null && firstTouchIndex < choices.Length &&
+                                   choices[firstTouchIndex].AttackTowerData == null &&
+                                   choices[firstTouchIndex].AmplifierTowerData == null);
+
+                if (isGoldCard)
+                {
+                    // 드래그하지 않은 짧은 터치인지 확인
+                    var touchPos = TouchManager.Instance.TouchPos;
+                    float distance = Vector2.Distance(initTouchPos, touchPos);
+
+                    Debug.Log($"[GoldCard] Touch ended, distance={distance}");
+
+                    if (distance < 20f) // 20픽셀 이내면 클릭으로 간주
+                    {
+                        Debug.Log("[GoldCard] ===== TOUCH CLICK DETECTED!!! =====");
+                        OnClickGoldCard();
+
+                        isStartTouch = false;
+                        firstTouchIndex = -1;
+                        return;
+                    }
+                }
+            }
+
             isStartTouch = false;
             towerImageIsDraging = false;
             isNewTouch = true;
@@ -1722,7 +1775,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         return -1;
     }
 
-    private int[] GetRandomBuffSlot(int count) //Seperate Pick Random Slots Logic Method
+    private int[] GetRandomBuffSlot(int count) 
     {
         int towerCount = installControl.TowerCount;
         if (towerCount <= 1 || count <= 0) return new int[0];
@@ -1848,7 +1901,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             return false;
         }
 
-        // 1. 자기 자신의 이전 조합 체크 (새로고침 시)
         if (previousKey.HasValue)
         {
             var prev = previousKey.Value;
@@ -1860,7 +1912,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             }
         }
 
-        // 2. 이전 선택(lastChosenOption) 체크
         if (hasLastChosenOption &&
             lastChosenOption.InstallType == type &&
             lastChosenOption.towerKey == towerKey &&
@@ -1869,7 +1920,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             return true;
         }
 
-        // 3. 초기 옵션 키(initialOptionKeys) 체크
         if (!isInitial && initialOptionKeys != null)
         {
             for (int i = 0; i < initialOptionKeys.Length; i++)
@@ -1884,7 +1934,6 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             }
         }
 
-        // 4. 현재 choices 배열 체크
         if (choices != null)
         {
             for (int i = 0; i < choices.Length; i++)
@@ -2215,8 +2264,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     }
     private void RefreshStage1SingleCard(int index)
     {
-        if (choices == null || index < 0 || index >= choices.Length)
-            return;
+        if (choices == null || index < 0 || index >= choices.Length) return;
 
         TowerOptionKey? previousKey = null;
         var prevChoice = choices[index];
@@ -2259,9 +2307,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
         for (int i = 0; i < installControl.TowerCount; i++)
         {
-            if (numlist != null && i != index && numlist.Contains(i))
-                continue;
-
+            if (numlist != null && i != index && numlist.Contains(i)) continue;
             bool used = installControl.IsUsedSlot(i);
 
             if (!used)
@@ -2299,14 +2345,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
                 if (goldCardPrefab != null && upgradeUIs[index] != null)
                 {
                     var goldCard = Instantiate(goldCardPrefab, upgradeUIs[index].transform);
-                    var goldBtn = goldCard.GetComponent<Button>();
-                    if (goldBtn == null)
-                    {
-                        goldBtn = goldCard.AddComponent<Button>();
-                    }
-                    goldBtn.onClick.RemoveAllListeners();
-                    goldBtn.onClick.AddListener(() => OnClickGoldCard());
-                    goldBtn.interactable = true;
+                    BindGoldCardClick(goldCard);
                 }
 
                 UpdateInitialOptionKey(index);
@@ -2464,25 +2503,143 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         }
     }
 
-    public async void OnClickGoldCard()
+    public void OnClickGoldCard()
     {
-        await AddGoldReward(100);
+        Debug.Log("[GoldCard] OnClickGoldCard ENTER");
+
+        // BattleUI의 임시 골드에 추가 (화면 표시용)
+        var battleUI = FindObjectOfType<BattleUI>();
+        if (battleUI != null)
+        {
+            battleUI.AddCoinGainText(100);
+            Debug.Log($"[GoldCard] Added 100 gold to BattleUI. Total: {battleUI.CoinGain}");
+        }
+
+        // WaveManager의 누적 골드에 추가 (저장용)
+        if (WaveManager.Instance != null)
+        {
+            WaveManager.Instance.AddAccumulateGold(100);
+            Debug.Log($"[GoldCard] Added 100 gold to WaveManager. Total: {WaveManager.Instance.AccumulateGold}");
+        }
 
         if (towerInfoUI != null)
             towerInfoUI.gameObject.SetActive(false);
         gameObject.SetActive(false);
     }
-    private async UniTask AddGoldReward(int amount)
+
+    private void DebugUIRaycast(Vector2 screenPos)
     {
-        await UniTask.WaitUntil(() =>
-            CurrencyManager.Instance != null &&
-            CurrencyManager.Instance.IsInitialized
-        );
+        if (EventSystem.current == null)
+        {
+            Debug.LogWarning("[UIRaycast] No EventSystem");
+            return;
+        }
 
-        int currentGold = CurrencyManager.Instance.CachedGold;
-        int newGold = currentGold + amount;
+        var ped = new PointerEventData(EventSystem.current) { position = screenPos };
+        var results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(ped, results);
 
-        CurrencyManager.Instance.SetGold(newGold);
-        await CurrencyManager.Instance.SaveCurrencyAsync();
+        if (results.Count == 0)
+        {
+            Debug.Log("[UIRaycast] hit: (none)");
+            return;
+        }
+
+        var sb = new StringBuilder();
+        sb.AppendLine($"[UIRaycast] hits={results.Count} pos={screenPos}");
+        for (int i = 0; i < Mathf.Min(results.Count, 10); i++)
+        {
+            var go = results[i].gameObject;
+            sb.AppendLine($"  #{i} {go.name} (module={results[i].module})");
+        }
+        Debug.Log(sb.ToString());
+    }
+
+    private void BindGoldCardClick(GameObject goldCard)
+    {
+        if (goldCard == null)
+        {
+            Debug.LogError("[GoldCard] BindGoldCardClick called with null");
+            return;
+        }
+
+        // 기존 Button 설정
+        var buttons = goldCard.GetComponentsInChildren<Button>(true);
+        Button pick = null;
+
+        var rootBtn = goldCard.GetComponent<Button>();
+        if (rootBtn != null)
+        {
+            pick = rootBtn;
+        }
+        else if (buttons != null && buttons.Length > 0)
+        {
+            foreach (var b in buttons)
+            {
+                if (b != null && b.gameObject.activeInHierarchy)
+                {
+                    pick = b;
+                    break;
+                }
+            }
+        }
+
+        if (pick == null)
+        {
+            Debug.LogError("[GoldCard] No valid Button found");
+            return;
+        }
+
+        // targetGraphic 설정
+        if (pick.targetGraphic == null)
+        {
+            var img = pick.GetComponent<Image>();
+            if (img == null) img = pick.GetComponentInChildren<Image>(true);
+            if (img != null)
+            {
+                pick.targetGraphic = img;
+                img.raycastTarget = true;
+            }
+        }
+        else
+        {
+            pick.targetGraphic.raycastTarget = true;
+        }
+
+        // onClick 설정
+        pick.onClick.RemoveAllListeners();
+        pick.onClick.AddListener(() => {
+            Debug.Log("[GoldCard] ===== BUTTON CLICKED!!! =====");
+            OnClickGoldCard();
+        });
+        pick.interactable = true;
+
+        // 👇 추가: EventTrigger로 터치 이벤트 직접 처리
+        var eventTrigger = goldCard.GetComponent<EventTrigger>();
+        if (eventTrigger == null)
+            eventTrigger = goldCard.AddComponent<EventTrigger>();
+
+        // PointerClick 이벤트 추가
+        var clickEntry = new EventTrigger.Entry();
+        clickEntry.eventID = EventTriggerType.PointerClick;
+        clickEntry.callback.AddListener((data) => {
+            Debug.Log("[GoldCard] ===== EVENT TRIGGER CLICKED!!! =====");
+            OnClickGoldCard();
+        });
+        eventTrigger.triggers.Add(clickEntry);
+
+        // Canvas sortingOrder 올리기
+        var canvas = goldCard.GetComponent<Canvas>();
+        if (canvas == null)
+            canvas = goldCard.AddComponent<Canvas>();
+
+        canvas.overrideSorting = true;
+        canvas.sortingOrder = 1000;
+
+        var raycaster = goldCard.GetComponent<GraphicRaycaster>();
+        if (raycaster == null)
+            goldCard.AddComponent<GraphicRaycaster>();
+
+        Debug.Log($"[GoldCard] Click bound to: {pick.gameObject.name}, interactable={pick.interactable}, targetGraphic={pick.targetGraphic != null}");
     }
 }
