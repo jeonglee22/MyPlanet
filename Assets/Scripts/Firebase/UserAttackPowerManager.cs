@@ -35,11 +35,14 @@ public class UserAttackPowerManager : MonoBehaviour
         {
             instance = this;
         }
-        FirebaseDatabase.DefaultInstance.SetPersistenceEnabled(false);
     }
 
     private async UniTaskVoid Start()
     {
+        await FireBaseInitializer.Instance.WaitInitialization();
+
+        FirebaseDatabase.DefaultInstance.SetPersistenceEnabled(false);
+
         await UniTask.WaitUntil(() => AuthManager.Instance.IsInitialized);
 
         userAttackRef = FirebaseDatabase.DefaultInstance.RootReference.Child(DatabaseRef.UserAttackPowers);

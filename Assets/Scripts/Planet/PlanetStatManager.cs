@@ -36,6 +36,7 @@ public class PlanetStatManager : MonoBehaviour
     private async UniTaskVoid Start()
     {
         await UniTask.WaitUntil(() => PlanetManager.Instance != null && PlanetManager.Instance.IsInitialized);
+        await UniTask.WaitUntil(() => DataTableManager.IsInitialized);
 
         UpdateCurrentPlanetStats();
 
