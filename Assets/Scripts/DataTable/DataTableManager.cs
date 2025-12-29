@@ -58,6 +58,8 @@ public static class DataTableManager
             LoadTableAsync<SpecialEffectTextTable>(DataTableIds.SpecialEffectText),
             LoadTableAsync<PlanetTextTable>(DataTableIds.PlanetText),
             LoadTableAsync<StageRewardTable>(DataTableIds.StageReward),
+            LoadTableAsync<DailyRerollTable>(DataTableIds.DailyReroll),
+            LoadTableAsync<ItemStringTable>(DataTableIds.ItemString),
         };
 
         await UniTask.WhenAll(tasks);
@@ -322,6 +324,22 @@ public static class DataTableManager
         get
         {
             return Get<StageRewardTable>(DataTableIds.StageReward);
+        }
+    }
+
+    public static DailyRerollTable DailyRerollTable
+    {
+        get
+        {
+            return Get<DailyRerollTable>(DataTableIds.DailyReroll);
+        }
+    }
+
+    public static ItemStringTable ItemStringTable
+    {
+        get
+        {
+            return Get<ItemStringTable>(DataTableIds.ItemString);
         }
     }
 

@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Timeline;
 using UnityEngine.UI;
 
 public class ShopCategori : MonoBehaviour
@@ -31,8 +30,95 @@ public class ShopCategori : MonoBehaviour
             case ShopCategory.Gacha:
                 SetUpGachaData(onButtonClick);
                 break;
-            case ShopCategory.Others:
+            default:
                 break;
+        }
+    }
+    public void Initialize(ShopCategory category, string categoryName, GameObject buttonPrefab, Action<(int, int, int, GameObject)> onButtonClick)
+    {
+        categoryText.text = categoryName;
+        this.buttonPrefab = buttonPrefab;
+
+        switch(category)
+        {
+            case ShopCategory.DailyShop:
+                SetUpDailyShopData(onButtonClick);
+                break;
+            case ShopCategory.ChargeDiaShop:
+                SetUpChargeDiaShopData(onButtonClick);
+                break;
+            case ShopCategory.PackageShop:
+                SetUpPackageShopData(onButtonClick);
+                break;
+            case ShopCategory.DailyShopRefresh:
+                RefreshDailyShopData(onButtonClick);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void RefreshDailyShopData(Action<(int, int, int, GameObject)> onButtonClick)
+    {
+        var currentItems = new List<int>();
+        var beforeItems = new List<Transform> {buttonsContainers[3], buttonsContainers[4], buttonsContainers[5]};
+        beforeItems.Remove(beforeItems[UnityEngine.Random.Range(0, beforeItems.Count)]);
+        for(int i = 3; i < buttonsContainers.Length; i++)
+        {
+            int index = i;
+            var dailyBtnObj = buttonsContainers[index].GetChild(0).gameObject;
+            var dailyButton = dailyBtnObj.GetComponent<DailyButton>();
+
+            var currentShopData = UserShopItemManager.Instance.BuyedShopItemData;
+            currentShopData.dailyShop[dailyButton.ButtonIndex] = false;
+            UserShopItemManager.Instance.SaveUserShopItemDataAsync(currentShopData).Forget();
+
+            dailyButton.RefreshObj(index, onButtonClick, beforeItems, currentItems);
+            currentItems.Add(dailyButton.RandomRewardId);
+        }
+    }
+
+    private void SetUpDailyShopData(Action<(int, int, int, GameObject)> onButtonClick)
+    {
+        var currentShopData = UserShopItemManager.Instance.BuyedShopItemData;
+        var boughtItems = currentShopData.dailyShop;
+
+        var dailyItemKeys = new List<int>();
+        for(int i = 0; i < buttonsContainers.Length; i++)
+        {
+            int index = i;
+            GameObject dailyBtnObj;
+            if (buttonsContainers[index].childCount > 0)
+                dailyBtnObj = buttonsContainers[index].GetChild(0).gameObject;
+            else
+                dailyBtnObj = Instantiate(buttonPrefab, buttonsContainers[index]);
+            var dailyButton = dailyBtnObj.GetComponent<DailyButton>();
+            dailyButton.Initialize(index, onButtonClick, dailyItemKeys, boughtItems[index]);
+            
+            if (index > 2)
+                dailyItemKeys.Add(dailyButton.RandomRewardId);
+        }
+    }
+
+    private void SetUpChargeDiaShopData(Action<(int, int, int, GameObject)> onButtonClick)
+    {
+        for(int i = 0; i < buttonsContainers.Length; i++)
+        {
+            int index = i;
+            var chargedDiaBtnObj = Instantiate(buttonPrefab, buttonsContainers[index]);
+            var chargeDiaButton = chargedDiaBtnObj.GetComponent<ChargeDiaButton>();
+            chargeDiaButton.Initialize(index, onButtonClick);
+        }
+    }
+
+    private void SetUpPackageShopData(Action<(int, int, int, GameObject)> onButtonClick)
+    {
+        for(int i = 0; i < buttonsContainers.Length; i++)
+        {
+            int index = i;
+            var dailyBtnObj = Instantiate(buttonPrefab, buttonsContainers[index]);
+            var packageItemButton = dailyBtnObj.GetComponent<PackageItemButton>();
+            packageItemButton.Initialize(index, onButtonClick);
         }
     }
 
@@ -63,4 +149,6 @@ public class ShopCategori : MonoBehaviour
             gachaBtn.Initialize(gachaList[i].Item1, gachaList[i].Item2, gachaList[i].Item3, onButtonClick);
         }
     }
+
+
 }

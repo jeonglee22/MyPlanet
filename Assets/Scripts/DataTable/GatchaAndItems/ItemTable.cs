@@ -13,6 +13,7 @@ public class ItemData
     public string ItemNameText { get; set; }
     public string ItemDescription { get; set; }
     public string ItemDescriptionText { get; set; }
+    public string ItemIconText { get; set; }
 
     public override string ToString()
     {
@@ -52,7 +53,9 @@ public class ItemTable : DataTable
     {
         if (!dictionary.ContainsKey(key))
         {
+#if UNITY_EDITOR
             Debug.LogError($"키 없음: {key}");
+#endif
             return null;
         }
 
