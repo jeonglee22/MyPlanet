@@ -119,8 +119,8 @@ public class PlanetLevelUpgradeUI : MonoBehaviour
             float hpDiff = nextStats.hp - currentStats.hp;
             float defenseDiff = nextStats.defense - currentStats.defense;
 
-            healthText.text = $"{currentStats.hp:F1} → {nextStats.hp:F1} " + $"<color=green>(+{hpDiff})</color>";
-            defenseText.text = $"{currentStats.defense:F1} → {nextStats.defense:F1} " + $"<color=green>(+{defenseDiff})</color>";
+            healthText.text = $"{FormatStat(currentStats.hp)} → {FormatStat(nextStats.hp)} <color=green>(+{FormatStat(hpDiff)})</color>";
+            defenseText.text = $"{FormatStat(currentStats.defense)} → {FormatStat(nextStats.defense)} " + $"<color=green>(+{FormatStat(defenseDiff)})</color>";
         }
     }
 
@@ -136,7 +136,7 @@ public class PlanetLevelUpgradeUI : MonoBehaviour
                   (currentStats.hpRegeneration * 420) + 
                   (currentStats.drain * 650);
 
-        attackPowerText.text = $"{cal}";
+        attackPowerText.text = FormatStat(cal);
     }
 
     private void UpdateItemCount()
@@ -150,8 +150,7 @@ public class PlanetLevelUpgradeUI : MonoBehaviour
         }
 
         int nextLevel = currentUserPlanetInfo.level + 1;
-        planetLvUpgradeData = DataTableManager.PlanetLvUpgradeTable.GetCurrentLevelData(
-            currentPlanetData.Planet_ID, nextLevel);
+        planetLvUpgradeData = DataTableManager.PlanetLvUpgradeTable.GetCurrentLevelData(currentPlanetData.Planet_ID, nextLevel);
 
         if(planetLvUpgradeData == null)
         {
@@ -220,8 +219,7 @@ public class PlanetLevelUpgradeUI : MonoBehaviour
         }
 
         int nextLevel = currentUserPlanetInfo.level + 1;
-        planetLvUpgradeData = DataTableManager.PlanetLvUpgradeTable.GetCurrentLevelData(
-            currentPlanetData.Planet_ID, nextLevel);
+        planetLvUpgradeData = DataTableManager.PlanetLvUpgradeTable.GetCurrentLevelData(currentPlanetData.Planet_ID, nextLevel);
 
         if(planetLvUpgradeData == null)
         {
@@ -328,5 +326,10 @@ public class PlanetLevelUpgradeUI : MonoBehaviour
         {
             // 취소 시 예외 무시
         }
+    }
+
+    private string FormatStat(float value)
+    {
+        return value % 1 == 0 ? $"{value:F0}" : $"{value:F1}";
     }
 }

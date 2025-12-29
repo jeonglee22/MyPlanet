@@ -189,7 +189,7 @@ public class PlanetInfoUI : MonoBehaviour
                   (currentStats.hpRegeneration * 420) + 
                   (currentStats.drain * 650);
 
-        fightingPowerText.text = $"{Mathf.RoundToInt(cal)}";
+        fightingPowerText.text = FormatStat(cal);
     }
 
     private void UpdateStatsUI()
@@ -199,12 +199,12 @@ public class PlanetInfoUI : MonoBehaviour
         currentUserPlanetInfo.level, 
         currentUserPlanetInfo.starLevel);
 
-        healthText.text = $"{currentStats.hp:F1}";
-        defenseText.text = $"{currentStats.defense:F1}";
-        shieldText.text = $"{currentStats.shield:F1}";
-        expRateText.text = $"{currentStats.expRate:F1}";
-        drainText.text = $"{currentStats.drain:F1}";
-        healthRegenerationText.text = $"{currentStats.hpRegeneration:F1}";
+        healthText.text = FormatStat(currentStats.hp);
+        defenseText.text = FormatStat(currentStats.defense);
+        shieldText.text = FormatStat(currentStats.shield);
+        expRateText.text = FormatStat(currentStats.expRate);
+        drainText.text = FormatStat(currentStats.drain);
+        healthRegenerationText.text = FormatStat(currentStats.hpRegeneration);
     }
 
     private void UpdateLevelUpButton()
@@ -232,5 +232,10 @@ public class PlanetInfoUI : MonoBehaviour
         {
             planetPanelUI.SetChoosedIndex(iconIndex + 1);
         }
+    }
+
+    private string FormatStat(float value)
+    {
+        return value % 1 == 0 ? $"{value:F0}" : $"{value:F1}";
     }
 }

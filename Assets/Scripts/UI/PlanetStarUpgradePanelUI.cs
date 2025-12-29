@@ -195,11 +195,11 @@ public class PlanetStarUpgradePanelUI : MonoBehaviour
         {
             case PlanetAbilityType.HealthPercentage:
             case PlanetAbilityType.DefensePercentage:
-                return $"{value:F1}%";
+                return $"{FormatStat(value)}%";
             case PlanetAbilityType.ExperienceRate:
-                return $"+{value:F1}";
+                return $"+{FormatStat(value)}";
             default:
-                return $"+{value:F1}";
+                return $"+{FormatStat(value)}";
         }
     }
 
@@ -346,4 +346,8 @@ public class PlanetStarUpgradePanelUI : MonoBehaviour
         }
     }
 
+    private string FormatStat(float value)
+    {
+        return value % 1 == 0 ? $"{value:F0}" : $"{value:F1}";
+    }
 }
