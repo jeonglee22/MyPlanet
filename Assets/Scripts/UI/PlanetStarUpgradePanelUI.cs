@@ -195,8 +195,9 @@ public class PlanetStarUpgradePanelUI : MonoBehaviour
         {
             case PlanetAbilityType.HealthPercentage:
             case PlanetAbilityType.DefensePercentage:
+                return $"{value}%";
             case PlanetAbilityType.ExperienceRate:
-                return $"+{value}%";
+                return $"+{value:F1}";
             default:
                 return $"+{Mathf.Round(value)}";
         }

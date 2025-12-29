@@ -91,7 +91,7 @@ public class PlanetLevelUpgradeUI : MonoBehaviour
         }
         else
         {
-            nextLevelText.text = $"Lv. {currentUserPlanetInfo.level + 1}";
+            nextLevelText.text = $"Lv. {currentUserPlanetInfo.level + 1} / Lv. {maxLevel}";
         }
     }
 
