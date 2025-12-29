@@ -84,6 +84,8 @@ public class PlanetItemUI : MonoBehaviour
             notOwnImage.SetActive(false);
             blackImage.SetActive(false);
 
+            planetLevel.text = $"Lv. {userPlanetInfo.level}";
+
             int nextStarLevel = userPlanetInfo.starLevel + 1;
 
             if(nextStarLevel > PlanetManager.Instance.MaxStarLevel)
@@ -94,8 +96,6 @@ public class PlanetItemUI : MonoBehaviour
             else
             {
                 planetStarUpgradeData = DataTableManager.PlanetStarUpgradeTable.GetCurrentLevelData(planetData.Planet_ID, nextStarLevel);
-
-                planetLevel.text = $"Lv. {userPlanetInfo.level}";
 
                 for (int i = 0; i < upgradeStar.Count; i++)
                 {
