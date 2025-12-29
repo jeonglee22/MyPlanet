@@ -93,6 +93,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     [SerializeField] private PlanetTowerUI planetTowerUI;
 
     private bool hasInitializedForStage1 = false;
+    private bool hasShownStep4ThisRoll = false;
     //----------------------------------------
 
     private void Awake()
@@ -1440,9 +1441,10 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             // uiTexts[index].text =
             //     $"Upgrade\n{number}\n\n{ampName}";
             
-            if(isTutorial && Variables.Stage == 1)
+            if(isTutorial && Variables.Stage == 1 && !hasShownStep4ThisRoll)
             {
                 TutorialManager.Instance.ShowTutorialStep(4);
+                hasShownStep4ThisRoll = true;
             }
         }
         else
