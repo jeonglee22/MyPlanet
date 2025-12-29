@@ -144,7 +144,7 @@ public class PlanetInfoUI : MonoBehaviour
             upgradeStars[i].SetActive(i < userPlanetInfo.starLevel);
         }
 
-        UpdatePieceSlider(planetData);
+        UpdatePieceSlider(planetData, currentUserPlanetInfo.starLevel);
         UpdateLevelUpButton();
 
         levelUpBtn.interactable = true;
@@ -152,8 +152,17 @@ public class PlanetInfoUI : MonoBehaviour
 
     }
 
-    private void UpdatePieceSlider(PlanetData planetData)
+    private void UpdatePieceSlider(PlanetData planetData, int starLevel)
     {
+        if(starLevel == PlanetManager.Instance.MaxStarLevel)
+        {
+            pieceText.text = $"MAX";
+            pieceSlider.fillRect.GetComponent<Image>().sprite = changePieceImage;
+            pieceSlider.maxValue = 1;
+            pieceSlider.value = 1;
+            return;
+        }
+
         int pieceId = planetData.PieceId;
 
         int currentPieces = ItemManager.Instance.GetItem(pieceId);
@@ -189,7 +198,7 @@ public class PlanetInfoUI : MonoBehaviour
                   (currentStats.hpRegeneration * 420) + 
                   (currentStats.drain * 650);
 
-        fightingPowerText.text = $"{Mathf.RoundToInt(cal)}";
+        fightingPowerText.text = FormatStat(cal);
     }
 
     private void UpdateStatsUI()
@@ -199,12 +208,12 @@ public class PlanetInfoUI : MonoBehaviour
         currentUserPlanetInfo.level, 
         currentUserPlanetInfo.starLevel);
 
-    healthText.text = $"{Mathf.RoundToInt(currentStats.hp)}";
-    defenseText.text = $"{Mathf.RoundToInt(currentStats.defense)}";
-    shieldText.text = $"{Mathf.RoundToInt(currentStats.shield)}";
-    expRateText.text = $"{Mathf.RoundToInt(currentStats.expRate)}%";
-    drainText.text = $"{Mathf.RoundToInt(currentStats.drain)}";
-    healthRegenerationText.text = $"{Mathf.RoundToInt(currentStats.hpRegeneration)}";
+        healthText.text = FormatStat(currentStats.hp);
+        defenseText.text = FormatStat(currentStats.defense);
+        shieldText.text = FormatStat(currentStats.shield);
+        expRateText.text = FormatStat(currentStats.expRate);
+        drainText.text = FormatStat(currentStats.drain);
+        healthRegenerationText.text = FormatStat(currentStats.hpRegeneration);
     }
 
     private void UpdateLevelUpButton()
@@ -232,5 +241,10 @@ public class PlanetInfoUI : MonoBehaviour
         {
             planetPanelUI.SetChoosedIndex(iconIndex + 1);
         }
+    }
+
+    private string FormatStat(float value)
+    {
+        return value % 1 == 0 ? $"{value:F0}" : $"{value:F1}";
     }
 }

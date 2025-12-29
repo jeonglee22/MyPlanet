@@ -236,4 +236,9 @@ public class LobbyUI : MonoBehaviour
         settingPanel.LoadCurrentSettings();
         settingPanel.gameObject.SetActive(true);
     }
+
+    public void MoveEnemyTestScene()
+    {
+        SceneControlManager.Instance.LoadScene(SceneName.EnemyTestScene).Forget();
+    }
 }

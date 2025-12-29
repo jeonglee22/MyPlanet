@@ -34,6 +34,8 @@ public class PlanetPanelUI : MonoBehaviour
     [SerializeField] private GameObject planetInstallSuccessPanel;
     [SerializeField] private Button ConfirmBtn;
 
+    [SerializeField] private GameObject planetSelectPanel;
+
     private int choosedIndex = -1;
 
     private CancellationTokenSource autoCloseCts;
@@ -124,6 +126,7 @@ public class PlanetPanelUI : MonoBehaviour
             planetInfoPanel.SetActive(false);
             titleText.text = "행성";
             selectPlanetIcons.SetActive(false);
+            planetSelectPanel.SetActive(true);
             return;
         }
         else if(starUpgradePanel.activeSelf)
@@ -161,6 +164,8 @@ public class PlanetPanelUI : MonoBehaviour
         titleText.text = "행성 강화";
 
         selectPlanetIcons.SetActive(true);
+
+        planetSelectPanel.SetActive(false);
     }
 
     public void OnStarUpgradeButtonClicked()

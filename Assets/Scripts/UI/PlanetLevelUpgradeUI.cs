@@ -91,7 +91,7 @@ public class PlanetLevelUpgradeUI : MonoBehaviour
         }
         else
         {
-            nextLevelText.text = $"Lv. {currentUserPlanetInfo.level + 1}";
+            nextLevelText.text = $"Lv. {currentUserPlanetInfo.level + 1} / Lv. {maxLevel}";
         }
     }
 
@@ -106,8 +106,8 @@ public class PlanetLevelUpgradeUI : MonoBehaviour
 
         if(currentUserPlanetInfo.level >= maxLevel)
         {
-            healthText.text = $"{Mathf.RoundToInt(currentStats.hp)}";
-            defenseText.text = $"{Mathf.RoundToInt(currentStats.defense)}";
+            healthText.text = $"{currentStats.hp:F1}";
+            defenseText.text = $"{currentStats.defense:F1}";
         }
         else
         {
@@ -116,11 +116,11 @@ public class PlanetLevelUpgradeUI : MonoBehaviour
                 currentUserPlanetInfo.level + 1, 
                 currentUserPlanetInfo.starLevel);
 
-            int hpDiff = Mathf.RoundToInt(nextStats.hp - currentStats.hp);
-            int defenseDiff = Mathf.RoundToInt(nextStats.defense - currentStats.defense);
+            float hpDiff = nextStats.hp - currentStats.hp;
+            float defenseDiff = nextStats.defense - currentStats.defense;
 
-            healthText.text = $"{Mathf.RoundToInt(currentStats.hp)} → {Mathf.RoundToInt(nextStats.hp)} " + $"<color=green>(+{hpDiff})</color>";
-            defenseText.text = $"{Mathf.RoundToInt(currentStats.defense)} → {Mathf.RoundToInt(nextStats.defense)} " + $"<color=green>(+{defenseDiff})</color>";
+            healthText.text = $"{FormatStat(currentStats.hp)} → {FormatStat(nextStats.hp)} <color=green>(+{FormatStat(hpDiff)})</color>";
+            defenseText.text = $"{FormatStat(currentStats.defense)} → {FormatStat(nextStats.defense)} " + $"<color=green>(+{FormatStat(defenseDiff)})</color>";
         }
     }
 
@@ -136,7 +136,7 @@ public class PlanetLevelUpgradeUI : MonoBehaviour
                   (currentStats.hpRegeneration * 420) + 
                   (currentStats.drain * 650);
 
-        attackPowerText.text = $"{Mathf.RoundToInt(cal)}";
+        attackPowerText.text = FormatStat(cal);
     }
 
     private void UpdateItemCount()
@@ -150,8 +150,7 @@ public class PlanetLevelUpgradeUI : MonoBehaviour
         }
 
         int nextLevel = currentUserPlanetInfo.level + 1;
-        planetLvUpgradeData = DataTableManager.PlanetLvUpgradeTable.GetCurrentLevelData(
-            currentPlanetData.Planet_ID, nextLevel);
+        planetLvUpgradeData = DataTableManager.PlanetLvUpgradeTable.GetCurrentLevelData(currentPlanetData.Planet_ID, nextLevel);
 
         if(planetLvUpgradeData == null)
         {
@@ -220,8 +219,7 @@ public class PlanetLevelUpgradeUI : MonoBehaviour
         }
 
         int nextLevel = currentUserPlanetInfo.level + 1;
-        planetLvUpgradeData = DataTableManager.PlanetLvUpgradeTable.GetCurrentLevelData(
-            currentPlanetData.Planet_ID, nextLevel);
+        planetLvUpgradeData = DataTableManager.PlanetLvUpgradeTable.GetCurrentLevelData(currentPlanetData.Planet_ID, nextLevel);
 
         if(planetLvUpgradeData == null)
         {
@@ -328,5 +326,10 @@ public class PlanetLevelUpgradeUI : MonoBehaviour
         {
             // 취소 시 예외 무시
         }
+    }
+
+    private string FormatStat(float value)
+    {
+        return value % 1 == 0 ? $"{value:F0}" : $"{value:F1}";
     }
 }

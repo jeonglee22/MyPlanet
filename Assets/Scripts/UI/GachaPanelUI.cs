@@ -15,6 +15,7 @@ public class GachaPanelUI : MonoBehaviour
     [SerializeField] private GameObject gachaPanel;
     [SerializeField] private Button backBtn;
     [SerializeField] private TextMeshProUGUI gachaNameText;
+    [SerializeField] private Image currencyIconImage;
     [SerializeField] private Button buyOnceBtn;
     [SerializeField] private Button buyTenBtn;
 
@@ -49,6 +50,8 @@ public class GachaPanelUI : MonoBehaviour
         drawCount = 0;
 
         gachaNameText.text = gachaName;
+
+        currencyIconImage.sprite = LoadManager.GetLoadedGameTexture(drawGroup.ToString());
 
         ResetBtn();
 
