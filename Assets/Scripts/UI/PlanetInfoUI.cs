@@ -144,7 +144,7 @@ public class PlanetInfoUI : MonoBehaviour
             upgradeStars[i].SetActive(i < userPlanetInfo.starLevel);
         }
 
-        UpdatePieceSlider(planetData);
+        UpdatePieceSlider(planetData, currentUserPlanetInfo.starLevel);
         UpdateLevelUpButton();
 
         levelUpBtn.interactable = true;
@@ -152,8 +152,17 @@ public class PlanetInfoUI : MonoBehaviour
 
     }
 
-    private void UpdatePieceSlider(PlanetData planetData)
+    private void UpdatePieceSlider(PlanetData planetData, int starLevel)
     {
+        if(starLevel == PlanetManager.Instance.MaxStarLevel)
+        {
+            pieceText.text = $"MAX";
+            pieceSlider.fillRect.GetComponent<Image>().sprite = changePieceImage;
+            pieceSlider.maxValue = 1;
+            pieceSlider.value = 1;
+            return;
+        }
+
         int pieceId = planetData.PieceId;
 
         int currentPieces = ItemManager.Instance.GetItem(pieceId);

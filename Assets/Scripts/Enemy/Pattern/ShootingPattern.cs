@@ -33,7 +33,10 @@ public abstract class ShootingPattern : IPattern
         executor = enemy.GetComponent<PatternExecutor>();
 
         patternData = enemy.CurrentPatternData;
-        skillData = DataTableManager.SkillTable.Get(patternData.Skill_Id);
+        if(patternData.Skill_Id > 0)
+        {
+            skillData = DataTableManager.SkillTable.Get(patternData.Skill_Id);
+        }
 
         lastExecuteTime = Time.time;
         isExecuteOneTime = false;
