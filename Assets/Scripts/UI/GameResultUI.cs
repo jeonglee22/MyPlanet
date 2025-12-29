@@ -46,6 +46,7 @@ public class GameResultUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI item1Text;
     [SerializeField] private TextMeshProUGUI item2Text;
     [SerializeField] private TextMeshProUGUI item3Text;
+    [SerializeField] private List<Image> itemImages;
 
     void Start()
     {
@@ -166,40 +167,44 @@ public class GameResultUI : MonoBehaviour
     {
         if(rewardData.Target_Id_1 != 0 && rewardData.RewardQty_1 > 0)
         {
-            AddRewardByTargetId(rewardData.Target_Id_1, rewardData.RewardQty_1);
+            AddRewardByTargetId(rewardData.Target_Id_1, rewardData.RewardQty_1, 0);
             item1Text.text = $"+{rewardData.RewardQty_1}";
         }
 
         if(rewardData.Target_Id_2 != 0 && rewardData.RewardQty_2 > 0)
         {
-            AddRewardByTargetId(rewardData.Target_Id_2, rewardData.RewardQty_2);
+            AddRewardByTargetId(rewardData.Target_Id_2, rewardData.RewardQty_2, 1);
             item2Text.text = $"+{rewardData.RewardQty_2}";
         }
 
         if(rewardData.Target_Id_3 != 0 && rewardData.RewardQty_3 > 0)
         {
-            AddRewardByTargetId(rewardData.Target_Id_3, rewardData.RewardQty_3);
+            AddRewardByTargetId(rewardData.Target_Id_3, rewardData.RewardQty_3, 2);
             item3Text.text = $"+{rewardData.RewardQty_3}";
         }
     }
 
-    private void AddRewardByTargetId(int targetId, int quantity)
+    private void AddRewardByTargetId(int targetId, int quantity, int index)
     {
         if(targetId == 711101)
         {
             UserData.Gold += quantity;
+            itemImages[index].sprite = LoadManager.GetLoadedGameTexture(DataTableManager.CurrencyTable.Get(targetId).CurrencyIconText);
         }
         else if(targetId == 711201)
         {
             UserData.FreeDia += quantity;
+            itemImages[index].sprite = LoadManager.GetLoadedGameTexture(DataTableManager.CurrencyTable.Get(targetId).CurrencyIconText);
         }
         else if(targetId == 711202)
         {
             UserData.ChargedDia += quantity;
+            itemImages[index].sprite = LoadManager.GetLoadedGameTexture(DataTableManager.CurrencyTable.Get(targetId).CurrencyIconText);
         }
         else
         {
             UserDataMapper.AddItem(targetId, quantity);
+            itemImages[index].sprite = LoadManager.GetLoadedGameTexture(DataTableManager.ItemTable.Get(targetId).ItemIconText);
         }
     }
 
