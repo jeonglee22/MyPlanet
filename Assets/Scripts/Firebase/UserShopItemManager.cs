@@ -169,71 +169,90 @@ public class UserShopItemManager : MonoBehaviour
     }
 
     public async UniTask<bool> EnsureDailyShopFreshAsync()
-{
-    if (!AuthManager.Instance.IsSignedIn)
-        return false;
-
-    var uid = AuthManager.Instance.UserId;
-
-    long serverNowMs = await GetServerNowMsAsync(uid);
-    string todayKey = ToDayKeyKst(serverNowMs);
-
-    var userShopRef = shopRef.Child(uid);
-
-    if (buyedShopItemData == null)
-        buyedShopItemData = new UserShopItemData();
-
-    var snap = await userShopRef.RunTransaction(mutable =>
     {
-        var currentKey = mutable.Child("lastResetDayKey").Value?.ToString();
-        if (currentKey == todayKey)
-            return TransactionResult.Abort(); 
+        if (!AuthManager.Instance.IsSignedIn)
+            return false;
 
-        mutable.Child("lastResetDayKey").Value = todayKey;
-        mutable.Child("todaySeed").Value = serverNowMs;
-        mutable.Child("isUsedReroll").Value = false;
+        var uid = AuthManager.Instance.UserId;
 
-        var daily = new List<object>(6);
-        for (int i = 0; i < 6; i++) daily.Add(false);
-        mutable.Child("dailyShop").Value = daily;
-
-        var items = new List<object>(6);
-        for (int i = 0; i < 6; i++)
+        try
         {
-            items.Add(new Dictionary<string, object>
+            long serverNowMs = await GetServerNowMsAsync(uid);
+            string todayKey = ToDayKeyKst(serverNowMs);
+
+            var userShopRef = shopRef.Child(uid);
+
+            if (buyedShopItemData == null)
+                buyedShopItemData = new UserShopItemData();
+
+            var snapShot = await userShopRef.GetValueAsync().AsUniTask();
+            if (snapShot.Exists)
             {
-                { "itemId", 0 },
-                { "count", 0 }
-            });
+                var lastResetDayKeyObj = snapShot.Child("lastResetDayKey").Value;
+                string lastResetDayKey = lastResetDayKeyObj as string ?? "";
+
+                if (lastResetDayKey == todayKey)
+                    return false;   // 이미 오늘자 갱신됨
+            }
+
+            var dailyShop = new List<bool>(6);
+            for (int i = 0; i < 6; i++) 
+            {
+                dailyShop.Add(false);
+            }
+
+            // buyedItems: List<object> 안에 Dictionary<string, object>
+            var buyedItemsObj = new List<object>(6);
+            for (int i = 0; i < 6; i++) 
+            {
+                buyedItemsObj.Add(new Dictionary<string, object>
+                {
+                    { "itemId", 0 },
+                    { "count", 0 }
+                });
+            }
+
+            var payload = new Dictionary<string, object>
+            {
+                { "lastResetDayKey", todayKey },
+                { "todaySeed", serverNowMs },   // long OK :contentReference[oaicite:2]{index=2}
+                { "isUsedReroll", false },
+                { "dailyShop", dailyShop },
+                { "buyedItems", buyedItemsObj }
+            };
+
+            await userShopRef.UpdateChildrenAsync(payload).AsUniTask();
+
+            snapShot = await userShopRef.GetValueAsync().AsUniTask();
+            var newSeedObj = snapShot.Child("todaySeed").Value;
+            long newSeed = 0;
+            if (newSeedObj is long l) newSeed = l;
+            else if (newSeedObj is int i) newSeed = i;
+            else if (newSeedObj is double d) newSeed = (long)d;
+            else long.TryParse(newSeedObj?.ToString(), out newSeed);
+
+            bool didReset = (newSeed == serverNowMs);
+            if (!didReset)
+                return false;
+
+            buyedShopItemData.lastResetDayKey = todayKey;
+            buyedShopItemData.todaySeed = serverNowMs;
+            buyedShopItemData.isUsedReroll = false;
+
+            buyedShopItemData.dailyShop = new List<bool>(6);
+            for (int i = 0; i < 6; i++) buyedShopItemData.dailyShop.Add(false);
+
+            buyedShopItemData.buyedItems = new List<BuyItemData>(6);
+            for (int i = 0; i < 6; i++) buyedShopItemData.buyedItems.Add(new BuyItemData());
+
+            return true;
         }
-        mutable.Child("buyedItems").Value = items;
-
-        return TransactionResult.Success(mutable);
-    }).AsUniTask();
-
-    var newSeedObj = snap.Child("todaySeed").Value;
-    long newSeed = 0;
-    if (newSeedObj is long l) newSeed = l;
-    else if (newSeedObj is int i) newSeed = i;
-    else if (newSeedObj is double d) newSeed = (long)d;
-    else long.TryParse(newSeedObj?.ToString(), out newSeed);
-
-    bool didReset = (newSeed == serverNowMs);
-    if (!didReset)
-        return false;
-
-    buyedShopItemData.lastResetDayKey = todayKey;
-    buyedShopItemData.todaySeed = serverNowMs;
-    buyedShopItemData.isUsedReroll = false;
-
-    buyedShopItemData.dailyShop = new List<bool>(6);
-    for (int i = 0; i < 6; i++) buyedShopItemData.dailyShop.Add(false);
-
-    buyedShopItemData.buyedItems = new List<BuyItemData>(6);
-    for (int i = 0; i < 6; i++) buyedShopItemData.buyedItems.Add(new BuyItemData());
-
-    return true;
-}
+        catch (System.Exception ex)
+        {
+            Debug.Log($"Failed to ensure daily shop fresh. : {ex.Message}");
+            return false;
+        }        
+    }
 
     private static string ToDayKeyKst(long serverNowMs)
     {
