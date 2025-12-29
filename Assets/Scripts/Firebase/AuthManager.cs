@@ -2,6 +2,7 @@ using System;
 using Cysharp.Threading.Tasks;
 using Firebase.Auth;
 using Firebase.Database;
+using Google;
 using UnityEngine;
 
 public class AuthManager : MonoBehaviour
@@ -19,6 +20,8 @@ public class AuthManager : MonoBehaviour
     public string UserEmail => currentUser != null ? currentUser.Email : string.Empty;
     public bool IsSignedIn => currentUser != null;
     private string nickName = string.Empty;
+    private bool isGoogleSignIn = false;
+
     public string UserNickName => currentUser != null ? nickName : string.Empty;
 
     private void Awake()
@@ -27,6 +30,14 @@ public class AuthManager : MonoBehaviour
         {
             instance = this;
         }
+
+        GoogleSignIn.Configuration = new GoogleSignInConfiguration
+        {
+            WebClientId = "825756151038-nmmg915h2euugdnjnmi4n5f1k4a2l03u.apps.googleusercontent.com",
+            RequestEmail = true,
+            RequestIdToken = true,
+            UseGameSignIn = false,
+        };
     }
 
     private async UniTaskVoid Start()
@@ -101,6 +112,39 @@ public class AuthManager : MonoBehaviour
         }
     }
 
+    public async UniTask<(bool, string)> SignInWithGoogleAsync()
+    {
+        GoogleSignInUser signResult = null;
+
+        try
+        {
+            signResult = await GoogleSignIn.DefaultInstance.SignIn().AsUniTask();
+        }
+        catch (Exception ex)
+        {
+            Debug.Log($"Google Sign-In Error: {ex.Message}");
+            return (false, ex.Message);   
+        }
+
+        try
+        {
+            Credential credential = GoogleAuthProvider.GetCredential(signResult.IdToken, null);
+            var authResult = await auth.SignInWithCredentialAsync(credential).AsUniTask();
+            currentUser = authResult;
+
+            await PlanetManager.Instance.ReloadPlanetsForNewUser();
+
+            isGoogleSignIn = true;
+
+            return (true, null);
+        }
+        catch (Exception ex)
+        {
+            Debug.Log($"Signed in with Google Error: {ex.Message}");
+            return (false, ex.Message);
+        }
+    }
+
     public async UniTask<bool> CreateAccountWithEmailAsync(string email, string password, string nickName)
     {
         try
@@ -159,6 +203,12 @@ public class AuthManager : MonoBehaviour
             UserAttackPowerManager.Instance.SimilarAttackPowerUserId = string.Empty;
 
             PlanetManager.Instance?.ClearPlanetData();
+
+            if (isGoogleSignIn)
+            {
+                GoogleSignIn.DefaultInstance.SignOut();
+                isGoogleSignIn = false;
+            }
         }
     }
 }
