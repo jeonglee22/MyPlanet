@@ -107,6 +107,7 @@ public class DailyButton : MonoBehaviour
                     buyitemId = boughtId;
                     needItemId = currencyData.Currency_Id;
                     randomRewardId = randomRewardData.DailyReroll_Id;
+                    image = LoadManager.GetLoadedGameTexture(DataTableManager.ItemTable.Get(buyitemId).ItemIconText);
                 }
                 else
                 {
@@ -154,6 +155,7 @@ public class DailyButton : MonoBehaviour
 
                     needItemId = currencyData.Currency_Id;
                     randomRewardId = randomRewardData.DailyReroll_Id;
+                    image = LoadManager.GetLoadedGameTexture(DataTableManager.ItemTable.Get(buyitemId).ItemIconText);
                 }
                 break;
         }
