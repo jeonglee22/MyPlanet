@@ -26,7 +26,7 @@ public class GachaPanelUI : MonoBehaviour
     [SerializeField] private Button confirmNoBtn;
 
     [SerializeField] private GameObject gachaOncePanelUI;
-    [SerializeField] private TextMeshProUGUI rewardNameText;
+    [SerializeField] private Image rewardIcon;
     [SerializeField] private TextMeshProUGUI rewardOnceText;
     [SerializeField] private Button exitRewardOnceBtn;
 
@@ -159,7 +159,8 @@ public class GachaPanelUI : MonoBehaviour
             {
                 foreach(var reward in rewardResults)
                 {
-                    rewardNameText.text = reward.Key.RewardNameText;
+                    var itemData = DataTableManager.ItemTable.Get(reward.Key.Target_Id);
+                    rewardIcon.sprite = LoadManager.GetLoadedGameTexture(itemData.ItemIconText);
                     rewardOnceText.text = $"x{reward.Value}";
                 }
 
@@ -184,13 +185,15 @@ public class GachaPanelUI : MonoBehaviour
 
                     if (left == 0)
                     {
+                        var itemData = DataTableManager.ItemTable.Get(reward.Key.Target_Id);
                         var verticalGachaPanelUI = rewardTenObj.GetComponentInChildren<VerticalCachaPanelUI>();
-                        verticalGachaPanelUI.SetLeftItem(reward.Key.RewardNameText, reward.Value);
+                        verticalGachaPanelUI.SetLeftItem(reward.Key.RewardNameText, reward.Value, itemData.ItemIconText);
                     }
                     else if (left == 1)
                     {
+                        var itemData = DataTableManager.ItemTable.Get(reward.Key.Target_Id);
                         var verticalGachaPanelUI = rewardTenObj.GetComponentInChildren<VerticalCachaPanelUI>();
-                        verticalGachaPanelUI.SetRightItem(reward.Key.RewardNameText, reward.Value);
+                        verticalGachaPanelUI.SetRightItem(reward.Key.RewardNameText, reward.Value, itemData.ItemIconText);
                     }
 
                     left++;
