@@ -58,4 +58,17 @@ public class RewardTable : DataTable
 
         return dictionary[key];
     }
+
+    public RewardData GetFromTargetId(int targetId)
+    {
+        foreach (var reward in dictionary.Values)
+        {
+            if (reward.Target_Id == targetId)
+            {
+                return reward;
+            }
+        }
+
+        return null;
+    }
 }

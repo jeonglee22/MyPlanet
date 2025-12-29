@@ -114,7 +114,8 @@ public class MainTitleUI : MonoBehaviour
                                          UserAttackPowerManager.Instance.IsInitialized &&
                                          UserTowerManager.Instance.IsInitialized &&
                                          UserTowerUpgradeManager.Instance.IsInitialized &&
-                                         UserStageManager.Instance.IsInitialized);
+                                         UserStageManager.Instance.IsInitialized &&
+                                         UserShopItemManager.Instance.IsInitialized);
 
         await UserPlanetManager.Instance.LoadUserPlanetAsync();
 
@@ -127,6 +128,8 @@ public class MainTitleUI : MonoBehaviour
         await UserTowerManager.Instance.LoadUserTowerDataAsync();  
 
         await UserStageManager.Instance.LoadUserStageClearAsync();
+
+        await UserShopItemManager.Instance.LoadUserShopItemDataAsync();
     }
 
     private void OnLogInOutButtonClicked()

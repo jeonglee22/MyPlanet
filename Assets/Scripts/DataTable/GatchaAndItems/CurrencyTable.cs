@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -15,6 +16,7 @@ public class CurrencyData
     public string CurrencyName { get; set; }
     public string CurrencyNameText { get; set; }
     public string CurrencyDescription { get; set; }
+    public string CurrencyIconText { get; set; }
 
     public override string ToString()
     {
@@ -54,7 +56,9 @@ public class CurrencyTable : DataTable
     {
         if (!dictionary.ContainsKey(key))
         {
+#if UNITY_EDITOR
             Debug.LogError($"키 없음: {key}");
+#endif
             return null;
         }
 
@@ -64,5 +68,18 @@ public class CurrencyTable : DataTable
     public List<CurrencyData> GetAll()
     {
         return new List<CurrencyData>(dictionary.Values);
+    }
+
+    public CurrencyData GetByGroup(int currencyGroup)
+    {
+        foreach(var currency in dictionary.Values)
+        {
+            if(currency.CurrencyGroup == currencyGroup)
+            {
+                return currency;
+            }
+        }
+
+        return null;
     }
 }
