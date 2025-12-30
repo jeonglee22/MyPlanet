@@ -248,11 +248,6 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
             OnPatternLineTrigger();
         }
 
-        if(other.CompareTag(TagName.Planet))
-        {
-            Debug.Log("Planet");
-        }
-
         if(other.CompareTag(TagName.CenterStone) || data.EnemyType == 4 || data.EnemyType == 3)
         {
             return;

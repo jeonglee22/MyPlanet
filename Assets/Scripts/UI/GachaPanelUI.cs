@@ -159,8 +159,8 @@ public class GachaPanelUI : MonoBehaviour
             {
                 foreach(var reward in rewardResults)
                 {
-                    var itemData = DataTableManager.ItemTable.Get(reward.Key.Target_Id);
-                    rewardIcon.sprite = LoadManager.GetLoadedGameTexture(itemData.ItemIconText);
+                    string iconText = reward.Key.Target_Id == 711201 ? DataTableManager.CurrencyTable.Get(reward.Key.Target_Id).CurrencyIconText : DataTableManager.ItemTable.Get(reward.Key.Target_Id).ItemIconText;
+                    rewardIcon.sprite = LoadManager.GetLoadedGameTexture(iconText);
                     rewardOnceText.text = $"x{reward.Value}";
                 }
 
@@ -185,15 +185,15 @@ public class GachaPanelUI : MonoBehaviour
 
                     if (left == 0)
                     {
-                        var itemData = DataTableManager.ItemTable.Get(reward.Key.Target_Id);
+                        string iconText = reward.Key.Target_Id == 711201 ? DataTableManager.CurrencyTable.Get(reward.Key.Target_Id).CurrencyIconText : DataTableManager.ItemTable.Get(reward.Key.Target_Id).ItemIconText;
                         var verticalGachaPanelUI = rewardTenObj.GetComponentInChildren<VerticalCachaPanelUI>();
-                        verticalGachaPanelUI.SetLeftItem(reward.Key.RewardNameText, reward.Value, itemData.ItemIconText);
+                        verticalGachaPanelUI.SetLeftItem(reward.Key.RewardNameText, reward.Value, iconText);
                     }
                     else if (left == 1)
                     {
-                        var itemData = DataTableManager.ItemTable.Get(reward.Key.Target_Id);
+                        string iconText = reward.Key.Target_Id == 711201 ? DataTableManager.CurrencyTable.Get(reward.Key.Target_Id).CurrencyIconText : DataTableManager.ItemTable.Get(reward.Key.Target_Id).ItemIconText;
                         var verticalGachaPanelUI = rewardTenObj.GetComponentInChildren<VerticalCachaPanelUI>();
-                        verticalGachaPanelUI.SetRightItem(reward.Key.RewardNameText, reward.Value, itemData.ItemIconText);
+                        verticalGachaPanelUI.SetRightItem(reward.Key.RewardNameText, reward.Value, iconText);
                     }
 
                     left++;
