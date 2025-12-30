@@ -189,12 +189,14 @@ public enum PatternIds
 public enum TutorialPoint
 {
     TopBig,
+    TopBigTwo,
     TopMidium,
     TopRight,
     TopRightTwo,
     TopLeftSmall,
     CenterMidium,
     CenterMidiumTwo,
+    CenterMidiumThree,
     BottomBig,
 }
 

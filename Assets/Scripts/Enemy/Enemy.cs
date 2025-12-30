@@ -161,6 +161,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
     public override void OnDamage(float damage)
     {
+        SoundManager.Instance.PlayEnemyHit(transform.position);
+
         if(isInvincible)
         {
             return;
@@ -244,11 +246,6 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         if(other.CompareTag("PatternLine"))
         {
             OnPatternLineTrigger();
-        }
-
-        if(other.CompareTag(TagName.Planet))
-        {
-            Debug.Log("Planet");
         }
 
         if(other.CompareTag(TagName.CenterStone) || data.EnemyType == 4 || data.EnemyType == 3)

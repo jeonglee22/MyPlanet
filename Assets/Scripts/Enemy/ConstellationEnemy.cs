@@ -39,8 +39,15 @@ public class ConstellationEnemy : Enemy
     {
         starObjects.Clear();
 
-        foreach(Transform child in transform)
+        Transform[] allChildren = transform.GetComponentsInChildren<Transform>(true);
+
+        foreach(Transform child in allChildren)
         {
+            if(child == transform)
+            {
+                continue;
+            }
+
             if(child.gameObject.CompareTag(TagName.Enemy))
             {
                 starObjects.Add(child.gameObject);

@@ -61,6 +61,11 @@ public class ObjectPoolManager<TKey, TValue> where TValue : Component , IDisposa
 
     public void Return(TKey key, TValue value)
     {
+        if(value == null || value.gameObject == null)
+        {
+            return;
+        }
+
         if (!pools.TryGetValue(key, out PoolData poolData))
         {
             UnityEngine.Object.Destroy(value.gameObject);

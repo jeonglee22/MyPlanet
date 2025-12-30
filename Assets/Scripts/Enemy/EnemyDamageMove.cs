@@ -1,15 +1,26 @@
+using System;
 using UnityEngine;
 
-public class EnemyDamageMove : MonoBehaviour
+public class EnemyDamageMove : MonoBehaviour, IDisposable
 {
-    private float movingUpSpeed = 2f;
-    private float movingUpTime = 1f;
+    private float movingUpSpeed = 2.5f;
+    private float movingUpTime = 0.5f;
     private float currentTime = 0f;
+
+    public void Dispose()
+    {
+        currentTime = 0f;
+    }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         
+    }
+
+    private void OnEnable()
+    {
+        currentTime = 0f;
     }
 
     // Update is called once per frame
@@ -19,7 +30,7 @@ public class EnemyDamageMove : MonoBehaviour
         currentTime += Time.deltaTime;
         if(currentTime>=movingUpTime)
         {
-            Destroy(gameObject);
+            SpawnManager.Instance.ReturnDamagePopup(this);
         }
     }
 }

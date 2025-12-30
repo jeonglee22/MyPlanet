@@ -30,6 +30,10 @@ public class SpawnManager : MonoBehaviour
 
     public int KilledEnemyCount { get; private set; } = 0;
 
+    [SerializeField] private GameObject damagePopupPrefab;
+    private ObjectPoolManager<string, EnemyDamageMove> damagePopupPoolManager;
+    private const string DAMAGE_POPUP_KEY = "EnemyDamagePopup";
+
     private void Awake()
     {
         if (instance == null)
@@ -45,6 +49,8 @@ public class SpawnManager : MonoBehaviour
         GenerateRectSpawnPoints();
 
         currentEnemyCount = 0;
+
+        InitializeDamagePopupPool();
     }
 
     private void Start()
@@ -186,7 +192,29 @@ public class SpawnManager : MonoBehaviour
         }
 
         OnBossSpawn?.Invoke();
+    }
 
-        
+    private void InitializeDamagePopupPool()
+    {
+        damagePopupPoolManager = new ObjectPoolManager<string, EnemyDamageMove>();
+
+        damagePopupPoolManager.CreatePool(
+            DAMAGE_POPUP_KEY,
+            damagePopupPrefab,
+            500,
+            1000,
+            true,
+            transform
+        );
+    }
+
+    public EnemyDamageMove GetDamagePopup()
+    {
+        return damagePopupPoolManager.Get(DAMAGE_POPUP_KEY);
+    }
+
+    public void ReturnDamagePopup(EnemyDamageMove popup)
+    {
+        damagePopupPoolManager.Return(DAMAGE_POPUP_KEY, popup);
     }
 }

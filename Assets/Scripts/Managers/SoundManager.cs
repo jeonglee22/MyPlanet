@@ -415,6 +415,7 @@ public class SoundManager : MonoBehaviour
     public void PlayEnemyLaser(Vector3 pos) => PlaySfx(enemyLaser, pos, (int)SoundPriority.High);
     public void PlaySunFireball(Vector3 pos) => PlaySfx(sunFireball, pos, (int)SoundPriority.High);
     public void PlayBossAppear(Vector3 pos) => PlaySfx(bossAppear, pos, (int)SoundPriority.Critical);
+    public void PlayEnemyHit(Vector3 pos) => PlaySfx(enemyHit, pos, (int)SoundPriority.High);
 
     public void PlayLevelUpSound() => sfxButtonSource.PlayOneShot(levelUpSound);
     public void PlayQuasarSelect() => sfxButtonSource.PlayOneShot(quasarSelect);

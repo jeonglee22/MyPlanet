@@ -7,8 +7,6 @@ public class EnemyStatusUI : MonoBehaviour
     private Enemy enemy;
     [SerializeField] private Canvas canvas;
     [SerializeField] private Slider hpSlider;
-    [SerializeField] private GameObject damagePopupTextPrefab;
-    [SerializeField] private Transform damagePopupSpawnPoint;
 
     private Transform cameraTransform;
     private BattleUI battleUI;
@@ -81,11 +79,6 @@ public class EnemyStatusUI : MonoBehaviour
     private void OnDisable()
     {
         hpSlider.gameObject.SetActive(false);
-        var childs = damagePopupSpawnPoint.GetComponentsInChildren<RectTransform>();
-        foreach(var child in childs)
-        {
-            Destroy(child.gameObject);
-        }
 
         if(enemy != null)
         {
@@ -114,11 +107,12 @@ public class EnemyStatusUI : MonoBehaviour
 
     private void MakeDamagePopup(float damage)
     {
-        var popup = Instantiate(damagePopupTextPrefab, damagePopupSpawnPoint);
+        var popup = SpawnManager.Instance.GetDamagePopup();
+
+        popup.transform.rotation = Quaternion.identity;
+        popup.transform.position = enemy.transform.position - canvasOffset;
+
         var popupText = popup.GetComponentInChildren<TextMeshProUGUI>();
         popupText.text = Mathf.RoundToInt(damage).ToString();
-        var popupCanvas = popup.GetComponentInChildren<Canvas>();
-        popupCanvas.transform.rotation = Quaternion.identity;
-        popupCanvas.transform.position = enemy.transform.position - canvasOffset;
     }
 }

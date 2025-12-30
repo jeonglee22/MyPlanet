@@ -18,6 +18,8 @@ public class GameManager : MonoBehaviour
         await WaveManager.Instance.InitializeStage(Variables.Stage);
 
         int enemyLayer = LayerMask.NameToLayer(TagName.Enemy);
+        int playerLayer = LayerMask.NameToLayer(TagName.Planet);
         Physics.IgnoreLayerCollision(enemyLayer, enemyLayer, true);
+        Physics.IgnoreLayerCollision(playerLayer, playerLayer, true);
     }
 }
