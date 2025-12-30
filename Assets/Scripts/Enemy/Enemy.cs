@@ -161,6 +161,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
     public override void OnDamage(float damage)
     {
+        SoundManager.Instance.PlayEnemyHit(transform.position);
+
         if(isInvincible)
         {
             return;
