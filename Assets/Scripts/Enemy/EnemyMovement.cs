@@ -51,7 +51,7 @@ public class EnemyMovement : MonoBehaviour
 
     protected virtual void Update()
     {
-        if(isDebuff && owner.EnemyType != 4)
+        if(isDebuff && (owner.EnemyType != 3 || owner.EnemyType != 4))
             Debuff(Time.deltaTime);
         else
             ResetMovement();
