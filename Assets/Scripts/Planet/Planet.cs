@@ -109,6 +109,8 @@ public class Planet : LivingEntity
 
     private float lastHitSfxTime = -999f;
 
+    [SerializeField] private Material planetMaterial;
+
     private void Awake()
     {
         planetAttacks = new List<TowerAttack>();
@@ -199,6 +201,16 @@ public class Planet : LivingEntity
             {
                 meshFilter.mesh = mesh;
             }
+        }
+
+        switch ((PlanetType)PlanetData.Planet_ID)
+        {
+            case PlanetType.BloodAbsorbPlanet:
+            case PlanetType.ShieldPlanet:
+            case PlanetType.HealthRegenerationPlanet:
+            case PlanetType.ExpPlanet:
+                gameObject.GetComponent<Renderer>().material = planetMaterial;
+                break;
         }
     }
 
