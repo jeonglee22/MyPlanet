@@ -161,6 +161,85 @@ public class GameResultUI : MonoBehaviour
     private void ProcessStageRewardData(StageRewardData rewardData)
     {
         int waveGold = WaveManager.Instance.AccumulateGold;
+        int rewardCount = DataTableManager.StageRewardTable.GetRewardCount(rewardData.StageReward_Id);
+        List<(Image, TextMeshProUGUI)> rewardUIList = new List<(Image, TextMeshProUGUI)>();
+
+        switch (rewardCount)
+        {
+            case 1:
+                rewardUIList.Add((itemImages[0], item1Texts[0]));
+                for(int i = 1; i < rewardObj.Count; i++)
+                {
+                    rewardObj[i].SetActive(false);
+                }
+                break;
+            case 2:
+                rewardUIList.Add((itemImages[0], item1Texts[0]));
+                rewardUIList.Add((itemImages[2], item1Texts[2]));
+                for (int i = 1; i < rewardObj.Count; i++)
+                {
+                    if(i == 2) continue;
+
+                    rewardObj[i].SetActive(false);
+                }
+                break;
+            case 3:
+                rewardUIList.Add((itemImages[0], item1Texts[0]));
+                rewardUIList.Add((itemImages[1], item1Texts[1]));
+                rewardUIList.Add((itemImages[2], item1Texts[2]));
+                for (int i = 3; i < rewardObj.Count; i++)
+                {
+                    rewardObj[i].SetActive(false);
+                }
+                break;
+            case 4:
+                rewardUIList.Add((itemImages[0], item1Texts[0]));
+                rewardUIList.Add((itemImages[2], item1Texts[2]));
+                rewardUIList.Add((itemImages[3], item1Texts[3]));
+                rewardUIList.Add((itemImages[4], item1Texts[4]));
+                
+                rewardObj[1].SetActive(false);
+                break;
+            case 5:
+                for (int i = 0; i < rewardObj.Count; i++)
+                {
+                    rewardUIList.Add((itemImages[i], item1Texts[i]));
+                }
+                break;
+        }
+
+        for(int i = 0; i < rewardCount; i++)
+        {
+            int targetId = 0;
+            int quantity = 0;
+
+            switch(i)
+            {
+                case 0:
+                    targetId = rewardData.Target_Id_1;
+                    quantity = rewardData.RewardQty_1;
+                    break;
+                case 1:
+                    targetId = rewardData.Target_Id_2;
+                    quantity = rewardData.RewardQty_2;
+                    break;
+                case 2:
+                    targetId = rewardData.Target_Id_3;
+                    quantity = rewardData.RewardQty_3;
+                    break;
+                case 3:
+                    targetId = rewardData.Target_Id_4;
+                    quantity = rewardData.RewardQty_4;
+                    break;
+                case 4:
+                    targetId = rewardData.Target_Id_5;
+                    quantity = rewardData.RewardQty_5;
+                    break;
+            }
+
+            AddRewardByTargetId(targetId, quantity, i);
+            rewardUIList[i].Item2.text = $"x{quantity}";
+        }
         
     }
 

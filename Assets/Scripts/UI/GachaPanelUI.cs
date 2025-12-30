@@ -159,7 +159,16 @@ public class GachaPanelUI : MonoBehaviour
             {
                 foreach(var reward in rewardResults)
                 {
-                    string iconText = reward.Key.Target_Id == 711201 ? DataTableManager.CurrencyTable.Get(reward.Key.Target_Id).CurrencyIconText : DataTableManager.ItemTable.Get(reward.Key.Target_Id).ItemIconText;
+                    string iconText = "";
+                    if(reward.Key.Target_Id > 300000 || reward.Key.Target_Id < 400000)
+                    {
+                        iconText = DataTableManager.PlanetTable.Get(reward.Key.Target_Id).PlanetIcon;
+                    }
+                    else
+                    {
+                        iconText = reward.Key.Target_Id == 711201 ? DataTableManager.CurrencyTable.Get(reward.Key.Target_Id).CurrencyIconText : DataTableManager.ItemTable.Get(reward.Key.Target_Id).ItemIconText;
+                    }
+                    
                     rewardIcon.sprite = LoadManager.GetLoadedGameTexture(iconText);
                     rewardOnceText.text = $"x{reward.Value}";
                 }
@@ -185,13 +194,31 @@ public class GachaPanelUI : MonoBehaviour
 
                     if (left == 0)
                     {
-                        string iconText = reward.Key.Target_Id == 711201 ? DataTableManager.CurrencyTable.Get(reward.Key.Target_Id).CurrencyIconText : DataTableManager.ItemTable.Get(reward.Key.Target_Id).ItemIconText;
+                        string iconText = "";
+                        if(reward.Key.Target_Id > 300000 || reward.Key.Target_Id < 400000)
+                        {
+                            iconText = DataTableManager.PlanetTable.Get(reward.Key.Target_Id).PlanetIcon;
+                        }
+                        else
+                        {
+                            iconText = reward.Key.Target_Id == 711201 ? DataTableManager.CurrencyTable.Get(reward.Key.Target_Id).CurrencyIconText : DataTableManager.ItemTable.Get(reward.Key.Target_Id).ItemIconText;
+                        }
+                        
                         var verticalGachaPanelUI = rewardTenObj.GetComponentInChildren<VerticalCachaPanelUI>();
                         verticalGachaPanelUI.SetLeftItem(reward.Key.RewardNameText, reward.Value, iconText);
                     }
                     else if (left == 1)
                     {
-                        string iconText = reward.Key.Target_Id == 711201 ? DataTableManager.CurrencyTable.Get(reward.Key.Target_Id).CurrencyIconText : DataTableManager.ItemTable.Get(reward.Key.Target_Id).ItemIconText;
+                        string iconText = "";
+                        if(reward.Key.Target_Id > 300000 || reward.Key.Target_Id < 400000)
+                        {
+                            iconText = DataTableManager.PlanetTable.Get(reward.Key.Target_Id).PlanetIcon;
+                        }
+                        else
+                        {
+                            iconText = reward.Key.Target_Id == 711201 ? DataTableManager.CurrencyTable.Get(reward.Key.Target_Id).CurrencyIconText : DataTableManager.ItemTable.Get(reward.Key.Target_Id).ItemIconText;
+                        }
+
                         var verticalGachaPanelUI = rewardTenObj.GetComponentInChildren<VerticalCachaPanelUI>();
                         verticalGachaPanelUI.SetRightItem(reward.Key.RewardNameText, reward.Value, iconText);
                     }

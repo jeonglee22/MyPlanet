@@ -15,6 +15,10 @@ public class StageRewardData
     public int RewardQty_2 { get; set; }
     public int Target_Id_3 { get; set; }
     public int RewardQty_3 { get; set; }
+    public int Target_Id_4 { get; set; }
+    public int RewardQty_4 { get; set; }
+    public int Target_Id_5 { get; set; }
+    public int RewardQty_5 { get; set; }
 }
 
 public class StageRewardTable : DataTable
@@ -54,5 +58,40 @@ public class StageRewardTable : DataTable
         }
 
         return dictionary[key];
+    }
+
+    public int GetRewardCount(int stageRewardId)
+    {
+        if (!dictionary.ContainsKey(stageRewardId))
+        {
+            Debug.LogError($"키 없음: {stageRewardId}");
+            return 0;
+        }
+
+        var rewardData = dictionary[stageRewardId];
+        int count = 0;
+
+        if (rewardData.Target_Id_1 > 0)
+        {
+            count++;
+        } 
+        if (rewardData.Target_Id_2 > 0)
+        {
+            count++;
+        }
+        if (rewardData.Target_Id_3 > 0)
+        {
+            count++;
+        }
+        if( rewardData.Target_Id_4 > 0)
+        {
+            count++;
+        }
+        if( rewardData.Target_Id_5 > 0)
+        {
+            count++;
+        }
+
+        return count;
     }
 }
