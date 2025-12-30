@@ -35,18 +35,14 @@ public class GameResultUI : MonoBehaviour
     [SerializeField] private GameObject detailPanel;
     [SerializeField] private Button detailButton;
 
-    [SerializeField] private List<Image> rewardItemImages;
-    [SerializeField] private List<TextMeshProUGUI> rewardItemTexts;
     [SerializeField] private Planet planet;
 
     private StageData currentStageData;
     private bool isGameClear = false;
 
-    [SerializeField] private TextMeshProUGUI goldText;
-    [SerializeField] private TextMeshProUGUI item1Text;
-    [SerializeField] private TextMeshProUGUI item2Text;
-    [SerializeField] private TextMeshProUGUI item3Text;
-    [SerializeField] private List<Image> itemImages;
+    [SerializeField] private List<GameObject> rewardObj;
+    private List<Image> itemImages = new List<Image>();
+    private List<TextMeshProUGUI> item1Texts = new List<TextMeshProUGUI>();
 
     void Start()
     {
@@ -55,6 +51,12 @@ public class GameResultUI : MonoBehaviour
         restartButton?.onClick.AddListener(OnRestartCliecked);
         checkButton?.onClick.AddListener(OnReturnToTitleClicked);
         detailButton?.onClick.AddListener(OnOpenDetailPanelClicked);
+
+        foreach(var obj in rewardObj)
+        {
+            itemImages.Add(obj.transform.GetChild(0).GetComponent<Image>());
+            item1Texts.Add(obj.transform.GetChild(1).GetComponent<TextMeshProUGUI>());
+        }
     }
 
     private void OnOpenDetailPanelClicked()
@@ -137,13 +139,6 @@ public class GameResultUI : MonoBehaviour
         int highestCleared = UserStageManager.Instance.ClearedStageData.HighestClearedStage;
         bool isFirstClear = Variables.Stage >= highestCleared;
 
-        int waveGold = WaveManager.Instance.AccumulateGold;
-        if(waveGold > 0)
-        {
-            UserData.Gold += waveGold;
-            goldText.text = $"+{waveGold}";
-        }
-
         if(isGameClear && currentStageData != null)
         {
             int rewardId = isFirstClear ? currentStageData.FirstReward_Id : currentStageData.Reward_Id;
@@ -165,23 +160,8 @@ public class GameResultUI : MonoBehaviour
 
     private void ProcessStageRewardData(StageRewardData rewardData)
     {
-        if(rewardData.Target_Id_1 != 0 && rewardData.RewardQty_1 > 0)
-        {
-            AddRewardByTargetId(rewardData.Target_Id_1, rewardData.RewardQty_1, 0);
-            item1Text.text = $"+{rewardData.RewardQty_1}";
-        }
-
-        if(rewardData.Target_Id_2 != 0 && rewardData.RewardQty_2 > 0)
-        {
-            AddRewardByTargetId(rewardData.Target_Id_2, rewardData.RewardQty_2, 1);
-            item2Text.text = $"+{rewardData.RewardQty_2}";
-        }
-
-        if(rewardData.Target_Id_3 != 0 && rewardData.RewardQty_3 > 0)
-        {
-            AddRewardByTargetId(rewardData.Target_Id_3, rewardData.RewardQty_3, 2);
-            item3Text.text = $"+{rewardData.RewardQty_3}";
-        }
+        int waveGold = WaveManager.Instance.AccumulateGold;
+        
     }
 
     private void AddRewardByTargetId(int targetId, int quantity, int index)
