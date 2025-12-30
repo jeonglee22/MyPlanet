@@ -160,7 +160,7 @@ public class GachaPanelUI : MonoBehaviour
                 foreach(var reward in rewardResults)
                 {
                     string iconText = "";
-                    if(reward.Key.Target_Id > 300000 || reward.Key.Target_Id < 400000)
+                    if(reward.Key.Target_Id > 300000 && reward.Key.Target_Id < 400000)
                     {
                         iconText = DataTableManager.PlanetTable.Get(reward.Key.Target_Id).PlanetIcon;
                     }
@@ -195,7 +195,7 @@ public class GachaPanelUI : MonoBehaviour
                     if (left == 0)
                     {
                         string iconText = "";
-                        if(reward.Key.Target_Id > 300000 || reward.Key.Target_Id < 400000)
+                        if(reward.Key.Target_Id > 300000 && reward.Key.Target_Id < 400000)
                         {
                             iconText = DataTableManager.PlanetTable.Get(reward.Key.Target_Id).PlanetIcon;
                         }
@@ -210,7 +210,7 @@ public class GachaPanelUI : MonoBehaviour
                     else if (left == 1)
                     {
                         string iconText = "";
-                        if(reward.Key.Target_Id > 300000 || reward.Key.Target_Id < 400000)
+                        if(reward.Key.Target_Id > 300000 && reward.Key.Target_Id < 400000)
                         {
                             iconText = DataTableManager.PlanetTable.Get(reward.Key.Target_Id).PlanetIcon;
                         }

@@ -9,7 +9,7 @@ public class SkillBasedLazer : MonoBehaviour
     protected float laserLength = 10f;
     protected float laserWidth = 1f;
     protected float fieldWidth = 0.2f;
-    protected float expandSpeed = 5f;
+    protected float expandSpeed = 8f;
 
     protected LineRenderer lineRenderer;
     protected SpriteRenderer fieldRenderer;
