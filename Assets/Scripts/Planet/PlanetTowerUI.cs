@@ -92,7 +92,11 @@ public class PlanetTowerUI : MonoBehaviour
 
     void OnDisable()
     {
-        isOpen = false;
+        if (isOpen)
+        {
+            GamePauseManager.Instance.Resume();
+            isOpen = false;
+        }
     }
 
     void Update()

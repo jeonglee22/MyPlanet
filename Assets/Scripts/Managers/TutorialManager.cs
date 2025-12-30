@@ -83,7 +83,7 @@ public class TutorialManager : MonoBehaviour
         };
         tutorialData[5] = new List<TutorialTextData>
         {
-          new TutorialTextData("보스 등장", TutorialPoint.TopMidium)
+          new TutorialTextData("보스 등장", TutorialPoint.CenterMidium)
         };
 
         //Stage 2
@@ -94,13 +94,13 @@ public class TutorialManager : MonoBehaviour
         };
         tutorialData[7] = new List<TutorialTextData>
         {
-          new TutorialTextData("'퀘이사'는 배치 가능한 타워 수를 1개 늘려주거나,", TutorialPoint.TopBig),
-          new TutorialTextData("보유한 타워에 랜덤 능력을 추가할 수 있는 아이템입니다.", TutorialPoint.TopBig)
+          new TutorialTextData("'퀘이사'는 배치 가능한 타워 수를 1개 늘려주거나,", TutorialPoint.TopBigTwo),
+          new TutorialTextData("보유한 타워에 랜덤 능력을 추가할 수 있는 아이템입니다.", TutorialPoint.TopBigTwo)
         };
         tutorialData[8] = new List<TutorialTextData>
         {
           new TutorialTextData("랜덤 능력을 추가할 타워를 선택하세요", TutorialPoint.TopBig),
-          new TutorialTextData("추가할 랜덤 능력을 1개 선택하세요", TutorialPoint.CenterMidiumTwo)
+          new TutorialTextData("추가할 랜덤 능력을 1개 선택하세요", TutorialPoint.CenterMidiumThree)
         };
         tutorialData[9] = new List<TutorialTextData>
         {

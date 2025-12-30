@@ -215,7 +215,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         {
             TutorialManager.Instance.ShowTutorialStep(1);
         }
-        if(isTutorial && Variables.Stage == 2)
+        else if(isTutorial && Variables.Stage == 2)
         {
             TutorialManager.Instance.ShowTutorialStep(6);
         }

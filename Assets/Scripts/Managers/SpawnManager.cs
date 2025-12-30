@@ -201,8 +201,8 @@ public class SpawnManager : MonoBehaviour
         damagePopupPoolManager.CreatePool(
             DAMAGE_POPUP_KEY,
             damagePopupPrefab,
-            200,
             500,
+            1000,
             true,
             transform
         );

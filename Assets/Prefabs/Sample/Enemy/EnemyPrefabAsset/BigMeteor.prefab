@@ -60,7 +60,7 @@ RectTransform:
   m_GameObject: {fileID: 1069193902885193396}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7075131526380122340}
@@ -290,14 +290,6 @@ MonoBehaviour:
   drops:
   - {fileID: 7868635946703768277, guid: ee7d656b900243d409db3ae78ca6a484, type: 3}
   - {fileID: 31110662301590275, guid: 9582314d14910f246a67c46ddb49ca20, type: 3}
-  bossAudioSource: {fileID: 0}
-  middleBossSpawnSfx: {fileID: 8300000, guid: b081aa7209ca48847bcea3175413d538, type: 3}
-  lastBossSpawnSfx: {fileID: 8300000, guid: b081aa7209ca48847bcea3175413d538, type: 3}
-  bossSpawnSfxVolume: 1
-  bossSpawnSfxGapSeconds: 0.15
-  sfxAudioSource: {fileID: 0}
-  simpleShotSfx: {fileID: 0}
-  simpleShotVolume: 1
 --- !u!114 &2335748359596802908
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -338,8 +330,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canvas: {fileID: 2677352920924906941}
   hpSlider: {fileID: 520746296577311844}
-  damagePopupTextPrefab: {fileID: 6847116968901548312, guid: 0b7c71188da340b4a9ff2aea243d0b31, type: 3}
-  damagePopupSpawnPoint: {fileID: 624426510956103783}
 --- !u!135 &5170957552748782124
 SphereCollider:
   m_ObjectHideFlags: 0

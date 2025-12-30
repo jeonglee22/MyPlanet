@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class EnemyDamageMove : MonoBehaviour, IDisposable
 {
-    private float movingUpSpeed = 2f;
-    private float movingUpTime = 1f;
+    private float movingUpSpeed = 2.5f;
+    private float movingUpTime = 0.5f;
     private float currentTime = 0f;
 
     public void Dispose()
