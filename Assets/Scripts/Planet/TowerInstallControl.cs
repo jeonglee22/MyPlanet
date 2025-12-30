@@ -40,7 +40,7 @@ public class TowerInstallControl : MonoBehaviour
         }
     }
 
-    private int maxTowerCount = 2;
+    private int maxTowerCount = 6;
     public int MaxTowerCount 
     { 
         get => maxTowerCount;
