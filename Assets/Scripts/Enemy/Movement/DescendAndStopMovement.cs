@@ -9,7 +9,7 @@ public class DescendAndStopMovement : IMovement
     private bool isPatternLine = false;
     public bool IsPatternLine => isPatternLine;
 
-    private float offset = 0.7f;
+    private float offset = 1f;
     private float initialSpeedMultiplier = 2.5f;
 
     private int enemyType;
@@ -39,28 +39,29 @@ public class DescendAndStopMovement : IMovement
 
         if(colliderRadius == 0f)
         {
-            Collider ownerCollider = ownerTransform.GetComponent<Collider>();
-            if(ownerCollider != null)
+            SphereCollider sphereCollider = ownerTransform.GetComponent<SphereCollider>();
+            if(sphereCollider != null)
             {
-                var extents = ownerCollider.bounds.extents;
-                colliderRadius = Mathf.Max(extents.x, extents.y, extents.z);
+                colliderRadius = sphereCollider.radius * ownerTransform.localScale.x;
             }
             else
             {
-                colliderRadius = 1.5f;
+                colliderRadius = 0.5f;
             }
         }
 
-        var currentPosition = ownerTransform.position;
-        var distanceToTarget = Vector3.Distance(currentPosition, targetPosition);
+        Vector3 actualTargetPosition = targetPosition + Vector3.up * colliderRadius;
 
-        if(distanceToTarget <= colliderRadius * 0.5f)
+        var currentPosition = ownerTransform.position;
+        var distanceToTarget = Vector3.Distance(currentPosition, actualTargetPosition);
+
+        if(distanceToTarget <= colliderRadius * 0.1f)
         {
             isArrived = true;
             return Vector3.zero;
         }
 
-        Vector3 direction = (targetPosition - currentPosition).normalized;
+        Vector3 direction = (actualTargetPosition - currentPosition).normalized;
         ownerTransform.LookAt(ownerTransform.position + direction);
 
         return direction;
