@@ -25,6 +25,7 @@ public class PlanetData
     public int PieceId { get; set; }
     public string PlanetImage { get; set; }
     public string PlanetIcon { get; set; }
+    public string PlanetWarImage { get; set; }
 
     public override string ToString()
     {
