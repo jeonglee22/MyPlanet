@@ -417,7 +417,7 @@ public class PowerUpItemControlUI : MonoBehaviour
 
     private void OnQuaserChanged()
     {
-        quasarText.text = $"퀘이사\nX{Variables.Quasar}";
+        quasarText.text = $"퀘이사 X{Variables.Quasar}";
     }
 
     //unlock
