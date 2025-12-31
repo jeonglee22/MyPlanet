@@ -50,6 +50,7 @@ public class WaveManager : MonoBehaviour
 
     private int accumulateGold = 0;
     public int AccumulateGold => accumulateGold;
+    private bool isSavingAccumulatedGold = false;
 
     public event Action WaveChange;
     public event Action LastBossSpawned;
@@ -407,19 +408,27 @@ public class WaveManager : MonoBehaviour
 
     public async UniTask SaveAccumulatedGold()
     {
-        if(accumulateGold <= 0)
+        if (isSavingAccumulatedGold) return;
+
+        if (accumulateGold <= 0)
         {
             return;
         }
+        isSavingAccumulatedGold = true;
+
+        int amountToSave = accumulateGold;
+        accumulateGold = 0;
 
         await UniTask.WaitUntil(() => CurrencyManager.Instance != null && CurrencyManager.Instance.IsInitialized);
-
         int currentGold = CurrencyManager.Instance.CachedGold;
         int newGold = currentGold + accumulateGold;
-
         CurrencyManager.Instance.SetGold(newGold);
         await CurrencyManager.Instance.SaveCurrencyAsync();
+    }
 
-        accumulateGold = 0;
+    public void AddAccumulateGold(int amount)
+    {
+        accumulateGold += amount;
+        OnGoldAccumulated?.Invoke(); 
     }
 }
