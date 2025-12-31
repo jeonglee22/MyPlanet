@@ -73,6 +73,8 @@ public class LobbyUI : MonoBehaviour
             settingPanel.gameObject.SetActive(false);
             settingPanel.Initialize();
         }
+
+        SetInitialStagePosition();
     }
 
     private void OnDestroy()
@@ -240,5 +242,32 @@ public class LobbyUI : MonoBehaviour
     public void MoveEnemyTestScene()
     {
         SceneControlManager.Instance.LoadScene(SceneName.EnemyTestScene).Forget();
+    }
+
+    private async void SetInitialStagePosition()
+    {
+        await UniTask.DelayFrame(1);
+
+        snapToCenter.RebuildItems();
+
+        await UniTask.DelayFrame(1);
+
+        int nextStageIndex = UserStageManager.Instance.ClearedStageData.HighestClearedStage;
+
+        int stageCount = DataTableManager.StageTable.GetStageCount();
+
+        nextStageIndex = Mathf.Clamp(nextStageIndex, 1, stageCount - 1);
+        if(nextStageIndex == 1)
+        {
+            return;
+        }
+
+        stageScrollRect.horizontalNormalizedPosition = 0f;
+        await UniTask.DelayFrame(1);
+
+        for(int i = 1; i < nextStageIndex; i++)
+        {
+            await snapToCenter.SnapRightOne();
+        }
     }
 }
