@@ -51,10 +51,13 @@ public class LobbyTowerUpgrade : MonoBehaviour
     private void OnDisable()
     {
         confirmPanel.SetActive(false);
+        confirmButton.interactable = true;
     }
 
     private async UniTaskVoid OnClickConfirmButton()
     {
+        confirmButton.interactable = false;
+
         var currentUpgradeData = UserTowerUpgradeManager.Instance.CurrentTowerUpgradeData;
         var towerIndex = currentUpgradeData.towerIds.IndexOf(towerId);
 
@@ -149,6 +152,7 @@ public class LobbyTowerUpgrade : MonoBehaviour
         }
 
         confirmPanel.SetActive(true);
+        confirmButton.interactable = true;
     }
 
     public void SetGoldRequiredText(int amount)

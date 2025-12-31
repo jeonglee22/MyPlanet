@@ -178,7 +178,7 @@ public class TowerInstallControl : MonoBehaviour
 
         var planetId = Variables.planetId;
         var planetData = DataTableManager.PlanetTable.Get(planetId);
-        var planetAsset = planetData.PlanetWarImage;
+        var planetAsset = planetData.Warplanet;
         var planetSprite = LoadManager.GetLoadedGameTexture(planetAsset);
         if (planetSprite != null)
         {
