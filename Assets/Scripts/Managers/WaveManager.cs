@@ -127,11 +127,6 @@ public class WaveManager : MonoBehaviour
             SpawnManager.Instance.PrepareEnemyPools(enemyId);
         }
 
-        if (waveData.RepeatCount == 0 && waveData.SpawnTerm == 0f)
-        {
-            bossAppearEffect.gameObject.SetActive(true);
-        }
-
         Debug.Log($"Preloaded assets for Wave ID: {waveData.Wave_Id}");
     }
 
@@ -275,7 +270,7 @@ public class WaveManager : MonoBehaviour
 
             accumulateGold += tmpAccumulateGold;
             OnGoldAccumulated?.Invoke();
-            battleUI.AddCoinGainText(accumulateGold);
+            battleUI.AddCoinGainText(tmpAccumulateGold);
             tmpAccumulateGold = 0;
             
             StartWaveGroupTimer();
@@ -374,6 +369,8 @@ public class WaveManager : MonoBehaviour
             groupCts?.Cancel();
             groupCts?.Dispose();
             groupCts = new CancellationTokenSource();
+
+            bossAppearEffect.gameObject.SetActive(true);
         }
         else
         {
@@ -395,6 +392,8 @@ public class WaveManager : MonoBehaviour
 
         if (wasLastBoss)
         {
+            battleUI.AddCoinGainText(tmpAccumulateGold);
+
             isLastBoss = false;
             isCleared = true;
         }
