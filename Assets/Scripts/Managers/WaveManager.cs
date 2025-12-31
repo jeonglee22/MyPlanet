@@ -50,7 +50,7 @@ public class WaveManager : MonoBehaviour
 
     private int accumulateGold = 0;
     public int AccumulateGold => accumulateGold;
-    private bool isSavingAccumulatedGold = false;
+    private int tmpAccumulateGold = 0;
 
     public event Action WaveChange;
     public event Action LastBossSpawned;
@@ -125,11 +125,6 @@ public class WaveManager : MonoBehaviour
         foreach(int enemyId in enemyIds)
         {
             SpawnManager.Instance.PrepareEnemyPools(enemyId);
-        }
-
-        if (waveData.RepeatCount == 0 && waveData.SpawnTerm == 0f)
-        {
-            bossAppearEffect.gameObject.SetActive(true);
         }
 
         Debug.Log($"Preloaded assets for Wave ID: {waveData.Wave_Id}");
@@ -270,6 +265,14 @@ public class WaveManager : MonoBehaviour
             WaveCount++;
             waveGroup = waveDatas[currentWaveIndex].WaveGroup;
             WaveChange?.Invoke();
+
+            var clearedWave = waveDatas[currentWaveIndex];
+
+            accumulateGold += tmpAccumulateGold;
+            OnGoldAccumulated?.Invoke();
+            battleUI.AddCoinGainText(tmpAccumulateGold);
+            tmpAccumulateGold = 0;
+            
             StartWaveGroupTimer();
         }
         
@@ -296,9 +299,7 @@ public class WaveManager : MonoBehaviour
         var clearedWave = waveDatas[currentWaveIndex];
         if(clearedWave.WaveRewardGold > 0)
         {
-            accumulateGold += clearedWave.WaveRewardGold;
-            OnGoldAccumulated?.Invoke();
-            battleUI.AddCoinGainText(clearedWave.WaveRewardGold);
+            tmpAccumulateGold += clearedWave.WaveRewardGold;
         }
 
         currentWaveIndex++;
@@ -368,6 +369,8 @@ public class WaveManager : MonoBehaviour
             groupCts?.Cancel();
             groupCts?.Dispose();
             groupCts = new CancellationTokenSource();
+
+            bossAppearEffect.gameObject.SetActive(true);
         }
         else
         {
@@ -389,6 +392,8 @@ public class WaveManager : MonoBehaviour
 
         if (wasLastBoss)
         {
+            battleUI.AddCoinGainText(tmpAccumulateGold);
+
             isLastBoss = false;
             isCleared = true;
         }
@@ -408,20 +413,18 @@ public class WaveManager : MonoBehaviour
 
     public async UniTask SaveAccumulatedGold()
     {
-        if (isSavingAccumulatedGold) return;
-
         if (accumulateGold <= 0)
         {
             return;
         }
-        isSavingAccumulatedGold = true;
 
         int amountToSave = accumulateGold;
         accumulateGold = 0;
 
         await UniTask.WaitUntil(() => CurrencyManager.Instance != null && CurrencyManager.Instance.IsInitialized);
         int currentGold = CurrencyManager.Instance.CachedGold;
-        int newGold = currentGold + accumulateGold;
+        int newGold = currentGold + accumulateGold + tmpAccumulateGold;
+
         CurrencyManager.Instance.SetGold(newGold);
         await CurrencyManager.Instance.SaveCurrencyAsync();
     }

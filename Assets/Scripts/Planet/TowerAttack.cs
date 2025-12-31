@@ -547,9 +547,23 @@ public class TowerAttack : MonoBehaviour
         {
             float offsetIndex = i - centerIndex;
 
-            if (towerData.towerIdInt != (int)AttackTowerId.Lazer)
+            switch((AttackTowerId)towerData.towerIdInt)
             {
-                PlayShootOneShot();
+                case AttackTowerId.basicGun:
+                    SoundManager.Instance.PlayPistolShot(transform.position);
+                    break;
+                case AttackTowerId.ShootGun:
+                    SoundManager.Instance.PlayShotgunShot(transform.position);
+                    break;
+                case AttackTowerId.Missile:
+                    SoundManager.Instance.PlayMissileShot(transform.position);
+                    break;
+                case AttackTowerId.Gattling:
+                    SoundManager.Instance.PlayGatlingShot(transform.position);
+                    break;
+                case AttackTowerId.Sniper:
+                    SoundManager.Instance.PlaySniperShot(transform.position);
+                    break;
             }
 
             var projectile = ProjectilePoolManager.Instance.GetProjectile(baseData);
@@ -1419,25 +1433,6 @@ public class TowerAttack : MonoBehaviour
         }
         towerAudioSource.playOnAwake = false;
         towerAudioSource.loop = false;
-    }
-
-    private void PlayShootOneShot()
-    {
-        if (towerData == null) return;
-        if (towerData.shootSfx == null) return;
-
-        EnsureAudioSource();
-
-        float originalPitch = towerAudioSource.pitch;
-        Vector2 pr = towerData.shootPitchRange;
-
-        float p = (Mathf.Approximately(pr.x, pr.y))
-            ? pr.x
-            : UnityEngine.Random.Range(Mathf.Min(pr.x, pr.y), Mathf.Max(pr.x, pr.y));
-
-        towerAudioSource.pitch = p;
-        towerAudioSource.PlayOneShot(towerData.shootSfx, towerData.shootVolume);
-        towerAudioSource.pitch = originalPitch;
     }
 
     private void StartLaserLoop()

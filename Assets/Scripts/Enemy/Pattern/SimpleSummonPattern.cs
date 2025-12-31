@@ -26,10 +26,14 @@ public class SimpleSummonPattern : SummonPattern
             return;
         }
         
-        if(PatternIds.WhiteHoleSpaceWarmSummon == (PatternIds)PatternId && !isFirstSummon)
+        if(PatternIds.WhiteHoleSpaceWarmSummon == (PatternIds)PatternId)
         {
-            owner.Spawner.SpawnEnemiesWithSummon(summonData.Enemy_Id, summonData.EnemyQuantity_1, owner.ScaleData, summonEnemyData.MoveType, false, owner.transform.position, owner);
-            isFirstSummon = true;
+            if (!isFirstSummon)
+            {
+                owner.Spawner.SpawnEnemiesWithSummon(summonData.Enemy_Id, summonData.EnemyQuantity_1, owner.ScaleData, summonEnemyData.MoveType, false, owner.transform.position, owner);
+                isFirstSummon = true;   
+            }
+            
             return;
         }
 

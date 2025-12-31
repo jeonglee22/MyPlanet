@@ -53,6 +53,8 @@ public class Planet : LivingEntity
     }
     private float drain;
     public float Drain => drain;
+    private float drainChance;
+    public float DrainChance => drainChance;
     private float expScale;
     private float recoveryHp;
 
@@ -182,6 +184,7 @@ public class Planet : LivingEntity
         drain = currentStats.drain;
         expScale = currentStats.expRate == 0f ? 1f : currentStats.expRate;
         recoveryHp = currentStats.hpRegeneration;
+        drainChance = planetData.DrainChance;
 
         CalculatePlanetAttackPower();
     }
