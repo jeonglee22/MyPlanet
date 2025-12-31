@@ -48,6 +48,11 @@ public class LobbyTowerUpgrade : MonoBehaviour
     }
 #endif
 
+    private void OnDisable()
+    {
+        confirmPanel.SetActive(false);
+    }
+
     private async UniTaskVoid OnClickConfirmButton()
     {
         var currentUpgradeData = UserTowerUpgradeManager.Instance.CurrentTowerUpgradeData;

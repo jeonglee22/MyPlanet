@@ -63,6 +63,7 @@ public class NewAttackTowerCardUiSetting : MonoBehaviour
             var projectileAbilityData = GetRandomAbilityDataFromTowerId(towerId);
             var abilityName = projectileAbilityData.RandomAbilityName;
             var abilityValue = projectileData.ProjectileProperties1Value.ToString();
+            var specialData = DataTableManager.SpecialEffectTable.Get(projectileSpecialEffectId);
             
             var firstAbilityPanel = abilityPanels[0];
 
@@ -76,8 +77,7 @@ public class NewAttackTowerCardUiSetting : MonoBehaviour
             if (selfAbilityImage == null)
                 return;
             
-            // selfAbilityImage.sprite = LoadManager.GetLoadedGameTexture(projectileAbilityData.RandomAbilityIcon);
-            selfAbilityImage.sprite = LoadManager.GetLoadedGameTexture("Att_icon");
+            selfAbilityImage.sprite = LoadManager.GetLoadedGameTexture(specialData.SpecialEffectIcon);
             selfAbilityTexts[0].text = abilityName;
             selfAbilityTexts[1].text = abilityValue;
             startIndex = 1;

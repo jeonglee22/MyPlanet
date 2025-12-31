@@ -236,6 +236,9 @@ public class PlanetPanelUI : MonoBehaviour
     {
         lobbyPanel.SetActive(true);
         planetInfoPanel.SetActive(false);
+        titleText.text = "행성";
+        selectPlanetIcons.SetActive(false);
+        planetSelectPanel.SetActive(true);
         gameObject.SetActive(false);
     }
 
