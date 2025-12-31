@@ -175,8 +175,6 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
         DpsCalculator.AddDamage(damage);
 
-        planet.Health += damage * planet.Drain;
-
         base.OnDamage(damage);
 
         HasHit = true;
@@ -190,6 +188,16 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     public override void Die()
     {
         base.Die();
+
+        if(planet != null)
+        {
+            float drainChange = (enemyType == 3 || enemyType == 4) ? 1f : planet.DrainChance;
+
+            if(UnityEngine.Random.value <= drainChange)
+            {
+                planet.Health += planet.Drain;
+            }
+        }
 
         BossDie(data.EnemyType);
 
