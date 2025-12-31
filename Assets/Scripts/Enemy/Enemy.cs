@@ -195,7 +195,18 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
             if(UnityEngine.Random.value <= drainChange)
             {
-                planet.Health += planet.Drain;
+                switch (enemyType)
+                {
+                    case 1:
+                    case 3:
+                        planet.Health += planet.Drain;
+                        break;
+                    case 2:
+                    case 4:
+                        planet.Health += planet.Drain * 2f;
+                        break;
+                    
+                }
             }
         }
 
