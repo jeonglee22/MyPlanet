@@ -74,6 +74,7 @@ public class TowerInstallControl : MonoBehaviour
     private float currentAngle;
     public float CurrentAngle { get => currentAngle; }
 
+    public IReadOnlyList<TowerDataSO> AvailableAttackTowers => availableTowerDatas;
     //test
     private bool[] emptyTower;
     [SerializeField] private List<TowerDataSO> availableTowerDatas; //Attack Tower List
@@ -319,16 +320,8 @@ public class TowerInstallControl : MonoBehaviour
 
     public void UpgradeTower(int index)
     {
-        Debug.Log($"[InstallControl][UpgradeTower] slot={index}, used={IsUsedSlot(index)}");
-
         var atk = GetAttackTower(index);
         var amp = GetAmplifierTower(index);
-
-        Debug.Log(
-            $"[InstallControl][UpgradeTower] resolved atk={(atk != null ? atk.name : "null")}, " +
-            $"amp={(amp != null ? amp.name : "null")}"
-        );
-
 
         if (!IsReadyInstall) return;
         if (ChoosedData == null) return;
@@ -336,7 +329,7 @@ public class TowerInstallControl : MonoBehaviour
 
         int abilityId = ChoosedData.ability;
 
-        planet?.UpgradeTower(index);
+        planet?.UpgradeTower(index, abilityId);
 
         IsReadyInstall = false;
         isInstall = true;
