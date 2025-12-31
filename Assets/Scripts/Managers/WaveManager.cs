@@ -50,6 +50,7 @@ public class WaveManager : MonoBehaviour
 
     private int accumulateGold = 0;
     public int AccumulateGold => accumulateGold;
+    private int tmpAccumulateGold = 0;
 
     public event Action WaveChange;
     public event Action LastBossSpawned;
@@ -269,6 +270,14 @@ public class WaveManager : MonoBehaviour
             WaveCount++;
             waveGroup = waveDatas[currentWaveIndex].WaveGroup;
             WaveChange?.Invoke();
+
+            var clearedWave = waveDatas[currentWaveIndex];
+
+            accumulateGold += tmpAccumulateGold;
+            OnGoldAccumulated?.Invoke();
+            battleUI.AddCoinGainText(accumulateGold);
+            tmpAccumulateGold = 0;
+            
             StartWaveGroupTimer();
         }
         
@@ -295,9 +304,7 @@ public class WaveManager : MonoBehaviour
         var clearedWave = waveDatas[currentWaveIndex];
         if(clearedWave.WaveRewardGold > 0)
         {
-            accumulateGold += clearedWave.WaveRewardGold;
-            OnGoldAccumulated?.Invoke();
-            battleUI.AddCoinGainText(clearedWave.WaveRewardGold);
+            tmpAccumulateGold += clearedWave.WaveRewardGold;
         }
 
         currentWaveIndex++;
@@ -415,7 +422,7 @@ public class WaveManager : MonoBehaviour
         await UniTask.WaitUntil(() => CurrencyManager.Instance != null && CurrencyManager.Instance.IsInitialized);
 
         int currentGold = CurrencyManager.Instance.CachedGold;
-        int newGold = currentGold + accumulateGold;
+        int newGold = currentGold + accumulateGold + tmpAccumulateGold;
 
         CurrencyManager.Instance.SetGold(newGold);
         await CurrencyManager.Instance.SaveCurrencyAsync();
