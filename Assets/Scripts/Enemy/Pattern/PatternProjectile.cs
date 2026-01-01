@@ -28,6 +28,8 @@ public class PatternProjectile : MonoBehaviour , IDisposable
     private Vector3 acceleration;
     private bool useAcceleration = false;
 
+    private Enemy owner;
+
     public void Awake()
     {
         if(particleSystems == null || particleSystems.Length == 0)
@@ -36,7 +38,7 @@ public class PatternProjectile : MonoBehaviour , IDisposable
         }
     }
 
-    public void Initialize(int id, float damage, float speed, float lifetime, Vector3 direction, PatternSpawner spawner)
+    public void Initialize(int id, float damage, float speed, float lifetime, Vector3 direction, PatternSpawner spawner, Enemy owner)
     {
         skillId = id;
         this.damage = damage;
@@ -65,6 +67,8 @@ public class PatternProjectile : MonoBehaviour , IDisposable
                 }
             }
         }
+
+        this.owner = owner;
     }
 
     public void Initialize(int id, float damage, Vector3 initialVelocity, Vector3 accel, float lifetime, PatternSpawner spawner)
@@ -182,10 +186,28 @@ public class PatternProjectile : MonoBehaviour , IDisposable
         IDamagable damagable = other.GetComponent<IDamagable>();
         if (damagable != null)
         {
+            var planet = damagable as Planet;
+            OnPlayerHitEvent?.Invoke(this);
+
             if (canDealDamage)
             {
-                OnPlayerHitEvent?.Invoke(this);
-                damagable.OnDamage(damage);
+                if (planet != null)
+                {
+                    if (planet.Shield > 0)
+                    {
+                        if (planet.Shield >= damage)
+                        {
+                            planet.Shield -= damage;
+                            damage = 0;
+                        }
+                        else
+                        {
+                            damage -= planet.Shield;
+                            planet.Shield = 0;
+                        }
+                    }
+                    damagable.OnDamage(damage);
+                }
             }
 
             if(OnHitByProjectileEvent == null)
@@ -193,6 +215,25 @@ public class PatternProjectile : MonoBehaviour , IDisposable
                 ReturnToPool();
             }
         }
+    }
+
+    public float CalculateTotalDamage(float planetDef, float damage)
+    {
+        if (damage < 0f)
+        {
+            damage = 0f;
+        }
+
+        var RatePanetration = Mathf.Clamp(owner.RatePenetrate, 0f, 100f);
+        // Debug.Log(damage);
+        var totalPlanetDef = planetDef * (1 - RatePanetration / 100f) - owner.FixedPenetrate;
+        if(totalPlanetDef < 0)
+        {
+            totalPlanetDef = 0;
+        }
+        var totalDamage = damage * 100f / (100f + totalPlanetDef);
+        
+        return totalDamage;
     }
 
     public void ReturnToPool()

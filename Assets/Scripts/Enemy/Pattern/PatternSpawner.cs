@@ -24,7 +24,7 @@ public class PatternSpawner : MonoBehaviour
         }
     }
 
-    public PatternProjectile SpawnPattern(int skillId, string visualAssetName, Vector3 position, Vector3 direction, float damage, float speed, float lifeTime)
+    public PatternProjectile SpawnPattern(int skillId, string visualAssetName, Vector3 position, Vector3 direction, float damage, float speed, float lifeTime, Enemy owner)
     {
         if(!objectPoolManager.HasPool(skillId))
         {
@@ -40,7 +40,7 @@ public class PatternSpawner : MonoBehaviour
         pattern.transform.position = position;
         pattern.transform.rotation = Quaternion.LookRotation(direction, Vector3.up);
 
-        pattern.Initialize(skillId, damage, speed, lifeTime, direction, this);
+        pattern.Initialize(skillId, damage, speed, lifeTime, direction, this, owner);
         pattern.gameObject.SetActive(true);
 
         return pattern;
