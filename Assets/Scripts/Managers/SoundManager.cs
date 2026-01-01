@@ -528,6 +528,8 @@ public class SoundManager : MonoBehaviour
         }
 
         source.Stop();
+        source.clip = null;
+        source.loop = false;
         playing.Remove(source);
         ReturnSource(source);
     }

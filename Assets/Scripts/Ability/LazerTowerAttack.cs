@@ -64,10 +64,25 @@ public class LazertowerAttack : MonoBehaviour
         durationTimer = 0f;
         planet = GameObject.FindWithTag(TagName.Planet).GetComponent<Planet>();
 
+        if(laserAudioSource != null)
+        {
+            StopLaserSound();
+        }
+
         if(SoundManager.Instance != null && SoundManager.Instance.IsInitialized)
         {
             laserAudioSource = SoundManager.Instance.PlayLaserShotLoop(transform.position);
         }
+    }
+
+    private void OnDestroy()
+    {
+        StopLaserSound();
+    }
+
+    private void OnDisable()
+    {
+        StopLaserSound();
     }
 
     // Update is called once per frame
@@ -98,17 +113,15 @@ public class LazertowerAttack : MonoBehaviour
         
         if (durationTimer >= duration || tower == null)
         {
-            if(laserAudioSource != null && SoundManager.Instance != null)
-            {
-                SoundManager.Instance.StopLaserShotLoop(laserAudioSource);
-                laserAudioSource = null;
-            }
+            StopLaserSound();
 
-            Destroy(gameObject);
             towerAttack.IsStartLazer = false;
             durationTimer = 0f;
             projectile.gameObject.SetActive(true);
             projectile?.ReturnProjectileToPool();
+
+            Destroy(gameObject);
+            return;
         }
     }
 
@@ -355,6 +368,15 @@ public class LazertowerAttack : MonoBehaviour
             size.x = InitColliderWidth * factor;
             size.z = InitColliderWidth * factor;
             boxCollider.size = size;
+        }
+    }
+
+    private void StopLaserSound()
+    {
+        if(laserAudioSource != null && SoundManager.Instance != null)
+        {
+            SoundManager.Instance.StopLaserShotLoop(laserAudioSource);
+            laserAudioSource = null;
         }
     }
 }
