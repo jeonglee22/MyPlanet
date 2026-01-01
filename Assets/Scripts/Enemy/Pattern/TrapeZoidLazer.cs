@@ -99,7 +99,25 @@ public class TrapeZoidLazer : SkillBasedLazer
                     IDamagable damagable = hit.collider.GetComponent<IDamagable>();
                     if(damagable != null && !damagables.Contains(damagable))
                     {
-                        damagable.OnDamage(damage);
+                        var planet = damagable as Planet;
+                        if (planet != null)
+                        {
+                            if (planet.Shield > 0)
+                            {
+                                if (planet.Shield >= damage)
+                                {
+                                    planet.Shield -= damage;
+                                    damage = 0;
+                                }
+                                else
+                                {
+                                    damage -= planet.Shield;
+                                    planet.Shield = 0;
+                                }
+                            }
+                            damagable.OnDamage(CalculateTotalDamage(planet.Defense, damage));
+                        }
+
                         damagables.Add(damagable);
                         hited = true;
                     }
@@ -117,6 +135,11 @@ public class TrapeZoidLazer : SkillBasedLazer
 
         transform.position = startPoint;
         transform.rotation = Quaternion.identity;
+
+        if(SoundManager.Instance != null && SoundManager.Instance.IsInitialized)
+        {
+            laserAudioSource = SoundManager.Instance.PlayEnemyLaserLoop(transform.position);
+        }
 
         if(laserParticle != null)
         {
@@ -208,5 +231,7 @@ public class TrapeZoidLazer : SkillBasedLazer
             laserParticle.Stop();
             laserParticle.Clear();
         }
+
+        StopLaserSound();
     }
 }

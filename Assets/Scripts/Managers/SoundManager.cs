@@ -528,6 +528,45 @@ public class SoundManager : MonoBehaviour
         }
 
         source.Stop();
+        source.clip = null;
+        source.loop = false;
+        playing.Remove(source);
+        ReturnSource(source);
+    }
+
+    public AudioSource PlayEnemyLaserLoop(Vector3 pos)
+    {
+        if (enemyLaser == null)
+        {
+            return null;
+        }
+
+        var source = GetSource((int)SoundPriority.High);
+        if (source == null)
+        {
+            return null;
+        }
+
+        source.transform.position = pos;
+        source.clip = enemyLaser;
+        source.loop = true;
+        source.Play();
+
+        playing[source] = enemyLaser;
+
+        return source;
+    }
+
+    public void StopEnemyLaserLoop(AudioSource source)
+    {
+        if (source == null)
+        {
+            return;
+        }
+
+        source.Stop();
+        source.clip = null;
+        source.loop = false;
         playing.Remove(source);
         ReturnSource(source);
     }
