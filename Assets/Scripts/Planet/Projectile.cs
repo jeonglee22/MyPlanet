@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.Pool;
@@ -49,6 +50,9 @@ public class Projectile : MonoBehaviour , IDisposable
     private bool isFinish = false;
     public bool IsFinish { get => isFinish; set => isFinish = value; }
     public bool IsOtherUser { get; set; }
+
+    private HashSet<Enemy> hitEnemies = new HashSet<Enemy>();
+
     private void Awake()
     {
         if (!baseScaleInitialized)
@@ -149,10 +153,26 @@ public class Projectile : MonoBehaviour , IDisposable
                 transform.position += direction.normalized * totalSpeed * Time.deltaTime;
                 break;
             case ProjectileType.Homing:
-                if (currentTarget != null && currentTarget.gameObject.activeSelf)
+                if(currentTarget != null && currentTarget.TryGetComponent<Enemy>(out var targetEnemy) && hitEnemies.Contains(targetEnemy))
+                {
+                    currentTarget = null;
+                }
+
+                if(currentTarget != null && !currentTarget.gameObject.activeSelf)
+                {
+                    currentTarget = null;
+                }
+
+                if (currentTarget != null)
                 {
                     Vector3 targetDirection = (currentTarget.position - transform.position).normalized;
                     direction = targetDirection;
+
+                    if(direction != Vector3.zero)
+                    {
+                        Quaternion targetRotation = Quaternion.LookRotation(direction);
+                        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
+                    }
                 }
                 else if (currentTarget != null && !currentTarget.gameObject.activeSelf)
                 {
@@ -210,6 +230,8 @@ public class Projectile : MonoBehaviour , IDisposable
         float sizeMul = finalSize / baseSize;
         transform.localScale = baseScale * sizeMul;
 
+        hitEnemies.Clear();
+
         Cancel();
         currentLifeTime = 0f;
         isFinish = false;
@@ -235,10 +257,17 @@ public class Projectile : MonoBehaviour , IDisposable
             enemy = other.gameObject.GetComponentInParent<Enemy>();
         }
 
+        if(enemy != null && hitEnemies.Contains(enemy))
+        {
+            return;
+        }
+
         var damagable = enemy as IDamagable;
 
         if (damagable != null && enemy != null && isHit)
         {
+            hitEnemies.Add(enemy);
+
             abilityAction?.Invoke(other.gameObject);
 
             float pierceMul = GetPierceDamageMultiplier();
