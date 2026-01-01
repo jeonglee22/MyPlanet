@@ -342,6 +342,11 @@ public class PlanetManager : MonoBehaviour
             await SavePlanetsAsync();
         }
 
+        if(PlanetStatManager.Instance != null)
+        {
+            PlanetStatManager.Instance.UpdateCurrentPlanetStats();
+        }
+
         isInitialized = true;
     }
 }
