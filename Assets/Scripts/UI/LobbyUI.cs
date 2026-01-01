@@ -257,10 +257,6 @@ public class LobbyUI : MonoBehaviour
         int stageCount = DataTableManager.StageTable.GetStageCount();
 
         nextStageIndex = Mathf.Clamp(nextStageIndex, 1, stageCount);
-        if(nextStageIndex == 1)
-        {
-            return;
-        }
 
         snapToCenter.SettingAtIndex(nextStageIndex);
     }
