@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks.Triggers;
 using UnityEngine;
 
-public class LazertowerAttack : MonoBehaviour
+public class LazertowerAttack : MonoBehaviour, System.IDisposable
 {
     private LineRenderer lineRenderer;
     private BoxCollider boxCollider;
@@ -31,8 +31,8 @@ public class LazertowerAttack : MonoBehaviour
     private float durationTimer;
     private float attackDelayTimer;
     private float attackDelay = 0.1f;
-    private List<Enemy> attackObject;
-    private List<Enemy> removeObject;
+    private readonly List<Enemy> attackObject=new List<Enemy>(64);
+    private readonly List<Enemy> removeObject=new List<Enemy>(16);
     private float lazerLength = 10f;
     private bool isSplitSet = false;
     public bool IsSplitSet { get => isSplitSet; set => isSplitSet = value; }
@@ -43,6 +43,7 @@ public class LazertowerAttack : MonoBehaviour
     public float InitLineRendererWidth { get; private set; }
 
     private Planet planet;
+    private bool despawnRequested= false;
 
     private AudioSource laserAudioSource;
 
@@ -54,8 +55,12 @@ public class LazertowerAttack : MonoBehaviour
         initSize = boxCollider.size;
         initSize.y = 12f;
         boxCollider.size = initSize;
-        attackObject = new List<Enemy>();
-        removeObject = new List<Enemy>();
+
+        InitColliderWidth = boxCollider.size.x;
+        InitLineRendererWidth = lineRenderer != null ? lineRenderer.endWidth : 0f;
+
+        //attackObject = new List<Enemy>();
+        //removeObject = new List<Enemy>();
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -68,6 +73,16 @@ public class LazertowerAttack : MonoBehaviour
         {
             //laserAudioSource = SoundManager.Instance.PlayLaserShotLoop(transform.position);
         }
+    }
+
+    private void OnEnable()
+    {
+        despawnRequested = false;
+        durationTimer = 0f;
+        attackDelayTimer= 0f;
+
+        attackObject.Clear();
+        removeObject.Clear();
     }
 
     // Update is called once per frame
@@ -91,57 +106,81 @@ public class LazertowerAttack : MonoBehaviour
 
         CheckTarget();
 
-        if(laserAudioSource != null)
-        {
-            laserAudioSource.transform.position = transform.position;
-        }
-        
+        //if(laserAudioSource != null)
+        //{
+        //    laserAudioSource.transform.position = transform.position;
+        //}
+
         if (durationTimer >= duration || tower == null)
         {
-            if(laserAudioSource != null && SoundManager.Instance != null)
+            if (laserAudioSource != null && SoundManager.Instance != null)
             {
                 SoundManager.Instance.StopLaserShotLoop(laserAudioSource);
                 laserAudioSource = null;
             }
-
-            Destroy(gameObject);
-            towerAttack.IsStartLazer = false;
-            durationTimer = 0f;
-            projectile.gameObject.SetActive(true);
-            projectile?.ReturnProjectileToPool();
+            Despawn();
+            //    Destroy(gameObject);
+            //    towerAttack.IsStartLazer = false;
+            //    durationTimer = 0f;
+            //    projectile.gameObject.SetActive(true);
+            //    projectile?.ReturnProjectileToPool();
+            //}
         }
     }
 
-    void FixedUpdate()
-    {
-        attackDelayTimer += Time.deltaTime;
+        void FixedUpdate()
+        {
+            attackDelayTimer += Time.deltaTime;
 
-        if (tower == null)
-            return;
+            if (tower == null) return;
 
-        UpdateLazerPositions();
+            UpdateLazerPositions();
+        //if (attackDelayTimer >= attackDelay)
+        //{
+        //    foreach (var enemy in attackObject)
+        //    {
+        //        abilityAction?.Invoke(enemy.gameObject);
+
+        //        var damage = CalculateTotalDamage(enemy.Data.Defense);
+        //        enemy.OnDamage(damage);
+        //        towerAttack.AdddamageDealt(damage);
+
+        //        if (enemy.IsDead)
+        //        {
+        //            removeObject.Add(enemy);
+        //        }
+        //    }
+
+        //    foreach (var rem in removeObject)
+        //    {
+        //        attackObject.Remove(rem);
+        //    }
+        //    removeObject.Clear();
+
+        //    attackDelayTimer = 0f;
+        //}
         if (attackDelayTimer >= attackDelay)
         {
-            foreach (var enemy in attackObject)
+            for (int i = 0; i < attackObject.Count; i++)
             {
+                var enemy = attackObject[i];
+                if (enemy == null) { removeObject.Add(enemy); continue; }
+
                 abilityAction?.Invoke(enemy.gameObject);
 
-                var damage = CalculateTotalDamage(enemy.Data.Defense);
-                enemy.OnDamage(damage);
-                towerAttack.AdddamageDealt(damage);
+                var d = CalculateTotalDamage(enemy.Data.Defense);
+                enemy.OnDamage(d);
+                towerAttack?.AdddamageDealt(d);
 
                 if (enemy.IsDead)
-                {
                     removeObject.Add(enemy);
-                }
             }
-
-            foreach (var rem in removeObject)
+            if (removeObject.Count > 0)
             {
-                attackObject.Remove(rem);
+                for (int i = 0; i < removeObject.Count; i++)
+                    attackObject.Remove(removeObject[i]);
+                removeObject.Clear();
             }
-            removeObject.Clear();
-
             attackDelayTimer = 0f;
         }
     }
@@ -246,6 +285,8 @@ public class LazertowerAttack : MonoBehaviour
         bool isSplit = false, 
         LazertowerAttack baseLazer = null)
     {
+        Debug.Log($"[LASER][SetLazer] self={name} start={start?.name} target={(target ? target.name : "null")} duration={duration} isSplit={isSplit} base={(baseLazer ? baseLazer.name : "null")}");
+
         lineRenderer.positionCount = pointCount;
         Vector3 newDirection = target == null ? Quaternion.Euler(0, 0, angle) * baseLazer.finalDirection : (target.position - start.position).normalized;
         finalDirection = newDirection;
@@ -356,5 +397,71 @@ public class LazertowerAttack : MonoBehaviour
             size.z = InitColliderWidth * factor;
             boxCollider.size = size;
         }
+    }
+    public void Despawn()
+    {
+        Debug.Log($"[LASER][END] self={name} durationTimer={durationTimer:0.00}/{duration:0.00} towerNull={(tower == null)} targetNull={(target == null)}");
+
+        if (despawnRequested) return;
+        despawnRequested = true;
+
+        if (projectile != null)
+        {
+            projectile.gameObject.SetActive(true);
+            projectile.ReturnProjectileToPool();
+            projectile = null;
+        }
+
+        if (towerAttack != null)
+            towerAttack.IsStartLazer = false;
+
+        if (LaserPoolManager.Instance != null)
+            LaserPoolManager.Instance.ReturnLaser(this);
+        else
+            gameObject.SetActive(false);
+    }
+
+    public void Dispose()
+    {
+        abilityAction = null;
+        abilityRelease = null;
+
+        tower = null;
+        target = null;
+        towerAttack = null;
+        splitBaseLazer = null;
+
+        isSplitSet = false;
+        lazerOffset = 0f;
+        baseAngle = 0f;
+
+        duration = 0f;
+        damage = 0f;
+
+        abilities?.Clear();
+        abilities = null;
+
+        attackObject.Clear();
+        removeObject.Clear();
+
+        durationTimer = 0f;
+        attackDelayTimer = 0f;
+
+        if (boxCollider != null)
+        {
+            boxCollider.center = initCenter;
+            boxCollider.size = initSize;
+        }
+
+        if (lineRenderer != null)
+        {
+            lineRenderer.positionCount = pointCount;
+            lineRenderer.SetPosition(0, transform.position);
+            lineRenderer.SetPosition(1, transform.position);
+            lineRenderer.startWidth = InitLineRendererWidth;
+            lineRenderer.endWidth = InitLineRendererWidth;
+        }
+
+        despawnRequested = false;
     }
 }
