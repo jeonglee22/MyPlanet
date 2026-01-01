@@ -66,7 +66,7 @@ public class LazertowerAttack : MonoBehaviour
 
         if(SoundManager.Instance != null && SoundManager.Instance.IsInitialized)
         {
-            //laserAudioSource = SoundManager.Instance.PlayLaserShotLoop(transform.position);
+            laserAudioSource = SoundManager.Instance.PlayLaserShotLoop(transform.position);
         }
     }
 
