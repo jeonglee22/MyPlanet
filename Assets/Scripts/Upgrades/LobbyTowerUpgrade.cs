@@ -113,6 +113,8 @@ public class LobbyTowerUpgrade : MonoBehaviour
         await ItemManager.Instance.SaveItemsAsync();
         await CurrencyManager.Instance.SaveCurrencyAsync();
 
+        towerUpgradeUI.UpdateCurrencyTexts();
+
         confirmPanel.SetActive(false);
 
         await UserAttackPowerManager.Instance.UpdateTowerPower();
