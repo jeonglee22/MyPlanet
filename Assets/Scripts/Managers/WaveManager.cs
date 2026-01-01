@@ -413,19 +413,25 @@ public class WaveManager : MonoBehaviour
 
     public async UniTask SaveAccumulatedGold()
     {
-        if(accumulateGold <= 0)
+        if (accumulateGold <= 0)
         {
             return;
         }
 
-        await UniTask.WaitUntil(() => CurrencyManager.Instance != null && CurrencyManager.Instance.IsInitialized);
+        int amountToSave = accumulateGold;
+        accumulateGold = 0;
 
+        await UniTask.WaitUntil(() => CurrencyManager.Instance != null && CurrencyManager.Instance.IsInitialized);
         int currentGold = CurrencyManager.Instance.CachedGold;
         int newGold = currentGold + accumulateGold + tmpAccumulateGold;
 
         CurrencyManager.Instance.SetGold(newGold);
         await CurrencyManager.Instance.SaveCurrencyAsync();
+    }
 
-        accumulateGold = 0;
+    public void AddAccumulateGold(int amount)
+    {
+        accumulateGold += amount;
+        OnGoldAccumulated?.Invoke(); 
     }
 }

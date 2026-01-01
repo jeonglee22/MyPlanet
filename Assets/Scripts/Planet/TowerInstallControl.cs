@@ -61,6 +61,7 @@ public class TowerInstallControl : MonoBehaviour
     [SerializeField] private GameObject towerInfoObj;
     [SerializeField] private GameObject towerUIBasePrefab; //UI
     [SerializeField] private GameObject emptySlotPrefab; //UI
+    [SerializeField] private Image planetImage;
 
     private Planet planet;
     private List<GameObject> towers;
@@ -74,6 +75,7 @@ public class TowerInstallControl : MonoBehaviour
     private float currentAngle;
     public float CurrentAngle { get => currentAngle; }
 
+    public IReadOnlyList<TowerDataSO> AvailableAttackTowers => availableTowerDatas;
     //test
     private bool[] emptyTower;
     [SerializeField] private List<TowerDataSO> availableTowerDatas; //Attack Tower List
@@ -146,6 +148,7 @@ public class TowerInstallControl : MonoBehaviour
         planet = planetObj.GetComponent<Planet>();
 
         SetPlanetSize();
+        SetPlanetImage();
 
         ResetTowerSlot(towerCount);
 
@@ -167,6 +170,20 @@ public class TowerInstallControl : MonoBehaviour
             deleteNoButton.onClick.AddListener(OnDeleteNo);
         
         SetIsTutorial(TutorialManager.Instance.IsTutorialMode);
+    }
+
+    private void SetPlanetImage()
+    {
+        if (planetImage == null) return;
+
+        var planetId = Variables.planetId;
+        var planetData = DataTableManager.PlanetTable.Get(planetId);
+        var planetAsset = planetData.Warplanet;
+        var planetSprite = LoadManager.GetLoadedGameTexture(planetAsset);
+        if (planetSprite != null)
+        {
+            planetImage.sprite = planetSprite;
+        }
     }
 
     private void Update()
@@ -319,16 +336,8 @@ public class TowerInstallControl : MonoBehaviour
 
     public void UpgradeTower(int index)
     {
-        Debug.Log($"[InstallControl][UpgradeTower] slot={index}, used={IsUsedSlot(index)}");
-
         var atk = GetAttackTower(index);
         var amp = GetAmplifierTower(index);
-
-        Debug.Log(
-            $"[InstallControl][UpgradeTower] resolved atk={(atk != null ? atk.name : "null")}, " +
-            $"amp={(amp != null ? amp.name : "null")}"
-        );
-
 
         if (!IsReadyInstall) return;
         if (ChoosedData == null) return;
@@ -336,7 +345,7 @@ public class TowerInstallControl : MonoBehaviour
 
         int abilityId = ChoosedData.ability;
 
-        planet?.UpgradeTower(index);
+        planet?.UpgradeTower(index, abilityId);
 
         IsReadyInstall = false;
         isInstall = true;
@@ -646,6 +655,7 @@ public class TowerInstallControl : MonoBehaviour
             // sb.Append(baseAngle);
             // sb.Append(" / ");
         }
+        planetImage.rectTransform.rotation = Quaternion.Euler(0, 0, baseAngle);
     }
 
     public TowerAttack GetAttackTower(int index)

@@ -104,6 +104,11 @@ public class TowerTargetingSystem : MonoBehaviour
                 if (enemy.Data.EnemyType == 4 && Variables.MiddleBossEnemy != null) continue;
             }
 
+            //neptune boss scene: elite dia
+            if (enemy.Data.Enemy_Id == 400218) continue;
+            if (enemy.Data.Enemy_Id == 400209) continue;
+            if (enemy.Data.Enemy_Id == 400210) continue;
+
             //View Check
             Vector3 vp = cam.WorldToViewportPoint(target.position);
             bool inViewport = (vp.z > 0f &&
