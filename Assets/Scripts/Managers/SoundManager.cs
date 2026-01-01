@@ -456,6 +456,81 @@ public class SoundManager : MonoBehaviour
     {
         bgmSource.UnPause();
     }
+
+    public void PauseGameSound()
+    {
+        foreach(var source in audioPool)
+        {
+            if(source != null && source.isPlaying)
+            {
+                source.Pause();
+            }
+        }
+
+        foreach(var kv in playing)
+        {
+            if(kv.Key != null && kv.Key.isPlaying)
+            {
+                kv.Key.Pause();
+            }
+        }
+
+        
+    }
+
+    public void ResumeGameSound()
+    {
+        foreach (var source in audioPool)
+        {
+            if (source != null)
+            {
+                source.UnPause();
+            }
+        }
+
+        foreach (var kv in playing)
+        {
+            if (kv.Key != null)
+            {
+                kv.Key.UnPause();
+            }
+        }
+    }
+
+    public AudioSource PlayLaserShotLoop(Vector3 pos)
+    {
+        if(laserShot == null)
+        {
+            return null;
+        }
+
+        var source = GetSource((int)SoundPriority.Normal);
+        if(source == null)
+        {
+            return null;
+        }
+
+        source.transform.position = pos;
+        source.clip = laserShot;
+        source.loop = true;
+        source.Play();
+
+        playing[source] = laserShot;
+
+        return source;
+    }
+
+    public void StopLaserShotLoop(AudioSource source)
+    {
+        if(source == null)
+        {
+            return;
+        }
+
+        source.Stop();
+        playing.Remove(source);
+        ReturnSource(source);
+    }
     
 
 }

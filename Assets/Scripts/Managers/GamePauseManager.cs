@@ -29,6 +29,7 @@ public class GamePauseManager : MonoBehaviour
         {
             IsGamePaused = true;
             Time.timeScale = 0f;
+            SoundManager.Instance.PauseGameSound();
         }
     }
 
@@ -45,6 +46,7 @@ public class GamePauseManager : MonoBehaviour
         {
             IsGamePaused = false;
             Time.timeScale = 1f;
+            SoundManager.Instance.ResumeGameSound();
         }
     }
 }
