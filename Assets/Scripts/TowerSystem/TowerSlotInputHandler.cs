@@ -79,4 +79,23 @@ public class TowerSlotInputHandler : MonoBehaviour, IPointerDownHandler, IPointe
             installControl?.OnSlotLongPressDrag(slotIndex, eventData.position);
         }
     }
+
+    public void UpdateUpgradeStars(int reinforceLevel)
+    {
+        if(upgradeStars == null || upgradeStars.Count == 0)
+        {
+            return;
+        }
+
+        for(int i = 0; i < upgradeStars.Count; i++)
+        {
+            upgradeStars[i].gameObject.SetActive(false);
+        }
+
+        int activeStarCount = Mathf.Min(reinforceLevel, upgradeStars.Count);
+        for(int i = 0; i < activeStarCount; i++)
+        {
+            upgradeStars[i].gameObject.SetActive(true);
+        }
+    }
 }

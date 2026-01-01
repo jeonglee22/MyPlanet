@@ -308,6 +308,9 @@ public class TowerInstallControl : MonoBehaviour
                 inputHandler = tower.AddComponent<TowerSlotInputHandler>();
             inputHandler.Initialize(this, index);
 
+            int currentLevel = GetSlotReinforceLevel(index);
+            inputHandler.UpdateUpgradeStars(currentLevel);
+
             // Test (Color)
             var image = tower.GetComponentInChildren<Image>();
             image.color = Color.Lerp(Color.red, Color.blue, (float)i / (slotCount - 1));
@@ -346,6 +349,17 @@ public class TowerInstallControl : MonoBehaviour
         int abilityId = ChoosedData.ability;
 
         planet?.UpgradeTower(index, abilityId);
+
+        var tower = towers[index];
+        if(tower != null)
+        {
+            var inputHandler = tower.GetComponent<TowerSlotInputHandler>();
+            if (inputHandler != null)
+            {
+                int newLevel = GetSlotReinforceLevel(index);
+                inputHandler.UpdateUpgradeStars(newLevel);
+            }
+        }
 
         IsReadyInstall = false;
         isInstall = true;
@@ -533,6 +547,8 @@ public class TowerInstallControl : MonoBehaviour
                 inputHandler = newTower.AddComponent<TowerSlotInputHandler>();
             }
             inputHandler.Initialize(this, index);
+
+            inputHandler.UpdateUpgradeStars(0);
 
             var image = newTower.GetComponentInChildren<Image>();
             var text = newTower.GetComponentInChildren<TextMeshProUGUI>();
@@ -862,6 +878,9 @@ public class TowerInstallControl : MonoBehaviour
                     ghostImage.color = sourceImage.color;
                     // ghostImage.preserveAspect = true;
                     // ghostImage.rectTransform.sizeDelta = new Vector2(25f, 50f);
+
+                    int reinforceLevel = GetSlotReinforceLevel(index);
+                    ghostUI.UpdateUpgradeStars(reinforceLevel);
                 }
                 var c = sourceImage.color;
                 c.a = 0f;
@@ -1438,5 +1457,21 @@ public class TowerInstallControl : MonoBehaviour
             upgradableCount++;
         }
         return upgradableCount;
+    }
+
+    private void UpdateTowerUpgradeStars(GameObject towerUI, int slotIndex)
+    {
+        if(towerUI == null)
+        {
+            return;
+        }
+
+        var inputHandler = towerUI.GetComponent<TowerSlotInputHandler>();
+        if(inputHandler == null)
+        {
+            return;
+        }
+
+        int reinforceLevel = GetSlotReinforceLevel(slotIndex);
     }
 }
