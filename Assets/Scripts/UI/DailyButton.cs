@@ -123,7 +123,7 @@ public class DailyButton : MonoBehaviour
 
                     if (boughtId == 0 || boughtCount == 0)
                     {
-                        randomRewardData = DataTableManager.DailyRerollTable.GetRandomDataExceptKeys(existingItemKeys);
+                        randomRewardData = DataTableManager.DailyRerollTable.GetRandomDataExceptKeys(existingItemKeys, minWeightType: 2);
                         rewardItemData = DataTableManager.RewardTable.Get(randomRewardData.Reward_Id);
                         rewardName = DataTableManager.ItemStringTable.GetString(rewardItemData.RewardName);
                         var currencyGroup = randomRewardData.CurrencyGroup;
@@ -140,12 +140,26 @@ public class DailyButton : MonoBehaviour
                         rewardItemData = DataTableManager.RewardTable.GetFromTargetId(boughtId);
                         randomRewardData = DataTableManager.DailyRerollTable.GetFromRewardId(rewardItemData.Reward_Id);
 
+                        if(randomRewardData.WeightType < 2)
+                        {
+                            randomRewardData = DataTableManager.DailyRerollTable.GetRandomDataExceptKeys(existingItemKeys, minWeightType: 2);
+                            rewardItemData = DataTableManager.RewardTable.Get(randomRewardData.Reward_Id);
+
+                            itemCount = DataTableManager.DailyRerollTable.GetRandomCountInId(randomRewardData.DailyReroll_Id);
+                            buyitemId = rewardItemData.Target_Id;
+
+                            boughtData.buyedItems[index] = new BuyItemData(buyitemId, itemCount);
+                            UserShopItemManager.Instance.SaveUserShopItemDataAsync(boughtData).Forget();
+                        }
+                        else
+                        {
+                            itemCount = boughtCount;
+                            buyitemId = boughtId;
+                        }
+
                         rewardName = DataTableManager.ItemStringTable.GetString(rewardItemData.RewardName);
                         var currencyGroup = randomRewardData.CurrencyGroup;
                         currencyData = DataTableManager.CurrencyTable.GetByGroup(currencyGroup);
-
-                        itemCount = boughtCount;
-                        buyitemId = boughtId;
                     }                    
 
                     itemName = rewardName;
@@ -213,12 +227,14 @@ public class DailyButton : MonoBehaviour
         var totalExceptKeys = new List<int>(dailyItemKeys);
         totalExceptKeys.AddRange(existingItemKeys);
 
-        var image = LoadManager.GetLoadedGameTexture("StarDust_icon");
-        var randomRewardData = DataTableManager.DailyRerollTable.GetRandomDataExceptKeys(totalExceptKeys);
+        var randomRewardData = DataTableManager.DailyRerollTable.GetRandomDataExceptKeys(totalExceptKeys, minWeightType: 2);
         var rewardItemData = DataTableManager.RewardTable.Get(randomRewardData.Reward_Id);
         var rewardName = DataTableManager.ItemStringTable.GetString(rewardItemData.RewardName);
         var currencyGroup = randomRewardData.CurrencyGroup;
         var currencyData = DataTableManager.CurrencyTable.GetByGroup(currencyGroup);
+
+        var iconName = DataTableManager.ItemTable.Get(rewardItemData.Target_Id).ItemIconText;
+        var image = LoadManager.GetLoadedGameTexture(iconName);
 
         itemName = rewardName;
         requiredCurrencyIcon.sprite = LoadManager.GetLoadedGameTexture(currencyData.CurrencyIconText);

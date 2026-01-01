@@ -85,12 +85,12 @@ public class DailyRerollTable : DataTable
         return dictionary[randomKey];
     }
 
-    public DailyRerollData GetRandomDataExceptKeys(List<int> excludeKeys)
+    public DailyRerollData GetRandomDataExceptKeys(List<int> excludeKeys, int minWeightType = 0)
     {
         var availableData = new List<DailyRerollData>();
         foreach (var data in dictionary.Values)
         {
-            if (!excludeKeys.Contains(data.DailyReroll_Id))
+            if (!excludeKeys.Contains(data.DailyReroll_Id) && data.WeightType >= minWeightType)
             {
                 availableData.Add(data);
             }
