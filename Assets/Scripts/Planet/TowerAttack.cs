@@ -442,8 +442,8 @@ public class TowerAttack : MonoBehaviour
 
     private void StartHitscan(float hitScanInterval)
     {
-        //if (towerData.towerIdInt == (int)AttackTowerId.Lazer)
-          //  return;
+        if (towerData.towerIdInt == (int)AttackTowerId.Lazer)
+            return;
 
         isHitScanActive = true;
         targetingSystem.SetAttacking(true);

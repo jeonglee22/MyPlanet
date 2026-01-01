@@ -15860,8 +15860,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   collectionCheck: 1
-  defaultPoolCapacity: 20
-  maxPoolSize: 200
+  defaultPoolCapacity: 2
+  maxPoolSize: 8
   poolParent: {fileID: 495109957}
 --- !u!114 &495109959
 MonoBehaviour:
@@ -15876,8 +15876,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   collectionCheck: 1
-  defaultPoolCapacity: 50
-  maxPoolSize: 500
+  defaultPoolCapacity: 2
+  maxPoolSize: 8
+  poolParent: {fileID: 495109957}
+--- !u!114 &495109960
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 495109956}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f841708d69efcb04ca0fec21f9f0003b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  collectionCheck: 1
+  defaultPoolCapacity: 2
+  maxPoolSize: 8
   poolParent: {fileID: 495109957}
 --- !u!1 &497429882
 GameObject:
@@ -27630,10 +27646,10 @@ RectTransform:
   - {fileID: 454221485}
   m_Father: {fileID: 1252020287}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 66.4036, y: -107.65835}
-  m_SizeDelta: {x: 132.8072, y: 43.063335}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.49999985}
 --- !u!114 &885752575
 MonoBehaviour:
@@ -34740,10 +34756,10 @@ RectTransform:
   - {fileID: 587950607}
   m_Father: {fileID: 1252020287}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 66.4036, y: -43.063335}
-  m_SizeDelta: {x: 132.8072, y: 86.12667}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1204425175
 MonoBehaviour:
@@ -42491,10 +42507,10 @@ RectTransform:
   - {fileID: 324964194}
   m_Father: {fileID: 201609917}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 67.93595, y: -107.65834}
-  m_SizeDelta: {x: 135.8719, y: 43.063335}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1529658205
 MonoBehaviour:
@@ -49528,10 +49544,10 @@ RectTransform:
   - {fileID: 1458502904}
   m_Father: {fileID: 201609917}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 67.93595, y: -43.063335}
-  m_SizeDelta: {x: 135.8719, y: 86.12667}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1808198948
 MonoBehaviour:
@@ -58823,6 +58839,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2788095099219241957, guid: f4610280dcae30e439bb8223f66efd3a, type: 3}
       insertIndex: -1
       addedObject: {fileID: 495109959}
+    - targetCorrespondingSourceObject: {fileID: 2788095099219241957, guid: f4610280dcae30e439bb8223f66efd3a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 495109960}
   m_SourcePrefab: {fileID: 100100000, guid: f4610280dcae30e439bb8223f66efd3a, type: 3}
 --- !u!222 &460445254530036526
 CanvasRenderer:
