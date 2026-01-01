@@ -136,6 +136,11 @@ public class TrapeZoidLazer : SkillBasedLazer
         transform.position = startPoint;
         transform.rotation = Quaternion.identity;
 
+        if(SoundManager.Instance != null && SoundManager.Instance.IsInitialized)
+        {
+            laserAudioSource = SoundManager.Instance.PlayEnemyLaserLoop(transform.position);
+        }
+
         if(laserParticle != null)
         {
             laserParticle.gameObject.SetActive(true);
@@ -226,5 +231,7 @@ public class TrapeZoidLazer : SkillBasedLazer
             laserParticle.Stop();
             laserParticle.Clear();
         }
+
+        StopLaserSound();
     }
 }

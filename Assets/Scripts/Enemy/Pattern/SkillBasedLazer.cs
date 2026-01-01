@@ -35,6 +35,8 @@ public class SkillBasedLazer : MonoBehaviour
     protected Transform ownerTransform;
     protected float particleOffsetY;
 
+    protected AudioSource laserAudioSource;
+
     private void Awake()
     {
         lineRenderer = GetComponent<LineRenderer>();
@@ -52,6 +54,7 @@ public class SkillBasedLazer : MonoBehaviour
     private void OnDisable()
     {
         Cancel();
+        StopLaserSound();
 
         if(laserParticle != null)
         {
@@ -63,6 +66,16 @@ public class SkillBasedLazer : MonoBehaviour
     private void OnDestroy()
     {
         Cancel();
+        StopLaserSound();
+    }
+
+    protected void StopLaserSound()
+    {
+        if(laserAudioSource != null && SoundManager.Instance != null)
+        {
+            SoundManager.Instance.StopEnemyLaserLoop(laserAudioSource);
+            laserAudioSource = null;
+        }
     }
 
     protected virtual void Setup()
@@ -208,6 +221,11 @@ public class SkillBasedLazer : MonoBehaviour
         fieldRenderer.enabled = false;
         lineRenderer.enabled = true;
 
+        if(SoundManager.Instance != null && SoundManager.Instance.IsInitialized)
+        {
+            laserAudioSource = SoundManager.Instance.PlayEnemyLaserLoop(transform.position);
+        }
+
         transform.position = startPoint;
 
         if(direction != Vector3.zero)
@@ -290,6 +308,8 @@ public class SkillBasedLazer : MonoBehaviour
             laserParticle.Stop();
             laserParticle.Clear();
         }
+
+        StopLaserSound();
     }
 
     protected virtual bool CheckLazerCollision(float currentLength)
