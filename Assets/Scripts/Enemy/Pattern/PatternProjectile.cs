@@ -206,7 +206,7 @@ public class PatternProjectile : MonoBehaviour , IDisposable
                             planet.Shield = 0;
                         }
                     }
-                    damagable.OnDamage(damage);
+                    damagable.OnDamage(CalculateTotalDamage(planet.Defense, damage));
                 }
             }
 
