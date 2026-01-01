@@ -223,10 +223,6 @@ public class TowerAttack : MonoBehaviour
     private float totalDamageDealt = 0f;
     public float TotalDamageDealt => totalDamageDealt;
 
-    //audio-------------------------------------------------
-    [Header("Audio (Optional Override)")]
-    [SerializeField] private AudioSource towerAudioSource;
-    private bool laserLoopPlaying = false;
     //-------------------------------------------------------
     private void Awake()
     {
@@ -239,7 +235,6 @@ public class TowerAttack : MonoBehaviour
             .GetComponent<ProjectilePoolManager>();
 
         lazers = new List<LazertowerAttack>();
-        EnsureAudioSource();
     }
 
     private void Start()
@@ -250,7 +245,6 @@ public class TowerAttack : MonoBehaviour
     private void OnDisable()
     {
         DeleteExistLazers();
-        StopLaserLoop();
     }
 
     public void AdddamageDealt(float damage)
@@ -263,7 +257,6 @@ public class TowerAttack : MonoBehaviour
         towerData = data;
         if (towerData == null) return;
 
-        StopLaserLoop();
         baseAbilityIds.Clear();
         amplifierAbilityIds.Clear();
         abilitiesDirty = true;
@@ -394,19 +387,6 @@ public class TowerAttack : MonoBehaviour
     private void Update()
     {
         if (towerData == null || targetingSystem == null) return;
-        //audio
-        if (towerData.towerIdInt == (int)AttackTowerId.Lazer)
-        {
-            if (isStartLazer)
-            {
-                StartLaserLoop();
-                return; 
-            }
-            else
-            {
-                StopLaserLoop();
-            }
-        }
 
         shootTimer += Time.deltaTime;
 
@@ -448,7 +428,6 @@ public class TowerAttack : MonoBehaviour
             lazer?.gameObject.SetActive(false);
         }
         lazers.Clear();
-        StopLaserLoop();
     }
 
     private void StartHitscan(float hitScanInterval)
@@ -578,7 +557,6 @@ public class TowerAttack : MonoBehaviour
 
             if (towerData.towerIdInt == (int)AttackTowerId.Lazer)
             {
-                StartLaserLoop();
                 var lazerObj = LoadManager.GetLoadedGamePrefab(ObjectName.Lazer);
                 var lazer = lazerObj.GetComponent<LazertowerAttack>();
                 lazers.Add(lazer);
@@ -1413,60 +1391,7 @@ public class TowerAttack : MonoBehaviour
         }
         ampAppliedInstances.Clear();
     }
-    //audio ---------------------------------------
-    private void EnsureAudioSource()
-    {
-        if (towerAudioSource != null) return;
-        if (firePoint != null)
-        {
-            towerAudioSource = firePoint.GetComponent<AudioSource>();
-        }
 
-        if (towerAudioSource == null)
-        {
-            towerAudioSource = GetComponent<AudioSource>();
-        }
-
-        if (towerAudioSource == null)
-        {
-            towerAudioSource = gameObject.AddComponent<AudioSource>();
-        }
-        towerAudioSource.playOnAwake = false;
-        towerAudioSource.loop = false;
-    }
-
-    private void StartLaserLoop()
-    {
-        if (towerData == null) return;
-        if (towerData.laserLoopSfx == null) return;
-
-        EnsureAudioSource();
-
-        if (laserLoopPlaying && towerAudioSource.isPlaying && towerAudioSource.clip == towerData.laserLoopSfx && towerAudioSource.loop)
-            return;
-
-        towerAudioSource.Stop();
-        towerAudioSource.clip = towerData.laserLoopSfx;
-        towerAudioSource.loop = true;
-        towerAudioSource.volume = towerData.laserLoopVolume;
-        towerAudioSource.Play();
-
-        laserLoopPlaying = true;
-    }
-
-    private void StopLaserLoop()
-    {
-        if (towerAudioSource == null) { laserLoopPlaying = false; return; }
-
-        if (towerAudioSource.loop)
-        {
-            towerAudioSource.loop = false;
-            towerAudioSource.Stop();
-            towerAudioSource.clip = null;
-        }
-
-        laserLoopPlaying = false;
-    }
     //---------------------------------------------
 
     private float GetAbilityDamageMultiplier(int abilityId)

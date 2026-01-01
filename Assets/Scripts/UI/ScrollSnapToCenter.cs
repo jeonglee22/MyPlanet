@@ -49,10 +49,9 @@ public class ScrollSnapToCenter : MonoBehaviour, IBeginDragHandler, IEndDragHand
         RebuildItems();
 
         await UniTask.Yield();
-        SettingAtIndex(startIndex);
     }
 
-    private void SettingAtIndex(int index)
+    public void SettingAtIndex(int index)
     {
         choosedIndex = index;
         var nextRect = items[choosedIndex];

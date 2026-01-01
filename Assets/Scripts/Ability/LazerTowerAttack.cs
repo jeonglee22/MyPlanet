@@ -44,6 +44,8 @@ public class LazertowerAttack : MonoBehaviour
 
     private Planet planet;
 
+    private AudioSource laserAudioSource;
+
     void Awake()
     {
         lineRenderer = GetComponentInChildren<LineRenderer>();
@@ -61,6 +63,11 @@ public class LazertowerAttack : MonoBehaviour
     {
         durationTimer = 0f;
         planet = GameObject.FindWithTag(TagName.Planet).GetComponent<Planet>();
+
+        if(SoundManager.Instance != null && SoundManager.Instance.IsInitialized)
+        {
+            //laserAudioSource = SoundManager.Instance.PlayLaserShotLoop(transform.position);
+        }
     }
 
     // Update is called once per frame
@@ -83,9 +90,20 @@ public class LazertowerAttack : MonoBehaviour
         }
 
         CheckTarget();
+
+        if(laserAudioSource != null)
+        {
+            laserAudioSource.transform.position = transform.position;
+        }
         
         if (durationTimer >= duration || tower == null)
         {
+            if(laserAudioSource != null && SoundManager.Instance != null)
+            {
+                SoundManager.Instance.StopLaserShotLoop(laserAudioSource);
+                laserAudioSource = null;
+            }
+
             Destroy(gameObject);
             towerAttack.IsStartLazer = false;
             durationTimer = 0f;

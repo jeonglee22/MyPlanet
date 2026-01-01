@@ -256,18 +256,8 @@ public class LobbyUI : MonoBehaviour
 
         int stageCount = DataTableManager.StageTable.GetStageCount();
 
-        nextStageIndex = Mathf.Clamp(nextStageIndex, 1, stageCount - 1);
-        if(nextStageIndex == 1)
-        {
-            return;
-        }
+        nextStageIndex = Mathf.Clamp(nextStageIndex, 1, stageCount);
 
-        stageScrollRect.horizontalNormalizedPosition = 0f;
-        await UniTask.DelayFrame(1);
-
-        for(int i = 1; i < nextStageIndex; i++)
-        {
-            await snapToCenter.SnapRightOne();
-        }
+        snapToCenter.SettingAtIndex(nextStageIndex);
     }
 }

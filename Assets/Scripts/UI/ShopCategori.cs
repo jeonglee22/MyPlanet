@@ -60,22 +60,43 @@ public class ShopCategori : MonoBehaviour
 
     private void RefreshDailyShopData(Action<(int, int, int, GameObject)> onButtonClick)
     {
+        var currentShopData = UserShopItemManager.Instance.BuyedShopItemData;
+        var boughtItems = currentShopData.dailyShop;
+
         var currentItems = new List<int>();
         var beforeItems = new List<Transform> {buttonsContainers[3], buttonsContainers[4], buttonsContainers[5]};
-        beforeItems.Remove(beforeItems[UnityEngine.Random.Range(0, beforeItems.Count)]);
+        
         for(int i = 3; i < buttonsContainers.Length; i++)
         {
+            if (!boughtItems[i])
+            {
+                beforeItems.Add(buttonsContainers[i]);
+            }
+        }
+
+        if(beforeItems.Count > 0)
+        {
+            beforeItems.Remove(beforeItems[UnityEngine.Random.Range(0, beforeItems.Count)]);
+        }
+
+        for(int i = 3; i < buttonsContainers.Length; i++)
+        {
+            if (boughtItems[i])
+            {
+                continue;
+            }
+
             int index = i;
             var dailyBtnObj = buttonsContainers[index].GetChild(0).gameObject;
             var dailyButton = dailyBtnObj.GetComponent<DailyButton>();
 
-            var currentShopData = UserShopItemManager.Instance.BuyedShopItemData;
             currentShopData.dailyShop[dailyButton.ButtonIndex] = false;
-            UserShopItemManager.Instance.SaveUserShopItemDataAsync(currentShopData).Forget();
 
             dailyButton.RefreshObj(index, onButtonClick, beforeItems, currentItems);
             currentItems.Add(dailyButton.RandomRewardId);
         }
+
+        UserShopItemManager.Instance.SaveUserShopItemDataAsync(currentShopData).Forget();
     }
 
     private void SetUpDailyShopData(Action<(int, int, int, GameObject)> onButtonClick)

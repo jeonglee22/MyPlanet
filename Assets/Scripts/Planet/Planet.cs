@@ -130,9 +130,12 @@ public class Planet : LivingEntity
     //     MaxExp = DataTableManager.PlanetLevelUpTable.Get(level).Exp;
     // }
 
-    private void Start()
+    private async UniTaskVoid Start()
     {
         ApplyPlanetVisual();
+
+        await UniTask.WaitUntil(() => PlanetStatManager.Instance != null && PlanetStatManager.Instance.IsInitialized);
+
         ApplyPlanetStats();
     }
 
