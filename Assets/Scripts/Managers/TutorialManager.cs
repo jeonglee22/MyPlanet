@@ -63,19 +63,19 @@ public class TutorialManager : MonoBehaviour
         tutorialData[1] = new List<TutorialTextData>
         {
           new TutorialTextData("행성은 궤도를 따라 자동으로 공전합니다.", TutorialPoint.CenterMidium),
-          new TutorialTextData("화면 터치 시 나타나는 조이스틱으로 행성을 자유롭게 움직일 수 있습니다.", TutorialPoint.CenterMidium),
-          new TutorialTextData("요격 타워를 1개 이상 배치했다면 행성이 자동으로 공격합니다.", TutorialPoint.CenterMidium)
+          new TutorialTextData("화면 터치 시 나타나는 조이스틱으로\n행성을 자유롭게 움직일 수 있습니다.", TutorialPoint.CenterMidium),
+          new TutorialTextData("요격 타워를 1개 이상 배치했다면\n행성이 자동으로 공격합니다.", TutorialPoint.CenterMidium)
         };
         tutorialData[2] = new List<TutorialTextData>
         {
-          new TutorialTextData("레벨업시, 증강을1개선택할수있습니다", TutorialPoint.TopMidium),
-          new TutorialTextData("각선택지는 1회씩 새로고침할 수 있습니다.", TutorialPoint.CenterMidiumTwo),
-          new TutorialTextData("신규 타워 획득: 랜덤한 능력을 가진 새 타워를 획득할 수 있습니다.", TutorialPoint.BottomBig),
-          new TutorialTextData("기존 타워 강화: 보유한 타워의 능력치를 강화할 수 있습니다.", TutorialPoint.BottomBig)
+          new TutorialTextData("레벨업시, 증강을1개선택할수있습니다.", TutorialPoint.TopMidium),
+          new TutorialTextData("각 선택지는 1회씩 새로고침할 수 있습니다.", TutorialPoint.CenterMidiumTwo),
+          new TutorialTextData("신규 타워 획득: 랜덤한 능력을 가진\n새 타워를 획득할 수 있습니다.", TutorialPoint.BottomBig),
+          new TutorialTextData("기존 타워 강화: 보유한 타워의 능력치를\n강화할 수 있습니다.", TutorialPoint.BottomBig)
         };
         tutorialData[3] = new List<TutorialTextData>
         {
-          new TutorialTextData("신규 타워 획득 시, 원하는 슬롯에 드래그해 설치할 수 있습니다.", TutorialPoint.TopMidium)
+          new TutorialTextData("신규 타워 획득 시, 원하는 슬롯에 드래그해\n설치할 수 있습니다.", TutorialPoint.TopMidium)
         };
         tutorialData[4] = new List<TutorialTextData>
         {
@@ -89,13 +89,13 @@ public class TutorialManager : MonoBehaviour
         //Stage 2
         tutorialData[6] = new List<TutorialTextData>
         {
-          new TutorialTextData("스테이지 시작 시 퀘이사를 1개 보유한 상태로 시작합니다.", TutorialPoint.TopRight),
-          new TutorialTextData("스테이지 진행 중 원하는 시점에 아이콘을 터치해 사용할 수 있습니다.", TutorialPoint.TopRightTwo)
+          new TutorialTextData("스테이지 시작 시 퀘이사를 1개\n보유한 상태로 시작합니다.", TutorialPoint.TopRight),
+          new TutorialTextData("스테이지 진행 중 원하는 시점에\n아이콘을 터치해 사용할 수 있습니다.", TutorialPoint.TopRightTwo)
         };
         tutorialData[7] = new List<TutorialTextData>
         {
           new TutorialTextData("'퀘이사'는 배치 가능한 타워 수를 1개 늘려주거나,", TutorialPoint.TopBigTwo),
-          new TutorialTextData("보유한 타워에 랜덤 능력을 추가할 수 있는 아이템입니다.", TutorialPoint.TopBigTwo)
+          new TutorialTextData("보유한 타워에 랜덤 능력을\n추가할 수 있는 아이템입니다.", TutorialPoint.TopBigTwo)
         };
         tutorialData[8] = new List<TutorialTextData>
         {
@@ -116,7 +116,7 @@ public class TutorialManager : MonoBehaviour
         };
         tutorialData[12] = new List<TutorialTextData>
         {
-          new TutorialTextData("최종 보스를 처치하면 스테이지를 클리어하고 보상을 획득할 수 있습니다.", TutorialPoint.CenterMidium)
+          new TutorialTextData("최종 보스를 처치하면 스테이지를 클리어하고\n보상을 획득할 수 있습니다.", TutorialPoint.CenterMidium)
         };
 
         completedSteps.Clear();
