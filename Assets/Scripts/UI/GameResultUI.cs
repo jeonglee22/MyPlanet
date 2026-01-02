@@ -160,7 +160,6 @@ public class GameResultUI : MonoBehaviour
 
     private void ProcessStageRewardData(StageRewardData rewardData)
     {
-        int waveGold = WaveManager.Instance.AccumulateGold;
         int rewardCount = DataTableManager.StageRewardTable.GetRewardCount(rewardData.StageReward_Id);
         List<(Image, TextMeshProUGUI)> rewardUIList = new List<(Image, TextMeshProUGUI)>();
 
@@ -237,17 +236,21 @@ public class GameResultUI : MonoBehaviour
                     break;
             }
 
-            AddRewardByTargetId(targetId, quantity, i);
-            rewardUIList[i].Item2.text = $"x{quantity}";
+            int actualAmount = AddRewardByTargetId(targetId, quantity, i);
+            rewardUIList[i].Item2.text = $"x{actualAmount}";
         }
         
     }
 
-    private void AddRewardByTargetId(int targetId, int quantity, int index)
+    private int AddRewardByTargetId(int targetId, int quantity, int index)
     {
+        int actualAmount = quantity;
+
         if(targetId == 711101)
         {
-            UserData.Gold += quantity;
+            int waveGold = WaveManager.Instance.TotalAccumulatedGold;
+            actualAmount = quantity + waveGold;
+            UserData.Gold += quantity + waveGold;
             itemImages[index].sprite = LoadManager.GetLoadedGameTexture(DataTableManager.CurrencyTable.Get(targetId).CurrencyIconText);
         }
         else if(targetId == 711201)
@@ -265,6 +268,8 @@ public class GameResultUI : MonoBehaviour
             UserDataMapper.AddItem(targetId, quantity);
             itemImages[index].sprite = LoadManager.GetLoadedGameTexture(DataTableManager.ItemTable.Get(targetId).ItemIconText);
         }
+
+        return actualAmount;
     }
 
     private async UniTask SaveAllDataToFirebase()

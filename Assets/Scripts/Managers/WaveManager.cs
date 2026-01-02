@@ -51,6 +51,7 @@ public class WaveManager : MonoBehaviour
     private int accumulateGold = 0;
     public int AccumulateGold => accumulateGold;
     private int tmpAccumulateGold = 0;
+    public int TotalAccumulatedGold => accumulateGold + tmpAccumulateGold;
 
     public event Action WaveChange;
     public event Action LastBossSpawned;
