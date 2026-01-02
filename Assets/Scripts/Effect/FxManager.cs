@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class FxManager : MonoBehaviour
 {
@@ -11,30 +12,112 @@ public class FxManager : MonoBehaviour
     [Header("Parents")]
     [SerializeField] private Transform worldRoot;         // 없으면 자동 생성
     [SerializeField] private RectTransform uiRoot;        // 없으면 자동 생성
-    [SerializeField] private Canvas uiCanvas;             // ScreenSpaceOverlay면 null 가능
+    [SerializeField] private Canvas uiCanvas;             // 비워도 됨(자동 탐색)
 
     private readonly ObjectPoolManager<FxId, PooledFx> pool = new();
     private readonly Dictionary<FxId, FxCatalog.Entry> map = new();
 
     private void Awake()
     {
-        if (Instance == null) Instance = this;
-        else { Destroy(gameObject); return; }
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
 
         if (worldRoot == null)
         {
             var go = new GameObject("FX_World_Root");
             worldRoot = go.transform;
+            DontDestroyOnLoad(go);
         }
 
         if (uiRoot == null)
         {
             var go = new GameObject("FX_UI_Root", typeof(RectTransform));
             uiRoot = go.GetComponent<RectTransform>();
-            if (uiCanvas != null) uiRoot.SetParent(uiCanvas.transform, false);
+            DontDestroyOnLoad(go);
         }
 
         BuildMap();
+
+        // 씬이 로드될 때마다 Canvas 다시 잡아서 uiRoot를 붙임
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        RebindUIRoot();
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+            Instance = null;
+        }
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        RebindUIRoot();
+    }
+
+    private void RebindUIRoot()
+    {
+        // 1) 인스펙터에 지정된 uiCanvas가 “현재 씬에서도 유효”하면 우선 사용
+        if (uiCanvas == null || !uiCanvas.gameObject.activeInHierarchy || !uiCanvas.enabled)
+        {
+            uiCanvas = FindBestCanvasInLoadedScenes();
+        }
+
+        if (uiCanvas != null)
+        {
+            uiRoot.SetParent(uiCanvas.transform, false);
+            uiRoot.anchorMin = Vector2.zero;
+            uiRoot.anchorMax = Vector2.one;
+            uiRoot.offsetMin = Vector2.zero;
+            uiRoot.offsetMax = Vector2.zero;
+
+            Debug.Log($"[FxManager] UI Root bound to Canvas: {uiCanvas.name} (order={uiCanvas.sortingOrder}, mode={uiCanvas.renderMode})");
+        }
+        else
+        {
+            // Canvas를 못 찾으면 일단 루트는 유지 (PlayUI 때 또 찾도록 할 수도 있음)
+            uiRoot.SetParent(null, false);
+            Debug.LogWarning("[FxManager] No Canvas found. FX_UI_Root is unparented.");
+        }
+    }
+
+    private Canvas FindBestCanvasInLoadedScenes()
+    {
+        // includeInactive=true : 씬에 있는 Canvas 다 찾기
+        var canvases = FindObjectsOfType<Canvas>(true);
+        Canvas best = null;
+        int bestScore = int.MinValue;
+
+        foreach (var c in canvases)
+        {
+            if (c == null) continue;
+            if (!c.enabled || !c.gameObject.activeInHierarchy) continue;
+
+            // 점수 기준: sortingOrder 높은 Canvas 우선
+            int score = c.sortingOrder;
+
+            // 보통 UI는 ScreenSpace가 많으니 살짝 가중치
+            if (c.renderMode == RenderMode.ScreenSpaceOverlay) score += 100000;
+            else if (c.renderMode == RenderMode.ScreenSpaceCamera) score += 50000;
+
+            if (score > bestScore)
+            {
+                bestScore = score;
+                best = c;
+            }
+        }
+
+        return best;
     }
 
     private void BuildMap()
@@ -59,7 +142,6 @@ public class FxManager : MonoBehaviour
             return;
         }
 
-        // prefab에 PooledFx가 꼭 있어야 함
         if (e.prefab.GetComponent<PooledFx>() == null)
         {
             Debug.LogError($"[FxManager] Prefab '{e.prefab.name}' has no PooledFx component. 루트에 PooledFx 붙여줘.");
@@ -78,7 +160,6 @@ public class FxManager : MonoBehaviour
         );
     }
 
-    /// <summary>월드 FX 재생</summary>
     public PooledFx Play(FxId id, Vector3 worldPos, Quaternion rot = default)
     {
         EnsurePool(id);
@@ -88,28 +169,19 @@ public class FxManager : MonoBehaviour
 
         fx.Owner = this;
         fx.PoolKey = id;
-
-        if (map.TryGetValue(id, out var e) && e.isUI)
-        {
-            Debug.LogWarning($"[FxManager] FxId '{id}' is UI FX. Use PlayUI() instead.");
-            fx.transform.SetParent(uiRoot, false);
-            if (fx.transform is RectTransform rt)
-                rt.anchoredPosition = new Vector2(worldPos.x, worldPos.y);
-        }
-        else
-        {
-            fx.transform.SetParent(worldRoot, false);
-            fx.transform.position = worldPos;
-            fx.transform.rotation = (rot == default) ? Quaternion.identity : rot;
-        }
+        fx.transform.SetParent(worldRoot, false);
+        fx.transform.position = worldPos;
+        fx.transform.rotation = (rot == default) ? Quaternion.identity : rot;
 
         return fx;
     }
 
-
-    /// <summary>UI FX 재생 (screenPos: Input.mousePosition 등)</summary>
     public PooledFx PlayUI(FxId id, Vector2 screenPos)
     {
+        // 혹시 씬 전환 직후 Canvas 못 잡았으면 여기서 한번 더
+        if (uiCanvas == null || !uiCanvas.gameObject.activeInHierarchy || !uiCanvas.enabled)
+            RebindUIRoot();
+
         EnsurePool(id);
 
         var fx = pool.Get(id);
@@ -141,12 +213,9 @@ public class FxManager : MonoBehaviour
         return fx;
     }
 
-    /// <summary>PooledFx가 호출하는 Return</summary>
     public void Return(PooledFx fx)
     {
         if (fx == null) return;
-
-        // pool.Return 내부에서 Dispose() + 비활성화 + parent 복귀까지 처리됨
         pool.Return(fx.PoolKey, fx);
     }
 }

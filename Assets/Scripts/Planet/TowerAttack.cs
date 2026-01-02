@@ -250,8 +250,6 @@ public class TowerAttack : MonoBehaviour
         if (lazers == null) return;
         DeleteExistLazers();
     }
-
-
     public void AdddamageDealt(float damage)
     {
         totalDamageDealt += damage;
@@ -374,19 +372,6 @@ public class TowerAttack : MonoBehaviour
         additionalDurationFromUpgrade = (int)additionalDuration;
         projectileCountFromUpgrade = additionalProjectileNum;
         additionalExplosionRangeFromUpgrade = additionalExplosionRange;
-        if (debugUpgradeEffects)
-        {
-            Debug.Log(
-                $"[TowerAttack][ApplyUpgradeEffects] towerIdInt={(towerData != null ? towerData.towerIdInt : -1)} " +
-                $"upgradeLevel={upgradeLevel}\n" +
-                $"  -> damageBuffFromUpgrade(additionalAttack)={damageBuffFromUpgrade:0.###}\n" +
-                $"  -> towerUpgradeFireRateMul(additionalAttackSpeed)={towerUpgradeFireRateMul:0.###}\n" +
-                $"  -> additionalDurationFromUpgrade={additionalDurationFromUpgrade}\n" +
-                $"  -> projectileCountFromUpgrade={projectileCountFromUpgrade}\n" +
-                $"  -> additionalExplosionRangeFromUpgrade={additionalExplosionRangeFromUpgrade:0.###}"
-            );
-        }
-
     }
 
     private void Update()
@@ -453,16 +438,10 @@ public class TowerAttack : MonoBehaviour
             if (target == null || !target.isAlive) continue;
 
             var hs = HitScanPoolManager.Instance != null ? HitScanPoolManager.Instance.Get() : null;
-            if (hs == null)
-            {
-                Debug.LogError("[TowerAttack][HitScan] hs is NULL (pool not ready or prefab not loaded)");
-                continue;
-            }
+            if (hs == null) continue;
             hs.SetHitScan(target as Enemy, hitScanInterval);
         }
     }
-
-
     private void ShootAtTarget()
     {
         Camera cam = Camera.main;
@@ -568,15 +547,9 @@ public class TowerAttack : MonoBehaviour
             var verticalDirection = new Vector3(-baseDirection.y, baseDirection.x, baseDirection.z).normalized;
 
             var direction = new Vector3(baseDirection.x, baseDirection.y, baseDirection.z);
-            Debug.Log($"[LASER][ENTER] tower={name} target={(target as Enemy)?.name} inViewport={inViewport} shotCount={shotCount} remainTime={buffedData?.RemainTime}");
-
             if (towerData.towerIdInt == (int)AttackTowerId.Lazer)
             {
-                Debug.Log($"[LASER][BEFORE_GET] poolMgrNull={(LaserPoolManager.Instance == null)}");
-
                 var lazer = LaserPoolManager.Instance.GetLaser();
-                Debug.Log($"[LASER][GET] instanceNull={(LaserPoolManager.Instance == null)} lazerNull={(lazer == null)} lazerActive={(lazer != null && lazer.gameObject.activeSelf)}");
-
                 lazers.Add(lazer);
 
                 SettingProjectile(projectile, buffedData, baseData, direction, attackType, target);
@@ -599,15 +572,10 @@ public class TowerAttack : MonoBehaviour
                     this,
                     buffedData.RemainTime
                 );
-                Debug.Log($"[LASER][SET] lazerPos={(lazer != null ? lazer.transform.position.ToString() : "null")} towerPos={transform.position} targetPos={(target as Enemy)?.transform.position}");
-
                 isStartLazer = true;
 
                 projectile.gameObject.transform.position = new Vector3(0, -1000f, 0);
                 projectile.gameObject.SetActive(false);
-                Debug.Log($"[LASER][PROJ_OFF] proj={projectile.name} active={projectile.gameObject.activeSelf}");
-
-
                 continue;
             }
 
@@ -638,7 +606,6 @@ public class TowerAttack : MonoBehaviour
             SettingProjectile(projectile, buffedData, baseData, direction, attackType, target);
         }
     }
-
     private List<bool> GetInnerShotCount(int shotCount, float grouping)
     {
         if (grouping <= 0f) return null;
@@ -661,7 +628,6 @@ public class TowerAttack : MonoBehaviour
                 count++;
             }
         }
-
         return innerIndex;
     }
 
@@ -778,7 +744,6 @@ public class TowerAttack : MonoBehaviour
             UnityEngine.Random.Range(-outerAngle, -innerAngle) :
             UnityEngine.Random.Range(innerAngle, outerAngle);
         }
-
         Quaternion rot = Quaternion.Euler(0f, 0f, shootAngle);
         direction = rot * direction;
     }
@@ -856,7 +821,6 @@ public class TowerAttack : MonoBehaviour
 
         abilitiesDirty = true;
     }
-
     public void ClearAmplifierAbilitiesFromSource(TowerAmplifier source)
     {
         if (source == null) return;
@@ -900,8 +864,6 @@ public class TowerAttack : MonoBehaviour
         {
             inst.RemoveAbility(gameObject);
             ownedAppliedInstances.Remove(abilityId);
-            if(debugReinforcedAbility)
-                Debug.Log($"[OwnedAbility][REMOVE] tower={name}, abilityId={abilityId}, amount={inst.UpgradeAmount}");
         }
     }
     private void ApplyOwnedAbilityInstance(int abilityId)
@@ -916,9 +878,6 @@ public class TowerAttack : MonoBehaviour
         inst.ApplyAbility(gameObject);
         inst.Setting(gameObject);
         ownedAppliedInstances[abilityId] = inst;
-
-        if (debugReinforcedAbility)
-            Debug.Log($"[OwnedAbility][APPLY] tower={name}, abilityId={abilityId}, reinforce={ReinforceLevel}, amount={inst.UpgradeAmount}");
     }
     public void RebuildOwnedAbilityCache()
     {
@@ -928,7 +887,6 @@ public class TowerAttack : MonoBehaviour
             ApplyOwnedAbilityInstance(abilityId);
         }
     }
-
     public void ApplyAmplifierAbilityReinforce(TowerAmplifier source, int abilityId, int sourceReinforceLevel)
     {
         if (source == null) return;
@@ -961,7 +919,6 @@ public class TowerAttack : MonoBehaviour
 
         int removeCount = Mathf.Min(count, list.Count);
 
-        // LIFO로 제거 (Apply 순서 역순)
         for (int i = 0; i < removeCount; i++)
         {
             int last = list.Count - 1;
@@ -970,9 +927,6 @@ public class TowerAttack : MonoBehaviour
 
             if (inst != null)
                 inst.RemoveAbility(gameObject);
-
-            if (debugReinforcedAbility && inst != null)
-                Debug.Log($"[AmpAbility][REMOVE] tower={name}, amp={source.name}, abilityId={abilityId}, amount={inst.UpgradeAmount}");
         }
 
         if (list.Count == 0)
@@ -1001,9 +955,6 @@ public class TowerAttack : MonoBehaviour
         }
 
         ampAppliedInstances.Remove(source);
-
-        if (debugReinforcedAbility)
-            Debug.Log($"[AmpAbility][CLEAR_SOURCE] tower={name}, amp={source.name}");
     }
 
     //--------------------------------------------------------
@@ -1180,10 +1131,6 @@ public class TowerAttack : MonoBehaviour
                 reinforceLevel
             );
         }
-        else
-        {
-            Debug.LogWarning("[AtkReinforce] TowerReinforceManager.Instance is null");
-        }
         float finalAttack = (originalProjectileData.Attack + addValue) * reinforceAttackScale;
         finalAttack = Mathf.Max(0f, finalAttack);
         currentProjectileData.Attack = finalAttack;
@@ -1276,8 +1223,6 @@ public class TowerAttack : MonoBehaviour
 
         fireRateAbilitySources.Add(r);
         RecalculateFireRateFromAbility();
-        Debug.Log($"[AddFireRate] ratePercent={ratePercent}, r={r}, before_count={fireRateAbilitySources.Count}");
-
     }
 
     public void RemoveFireRateFromAbilitySource(float ratePercent)
@@ -1290,7 +1235,6 @@ public class TowerAttack : MonoBehaviour
             fireRateAbilitySources.RemoveAt(idx);
             RecalculateFireRateFromAbility();
         }
-        Debug.Log($"[RemoveFireRate] ratePercent={ratePercent}, r={r}, found_idx={idx}, before_count={fireRateAbilitySources.Count}");
     }
 
     private void RecalculateFireRateFromAbility()
@@ -1356,7 +1300,6 @@ public class TowerAttack : MonoBehaviour
             ab.Setting(gameObject);
             appliedSelfAbilities[abilityId] = ab;
         }
-        Debug.Log($"[Reapply] AFTER, fireRateAbilitySources.Count={fireRateAbilitySources.Count}");
     }
 
     //----------------------------------------------------

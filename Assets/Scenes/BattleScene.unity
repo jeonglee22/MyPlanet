@@ -41104,6 +41104,7 @@ GameObject:
   - component: {fileID: 1488899774}
   - component: {fileID: 1488899773}
   - component: {fileID: 1488899775}
+  - component: {fileID: 1488899776}
   m_Layer: 0
   m_Name: TouchManager
   m_TagString: Untagged
@@ -41123,6 +41124,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cb102f35b09ab5468a8e04ad060729b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  debugLog: 1
 --- !u!4 &1488899774
 Transform:
   m_ObjectHideFlags: 0
@@ -41212,6 +41214,22 @@ MonoBehaviour:
   m_DefaultActionMap: UI
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
+--- !u!114 &1488899776
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1488899771}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52bcda74ef941814bb920dbd58119e7a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tapFxId: 3
+  joystickTouchRect: {fileID: 1538163888}
+  ignoreWhenPointerOverUI: 1
+  debugLog: 1
 --- !u!1 &1494209909
 GameObject:
   m_ObjectHideFlags: 0
@@ -42700,6 +42718,11 @@ MonoBehaviour:
 --- !u!1 &1538163887 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4516387260521356823, guid: 859e5f70b2890704093344d374a01339, type: 3}
+  m_PrefabInstance: {fileID: 1288367244}
+  m_PrefabAsset: {fileID: 0}
+--- !u!224 &1538163888 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 8575540856230341104, guid: 859e5f70b2890704093344d374a01339, type: 3}
   m_PrefabInstance: {fileID: 1288367244}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &1538416799

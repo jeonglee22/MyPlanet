@@ -6,7 +6,7 @@ public enum FxId
     Death_FinalBoss,           // Smoke/Fire/Artillery 조합(시퀀스 추천)
 
     // UI (Particles / simple)
-    UI_Tap,                    // Ef_Tap
+    Ef_Tap,                    // UI_Tap
     UI_ButtonPress,            // (확정되면)
     UI_WaveChange,             // (없음 -> 제작 필요)
     UI_NewTowerBadge,          // New! 이펙트
