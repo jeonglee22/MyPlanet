@@ -31,7 +31,8 @@ public class SimpleShotPattern : ShootingPattern
                 direction,
                 owner.atk,
                 shootSpeed,
-                skillData.Duration
+                skillData.Duration,
+                owner
             );
         }
     }

@@ -35,6 +35,8 @@ public class SkillBasedLazer : MonoBehaviour
     protected Transform ownerTransform;
     protected float particleOffsetY;
 
+    protected AudioSource laserAudioSource;
+
     private void Awake()
     {
         lineRenderer = GetComponent<LineRenderer>();
@@ -52,6 +54,7 @@ public class SkillBasedLazer : MonoBehaviour
     private void OnDisable()
     {
         Cancel();
+        StopLaserSound();
 
         if(laserParticle != null)
         {
@@ -63,6 +66,16 @@ public class SkillBasedLazer : MonoBehaviour
     private void OnDestroy()
     {
         Cancel();
+        StopLaserSound();
+    }
+
+    protected void StopLaserSound()
+    {
+        if(laserAudioSource != null && SoundManager.Instance != null)
+        {
+            SoundManager.Instance.StopEnemyLaserLoop(laserAudioSource);
+            laserAudioSource = null;
+        }
     }
 
     protected virtual void Setup()
@@ -208,6 +221,11 @@ public class SkillBasedLazer : MonoBehaviour
         fieldRenderer.enabled = false;
         lineRenderer.enabled = true;
 
+        if(SoundManager.Instance != null && SoundManager.Instance.IsInitialized)
+        {
+            laserAudioSource = SoundManager.Instance.PlayEnemyLaserLoop(transform.position);
+        }
+
         transform.position = startPoint;
 
         if(direction != Vector3.zero)
@@ -290,6 +308,8 @@ public class SkillBasedLazer : MonoBehaviour
             laserParticle.Stop();
             laserParticle.Clear();
         }
+
+        StopLaserSound();
     }
 
     protected virtual bool CheckLazerCollision(float currentLength)
@@ -311,6 +331,25 @@ public class SkillBasedLazer : MonoBehaviour
             IDamagable damagable = hit.collider.GetComponent<IDamagable>();
             if(damagable != null)
             {
+                var planet = damagable as Planet;
+                if (planet != null)
+                {
+                    if (planet.Shield > 0)
+                    {
+                        if (planet.Shield >= damage)
+                        {
+                            planet.Shield -= damage;
+                            damage = 0;
+                        }
+                        else
+                        {
+                            damage -= planet.Shield;
+                            planet.Shield = 0;
+                        }
+                    }
+                    damagable.OnDamage(CalculateTotalDamage(planet.Defense, damage));
+                }
+
                 damagable.OnDamage(damage);
                 hited = true;
             }
@@ -353,5 +392,26 @@ public class SkillBasedLazer : MonoBehaviour
     protected virtual void UpdateLaserWidth(float currentLength)
     {
         
+    }
+
+    public float CalculateTotalDamage(float planetDef, float damage)
+    {
+        if (damage < 0f)
+        {
+            damage = 0f;
+        }
+
+        var enemy = ownerTransform.GetComponent<Enemy>();
+
+        var RatePanetration = Mathf.Clamp(enemy.RatePenetrate, 0f, 100f);
+        // Debug.Log(damage);
+        var totalPlanetDef = planetDef * (1 - RatePanetration / 100f) - enemy.FixedPenetrate;
+        if(totalPlanetDef < 0)
+        {
+            totalPlanetDef = 0;
+        }
+        var totalDamage = damage * 100f / (100f + totalPlanetDef);
+        
+        return totalDamage;
     }
 }

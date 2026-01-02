@@ -31,7 +31,9 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     private float defense;
     private float moveSpeed;
     private float ratePenetration;
+    public float RatePenetrate => ratePenetration;
     private float fixedPenetration;
+    public float FixedPenetrate => fixedPenetration;
     private Vector3 originalScale;
     private float lifeTime = 45f;
     public float LifeTime => lifeTime;
