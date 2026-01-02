@@ -174,7 +174,6 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         {
             return;
         }
-
         DpsCalculator.AddDamage(damage);
 
         base.OnDamage(damage);

@@ -5,6 +5,7 @@ using System.Text;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
+using static UnityEngine.GraphicsBuffer;
 
 public class TowerAttack : MonoBehaviour
 {
@@ -233,19 +234,23 @@ public class TowerAttack : MonoBehaviour
         projectilePoolManager = GameObject
             .FindGameObjectWithTag(TagName.ProjectilePoolManager)
             .GetComponent<ProjectilePoolManager>();
-
-        lazers = new List<LazertowerAttack>();
     }
 
     private void Start()
     {
         planet = GameObject.FindWithTag(TagName.Planet).GetComponent<Planet>();
     }
+    private void OnEnable()
+    {
+        lazers ??= new List<LazertowerAttack>();
+    }
 
     private void OnDisable()
     {
+        if (lazers == null) return;
         DeleteExistLazers();
     }
+
 
     public void AdddamageDealt(float damage)
     {
@@ -421,14 +426,19 @@ public class TowerAttack : MonoBehaviour
 
     private void DeleteExistLazers()
     {
+        if (lazers == null) { isStartLazer = false; return; } 
+
         foreach (var lazer in lazers)
         {
             if (lazer == null) continue;
-
-            lazer?.gameObject.SetActive(false);
+            lazer.Despawn();
         }
+
         lazers.Clear();
+        isStartLazer = false;
     }
+
+
 
     private void StartHitscan(float hitScanInterval)
     {
@@ -436,18 +446,22 @@ public class TowerAttack : MonoBehaviour
             return;
 
         isHitScanActive = true;
-
         targetingSystem.SetAttacking(true);
 
         foreach (var target in targetingSystem.CurrentTargets)
         {
             if (target == null || !target.isAlive) continue;
 
-            var obj = LoadManager.GetLoadedGamePrefab(ObjectName.HitScan);
-            var hitScan = obj.GetComponent<HitScan>();
-            hitScan.SetHitScan(target as Enemy, hitScanInterval);
+            var hs = HitScanPoolManager.Instance != null ? HitScanPoolManager.Instance.Get() : null;
+            if (hs == null)
+            {
+                Debug.LogError("[TowerAttack][HitScan] hs is NULL (pool not ready or prefab not loaded)");
+                continue;
+            }
+            hs.SetHitScan(target as Enemy, hitScanInterval);
         }
     }
+
 
     private void ShootAtTarget()
     {
@@ -554,20 +568,18 @@ public class TowerAttack : MonoBehaviour
             var verticalDirection = new Vector3(-baseDirection.y, baseDirection.x, baseDirection.z).normalized;
 
             var direction = new Vector3(baseDirection.x, baseDirection.y, baseDirection.z);
+            Debug.Log($"[LASER][ENTER] tower={name} target={(target as Enemy)?.name} inViewport={inViewport} shotCount={shotCount} remainTime={buffedData?.RemainTime}");
 
             if (towerData.towerIdInt == (int)AttackTowerId.Lazer)
             {
-                var lazerObj = LoadManager.GetLoadedGamePrefab(ObjectName.Lazer);
-                var lazer = lazerObj.GetComponent<LazertowerAttack>();
+                Debug.Log($"[LASER][BEFORE_GET] poolMgrNull={(LaserPoolManager.Instance == null)}");
+
+                var lazer = LaserPoolManager.Instance.GetLaser();
+                Debug.Log($"[LASER][GET] instanceNull={(LaserPoolManager.Instance == null)} lazerNull={(lazer == null)} lazerActive={(lazer != null && lazer.gameObject.activeSelf)}");
+
                 lazers.Add(lazer);
 
-                projectile.Initialize(
-                    buffedData,
-                    baseData,
-                    direction,
-                    true,
-                    ProjectilePoolManager.Instance.ProjectilePool
-                );
+                SettingProjectile(projectile, buffedData, baseData, direction, attackType, target);
 
                 float baseSize = baseData != null ? baseData.CollisionSize : buffedData.CollisionSize;
                 float finalSize = buffedData.CollisionSize;
@@ -587,10 +599,14 @@ public class TowerAttack : MonoBehaviour
                     this,
                     buffedData.RemainTime
                 );
+                Debug.Log($"[LASER][SET] lazerPos={(lazer != null ? lazer.transform.position.ToString() : "null")} towerPos={transform.position} targetPos={(target as Enemy)?.transform.position}");
+
                 isStartLazer = true;
 
                 projectile.gameObject.transform.position = new Vector3(0, -1000f, 0);
                 projectile.gameObject.SetActive(false);
+                Debug.Log($"[LASER][PROJ_OFF] proj={projectile.name} active={projectile.gameObject.activeSelf}");
+
 
                 continue;
             }

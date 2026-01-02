@@ -35,6 +35,12 @@ public class PlayManager : MonoBehaviour
     {
         if (hasEnded) return;
 
+        if (waveManager == null)
+        {
+            Debug.LogError("[PlayManager] waveManager is NULL. Scene에 WaveManager가 있는지/인스펙터 할당됐는지 확인");
+            return;
+        }
+
         if (waveManager.IsCleared)
         {
             GameClear();
