@@ -20,6 +20,9 @@ public class UserShopItemManager : MonoBehaviour
     private DatabaseReference metaRef;
     [SerializeField] private bool useLocalTimeForTest = false;
 
+    private bool lastResetResult = false;
+    public bool LastResetResult => lastResetResult;
+
     private void Awake()
     {
         if (instance == null)
@@ -245,6 +248,7 @@ public class UserShopItemManager : MonoBehaviour
             buyedShopItemData.buyedItems = new List<BuyItemData>(6);
             for (int i = 0; i < 6; i++) buyedShopItemData.buyedItems.Add(new BuyItemData());
 
+            lastResetResult = true;
             return true;
         }
         catch (System.Exception ex)

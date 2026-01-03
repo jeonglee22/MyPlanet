@@ -50,13 +50,9 @@ public class StoreUI : MonoBehaviour
 
     private async UniTaskVoid Start()
     {
-        await UniTask.WaitUntil(() => CurrencyManager.Instance.IsInitialized && 
-                                        ItemManager.Instance.IsInitialized &&
-                                        UserShopItemManager.Instance.IsInitialized);
+        
 
-        await UserShopItemManager.Instance.LoadUserShopItemDataAsync();
-
-        bool didReset = await UserShopItemManager.Instance.EnsureDailyShopFreshAsync();
+        bool didReset = UserShopItemManager.Instance.LastResetResult;
 
         backBtn.onClick.AddListener(OnBackBtnClicked);
         gachaPanelUI.gameObject.SetActive(false);
