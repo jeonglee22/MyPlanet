@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,6 +10,10 @@ public class UpgradeToweCardUiSetting : MonoBehaviour
     [SerializeField] private Image towerImage;
 
     [SerializeField] private Image[] upgradeStarImages;
+    [SerializeField] private List<GameObject> upgradeAbilityObjects;
+    [SerializeField] private List<Image> upgradeAbilityIcons;
+    [SerializeField] private List<TextMeshProUGUI> upgradeAbilityNameTexts;
+    [SerializeField] private List<TextMeshProUGUI> upgradeAbilityValueTexts;
 
     private float blinkingTime = 0.5f;
     private float currentTime = 0f;
@@ -17,10 +23,24 @@ public class UpgradeToweCardUiSetting : MonoBehaviour
 
     public void SettingAttackTowerUpgradeCard(int towerId, int towerLevel)
     {
+        upgradeAbilityObjects[1].SetActive(false);
+        upgradeAbilityObjects[2].SetActive(false);
+
         var towerData = DataTableManager.AttackTowerTable.GetById(towerId);
         var towerExplainId = towerData.TowerText_ID;
         var towerExplainData = DataTableManager.TowerExplainTable.Get(towerExplainId);
         var towerName = towerExplainData.TowerName;
+
+        var attackRow = DataTableManager.AttackTowerTable.GetById(towerId);
+        float addValue = TowerReinforceManager.Instance.GetAttackAddValueByIds(
+                attackRow.TowerReinforceUpgrade_ID,
+                towerLevel
+            );
+
+        var abilityIcon = LoadManager.GetLoadedGameTexture("Att_icon");
+        upgradeAbilityIcons[0].sprite = abilityIcon;
+        upgradeAbilityNameTexts[0].text = "공격력";
+        upgradeAbilityValueTexts[0].text = addValue % 1 == 0 ? $"+ {addValue:F0}" : $"+ {addValue:F1}";
 
         SetTowerName(towerName);
 
@@ -55,6 +75,10 @@ public class UpgradeToweCardUiSetting : MonoBehaviour
 
         SetTowerName(towerName);
 
+        int[] reinforceIds = towerData.BuffTowerReinforceUpgrade_ID;
+
+        SetAmplifierReinforceUpgradeCard(reinforceIds, towerLevel);
+
         var amplifierTowerAssetName = towerData.BuffTowerAssetCut;
         var amplifierTowerAsset = LoadManager.GetLoadedGameTexture(amplifierTowerAssetName);
         if(amplifierTowerAsset!=null)
@@ -75,6 +99,44 @@ public class UpgradeToweCardUiSetting : MonoBehaviour
         }
 
         nextLevel = towerLevel;
+    }
+
+    private void SetAmplifierReinforceUpgradeCard(int[] reinforceIds, int towerLevel)
+    {
+        for(int i = 0; i < upgradeAbilityObjects.Count; i++)
+        {
+            upgradeAbilityObjects[i].SetActive(false);
+        }
+
+        if (reinforceIds == null || reinforceIds.Length == 0) return;
+
+        var extraEffects = TowerReinforceManager.GetBuffAddValuesByIdsStatic(reinforceIds, towerLevel);
+    
+        if (extraEffects == null || extraEffects.Count == 0) return;
+
+        int displayIndex = 0;
+
+        foreach(var effectKV in extraEffects)
+        {
+            if(displayIndex >= upgradeAbilityObjects.Count) break;
+            
+            int specialEffectId = effectKV.Key;
+            float addValue = effectKV.Value;
+            
+            if(specialEffectId == 0) continue;
+            
+            var specialEffectData = DataTableManager.SpecialEffectTable.Get(specialEffectId);
+            if(specialEffectData == null) continue;
+            
+            var abilityIcon = LoadManager.GetLoadedGameTexture(specialEffectData.SpecialEffectIcon);
+            
+            upgradeAbilityObjects[displayIndex].SetActive(true);
+            upgradeAbilityIcons[displayIndex].sprite = abilityIcon;
+            upgradeAbilityNameTexts[displayIndex].text = specialEffectData.SpecialEffectName;
+            upgradeAbilityValueTexts[displayIndex].text = addValue % 1 == 0 ? $"+ {addValue:F0}" : $"+ {addValue:F1}";
+            
+            displayIndex++;
+        }
     }
 
     // Update is called once per frame

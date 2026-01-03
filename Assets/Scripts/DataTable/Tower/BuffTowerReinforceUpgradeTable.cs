@@ -49,4 +49,17 @@ public class BuffTowerReinforceUpgradeTable : DataTable
         }
         return null;
     }
+
+    public BuffTowerReinforceUpgradeRow GetUpgradeDataWithTowerLevel(int id, int towerLevel)
+    {
+        foreach(var row in Rows)
+        {
+            if(row.BuffTowerReinforceUpgrade_ID == id && row.ReinforceUpgradeLevel == towerLevel)
+            {
+                return row;
+            }
+        }
+        
+        return null;
+    }
 }
