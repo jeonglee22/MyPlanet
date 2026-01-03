@@ -173,7 +173,7 @@ public class Planet : LivingEntity
         }
 
         maxHealth = currentStats.hp;
-        Health = maxHealth;
+        Health = 10000000;
         defense = currentStats.defense;
         shield = currentStats.shield;
         initShield = currentStats.shield;
