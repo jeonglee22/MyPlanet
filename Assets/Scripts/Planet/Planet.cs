@@ -134,7 +134,7 @@ public class Planet : LivingEntity
     {
         ApplyPlanetVisual();
 
-        await UniTask.WaitUntil(() => PlanetStatManager.Instance != null && PlanetStatManager.Instance.IsInitialized);
+        await UniTask.WaitUntil(() => PlanetStatManager.Instance != null && PlanetStatManager.Instance.IsInitialized,cancellationToken: this.GetCancellationTokenOnDestroy()).Timeout(TimeSpan.FromSeconds(5));
 
         ApplyPlanetStats();
     }

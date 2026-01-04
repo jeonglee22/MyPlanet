@@ -39,8 +39,10 @@ public class LobbyUI : MonoBehaviour
     [SerializeField] private Button debugOpenWholeStagesBtn;
     [SerializeField] private Button debugCloseAllStagesBtn;
 
-    private void Start()
+    private async UniTaskVoid Start()
     {
+        await UniTask.WaitUntil(() => UserStageManager.Instance != null && UserStageManager.Instance.IsInitialized);
+
         ResetBtn();
 
         stageContent = stageScrollRect.content;

@@ -10,6 +10,8 @@ public class SettingPanel : MonoBehaviour
     [SerializeField] private Slider sfxSlider;
     [SerializeField] private TextMeshProUGUI bgmText;
     [SerializeField] private TextMeshProUGUI sfxText;
+    [SerializeField] private Button logOutButton;
+    [SerializeField] private Button closeButton;
 
     private float tempBgmVolume;
     private float tempSfxVolume;
@@ -29,6 +31,14 @@ public class SettingPanel : MonoBehaviour
 
         exitBtn.onClick.AddListener(OnExitBtnClicked);
         exitBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+
+        logOutButton.onClick.AddListener(() => OnLogOutButtonClicked());
+
+#if UNITY_EDITOR
+        closeButton?.onClick.AddListener(() => UnityEditor.EditorApplication.isPlaying = false);
+#elif UNITY_ANDROID
+        closeButton?.onClick.AddListener(() => Application.Quit());
+#endif
     }
 
     public void LoadCurrentSettings()
@@ -94,5 +104,22 @@ public class SettingPanel : MonoBehaviour
 
         bgmText.text = $"{Mathf.RoundToInt(bgmVolume * 100f)}";
         sfxText.text = $"{Mathf.RoundToInt(sfxVolume * 100f)}";
+    }
+
+    private void OnLogOutButtonClicked()
+    {
+        InteractableButtons(false);
+
+        AuthManager.Instance.SignOut();
+
+        InteractableButtons(true);
+
+        SceneControlManager.Instance.LoadScene(SceneName.LoginScene).Forget();
+    }
+
+    private void InteractableButtons(bool interactable)
+    {
+        logOutButton.interactable = interactable;
+        closeButton.interactable = interactable;
     }
 }

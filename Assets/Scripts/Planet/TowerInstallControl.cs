@@ -6,6 +6,8 @@ using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 
 public enum TowerInstallType
 {
@@ -121,6 +123,9 @@ public class TowerInstallControl : MonoBehaviour
     [SerializeField] private Button deleteYesButton;
     [SerializeField] private Button deleteNoButton;
     [SerializeField] private TextMeshProUGUI deleteConfirmText;
+    [SerializeField] private GameObject dontDeletePopUpPanel;
+    [SerializeField] private Button dontDeletePopupCloseButton;
+    private CancellationTokenSource deletePopupCts;
 
     [Header("Block Panels")]
     [SerializeField] private UIBlockPanelControl blockPanel;
@@ -170,6 +175,15 @@ public class TowerInstallControl : MonoBehaviour
             deleteNoButton.onClick.AddListener(OnDeleteNo);
         
         SetIsTutorial(TutorialManager.Instance.IsTutorialMode);
+
+        if (dontDeletePopUpPanel != null)
+        {
+            var closeButton = dontDeletePopUpPanel.GetComponentInChildren<Button>();
+            if (closeButton != null)
+            {
+                closeButton.onClick.AddListener(CloseCannotDeletePopup);
+            }
+        }
     }
 
     private void SetPlanetImage()
@@ -229,6 +243,13 @@ public class TowerInstallControl : MonoBehaviour
     {
         SetPlanetSize();
         SettingTowerTransform(currentAngle);
+    }
+
+    private void OnDestroy()
+    {
+        deletePopupCts?.Cancel();
+        deletePopupCts?.Dispose();
+        deletePopupCts = new CancellationTokenSource();
     }
 
     private void SetPlanetSize()
@@ -841,8 +862,7 @@ public class TowerInstallControl : MonoBehaviour
 
         if (attack != null)
         {
-            int attackCount = planet != null ? planet.GetAttackTowerCount() : 0;
-            canShowTrash = attackCount > 1;
+            canShowTrash = true;
         }
         else if (amp != null)
         {
@@ -962,8 +982,15 @@ public class TowerInstallControl : MonoBehaviour
             CleanupDragVisual();  // 여기서 dragSourceIndex는 -1로 초기화되지만 sourceIndex에 이미 저장해둠
 
             // 2) 삭제 확인 팝업 세팅
-            pendingDeleteIndex = sourceIndex;
-            ShowDeleteConfirm();
+            if(planet != null && planet.GetAttackTowerCount() == 1 && assignedTowerDatas[sourceIndex] != null)
+            {
+                ShowCannotDeletePopup();
+            }
+            else
+            {
+                pendingDeleteIndex = sourceIndex;
+                ShowDeleteConfirm();
+            }
 
             Debug.Log($"[TowerInstallControl] Drop on trash from {sourceIndex}");
         }
@@ -1473,5 +1500,46 @@ public class TowerInstallControl : MonoBehaviour
         }
 
         int reinforceLevel = GetSlotReinforceLevel(slotIndex);
+    }
+
+    private void ShowCannotDeletePopup()
+    {
+        if (dontDeletePopUpPanel != null)
+        {
+            dontDeletePopUpPanel.SetActive(true);
+            blockPanel.gameObject.SetActive(true);
+
+            deletePopupCts?.Cancel();
+            deletePopupCts?.Dispose();
+            deletePopupCts = new CancellationTokenSource();
+
+            AutoCloseCannotDeletePopup(deletePopupCts.Token).Forget();
+        }
+    }
+
+    private async UniTask AutoCloseCannotDeletePopup(CancellationToken token)
+    {
+        try
+        {
+            await UniTask.Delay(TimeSpan.FromSeconds(3), ignoreTimeScale: true, cancellationToken: token);
+            CloseCannotDeletePopup();
+        }
+        catch (OperationCanceledException)
+        {
+            
+        }
+    }
+
+    public void CloseCannotDeletePopup()
+    {
+        deletePopupCts?.Cancel();
+        deletePopupCts?.Dispose();
+        deletePopupCts = new CancellationTokenSource();
+        
+        if (dontDeletePopUpPanel != null)
+        {
+            dontDeletePopUpPanel.SetActive(false);
+        }
+        blockPanel.gameObject.SetActive(false);
     }
 }

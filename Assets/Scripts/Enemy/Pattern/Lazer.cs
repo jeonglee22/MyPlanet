@@ -40,11 +40,6 @@ public class Lazer : MonoBehaviour
     private void OnEnable()
     {
         Setup();
-
-        if(SoundManager.Instance != null && SoundManager.Instance.IsInitialized)
-        {
-            laserAudioSource = SoundManager.Instance.PlayEnemyLaserLoop(transform.position);
-        }
     }
 
     private void OnDisable()
@@ -188,8 +183,12 @@ public class Lazer : MonoBehaviour
     private async UniTask AttackPhaseAsync(CancellationToken token)
     {
         fieldRenderer.enabled = false;
-
         lineRenderer.enabled = true;
+
+        if(SoundManager.Instance != null && SoundManager.Instance.IsInitialized)
+        {
+            laserAudioSource = SoundManager.Instance.PlayEnemyLaserLoop(transform.position);
+        }
 
         float elapsedTime = 0f;
         float tickTimer = 0f;
@@ -212,10 +211,7 @@ public class Lazer : MonoBehaviour
 
         lineRenderer.enabled = false;
 
-        if(SoundManager.Instance != null && SoundManager.Instance.IsInitialized)
-        {
-            laserAudioSource = SoundManager.Instance.PlayEnemyLaserLoop(transform.position);
-        }
+        StopLaserSound();
     }
 
     private void CheckLazerCollision()

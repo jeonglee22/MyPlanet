@@ -112,7 +112,7 @@ public class AuthManager : MonoBehaviour
         }
     }
 
-    public async UniTask<(bool, string)> SignInWithGoogleAsync()
+    public async UniTask<(bool, string)> SignInWithGoogleAsync(string nickName = "")
     {
         GoogleSignInUser signResult = null;
 
@@ -131,6 +131,18 @@ public class AuthManager : MonoBehaviour
             Credential credential = GoogleAuthProvider.GetCredential(signResult.IdToken, null);
             var authResult = await auth.SignInWithCredentialAsync(credential).AsUniTask();
             currentUser = authResult;
+
+            var userRef = FirebaseDatabase.DefaultInstance.GetReference(DatabaseRef.UserPlanets);
+            var dataSnapshot = await userRef.Child(UserId).GetValueAsync().AsUniTask();
+
+            if (dataSnapshot.Exists)
+            {
+                this.nickName = dataSnapshot.Child("nickName").Value.ToString();
+            }
+            else
+            {
+                this.nickName = string.IsNullOrEmpty(nickName) ? signResult.DisplayName : nickName;
+            }
 
             await PlanetManager.Instance.ReloadPlanetsForNewUser();
 

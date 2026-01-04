@@ -14,6 +14,13 @@ public class GameInitLoader : MonoBehaviour
         await loadManager.LoadGameTextureAsync(AddressLabel.Texture);
         await loadManager.LoadGameMeshAsync(AddressLabel.Mesh);
         await loadManager.LoadEnemyPrefabAsync();
+
+        await UniTask.WaitUntil(() => CurrencyManager.Instance.IsInitialized && 
+                                        ItemManager.Instance.IsInitialized &&
+                                        UserShopItemManager.Instance.IsInitialized);
+
+        await UserShopItemManager.Instance.LoadUserShopItemDataAsync();
+        await UserShopItemManager.Instance.EnsureDailyShopFreshAsync();
         // await loadManager.LoadGamePrefabAsync(AddressLabel.PoolObject);
     }
 }
