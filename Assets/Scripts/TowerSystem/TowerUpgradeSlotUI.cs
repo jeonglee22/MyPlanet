@@ -2942,7 +2942,7 @@ public class TowerUpgradeSlotUI : MonoBehaviour
     private void SettingNormalStageCards_Shuffled(bool showGold)
     {
         int len = upgradeUIs.Length;
-        int goldIndex = len - 1;
+        const int goldIndex = 2; // 골드 카드 인덱스 고정
 
         for (int i = 0; i < len; i++)
         {
@@ -2996,22 +2996,24 @@ public class TowerUpgradeSlotUI : MonoBehaviour
         List<int> upgradableUniqueByType = BuildUniqueUpgradeSlotsByType(upgradableSlotsAll);
         HashSet<string> pickedUpgradeTypeKeys = new HashSet<string>();
 
+        // 초기 확률 한 번 계산
         GetNewUpgradeProbabilities(out float newProb, out float upgradeProb);
+
         foreach (int cardIdx in cardIndices)
         {
-            bool canUpgrade = upgradableSlotsAll.Count > 0;
-            bool canInstall = CanInstallAny_Strict();
-            bool pickUpgrade;
-            if (canUpgrade && canInstall) pickUpgrade = (Random.value < upgradeProb);
-            else pickUpgrade = canUpgrade;
+            // 각 카드마다 독립적으로 확률 판정
+            bool pickUpgrade = (Random.value < upgradeProb);
+
             if (!pickUpgrade)
             {
+                // 새 타워 설치 카드
                 if (numlist != null && cardIdx < numlist.Count) numlist[cardIdx] = -1;
                 SetUpNewInstallCard(cardIdx, -1, isInitial: true);
                 CacheInitialOptionKey(cardIdx);
                 continue;
             }
 
+            // 업그레이드 카드 시도
             int pickedSlot;
             bool picked = TryPickUpgradeSlot_UniqueType(
                 upgradableUniqueByType,
@@ -3043,12 +3045,12 @@ public class TowerUpgradeSlotUI : MonoBehaviour
             SetUpgradeCardForUsedSlot(cardIdx, pickedSlot, isInitial: true);
             CacheInitialOptionKey(cardIdx);
         }
+
         if (CanShowGoldAtIndex_NormalStage(goldIndex))
         {
             SetupGoldCardUI(goldIndex);
             CacheInitialOptionKey(goldIndex);
         }
-
     }
 
     private bool TryGetUpgradeTypeKey(int slot, out string key)
@@ -3184,7 +3186,9 @@ public class TowerUpgradeSlotUI : MonoBehaviour
 
     private bool CanShowGoldAtIndex_NormalStage(int cardIndex)
     {
-        if (Variables.Stage == 1) return ShouldShowGoldCard_Stage1(); 
-        return (cardIndex == GoldIndex) && ShouldShowGoldCard_NormalStrict();
+        const int goldIndex = 2;
+        if (cardIndex != goldIndex) return false;
+
+        return ShouldShowGoldCard_NormalStrict();
     }
 }
