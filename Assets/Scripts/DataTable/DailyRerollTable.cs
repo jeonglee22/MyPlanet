@@ -64,7 +64,7 @@ public class DailyRerollTable : DataTable
     {
         foreach (var data in dictionary.Values)
         {
-            if (data.Reward_Id == rewardId)
+            if (data.Reward_Id == rewardId && data.WeightType == 2)
             {
                 return data;
             }
