@@ -22,8 +22,10 @@ public class CollectionPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI coreText;
 
     [SerializeField] private GameObject towerPanelObj;
+    [SerializeField] private ScrollRect towerScrollRect;
     [SerializeField] private GameObject towerPanelContent;
     [SerializeField] private GameObject abilityPanelObj;
+    [SerializeField] private ScrollRect abilityScrollRect;
     [SerializeField] private GameObject abilityPanelContent;
 
     [SerializeField] private GameObject towerInfoPanelObj;
@@ -66,6 +68,19 @@ public class CollectionPanel : MonoBehaviour
     private void OnDestroy()
     {
         ResetBtn();
+    }
+
+    private void OnEnable()
+    {
+        if(towerPanelObj.activeSelf && towerScrollRect != null)
+        {
+            towerScrollRect.verticalNormalizedPosition = 1f;
+        }
+        
+        if(abilityPanelObj.activeSelf && abilityScrollRect != null)
+        {
+            abilityScrollRect.verticalNormalizedPosition = 1f;
+        }
     }
 
     private void OnDisable()
