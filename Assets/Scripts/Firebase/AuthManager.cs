@@ -102,6 +102,8 @@ public class AuthManager : MonoBehaviour
             this.nickName = nickName;
 
             await PlanetManager.Instance.ReloadPlanetsForNewUser();
+            await CurrencyManager.Instance.InitializeAfterLogin();
+            await ItemManager.Instance.InitializeAfterLogin();
 
             return true;
         }
@@ -145,6 +147,9 @@ public class AuthManager : MonoBehaviour
             }
 
             await PlanetManager.Instance.ReloadPlanetsForNewUser();
+
+            await CurrencyManager.Instance.InitializeAfterLogin();
+            await ItemManager.Instance.InitializeAfterLogin();
 
             isGoogleSignIn = true;
 

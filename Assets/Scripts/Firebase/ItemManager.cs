@@ -42,6 +42,8 @@ public class ItemManager : MonoBehaviour
 
         Debug.Log("[Items] ItemManager 초기화 완료");
 
+        isInitialized = true;
+
         if(AuthManager.Instance.IsSignedIn)
         {
             InitializeReference();
@@ -58,8 +60,6 @@ public class ItemManager : MonoBehaviour
                 await SaveItemsAsync();
             }
         }
-
-        isInitialized = true;
     }
 
     private void OnDestroy()
@@ -68,6 +68,31 @@ public class ItemManager : MonoBehaviour
         {
             instance = null;
         }
+    }
+
+    public async UniTask InitializeAfterLogin()
+    {
+        if (!AuthManager.Instance.IsSignedIn)
+        {
+            Debug.LogWarning("[Items] 로그인 상태가 아닙니다");
+            return;
+        }
+
+        InitializeReference();
+        
+        var dataSnapshot = await itemsRef.GetValueAsync().AsUniTask();
+
+        if (dataSnapshot.Exists)
+        {
+            await LoadItemsAsync();
+        }
+        else
+        {
+            isDirty = true;
+            await SaveItemsAsync();
+        }
+        
+        Debug.Log("[Items] 로그인 후 초기화 완료");
     }
 
     private void InitializeValidItems()

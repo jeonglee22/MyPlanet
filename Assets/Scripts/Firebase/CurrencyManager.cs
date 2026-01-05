@@ -38,6 +38,8 @@ public class CurrencyManager : MonoBehaviour
 
         await UniTask.WaitUntil(() => AuthManager.Instance != null && AuthManager.Instance.IsInitialized);
 
+        isInitialized = true;
+
         if (AuthManager.Instance.IsSignedIn)
         {
             InitializeReference();
@@ -58,14 +60,47 @@ public class CurrencyManager : MonoBehaviour
                 await SaveCurrencyAsync();
             }
         }
-
-        isInitialized = true;
+        else
+        {
+            if(userCurrencyData == null)
+            {
+                userCurrencyData = new UserCurrencyData();
+            }
+        }
     }
 
     private void InitializeReference()
     {
         string userId = AuthManager.Instance.UserId;
         currencyRef = FirebaseDatabase.DefaultInstance.RootReference.Child("userdata").Child(userId).Child("currency");
+    }
+
+    public async UniTask InitializeAfterLogin()
+    {
+        if(!AuthManager.Instance.IsSignedIn)
+        {
+            Debug.LogError("[Currency] 로그인 필요");
+            return;
+        }
+
+        InitializeReference();
+
+        var dataSnapshot = await currencyRef.GetValueAsync().AsUniTask();
+
+        if(dataSnapshot.Exists)
+        {
+            await LoadCurrencyAsync();
+        }
+        else
+        {
+            if(userCurrencyData == null)
+            {
+                userCurrencyData = new UserCurrencyData();
+            }
+
+            isDirty = true;
+            await SaveCurrencyAsync();
+        }
     }
 
     private void OnDestroy()
