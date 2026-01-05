@@ -49,6 +49,8 @@ public class SceneControlManager : MonoBehaviour
     {
         SoundManager.Instance.StopBGM();
 
+        FxManager.Instance?.ClearAllActiveFx();
+
         loadingCanvas.SetActive(true);
         IsLoading = true;
         // Time.timeScale = 0f;

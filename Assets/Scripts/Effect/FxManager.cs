@@ -218,4 +218,29 @@ public class FxManager : MonoBehaviour
         if (fx == null) return;
         pool.Return(fx.PoolKey, fx);
     }
+
+    public void ClearAllActiveFx()
+    {
+        ClearFxInParent(worldRoot);
+
+        ClearFxInParent(uiRoot);
+    }
+
+    private void ClearFxInParent(Transform parent)
+    {
+        if(parent == null)
+        {
+            return;
+        }
+
+        for(int i = parent.childCount - 1; i >= 0; i--)
+        {
+            var child = parent.GetChild(i);
+            var pooledFx = child.GetComponent<PooledFx>();
+            if(pooledFx != null && child.gameObject.activeSelf)
+            {
+                Return(pooledFx);
+            }
+        }
+    }
 }
