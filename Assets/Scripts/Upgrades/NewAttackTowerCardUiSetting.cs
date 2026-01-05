@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,188 +12,174 @@ public class NewAttackTowerCardUiSetting : MonoBehaviour
     [SerializeField] private GameObject specialAbilityObjectBackground;
     [SerializeField] private GameObject newTowerTextObject;
 
-    [SerializeField] private GameObject randomAbilityObject;
+    [SerializeField] private GameObject randomAbilityObject; // 기존 변수 유지 (지금 코드에선 사용 안 해도 OK)
 
     [SerializeField] private RectTransform contentRoot;
 
-    [SerializeField] private List<GameObject> abilityPanels;
-    [SerializeField] private List<GameObject> selfAbilityPanels;
+    // ✅ 기존에 인스펙터에 이미 연결돼 있는 리스트 그대로 사용
+    [SerializeField] private List<GameObject> abilityPanels;     // "한 줄 능력" 패널들
+    [SerializeField] private List<GameObject> selfAbilityPanels; // "자기 능력" 라벨/배경 등 (있다면)
 
-    void OnEnable()
+    private void OnEnable()
     {
-        specialAbilityObjectBackground.SetActive(true);
-        specialAbilityText.gameObject.SetActive(true);
+        if (specialAbilityObjectBackground != null) specialAbilityObjectBackground.SetActive(true);
+        if (specialAbilityText != null) specialAbilityText.gameObject.SetActive(true);
     }
 
     public void SettingNewTowerCard(int towerId, int ability)
     {
-        foreach (var panel in selfAbilityPanels)
-        {
-            panel.SetActive(false);
-        }
-        foreach (var panel in abilityPanels)
-        {
-            panel.SetActive(false);
-        }
+        HideAllPanels();
 
         var towerData = DataTableManager.AttackTowerTable.GetById(towerId);
-        var towerExplainId = towerData.TowerText_ID;
-        var towerExplainData = DataTableManager.TowerExplainTable.Get(towerExplainId);
-        var towerExplainText = towerExplainData.TowerDescribe;
-        var towerName = towerExplainData.TowerName;
+        if (towerData == null) return;
 
-        SetTowerName(towerName);
-        SetTowerExplain(towerExplainText);
+        var towerExplainData = DataTableManager.TowerExplainTable.Get(towerData.TowerText_ID);
+        if (towerExplainData != null)
+        {
+            SetTowerName(towerExplainData.TowerName);
+            SetTowerExplain(towerExplainData.TowerDescribe);
+        }
 
         var attackTowerAssetName = towerData.AttackTowerAssetCut;
         var attackTowerAsset = LoadManager.GetLoadedGameTexture(attackTowerAssetName);
-        if(attackTowerAsset!=null)
-        {
-            towerImage.sprite = LoadManager.GetLoadedGameTexture(attackTowerAssetName);
-        }
+        if (attackTowerAsset != null && towerImage != null)
+            towerImage.sprite = attackTowerAsset;
 
-        var projectileId = towerData.Projectile_ID;
-        var projectileData = DataTableManager.ProjectileTable.Get(projectileId);
-        var projectileSpecialEffectId = projectileData.ProjectileProperties1_ID;
-
+        // ---- 표시할 "줄" 구성 ----
+        // 0) 투사체 고유 능력(있으면 1줄)
         int startIndex = 0;
 
-        if (projectileSpecialEffectId != 0)
-        {
-            var projectileAbilityData = GetRandomAbilityDataFromTowerId(towerId);
-            var abilityName = projectileAbilityData.RandomAbilityName;
-            var abilityValue = projectileData.ProjectileProperties1Value.ToString();
-            var specialData = DataTableManager.SpecialEffectTable.Get(projectileSpecialEffectId);
-            
-            var firstAbilityPanel = abilityPanels[0];
+        var projectileData = DataTableManager.ProjectileTable.Get(towerData.Projectile_ID);
+        int projectileEffectId = projectileData != null ? projectileData.ProjectileProperties1_ID : 0;
+        float projectileEffectValue = projectileData != null ? projectileData.ProjectileProperties1Value : 0f;
 
-            selfAbilityPanels[0].SetActive(true);
-            firstAbilityPanel.SetActive(true);
-            var selfAbilityTexts = firstAbilityPanel.GetComponentsInChildren<TextMeshProUGUI>();
-            if (selfAbilityTexts.Length != 2)
-                return;
-            
-            var selfAbilityImage = firstAbilityPanel.GetComponentInChildren<Image>();
-            if (selfAbilityImage == null)
-                return;
-            
-            selfAbilityImage.sprite = LoadManager.GetLoadedGameTexture(specialData.SpecialEffectIcon);
-            selfAbilityTexts[0].text = abilityName;
-            selfAbilityTexts[1].text = abilityValue;
+        bool hasProjectileEffect = projectileEffectId != 0;
+
+        // 1) 랜덤 능력(abilityId 1개) 안의 SpecialEffect 1~3 줄
+        var abilityData = DataTableManager.RandomAbilityTable.Get(ability);
+        if (abilityData == null) return;
+
+        int effectCount = 1; // SpecialEffect_ID는 무조건 있다고 가정(없을 수 있으면 체크 추가)
+        if (abilityData.SpecialEffect2_ID.HasValue && abilityData.SpecialEffect2_ID.Value != 0) effectCount++;
+        if (abilityData.SpecialEffect3_ID.HasValue && abilityData.SpecialEffect3_ID.Value != 0) effectCount++;
+
+        // 필요한 패널 수 계산: (투사체 1줄이면 +1) + 랜덤능력 효과 줄 수
+        int neededPanels = (hasProjectileEffect ? 1 : 0) + effectCount;
+
+        EnsureAbilityPanelCount(neededPanels);
+
+        // ---- 실제 UI 채우기 ----
+
+        // 투사체 고유 능력 1줄
+        if (hasProjectileEffect)
+        {
+            // selfAbilityPanels[0]은 "Self Ability" 라벨/배경 같은 용도였던 걸 유지
+            if (selfAbilityPanels != null && selfAbilityPanels.Count > 0 && selfAbilityPanels[0] != null)
+                selfAbilityPanels[0].SetActive(true);
+
+            var panel = abilityPanels[0];
+            if (panel != null)
+            {
+                panel.SetActive(true);
+                FillPanel(panel, projectileEffectId, projectileEffectValue);
+            }
             startIndex = 1;
         }
-        
-        var abilityData = DataTableManager.RandomAbilityTable.Get(ability);
-        var specialEffectName = abilityData.RandomAbilityName;
-        var specialEffectValue = abilityData.SpecialEffectValue;
-        var randomAbilityObj1 = abilityPanels[startIndex];
-        
-        randomAbilityObj1.SetActive(true);
-        var abilityTexts = randomAbilityObj1.GetComponentsInChildren<TextMeshProUGUI>();
-        
-        if (abilityTexts.Length != 2)
-            return;
 
-        var selfAbilityImage1 = randomAbilityObj1.GetComponentInChildren<Image>();
-        if (selfAbilityImage1 == null)
-            return;
+        // 랜덤 능력 효과 1
+        {
+            var panel = abilityPanels[startIndex];
+            panel.SetActive(true);
+            FillPanel(panel, abilityData.SpecialEffect_ID, abilityData.SpecialEffectValue);
+            startIndex++;
+        }
 
-        // selfAbilityImage1.sprite = LoadManager.GetLoadedGameTexture(abilityData.RandomAbilityIcon);
-        var abilityId1 = abilityData.SpecialEffect_ID;
-        var abilityData1 = DataTableManager.SpecialEffectTable.Get(abilityId1);
-        var abilityIcon1 = abilityData1.SpecialEffectIcon;
-        selfAbilityImage1.sprite = LoadManager.GetLoadedGameTexture(abilityIcon1);
+        // 랜덤 능력 효과 2
+        if (abilityData.SpecialEffect2_ID.HasValue && abilityData.SpecialEffect2_ID.Value != 0)
+        {
+            var panel = abilityPanels[startIndex];
+            panel.SetActive(true);
+            FillPanel(panel, abilityData.SpecialEffect2_ID.Value, abilityData.SpecialEffect2Value ?? 0f);
+            startIndex++;
+        }
 
-        abilityTexts[0].text = specialEffectName;
-        abilityTexts[1].text = abilityData1.SpecialEffectValueType == 1 ? $"{specialEffectValue}%" : $"{specialEffectValue}";
-        startIndex++;
-
-        if (!abilityData.SpecialEffect2_ID.HasValue || abilityData.SpecialEffect2_ID.Value == 0) return;
-
-        var specialEffectName2 = abilityData.RandomAbility2Name;
-        var specialEffectValue2 = abilityData.SpecialEffect2Value;
-        var randomAbilityObj2 = abilityPanels[startIndex];
-
-        randomAbilityObj2.SetActive(true);
-        var abilityTexts2 = randomAbilityObj2.GetComponentsInChildren<TextMeshProUGUI>();
-        if (abilityTexts2.Length != 2) return;
-
-        var selfAbilityImage2 = randomAbilityObj1.GetComponentInChildren<Image>();
-        if (selfAbilityImage2 == null)
-            return;
-
-        // selfAbilityImage2.sprite = LoadManager.GetLoadedGameTexture(abilityData.RandomAbilityIcon);
-        var abilityId2 = abilityData.SpecialEffect2_ID.Value;
-        var abilityData2 = DataTableManager.SpecialEffectTable.Get(abilityId2);
-        var abilityIcon2 = abilityData2.SpecialEffectIcon;
-        selfAbilityImage2.sprite = LoadManager.GetLoadedGameTexture(abilityIcon2);
-
-        abilityTexts2[0].text = specialEffectName2;
-        abilityTexts2[1].text = abilityData2.SpecialEffectValueType == 1 ? $"{specialEffectValue2}%" : $"{specialEffectValue2}";
-        startIndex++;
-
-        if (!abilityData.SpecialEffect3_ID.HasValue || abilityData.SpecialEffect3_ID.Value == 0) return;
-
-        var specialEffectName3 = abilityData.RandomAbility3Name;
-        var specialEffectValue3 = abilityData.SpecialEffect3Value;
-        var randomAbilityObj3 = abilityPanels[startIndex];
-
-        randomAbilityObj3.SetActive(true);
-        var abilityTexts3 = randomAbilityObj3.GetComponentsInChildren<TextMeshProUGUI>();
-        if (abilityTexts3.Length != 2)
-            return;
-
-        var selfAbilityImage3 = randomAbilityObj1.GetComponentInChildren<Image>();
-        if (selfAbilityImage3 == null)
-            return;
-
-        // selfAbilityImage3.sprite = LoadManager.GetLoadedGameTexture(abilityData.RandomAbilityIcon);
-        var abilityId3 = abilityData.SpecialEffect3_ID.Value;
-        var abilityData3 = DataTableManager.SpecialEffectTable.Get(abilityId3);
-        var abilityIcon3 = abilityData3.SpecialEffectIcon;
-        selfAbilityImage3.sprite = LoadManager.GetLoadedGameTexture(abilityIcon3);
-
-        abilityTexts3[0].text = specialEffectName3;
-        abilityTexts3[1].text = abilityData3.SpecialEffectValueType == 1 ? $"{specialEffectValue3}%" : $"{specialEffectValue3}";
+        // 랜덤 능력 효과 3
+        if (abilityData.SpecialEffect3_ID.HasValue && abilityData.SpecialEffect3_ID.Value != 0)
+        {
+            var panel = abilityPanels[startIndex];
+            panel.SetActive(true);
+            FillPanel(panel, abilityData.SpecialEffect3_ID.Value, abilityData.SpecialEffect3Value ?? 0f);
+            startIndex++;
+        }
     }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void HideAllPanels()
     {
-        
+        if (selfAbilityPanels != null)
+        {
+            foreach (var p in selfAbilityPanels)
+                if (p != null) p.SetActive(false);
+        }
+
+        if (abilityPanels != null)
+        {
+            foreach (var p in abilityPanels)
+                if (p != null) p.SetActive(false);
+        }
     }
 
-    // Update is called once per frame
-    void Update()
+    // ✅ 인스펙터 수정 없이, 부족하면 "기존 0번 패널"을 복제해서 리스트를 늘림(한 번만 늘어나고 계속 재사용)
+    private void EnsureAbilityPanelCount(int needed)
     {
-        
+        if (needed <= 0) return;
+
+        if (abilityPanels == null || abilityPanels.Count == 0 || abilityPanels[0] == null)
+        {
+            Debug.LogWarning("[NewAttackTowerCardUiSetting] abilityPanels[0] (template) is missing.");
+            return;
+        }
+
+        var template = abilityPanels[0];
+        var parent = template.transform.parent;
+
+        while (abilityPanels.Count < needed)
+        {
+            var clone = Instantiate(template, parent);
+            clone.SetActive(false);
+            abilityPanels.Add(clone);
+        }
+    }
+
+    private void FillPanel(GameObject panel, int effectId, float value)
+    {
+        if (panel == null) return;
+
+        // inactive 포함해서 가져오기 (SetActive(true) 전에 세팅해도 안전)
+        var texts = panel.GetComponentsInChildren<TextMeshProUGUI>(true);
+        var image = panel.GetComponentInChildren<Image>(true);
+
+        var effectData = DataTableManager.SpecialEffectTable.Get(effectId);
+        if (effectData == null) return;
+
+        if (image != null)
+            image.sprite = LoadManager.GetLoadedGameTexture(effectData.SpecialEffectIcon);
+
+        if (texts != null && texts.Length >= 2)
+        {
+            texts[0].text = effectData.SpecialEffectName;
+
+            bool isPercent = effectData.SpecialEffectValueType == 1;
+            texts[1].text = isPercent ? $"{value:0.##}%" : $"{value:0.##}";
+        }
     }
 
     private void SetTowerName(string towerName)
     {
-        towerNameText.text = towerName;
+        if (towerNameText != null) towerNameText.text = towerName;
     }
 
     private void SetTowerExplain(string explain)
     {
-        towerExplainText.text = explain;
-    }
-
-    private void SetSpecialAbility(string abilityName, string abilityValue)
-    {
-        specialAbilityText.text = $"{abilityName} +{abilityValue}";
-    }
-
-    private RandomAbilityData GetRandomAbilityDataFromTowerId(int towerId)
-    {
-        var towerData = DataTableManager.AttackTowerTable.GetById(towerId);
-        var projectileId = towerData.Projectile_ID;
-        var projectileData = DataTableManager.ProjectileTable.Get(projectileId);
-        var projectileSpecialEffectId = projectileData.ProjectileProperties1_ID;
-        var proejctileSpecialEffectData = DataTableManager.SpecialEffectTable.Get(projectileSpecialEffectId);
-        var abilityId = DataTableManager.RandomAbilityTable.GetAbilityIdFromEffectId(projectileSpecialEffectId);
-        var abilityData = DataTableManager.RandomAbilityTable.Get(abilityId);
-
-        return abilityData;
+        if (towerExplainText != null) towerExplainText.text = explain;
     }
 }
