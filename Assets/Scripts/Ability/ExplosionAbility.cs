@@ -23,14 +23,28 @@ public class ExplosionAbility : EffectAbility
         }
 
         var enemy = gameObject.GetComponent<Enemy>();
-        if(enemy != null)
+        if (enemy != null)
         {
-            var obj = LoadManager.GetLoadedGamePrefab(ObjectName.Explosion);
-            obj.transform.position = enemy.transform.position;
-            var explosion = obj.GetComponent<Explosion>();
             float explosionDamageMul = GetExplosionDamageMultiplier();
-            explosion.SetInit(0.01f, upgradeAmount, projectileData, cachedProjectile);
+
+            Explosion explosion = null;
+            if (ExplosionPoolManager.Instance != null)
+            {
+                explosion = ExplosionPoolManager.Instance.Get();
+            }
+            else
+            {
+                var obj = LoadManager.GetLoadedGamePrefab(ObjectName.Explosion);
+                explosion = obj != null ? obj.GetComponent<Explosion>() : null;
+            }
+
+            if (explosion != null)
+            {
+                explosion.transform.position = enemy.transform.position;
+                explosion.SetInit(0.01f, upgradeAmount, projectileData, cachedProjectile, explosionDamageMul);
+            }
         }
+
     }
 
     public override void RemoveAbility(GameObject gameObject)

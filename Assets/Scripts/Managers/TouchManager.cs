@@ -6,6 +6,11 @@ public class TouchManager : MonoBehaviour
     private static TouchManager instance;
     public static TouchManager Instance => instance;
 
+    [Header("Debug")]
+    [SerializeField] private bool debugLog = true;
+    private bool lastTouching;
+    private InputActionPhase lastPhase;
+
     private Vector2 touchPos;
     public Vector2 TouchPos => touchPos;
 
@@ -32,11 +37,19 @@ public class TouchManager : MonoBehaviour
     public void OnUITouchPos(InputAction.CallbackContext context)
     {
         touchPos = context.ReadValue<Vector2>();
+        if (debugLog && (context.phase == InputActionPhase.Started || context.phase == InputActionPhase.Performed))
+        {
+            Debug.Log($"[TouchManager][Pos] phase={context.phase} pos={touchPos} action={context.action?.name} control={context.control?.path}");
+        }
     }   
 
     public void OnUITouchPhase(InputAction.CallbackContext context)
-    {
+    {   //debug
         touchPhase = context.phase;
+        bool asButton = context.ReadValueAsButton();
+        float asFloat = 0f;
+        try { asFloat = context.ReadValue<float>(); } catch { /* action 타입이 float이 아니면 예외 */ }
+
         if (touchPhase == InputActionPhase.Canceled)
         {
             isTouching = false;
@@ -48,6 +61,18 @@ public class TouchManager : MonoBehaviour
 
         if (!context.ReadValueAsButton())
             isTouching = false;
+        //debug
+        if (!asButton)
+            isTouching = false;
+
+        if (debugLog)
+        {
+            Debug.Log(
+                $"[TouchManager][Phase] phase={touchPhase} isTouching={isTouching} " +
+                $"ReadValueAsButton={asButton} ReadValue<float>={asFloat:0.###} " +
+                $"action={context.action?.name} control={context.control?.path}"
+            );
+        }
     }
 
     private void Awake()
@@ -64,6 +89,13 @@ public class TouchManager : MonoBehaviour
 
     private void Update()
     {
+        if (debugLog && (lastTouching != isTouching || lastPhase != touchPhase))
+        {
+            Debug.Log($"[TouchManager][State] isTouching {lastTouching} -> {isTouching}, phase {lastPhase} -> {touchPhase}");
+            lastTouching = isTouching;
+            lastPhase = touchPhase;
+        }
+
         if (!isTouching)
         {
             holdingTimer = 0f;

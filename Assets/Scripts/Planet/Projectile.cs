@@ -270,6 +270,11 @@ public class Projectile : MonoBehaviour , IDisposable
 
             abilityAction?.Invoke(other.gameObject);
 
+            Vector3 hitPos = other.ClosestPoint(transform.position);
+            Quaternion rot = Quaternion.LookRotation(-direction.normalized);
+            FxManager.Instance?.Play(FxId.BasicHit, hitPos, rot);
+
+
             float pierceMul = GetPierceDamageMultiplier();
             float originalMul = damageMultiplier;
 

@@ -211,13 +211,14 @@ public class TowerAmplifier : MonoBehaviour
             }
         }
         appliedAbilityMap.Clear();
+
         foreach (var target in buffedTargets)
         {
             if (target == null) continue;
             target.RemoveAmplifierBuff(amplifierTowerData);
         }
         buffedTargets.Clear();
-        OnBuffTargetsChanged?.Invoke(); 
+        OnBuffTargetsChanged?.Invoke();
     }
 
     private void OnDestroy()
@@ -494,6 +495,7 @@ public class TowerAmplifier : MonoBehaviour
         
         return ability;
     }
+
     public void RebuildSlotIndicesOnly(int newSelfIndex, int towerCount)
     {
         bool hasBuff = buffedSlotIndex != null && buffedSlotIndex.Count > 0;
@@ -511,6 +513,8 @@ public class TowerAmplifier : MonoBehaviour
             buffOffsets.Add(s - oldSelf);
 
         ClearAllbuffs();
+
+        appliedAbilityMap.Clear();
 
         selfIndex = newSelfIndex;
         buffedSlotIndex.Clear();

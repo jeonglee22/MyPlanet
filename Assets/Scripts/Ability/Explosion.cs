@@ -1,6 +1,7 @@
+using System;
 using UnityEngine;
 
-public class Explosion : MonoBehaviour
+public class Explosion : MonoBehaviour, IDisposable
 {
     private float explosionRadius = 1f;
     private Projectile projectile;
@@ -24,6 +25,20 @@ public class Explosion : MonoBehaviour
         explosionCollider = GetComponent<SphereCollider>();
         explosionParticles = GetComponentsInChildren<ParticleSystem>();
     }
+    private void OnEnable()
+    {
+        explosionTimer = 0f;
+        sfxPlayed = false;
+
+        if (explosionCollider != null)
+            explosionCollider.enabled = true;
+
+        if (explosionParticles != null)
+        {
+            foreach (var p in explosionParticles)
+                p.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        }
+    }
 
     public void SetInit(float initRadius, float explosionRadius, ProjectileData projectileData, Projectile projectile, float damageMultiplier = 0.1f)
     {
@@ -33,9 +48,23 @@ public class Explosion : MonoBehaviour
         damage = projectileData.Attack;
         FixedPanetration = projectileData.FixedPenetration;
         RatePanetration = projectileData.RatePenetration;
+        explosionDamageMultiplier = damageMultiplier;
+
+        if (explosionParticles != null)
+        {
+            foreach (var p in explosionParticles)
+            {
+                p.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                p.Play(true);
+            }
+        }
+        PlayExplosionSfxOnce();
+
+        if (explosionCollider != null)
+            explosionCollider.transform.localScale = Vector3.one * this.initRadius;
     }
 
-    private void Start()
+/*    private void Start()
     {
         foreach(var particle in explosionParticles)
         {
@@ -44,9 +73,9 @@ public class Explosion : MonoBehaviour
         PlayExplosionSfxOnce();
         if (explosionRadius < initRadius)
         {
-            Destroy(gameObject);
+            Despawn();
         }
-    }
+    }*/
 
     // Update is called once per frame
     private void Update()
@@ -56,7 +85,7 @@ public class Explosion : MonoBehaviour
         explosionCollider.transform.localScale = new Vector3(initRadius, initRadius, initRadius);
         if(explosionTimer >= explosionTimeInterval)
         {
-            Destroy(gameObject);
+            Despawn();
         }
     }
 
@@ -91,5 +120,27 @@ public class Explosion : MonoBehaviour
         sfxPlayed = true;
 
         SoundManager.Instance.PlayExplosionEffect(gameObject.transform.position);
+    }
+    private void Despawn()
+    {
+        if (ExplosionPoolManager.Instance != null)
+            ExplosionPoolManager.Instance.Return(this);
+        else
+            gameObject.SetActive(false);
+    }
+
+    public void Dispose()
+    {
+        projectile = null;
+        explosionTimer = 0f;
+
+        if (explosionCollider != null)
+            explosionCollider.enabled = true;
+
+        if (explosionParticles != null)
+        {
+            foreach (var p in explosionParticles)
+                p.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        }
     }
 }
