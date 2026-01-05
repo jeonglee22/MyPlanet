@@ -183,6 +183,7 @@ public enum PatternIds
     WhiteHoleSpaceWarmSummon,
     WhiteHoleShoot,
     OortShoot,
+    ConstellationShoot,
     ExplosionEnemy,
 }
 

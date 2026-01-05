@@ -60,6 +60,7 @@ public class PatternManager : MonoBehaviour
         patternDict.Add((int)PatternIds.WhiteHoleShoot, () => new SimpleShotPattern());
         patternDict.Add((int)PatternIds.ExplosionEnemy, () => new ExplosionPattern());
         patternDict.Add((int)PatternIds.OortStarShot, () => new SimpleShotPattern());
+        patternDict.Add((int)PatternIds.ConstellationShoot, () => new SimpleShotPattern());
     }
 
     public IPattern GetPattern(int patternId)
