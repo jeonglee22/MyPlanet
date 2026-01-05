@@ -25,6 +25,8 @@ public class TowerUpgradeUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI chargedDiamondText;
     [SerializeField] private TextMeshProUGUI goldText;
     [SerializeField] private TextMeshProUGUI towerNameText;
+
+    [SerializeField] private ScrollRect towerScrollRect;
     private int totalUpgrade;
     public int TotalUpgrade => totalUpgrade;
 
@@ -53,6 +55,8 @@ public class TowerUpgradeUI : MonoBehaviour
 
         // Update currency texts
         UpdateCurrencyTexts();
+
+        towerScrollRect.verticalNormalizedPosition = 1f;
     }
 
     private void OnTowerUpgradeUIClicked(int index)

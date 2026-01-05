@@ -36,6 +36,8 @@ public class PlanetPanelUI : MonoBehaviour
 
     [SerializeField] private GameObject planetSelectPanel;
 
+    [SerializeField] private ScrollRect planetScrollRect;
+
     private int choosedIndex = -1;
 
     private CancellationTokenSource autoCloseCts;
@@ -100,6 +102,8 @@ public class PlanetPanelUI : MonoBehaviour
         planetInfoPanel.SetActive(false);
 
         RefreshPlanetPanelUI();
+
+        planetScrollRect.verticalNormalizedPosition = 1f;
     }
 
     private void OnDisable()

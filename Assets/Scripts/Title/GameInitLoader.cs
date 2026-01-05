@@ -17,7 +17,8 @@ public class GameInitLoader : MonoBehaviour
 
         await UniTask.WaitUntil(() => CurrencyManager.Instance.IsInitialized && 
                                         ItemManager.Instance.IsInitialized &&
-                                        UserShopItemManager.Instance.IsInitialized);
+                                        UserShopItemManager.Instance.IsInitialized &&
+                                        CollectionManager.Instance.IsInitialized);
 
         await UserShopItemManager.Instance.LoadUserShopItemDataAsync();
         await UserShopItemManager.Instance.EnsureDailyShopFreshAsync();
