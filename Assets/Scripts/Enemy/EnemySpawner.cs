@@ -21,6 +21,9 @@ public class EnemySpawner : MonoBehaviour
 
     private BattleUI battleUI;
 
+    private List<Enemy> instanceEnemyList = new List<Enemy>();
+
+
     private void Start()
     {
         player = GameObject.FindGameObjectWithTag(TagName.Planet).transform;
@@ -281,5 +284,28 @@ public class EnemySpawner : MonoBehaviour
                 enemy.OnLifeTimeOver();
             }
         }
+    }
+
+    public void InstanceEnemySpawn(int enemyId, int quantity, ScaleData scaleData)
+    {
+        for (int i = 0; i < quantity; i++)
+        {
+            Vector3 spawnPos = GetRandomPositionInCircle();
+            var enemy = SpawnEnemyWithScale(enemyId, spawnPos, scaleData);
+            if(enemy != null)
+            {
+                instanceEnemyList.Add(enemy);
+            }
+        }
+    }
+
+    public void InstanceEnemyDespawnAll()
+    {
+        foreach(var enemy in instanceEnemyList)
+        {
+            Destroy(enemy.gameObject);
+        }
+
+        instanceEnemyList.Clear();
     }
 }

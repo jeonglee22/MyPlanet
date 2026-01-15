@@ -7,6 +7,8 @@ public class EnemySpawnTest : MonoBehaviour
     [SerializeField] private int enemyId;
     [SerializeField] TMP_Dropdown enemyDropdown;
 
+    private int spawnCount = 100;
+
     private ScaleData scaleData = new ScaleData()
     {
         HpScale = 1f,
@@ -150,5 +152,21 @@ public class EnemySpawnTest : MonoBehaviour
     {
         SpawnManager.Instance.DespawnAllEnemies();
         spawner.DespawnAllEnemies();
+    }
+
+    public void TestWithPool()
+    {   
+        spawner.SpawnEnemiesWithScale(400102, spawnCount, scaleData);
+    
+    }
+
+    public void TestWithInstance()
+    {
+        spawner.InstanceEnemySpawn(400102, spawnCount, scaleData);
+    }
+
+    public void ClearInstanceEnemies()
+    {
+        spawner.InstanceEnemyDespawnAll();
     }
 }
