@@ -12,12 +12,24 @@ public class PatternExecutor : MonoBehaviour
     private Dictionary<IPattern, int> patternRepeatExecutions = new Dictionary<IPattern, int>();
     private Dictionary<IPattern, float> patternWeights = new Dictionary<IPattern, float>();
 
+    private List<IPattern> availablePatterns = new List<IPattern>();
+    private List<float> weights = new List<float>();
+
     public bool IsPatternLine { get; set; } = false;
 
     private bool isExecutePattern = false;
     private CancellationTokenSource patternCts;
 
     private bool canExecutePattern = false;
+
+    private IPattern currentPattern;
+    private int currentRepeatIndex;
+    private int currentRepeatCount;
+    private float repeatDelayTimer;
+    private float patternDelayTimer;
+    private PatternData currentPatternData;
+    private bool isWaitingRepeatDelay;
+    private bool isWaitingPatternDelay;
 
     private void OnDisable()
     {
@@ -44,9 +56,16 @@ public class PatternExecutor : MonoBehaviour
         patternCooldowns.Clear();
         patternRepeatExecutions.Clear();
         patternWeights.Clear();
+        availablePatterns.Clear();
+        weights.Clear();
         IsPatternLine = false;
 
         isExecutePattern = false;
+
+        currentPattern = null;
+        currentRepeatIndex = 0;
+        isWaitingPatternDelay = false;
+        isWaitingRepeatDelay = false;
 
         Cancel();
     }
@@ -94,8 +113,13 @@ public class PatternExecutor : MonoBehaviour
         patternCooldowns.Clear();
         patternRepeatExecutions.Clear();
         patternWeights.Clear();
+        availablePatterns.Clear();
+        weights.Clear();
 
         isExecutePattern = false;
+        currentPattern = null;
+        isWaitingPatternDelay = false;
+        isWaitingRepeatDelay = false;
     }
 
     private void Update()
@@ -116,16 +140,67 @@ public class PatternExecutor : MonoBehaviour
             return;
         }
 
-        foreach(var pattern in patterns)
+        if(isExecutePattern)
         {
-            pattern.PatternUpdate();
+            HandlePatternExecution();
+            return;
         }
 
-        foreach (var pattern in patterns)
+        bool hasHealthPercentagePattern = false;
+        IPattern healthPercentagePattern = null;
+
+        bool hasOrbitReachedPattern = false;
+        IPattern orbitReachedPattern = null;
+
+        availablePatterns.Clear();
+        weights.Clear();
+
+        float deltaTime = Time.deltaTime;
+
+        for(int i = 0; i < patterns.Count; i++)
         {
-            if(pattern.Trigger == ExecutionTrigger.Immediate)
+            var pattern = patterns[i];
+
+            pattern.PatternUpdate();
+
+            if(pattern.Trigger == ExecutionTrigger.Immediate && !isExecutePattern)
             {
                 ExecutePatternAsync(pattern, patternCts.Token).Forget();
+                continue;
+            }
+
+            if(patternCooldowns.TryGetValue(pattern, out float cooldown))
+            {
+                if(cooldown > 0f)
+                {
+                    patternCooldowns[pattern] -= deltaTime;
+                    continue;
+                }
+            }
+
+            if(!pattern.CanExecute())
+            {
+                continue;
+            }
+
+            if(pattern.Trigger == ExecutionTrigger.OnOrbitReached)
+            {
+                hasOrbitReachedPattern = true;
+                orbitReachedPattern = pattern;
+                break;
+            }
+
+            if(pattern.Trigger == ExecutionTrigger.OnHealthPercentage)
+            {
+                hasHealthPercentagePattern = true;
+                healthPercentagePattern = pattern;
+                break;
+            }
+
+            availablePatterns.Add(pattern);
+            if(patternWeights.TryGetValue(pattern, out float weight))
+            {
+                weights.Add(weight);
             }
         }
 
@@ -134,49 +209,37 @@ public class PatternExecutor : MonoBehaviour
             return;
         }
 
-        //Can execute patterns
-        List<IPattern> availablePatterns = new List<IPattern>();
-        List<float> weights = new List<float>();
-
-        bool hasHealthPercentagePattern = false;
-        IPattern healthPercentagePattern = null;
-
-        bool hasOrbitReachedPattern = false;
-        IPattern orbitReachedPattern = null;
-
-        foreach(var pattern in patterns)
-        {
-            if (patternCooldowns.ContainsKey(pattern) && patternCooldowns[pattern] > 0f)
-            {
-                patternCooldowns[pattern] -= Time.deltaTime;
-            }
-
-            if(patternCooldowns[pattern] <= 0f && pattern.CanExecute())
-            {
-                if(pattern.Trigger == ExecutionTrigger.OnOrbitReached)
-                {
-                    hasOrbitReachedPattern = true;
-                    orbitReachedPattern = pattern;
-                    break;
-                }
-
-                if(pattern.Trigger == ExecutionTrigger.OnHealthPercentage)
-                {
-                    hasHealthPercentagePattern = true;
-                    healthPercentagePattern = pattern;
-                    break;
-                }
-
-                availablePatterns.Add(pattern);
-
-                weights.Add(patternWeights[pattern]);
-            }
-        }
-
         IPattern selectedPattern = hasOrbitReachedPattern ? orbitReachedPattern : hasHealthPercentagePattern ? healthPercentagePattern : SelectPatternWeight(availablePatterns, weights);
         if(selectedPattern != null)
         {
             ExecutePatternAsync(selectedPattern, patternCts.Token).Forget();
+        }
+    }
+
+    private void HandlePatternExecution()
+    {
+        float deltaTIme = Time.deltaTime;
+
+        if(isWaitingRepeatDelay)
+        {
+            repeatDelayTimer -= deltaTIme;
+            if(repeatDelayTimer <= 0f)
+            {
+                isWaitingRepeatDelay = false;
+                ExecutePatternStep();
+            }
+            return;
+        }
+        
+        if(isWaitingPatternDelay)
+        {
+            patternDelayTimer -= deltaTIme;
+            if(patternDelayTimer <= 0f)
+            {
+                isWaitingPatternDelay = false;
+                FinishPattern();
+            }
+            return;
         }
     }
 
@@ -191,6 +254,35 @@ public class PatternExecutor : MonoBehaviour
     public void OnPatternLine()
     {
         IsPatternLine = true;
+    }
+
+    private void ExecutePattern(IPattern pattern)
+    {
+        if(!patternRepeatExecutions.ContainsKey(pattern))
+        {
+            return;
+        }
+
+        var patternData = pattern.GetPatternData();
+        if(patternData == null)
+        {
+            return;
+        }
+
+        currentPattern = pattern;
+        currentPatternData = patternData;
+        currentRepeatCount = patternRepeatExecutions[pattern];
+        currentRepeatIndex = 0;
+        isExecutePattern = true;
+
+        if(pattern.RequireAsync)
+        {
+            ExecutePatternAsync(pattern, patternCts.Token).Forget();
+        }
+        else
+        {
+            ExecutePatternStep();
+        }
     }
 
     private async UniTaskVoid ExecutePatternAsync(IPattern pattern, CancellationToken token)
@@ -252,6 +344,55 @@ public class PatternExecutor : MonoBehaviour
         {
             isExecutePattern = false;
         }
+    }
+
+    private void ExecutePatternStep()
+    {
+        if(currentPattern == null || currentPatternData == null)
+        {
+            isExecutePattern = false;
+            return;
+        }
+
+        currentPattern.Execute();
+        currentRepeatIndex++;
+
+        if(currentRepeatIndex >= currentRepeatCount)
+        {
+            if(currentPatternData.PatternDelay > 0f)
+            {
+                isWaitingPatternDelay = true;
+                patternDelayTimer = currentPatternData.PatternDelay;
+            }
+            else
+            {
+                FinishPattern();
+            }
+        }
+        else
+        {
+            if(currentPatternData.RepeatDelay > 0f)
+            {
+                isWaitingRepeatDelay = true;
+                repeatDelayTimer = currentPatternData.RepeatDelay;
+            }
+            else
+            {
+                ExecutePatternStep();
+            }
+        }
+    }
+
+    private void FinishPattern()
+    {
+        if(currentPattern != null && patternCooldowns.ContainsKey(currentPattern))
+        {
+            patternCooldowns[currentPattern] = currentPatternData.Cooltime;
+        }
+
+        currentPattern = null;
+        currentPatternData = null;
+        isExecutePattern = false;
     }
 
     private PatternData GetPatternData(IPattern pattern)

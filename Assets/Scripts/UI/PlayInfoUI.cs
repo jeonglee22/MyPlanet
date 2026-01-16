@@ -30,6 +30,6 @@ public class PlayInfoUI : MonoBehaviour
 
     private void SetFpsText(float deltaTime)
     {
-        fpsText.text = $"FPS: {Mathf.RoundToInt(1f / deltaTime)}";
+        fpsText.SetText("FPS: {0:0}", 1.0f / deltaTime);
     }
 }
