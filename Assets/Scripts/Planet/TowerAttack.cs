@@ -224,6 +224,10 @@ public class TowerAttack : MonoBehaviour
     private float totalDamageDealt = 0f;
     public float TotalDamageDealt => totalDamageDealt;
 
+    private List<ITargetable> validTargets = new List<ITargetable>();
+    private Dictionary<int, int> abilityCountMap = new Dictionary<int, int>();
+    private HashSet<int> processedAbilities = new HashSet<int>();
+
     //-------------------------------------------------------
     private void Awake()
     {
@@ -231,14 +235,12 @@ public class TowerAttack : MonoBehaviour
 
         if (firePoint == null) firePoint = transform;
 
-        projectilePoolManager = GameObject
-            .FindGameObjectWithTag(TagName.ProjectilePoolManager)
-            .GetComponent<ProjectilePoolManager>();
+        projectilePoolManager = ProjectilePoolManager.Instance;
     }
 
     private void Start()
     {
-        planet = GameObject.FindWithTag(TagName.Planet).GetComponent<Planet>();
+        planet = Variables.PlanetObject;
     }
     private void OnEnable()
     {
@@ -460,7 +462,6 @@ public class TowerAttack : MonoBehaviour
 
         var targets = targetingSystem.CurrentTargets;
 
-        List<ITargetable> validTargets = new List<ITargetable>();
         if (targets != null)
         {
             foreach (var t in targets)
@@ -681,15 +682,12 @@ public class TowerAttack : MonoBehaviour
             return;
         }
 
-        Dictionary<int, int> abilityCountMap = new Dictionary<int, int>();
         foreach (var abilityId in Abilities)
         {
             if (!abilityCountMap.ContainsKey(abilityId))
                 abilityCountMap[abilityId] = 0;
             abilityCountMap[abilityId]++;
         }
-
-        HashSet<int> processedAbilities = new HashSet<int>();
 
         foreach (var abilityId in Abilities)
         {

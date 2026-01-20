@@ -8,6 +8,9 @@ public class ChaseMovement : IMovement
 
     private int enemyType;
 
+    private Vector3 lastDirection;
+    private const float DIRECTION_THRESHOLD = 0.01f;
+
     public void Initialize(Enemy owner)
     {
         isPatternLine = false;
@@ -31,7 +34,12 @@ public class ChaseMovement : IMovement
         }
 
         Vector3 chaseDirection = (target.position - ownerTransform.position).normalized;
-        ownerTransform.LookAt(ownerTransform.position + chaseDirection);
+
+        if((chaseDirection - lastDirection).sqrMagnitude > DIRECTION_THRESHOLD)
+        {
+            ownerTransform.LookAt(ownerTransform.position + chaseDirection);
+            lastDirection = chaseDirection;
+        }
 
         return chaseDirection;
     }

@@ -78,6 +78,9 @@ public class WaveManager : MonoBehaviour
         ResetWave();
         Variables.Reset();
         accumulateGold = 0;
+
+        Variables.CenterStoneObject = GameObject.FindGameObjectWithTag(TagName.CenterStone).transform;
+        Variables.PlanetObject = GameObject.FindGameObjectWithTag(TagName.Planet).GetComponent<Planet>();
     }
 
     private void Start()

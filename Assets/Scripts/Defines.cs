@@ -343,6 +343,9 @@ public static class Variables
     public static Enemy MiddleBossEnemy {get; set;} = null;
     public static GameObject TestBossEnemyObject {get; set;} = null;
 
+    public static Planet PlanetObject {get; set;} = null;
+    public static Transform CenterStoneObject {get; set;} = null;
+
     public static void Reset()
     {
         Quasar = 1;

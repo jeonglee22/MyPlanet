@@ -48,6 +48,8 @@ public class EnemyStatusUI : MonoBehaviour
         }
 
         canvasOffset = new Vector3(0f, -(radius + 0.1f), 0f);
+
+        canvas.enabled = false;
     }
 
     private void LateUpdate()
@@ -70,26 +72,20 @@ public class EnemyStatusUI : MonoBehaviour
         {
             battleUI?.SetBossHp(enemy.Data.EnemyTextName, enemy.Health, enemy.MaxHealth);
         }
-
-        enemy = GetComponentInParent<Enemy>();
-        enemy.HpDecreseEvent += HpValueChanged;
-        enemy.DamageEvent += MakeDamagePopup;
     }
 
     private void OnDisable()
     {
         hpSlider.gameObject.SetActive(false);
+    }
 
+    private void OnDestroy()
+    {
         if(enemy != null)
         {
             enemy.HpDecreseEvent -= HpValueChanged;
             enemy.DamageEvent -= MakeDamagePopup;
         }
-    }
-
-    private void OnDestroy()
-    {
-        
     }
 
     private void HpValueChanged(float hp)
@@ -100,6 +96,7 @@ public class EnemyStatusUI : MonoBehaviour
         }
         else
         {
+            canvas.enabled = true;
             hpSlider.gameObject.SetActive(true);
             hpSlider.value = hp / enemy.MaxHealth;
         }

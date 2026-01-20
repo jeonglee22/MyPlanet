@@ -21,8 +21,8 @@ public class DropItem : MonoBehaviour
     //
     protected virtual void Start()
     {
-        planet = GameObject.FindWithTag(TagName.Planet)?.GetComponent<Planet>();
-        centerStone = GameObject.FindWithTag(TagName.CenterStone)?.GetComponent<Transform>();
+        planet = Variables.PlanetObject;
+        centerStone = Variables.CenterStoneObject;
         initPos = transform.position;
         if (planet == null)
             return;

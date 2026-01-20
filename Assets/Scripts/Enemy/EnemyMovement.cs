@@ -31,18 +31,24 @@ public class EnemyMovement : MonoBehaviour
 
     private void Start()
     {
-        centerStone = GameObject.FindGameObjectWithTag(TagName.CenterStone).transform;
+        if(centerStone == null)
+        {
+            centerStone = Variables.CenterStoneObject;
+        }
+
+        if(target == null)
+        {
+            target = Variables.PlanetObject.transform;
+        }
+
+        if(owner == null)
+        {
+            owner = GetComponent<Enemy>();
+        }
     }
 
     void OnEnable()
     {
-        if(target == null)
-        {
-            target = GameObject.FindGameObjectWithTag(TagName.Planet).transform;
-        }
-
-        owner = gameObject.GetComponent<Enemy>();
-
         isDebuff = false;
         isDirectionSet = false;
         debuffTime = 0f;
@@ -90,6 +96,11 @@ public class EnemyMovement : MonoBehaviour
         initMoveSpeed = speed;
         spawnPointIndex = spawnIndex;
         isDirectionSet = false;
+
+        if(owner == null)
+        {
+            owner = GetComponent<Enemy>();
+        }
 
         currentMovement = movement;
         currentMovement?.Initialize(owner);
@@ -158,6 +169,9 @@ public class EnemyMovement : MonoBehaviour
         }
     }
 
+    float normalizedX = 0f;
+    float normalizedY = 0f;
+    float ellipseValue = 0f;
     private void CheckOrbitReached()
     {
         if (hasReachedOribt)
@@ -167,9 +181,9 @@ public class EnemyMovement : MonoBehaviour
 
         Vector3 relativePos = transform.position - centerStone.position;
 
-        float normalizedX = relativePos.x / orbitXAxisLimit;
-        float normalizedY = relativePos.y / orbitYAxisLimit;
-        float ellipseValue = (normalizedX * normalizedX) + (normalizedY * normalizedY);
+        normalizedX = relativePos.x / orbitXAxisLimit;
+        normalizedY = relativePos.y / orbitYAxisLimit;
+        ellipseValue = (normalizedX * normalizedX) + (normalizedY * normalizedY);
 
         if(ellipseValue <= 1f)
         {

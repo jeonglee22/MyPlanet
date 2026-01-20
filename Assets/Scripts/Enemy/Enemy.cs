@@ -77,19 +77,22 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     private bool hasReachedOrbit = false;
     public bool HasReachedOrbit { get => hasReachedOrbit; set => hasReachedOrbit = value; }
 
+    private void Awake()
+    {
+        movement = GetComponent<EnemyMovement>();
+        patternExecutor = GetComponent<PatternExecutor>();
+    }
+
     private void Start()
     {
         SetIsTutorial(TutorialManager.Instance?.IsTutorialMode ?? false);
 
-        planet = GameObject.FindWithTag(TagName.Planet).GetComponent<Planet>();
+        planet = Variables.PlanetObject;
     }
 
     protected override void OnEnable()
     {
         base.OnEnable();
-
-        movement = GetComponent<EnemyMovement>();
-        patternExecutor = GetComponent<PatternExecutor>();
 
         movement?.Initialize(moveSpeed, -1, enemyType, movement.CurrentMovement);
         patternExecutor?.Initialize(this);
@@ -115,8 +118,6 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         {
             patternExecutor.ClearPatterns();
         }
-        
-        movement = null;
 
         OnCollisionDamageCalculate = null;
 
@@ -222,11 +223,6 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
                 if(drop is QuasarItem && (enemyType != 3 || Variables.LastBossEnemy != null))
                 {
                     continue;
-                }
-
-                if(drop is QuasarItem)
-                {
-                    UnityEngine.Debug.Log("Drop Quasar");
                 }
 
                 var dropInstance = Instantiate(drop, transform.position, Quaternion.identity);
@@ -360,7 +356,9 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         maxHealth = data.Hp * scaleData.HpScale;
         Health = maxHealth;
 
+#if UNITY_EDITOR
         Debug.Log($"Initializing Enemy ID: {enemyId}, Type: {enemyType}, HP: {maxHealth}");
+#endif
 
         attack = data.Attack * scaleData.AttScale;
         defense = data.Defense * scaleData.DefScale;

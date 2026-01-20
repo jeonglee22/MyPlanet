@@ -11,6 +11,9 @@ public class FollowParentMovement : IMovement
 
     private int enemyType;
 
+    private Vector3 lastDirection;
+    private const float DIRECTION_THRESHOLD = 0.01f;
+
     public void Initialize(Enemy owner)
     {
         if(!isInitialized)
@@ -31,7 +34,12 @@ public class FollowParentMovement : IMovement
 
         Vector3 targetPosition = parentTransform.position + localOffset;
         Vector3 direction = targetPosition - ownerTransform.position;
-        ownerTransform.LookAt(ownerTransform.position + direction);
+        
+        if((direction.normalized - lastDirection).sqrMagnitude > DIRECTION_THRESHOLD)
+        {
+            ownerTransform.LookAt(ownerTransform.position + direction.normalized);
+            lastDirection = direction.normalized;
+        }
 
         return direction;
     }
