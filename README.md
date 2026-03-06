@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="128" height="128" alt="MyPlanet" src="https://github.com/user-attachments/assets/86bb7145-005b-4fe8-bbbf-2924012736a7" />  
+  <img width="1536" height="350" alt="Myplanet banner2" src="https://github.com/user-attachments/assets/7fd7a636-c3b9-44a7-ab8a-876d220f08c9" />
 </p>
 
 # 🎮 MyPlanet
@@ -81,5 +81,6 @@
 | IDE             | Visual Studio        |
 | Version Control | Git / GitHub         |
 | Other Tool      | Firebase             |
+
 
 
