@@ -39,34 +39,69 @@
 
 ---
 
-## 주요 기능 및 시스템
+## 프로젝트 스트립트 폴더 구조
 
-###  Tower / Planet (Player)
+```text
+Assets/
+└── Scripts/
+    ├── Ability/                # 버프 시스템
+    ├── AsyncRaid/              # 비동기 레이드 관련 로직
+    ├── BalanceTest/            # 밸런스 테스트용 기능
+    ├── DataTable/              # 데이터 테이블
+    │   ├── GatchaAndItems/     # 가챠 및 아이템 데이터
+    │   └── Tower/              # 타워 데이터 테이블
+    ├── Effect/                 # 이펙트 관련 처리
+    ├── Enemy/
+    │   ├── Movement/           # 적 이동 로직
+    │   ├── Pattern/            # 적 패턴 로직
+    │   └── Test/               # 적 테스트용 코드
+    ├── Firebase/               # Firebase 관련 시스템
+    ├── Interface/              # 인터페이스 정의
+    ├── Item/                   # 드롭 아이템
+    ├── Managers/               # 매니저 클래스
+    ├── Planet/                 # 행성 및 타워 작동 관련
+    ├── Title/                  # 타이틀 씬 관련
+    ├── TowerSystem/            # 각 타워 시스템
+    │   ├── PriortyStrategy/    # 타겟 우선순위 전략
+    │   ├── TargetingSystem/    # 타겟팅 시스템
+    │   └── TowerData/
+    │       ├── AmplifierTowerData/   # 증폭 타워 데이터 및 SO
+    │       ├── AttackTowerData/      # 공격 타워 데이터 및 SO
+    │       ├── PriorityStrategyData/ # 우선순위 전략 데이터
+    │       └── RangeData/            # 사거리 데이터
+    ├── UI/
+    │   └── UIAnimator/         # UI 애니메이션 처리
+    └── Upgrades/               # 증강 시스템
+```
 
-* 행성 이동(조이스틱 컨트롤 기반) 시스템
-* 공격타워, 버프타워 등 다양한 타워 시스템
+---
 
-### Enemy
+## 담당 기능 및 시스템
 
-* 다양한 패턴과 행동을 가진 적들
-* 웨이브 기반 적 등장 시스템
+###  타워 및 행성 관련 시스템
 
-### In-Game Play Systems
+| 구현 기능 | 관련 링크 |
+| --- | --- |
+| 행성 이동 기능 | [PlayerMove](Assets/Scripts/PlayerMove.cs) |
+| 타워 버프 시스템 | [Ability](Assets/Scripts/Ability) |
 
-* 추가 강화 아이템
-* 레벨업 및 증강 선택지 시스템
-* 데미지 통계 기능
-* 타워 배치 수정 기능
+### 전투 시스템
 
-### Other Systems
+| 구현 기능 | 관련 링크 |
+| --- | --- |
+| 비동기 레이드 전투 구현 | [AsyncRaid](Assets/Scripts/AsyncRaid) |
+| 퀘이사 아이템 구현 | [PowerUpItem](Assets/Scripts/TowerSystem/PowerUpItemControlUI.cs) |
 
-* 타워 기본 능력치 강화 시스템
-* 도감 기능
-* 상점 기능
-* 플레이 행성 강화 기능
-* 뽑기 기능
-* Firebase기반 계정관리 시스템
-* 다양한 조작 UI
+###  게임 외부 시스템
+
+| 구현 기능 | 관련 링크 |
+| --- | --- |
+| 타워 강화 시스템 구현 | [LobbyTowerUpgrade](Assets/Scripts/Upgrades/LobbyTowerUpgrade.cs) |
+| 상점 시스템 구현 | [StoreUI](Assets/Scripts/UI/StoreUI.cs) |
+| 로그인 기능 구현 | [AuthManager](Assets/Scripts/Firebase/AuthManager.cs) |
+| 터치 관련 매니져 구현 | [TouchManager](Assets/Scripts/Managers/TouchManager.cs)  |
+| 밸런스 테스트 툴 제작 | [BalanceWindow](Assets/Editor/BalanceWindow.cs) |
+| UI 배치 | Unity Scene |
 
 ---
 
@@ -81,6 +116,7 @@
 | IDE             | Visual Studio        |
 | Version Control | Git / GitHub         |
 | Other Tool      | Firebase             |
+
 
 
 
